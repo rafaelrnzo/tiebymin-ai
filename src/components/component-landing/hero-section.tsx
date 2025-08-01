@@ -1,11 +1,19 @@
-import React from "react";
+import {
+  Gem,
+  Hourglass,
+  Snowflake,
+  Sparkle,
+  UserRoundSearch,
+} from "lucide-react";
 import Image from "next/image";
-import { Gem, Hourglass, Star, Snowflake, ShoppingBag } from "lucide-react";
 import { Card } from "../ui/card";
 
 export const HeroSection = () => {
   return (
-    <main className="relative w-full bg-[radial-gradient(ellipse_at_center,_#FFC8D8,_#EE769A)] -mt-20 pt-28 pb-16 overflow-hidden">
+    <main
+      className="relative w-full -mt-20 pt-28 pb-16 overflow-hidden 
+             bg-cover bg-center bg-[url('/noise.png')]"
+    >
       <div className="container mx-auto px-4 z-20 relative">
         <div className="text-center">
           <h1 className="text-[62px] lg:text-[128px] font-bold text-white tracking-tight">
@@ -22,10 +30,9 @@ export const HeroSection = () => {
           <Image
             src="/hero-model.png"
             alt="AI Fashion Model"
-            width={891}
-            height={893}
+            width={520}
+            height={520}
             priority
-            className="object-contain object-bottom w-[450px] h-auto md:w-[650px] lg:w-[891px]"
           />
         </div>
 
@@ -35,64 +42,66 @@ export const HeroSection = () => {
             <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col justify-between p-4">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <p className="text-[20px] text-[#33333] font-semibold">
-                    Yasmin
+                  <p className="text-[22px] text-[#33333] font-semibold">
+                    Diamond
                   </p>
                   <p className="text-[12px]">Hasil Analisa Wajah</p>
                 </div>
-                <Gem className="h-8 w-8 bg-[#EC7498] p-1 rounded-lg text-white" />
+                <Gem className="h-[2.5rem] w-[2.5rem] bg-[#EC7498] p-2 rounded-lg text-white" />
               </div>
-              <p className="text-[9px] my-2">
-                bentuk wajah dengan tulang pipi yang lebar dan menonjol, dahi
-                dan rahang yang lebih sempit, serta dagu yang cenderung lancip
-                atau runcing.
-              </p>
+              <div className="flex flex-col gap-2">
+                <p className="text-[16px] text-[#33333] font-semibold">
+                  Fakta Unik
+                </p>
+                <div className="flex flex-col items-center bg-[#FFE5ED] rounded-md p-4">
+                  <p className="text-[12px] font-bold">Hanya 5–8% Manusia</p>
+                  <p className="text-[10px]">Yang memiliki bentuk wajah ini</p>
+                </div>
+              </div>
               <div className="flex flex-col">
                 <p className="text-[20px] text-[#33333] font-semibold">
-                  Bentuk Diamond
+                  Penjelasan
                 </p>
-                <p className="text-[9px]">
-                  Berarti kamu cocok pakai gaya hijab yang lebih longgar di
-                  bagian dagu untuk memberikan keseimbangan bentuk wajah yang
-                  sempurna.
+                <p className="text-[12.5px]">
+                  Berarti kamu cocok pakai hijab yang lebih longgar di bagian
+                  dagu untuk memberikan keseimbangan.
                 </p>
               </div>
             </Card>
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col justify-between p-4">
+            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col p-4">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
-                  <p className="text-[20px] text-[#33333] font-semibold">
+                  <p className="text-[22px] text-[#33333] font-semibold">
                     Cool Winter
                   </p>
                   <p className="text-[12px]">Hasil Analisa Kulit</p>
                 </div>
-                <Snowflake className="h-8 w-8 bg-[#EC7498] text-white p-1 rounded-md" />
+                <Snowflake className="h-[2.5rem] w-[2.5rem] bg-[#EC7498] p-2 rounded-lg text-white" />
               </div>
-              <p className="text-[9px] my-2">
-                Ini berarti kulitmu memiliki undertone dingin dengan hint biru
-                atau pink yang memberikan kesan elegan dan kontras tinggi.
-              </p>
-              <div className="flex flex-col">
-                <p className="text-[20px] text-[#33333] font-semibold">
+              <div className="flex flex-col gap-2">
+                <p className="text-[16px] text-[#33333] font-semibold">
                   Warna Terbaik
                 </p>
                 <div className="flex gap-0.5">
-                  <div className="bg-sky-500 h-2 w-full"></div>
-                  <div className="bg-red-500 h-2 w-full"></div>
-                  <div className="bg-amber-500 h-2 w-full"></div>
-                  <div className="bg-pink-500 h-2 w-full"></div>
-                  <div className="bg-green-500 h-2 w-full"></div>
+                  <div className="bg-[#94E1E7] h-12 w-full"></div>
+                  <div className="bg-[#F2CEDA] h-12 w-full"></div>
+                  <div className="bg-[#B58FFF] h-12 w-full"></div>
+                  <div className="bg-[#4C7BFF] h-12 w-full"></div>
+                  <div className="bg-[#1A347E] h-12 w-full"></div>
                 </div>
+                <p className="text-[16px] text-[#33333] font-semibold">
+                  Hindari Warna Ini
+                </p>
                 <div className="flex gap-0.5 mt-0.5">
-                  <div className="bg-slate-900 h-2 w-full"></div>
-                  <div className="bg-stone-900 h-2 w-full"></div>
-                  <div className="bg-blue-900 h-2 w-full"></div>
-                  <div className="bg-zinc-900 h-2 w-full"></div>
-                  <div className="bg-purple-900 h-2 w-full"></div>
+                  <div className="bg-[#E2E97B] h-12 w-full"></div>
+                  <div className="bg-[#FF714D] h-12 w-full"></div>
+                  <div className="bg-[#D85636] h-12 w-full"></div>
+                  <div className="bg-[#AD2300] h-12 w-full"></div>
+                  <div className="bg-[#9A4732] h-12 w-full"></div>
                 </div>
               </div>
             </Card>
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col justify-between p-4">
+            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[1.7rem] p-4 rounded-xl">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[20px] text-[#33333] font-semibold">
@@ -100,53 +109,66 @@ export const HeroSection = () => {
                   </p>
                   <p className="text-[12px]">Hasil Analisa Tubuh</p>
                 </div>
-                <Hourglass className="h-8 w-8 bg-[#EC7498] text-white p-1 rounded-md" />
+                <Hourglass className="h-[2.5rem] w-[2.5rem] bg-[#EC7498] p-2 rounded-lg text-white" />
               </div>
-              <p className="text-[9px] my-2">
-                Proporsi pinggang yang lebih kecil dibandingkan bahu dan
-                pinggul. Bentuk ini sangat feminin dan seimbang.
-              </p>
               <div className="flex flex-col">
                 <p className="text-[20px] text-[#33333] font-semibold">
                   Karakteristik Utama
                 </p>
                 <div className="flex flex-col">
-                  <p className="text-[9px]">
+                  <p className="text-[12px]">
                     • Bahu dan pinggul memiliki lebar yang sama
                   </p>
-                  <p className="text-[9px]">
+                  <p className="text-[12px]">
                     • Pinggang terlihat jelas dan ramping
-                  </p>
-                  <p className="text-[9px]">
-                    • Proporsi tubuh cenderung simetris dan elegan
                   </p>
                 </div>
               </div>
+              <div className="flex flex-col">
+                <p className="text-[20px] text-[#33333] font-semibold">
+                  BMI Index
+                </p>
+                <div className="w-full ">
+                  <div className="relative">
+                    <div className="h-[35px] w-full bg-gradient-to-r from-sky-400 via-cyan-300 via-green-400 via-yellow-300 to-red-500" />
+                    <div className="absolute" style={{ left: "28%" }}>
+                      <div className="absolute -top-9 h-[4rem] w-0.5 -translate-x-1/2 transform bg-black" />
+                      <div className="absolute top-full mt-2 -translate-x-1/2 transform">
+                        <div className="whitespace-nowrap rounded-full bg-[#DFF7E5] px-3 py-1 text-[10px] font-medium text-black shadow">
+                          52.2 (Normal)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Card>
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col justify-between p-4">
+            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[2.5rem] p-4 rounded-xl">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[20px] text-[#33333] font-semibold">
                     Dewi Sandra
                   </p>
-                  <p className="text-[12px]">Selebriti yang Mirip Kamu</p>
-                </div>
-                <div className="flex flex-col rounded-lg bg-[#EC7498] p-1">
-                  <p className="text-[14px] text-white font-bold">97%</p>
-                  <p className="text-[8px] text-white text-center font-semibold">
-                    cocok
+                  <p className="text-[12px] text-gray-500">
+                    Selebriti yang Mirip Kamu
                   </p>
                 </div>
+                <UserRoundSearch className="h-[2.5rem] w-[2.5rem] bg-[#EC7498] p-2 rounded-lg text-white" />
               </div>
-              <Image
-                src="/dewisandra.png"
-                alt="rec1"
-                width={500}
-                height={500}
-                className="w-full h-auto object-contain mt-2"
-              />
+              <div className="relative mt-3">
+                <Image
+                  src="/dewisandra.png"
+                  alt="Dewi Sandra"
+                  width={500}
+                  height={500}
+                  className="w-full h-auto object-contain rounded-lg"
+                />
+                <div className="absolute top-2 left-2 rounded-full bg-[#EF789B] px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                  97% Cocok
+                </div>
+              </div>
             </Card>
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col justify-between p-4">
+            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[2.5rem] p-4 rounded-xl">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[20px] text-[#33333] font-semibold">
@@ -154,7 +176,7 @@ export const HeroSection = () => {
                   </p>
                   <p className="text-[12px]">Produk Terbaik Untuk Kamu</p>
                 </div>
-                <ShoppingBag className="h-8 w-8 bg-[#EC7498] text-white p-1 rounded-md" />
+                <Sparkle className="h-[2.5rem] w-[2.5rem] bg-[#EC7498] p-2 rounded-lg text-white" />
               </div>
               <Image
                 src="/hero-grid.png"

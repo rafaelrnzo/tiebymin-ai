@@ -17,13 +17,10 @@ export function Navbar() {
   const rightNavLinks = [{ href: "/testimoni", label: "Testimoni" }];
 
   return (
-    // Kontainer pembungkus untuk membuat efek 'mengambang' dan 'sticky'
     <div className="sticky top-4 z-50 w-full px-4 lg:px-8">
       <header className="rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          {/* === Bagian Kiri (Link Desktop & Menu Mobile) === */}
           <div className="flex items-center flex-1">
-            {/* Pemicu Menu Mobile */}
             <div className="lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
@@ -76,7 +73,7 @@ export function Navbar() {
                 src="/tiebymin-logo.png" // Pastikan path ini sesuai
                 alt="Tiebymin Logo"
                 width={120} // Sesuaikan lebar logo
-                height={28} // Sesuaikan tinggi logo
+                height={28}
                 priority
               />
             </Link>
@@ -92,10 +89,7 @@ export function Navbar() {
                 Testimoni
               </Link>
             </nav>
-            <Button
-              variant="outline"
-              className="rounded-lg border-white text-white hover:bg-white hover:text-black transition-colors"
-            >
+            <Button className="rounded-full bg-[#EF789B] text-white hover:bg-white hover:text-black transition-colors">
               <WandSparkles className="mr-2 h-4 w-4" />
               Coba sekarang
             </Button>

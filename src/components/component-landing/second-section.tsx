@@ -58,17 +58,17 @@ export const SecondSection = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-[#FFE5ED] p-4 rounded-md flex flex-col justify-center items-center aspect-square">
                 <p className="text-3xl lg:text-4xl font-bold text-[#EF789B]">
-                  97,3%
+                  {"<"}3m
                 </p>
-                <p className="text-sm text-[#EF789B] mt-1 text-center">
-                  Akurasi AI
+                <p className="text-[24px] text-[#EF789B] mt-1 text-center">
+                  Hasil Selesai
                 </p>
               </div>
               <div className="bg-[#FFE5ED] p-4 rounded-md flex flex-col justify-center items-center aspect-square">
                 <p className="text-3xl lg:text-4xl font-bold text-[#EF789B]">
                   100%
                 </p>
-                <p className="text-sm text-[#EF789B] mt-1 text-center">
+                <p className="text-[24px] text-[#EF789B] mt-1 text-center">
                   Buatan Lokal
                 </p>
               </div>
