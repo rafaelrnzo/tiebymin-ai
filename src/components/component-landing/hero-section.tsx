@@ -6,40 +6,53 @@ import {
   UserRoundSearch,
 } from "lucide-react";
 import Image from "next/image";
-import { Card } from "../ui/card";
+import { Button } from "../ui/button";
 
 export const HeroSection = () => {
   return (
     <main
-      className="relative w-full -mt-20 pt-28 pb-16 overflow-hidden 
+      className="relative w-full -mt-24 pt-28 pb-16 overflow-hidden 
              bg-cover bg-center bg-[url('/noise.png')]"
     >
       <div className="container mx-auto px-4 z-20 relative">
-        <div className="text-center">
-          <h1 className="font-serif text-[64px] lg:text-[128px] font-bold text-white tracking-tight">
+        <div className="text-center pt-12 lg:pt-0">
+          <h1 className="font-serif text-[64px] translate-y-12 lg:text-[128px] font-bold text-white tracking-tight">
             AI Temukan
             <br />
             <div className="flex text-center gap-4 justify-center lg:justify-evenly items-center">
-              <span className="block mt-2 lg:mr-[12rem]">Gaya</span>
-              <span className="block mt-2 lg:mr-[4rem]">Kamu</span>
+              <span className="block lg:mt-2 lg:mr-[12rem]">Gaya</span>
+              <span className="block lg:mt-2 lg:mr-[4rem]">Kamu</span>
             </div>
           </h1>
+          <div className="absolute top-[21rem] left-0 right-0 mx-10 flex justify-center gap-4 visible lg:invisible">
+            <Button
+              size="lg"
+              className="rounded-full bg-[#EF789B] text-white text-[20px] py-6 border-0"
+            >
+              <p>Coba Sekarang</p>
+            </Button>
+            <Button
+              size="lg"
+              className="rounded-full border text-[20px] py-[1.4rem]"
+            >
+              <p>Cara Kerja AI</p>
+            </Button>
+          </div>
         </div>
 
-        <div className="absolute inset-x-0 -bottom-16 lg:-bottom-24 flex justify-center z-10">
+        <div className="absolute inset-x-0 -bottom-24 lg:-bottom-[7rem] hidden lg:flex justify-center z-10">
           <Image
             src="/hero-model.png"
             alt="AI Fashion Model"
-            width={520}
-            height={520}
+            width={560}
+            height={560}
             priority
-            className="invisible lg:visible"
+            className="hidden lg:block w-[700px] h-[700px] lg:mb-0 lg:w-[560px] lg:h-[850px]"
           />
         </div>
-
-        <div className="relative z-20 mt-10 lg:mt-24">
-          <div className="flex flex-row gap-4 overflow-x-auto snap-x snap-mandatory lg:overflow-visible pb-4">
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-6 p-4">
+        <div className="relative z-20 mt-[12rem] lg:mt-28">
+          <div className="flex flex-row gap-4 overflow-x-auto snap-x snap-mandatory lg:overflow-visible pt-4">
+            <div className="bg-white mt-4 border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col justify-between p-4 rounded-xl">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[22px] text-[#33333] font-semibold">
@@ -49,17 +62,17 @@ export const HeroSection = () => {
                 </div>
                 <Gem className="h-[2.5rem] w-[2.5rem] bg-[#EC7498] p-2 rounded-lg text-white" />
               </div>
-              <div className="flex flex-col gap-2">
-                <p className="text-[20px] text-[#33333] font-semibold">
+              <div className="flex flex-col gap-2 mt-6">
+                <p className="text-[16px] mt-2 text-[#33333] font-semibold">
                   Fakta Unik
                 </p>
-                <div className="flex flex-col items-center bg-[#FFE5ED] rounded-md p-4">
+                <div className="flex flex-col items-center bg-[#FFE5ED] rounded-md px-4 py-2">
                   <p className="text-[16px] font-bold">Hanya 5–8% Manusia</p>
-                  <p className="text-[16px]">Yang memiliki bentuk wajah ini</p>
+                  <p className="text-[12px]">Yang memiliki bentuk wajah ini</p>
                 </div>
               </div>
               <div className="flex flex-col">
-                <p className="text-[20px] text-[#33333] font-semibold">
+                <p className="text-[16px] my-2 text-[#33333] font-semibold">
                   Penjelasan
                 </p>
                 <p className="text-[12.5px]">
@@ -67,8 +80,8 @@ export const HeroSection = () => {
                   dagu untuk memberikan keseimbangan.
                 </p>
               </div>
-            </Card>
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col p-4">
+            </div>
+            <div className="bg-white mt-4 border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[1.7rem] p-4 rounded-xl">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[22px] text-[#33333] font-semibold">
@@ -100,8 +113,8 @@ export const HeroSection = () => {
                   <div className="bg-[#9A4732] h-12 w-full"></div>
                 </div>
               </div>
-            </Card>
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[1.7rem] p-4 rounded-xl">
+            </div>
+            <div className="bg-white mt-4 border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[1.7rem] p-4 rounded-xl">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[20px] text-[#33333] font-semibold">
@@ -112,7 +125,7 @@ export const HeroSection = () => {
                 <Hourglass className="h-[2.5rem] w-[2.5rem] bg-[#EC7498] p-2 rounded-lg text-white" />
               </div>
               <div className="flex flex-col">
-                <p className="text-[20px] text-[#33333] font-semibold">
+                <p className="text-[16px] text-[#33333] font-semibold">
                   Karakteristik Utama
                 </p>
                 <div className="flex flex-col">
@@ -125,7 +138,7 @@ export const HeroSection = () => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <p className="text-[20px] text-[#33333] font-semibold">
+                <p className="text-[16px] mb-3 text-[#33333] font-semibold">
                   BMI Index
                 </p>
                 <div className="w-full ">
@@ -142,8 +155,8 @@ export const HeroSection = () => {
                   </div>
                 </div>
               </div>
-            </Card>
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[2.5rem] p-4 rounded-xl">
+            </div>
+            <div className="bg-white mt-4 border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[1.7rem] p-4 rounded-xl">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[20px] text-[#33333] font-semibold">
@@ -167,8 +180,8 @@ export const HeroSection = () => {
                   97% Cocok
                 </div>
               </div>
-            </Card>
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[2.5rem] p-4 rounded-xl">
+            </div>
+            <div className="bg-white mt-4 border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-[1.7rem] p-4 rounded-xl">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[20px] text-[#33333] font-semibold">
@@ -185,7 +198,7 @@ export const HeroSection = () => {
                 height={500}
                 className="w-full h-auto object-contain mt-2"
               />
-            </Card>
+            </div>
           </div>
         </div>
       </div>

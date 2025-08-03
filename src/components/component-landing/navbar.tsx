@@ -1,71 +1,88 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, WandSparkles } from "lucide-react";
+import { Menu, Sparkle, X } from "lucide-react";
+import { useState } from "react";
 
 export function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
   const navLinks = [
-    { href: "/overview", label: "Overview" },
-    { href: "/ai", label: "AI" },
+    { href: "/overview", label: "Overview AI" },
     { href: "/tutorial", label: "Tutorial" },
     { href: "/faq", label: "FAQ" },
   ];
 
-  const rightNavLinks = [{ href: "/testimoni", label: "Testimoni" }];
+  const testimoniLink = { href: "/testimoni", label: "Testimoni" };
+
+  const closeSheet = () => setIsOpen(false);
 
   return (
     <div className="mx-auto sticky top-4 z-50 w-full px-4 lg:px-8">
-      <header className="mx-auto rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
-        <div className="container mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6">
-          <div className="flex items-center flex-1">
-            <div className="lg:hidden">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:bg-gray-700"
-                  >
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Buka menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="left"
-                  className="bg-[#1c1c1c] text-white border-r-gray-800 w-[250px] sm:w-[300px]"
-                >
-                  <nav className="flex flex-col space-y-4 pt-6">
-                    {[...navLinks, ...rightNavLinks].map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        className="text-lg font-medium text-gray-300 hover:text-white"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-                  </nav>
-                </SheetContent>
-              </Sheet>
-            </div>
-
-            {/* Link Desktop */}
-            <nav className="hidden lg:flex items-center space-x-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
+      <header className="relative rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
+        <div className="flex justify-between items-center py-3 px-6">
+          <div className="hidden lg:flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-[18px] font-medium hover:text-gray-300 transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
-          {/* === Bagian Tengah (Logo Gambar) === */}
-          <div className="flex justify-center">
+          <div className="lg:hidden">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-gray-700"
+                >
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="left"
+                className="bg-[#333333] text-white border-gray-600"
+              >
+                <div className="flex flex-col space-y-6 mt-8 ml-5">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="text-lg font-medium hover:text-gray-300 transition-colors"
+                      onClick={closeSheet}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                  <Link
+                    href={testimoniLink.href}
+                    className="text-lg font-medium hover:text-gray-300 transition-colors"
+                    onClick={closeSheet}
+                  >
+                    {testimoniLink.label}
+                  </Link>
+                  <Button
+                    size="lg"
+                    className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-fit"
+                    onClick={closeSheet}
+                  >
+                    <Sparkle className="w-4 h-4 text-white" />
+                    <span>Coba Sekarang</span>
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          <div className="flex-1 flex justify-center lg:flex-none">
             <Link href="/">
               <Image
                 src="/tiebymin-logo.png"
@@ -73,23 +90,35 @@ export function Navbar() {
                 width={120}
                 height={28}
                 priority
+                className="h-7 w-auto"
               />
             </Link>
           </div>
 
-          {/* === Bagian Kanan (Testimoni & Tombol CTA) === */}
-          <div className="flex items-center justify-end flex-1 space-x-6">
-            <nav className="hidden lg:flex items-center">
-              <Link
-                href="/testimoni"
-                className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
-              >
-                Testimoni
-              </Link>
-            </nav>
-            <Button className="rounded-full bg-[#EF789B] text-white hover:bg-white hover:text-black transition-colors">
-              <WandSparkles className="mr-2 h-4 w-4" />
-              Coba sekarang
+          <div className="hidden lg:flex items-center gap-6">
+            <Link
+              href={testimoniLink.href}
+              className="text-[18px] font-medium hover:text-gray-300 transition-colors"
+            >
+              {testimoniLink.label}
+            </Link>
+            <Button
+              size="lg"
+              className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2"
+            >
+              <Sparkle className="w-4 h-4 text-white" />
+              <span className="hidden sm:inline">Coba Sekarang</span>
+              <span className="sm:hidden">Coba Sekarang</span>
+            </Button>
+          </div>
+
+          <div className="lg:hidden">
+            <Button
+              size="sm"
+              className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-1 px-3"
+            >
+              <Sparkle className="w-3 h-3 text-white" />
+              <span className="text-xs">Coba Sekarang</span>
             </Button>
           </div>
         </div>

@@ -37,21 +37,20 @@ const faqItems = [
   },
 ];
 
-// Komponen untuk seksi FAQ
 const FaqSection = () => {
   return (
-    <section className="bg-white py-16 sm:py-24">
+    <section className="bg-white">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-36 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-36 gap-6 items-center">
           <div className="flex flex-col gap-6">
             <p className="text-[16px] text-[#EC7498]">
               Siapa Yang Cocok Menggunakan Tiebymin AI
             </p>
             <div>
-              <h2 className="font-serif text-[60px] md:text-4xl font-bold text-gray-900 mt-2">
+              <h2 className="font-serif text-[30px] lg:text-[60px] font-bold text-gray-900 mt-2">
                 Sempurna Untuk Semua <br /> Pecinta Fashion!
               </h2>
-              <p className="mt-4 text-gray-600 text-[20px]">
+              <p className="mt-4 text-gray-600 text-[16px] lg:text-[20px]">
                 Apakah Kamu Seorang Pemula Atau Antusias Fashion, AI Ini Akan
                 Memberikan Rekomendasi Yang Mudah Dan Cepat.
               </p>
@@ -78,23 +77,22 @@ const FaqSection = () => {
                 </AccordionItem>
               ))}
             </Accordion>
-
             <Button
               size="lg"
-              className="bg-[#EC7498] hover:bg-pink-700 text-white rounded-full self-start text-[24px]"
+              className="bg-[#EC7498] text-white font-semibold rounded-full px-6 py-3 self-start text-[16px]"
             >
-              <span>Coba Analisis</span>
+              Coba Analisis
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
 
           <div>
             <Image
-              src="/faq-image.png" // GANTI DENGAN PATH GAMBAR ANDA
+              src="/faq-image.png"
               alt="Fashion enthusiasts"
               width={600}
               height={700}
-              className="rounded-2xl shadow-xl w-full h-auto"
+              className="rounded-2xl shadow-xl w-full h-auto hidden lg:block"
             />
           </div>
         </div>
@@ -105,19 +103,21 @@ const FaqSection = () => {
 
 const TestimonialSection = () => {
   return (
-    <section className="bg-white pb-16 sm:pb-24">
+    <section className="mx-4 lg:mx-0 bg-white pb-16 sm:pb-24">
       <div className="flex flex-col items-center lg:flex-row container mx-auto justify-between">
         <div className="flex flex-col">
           <p className="text-[16px] font-semibold text-[#EC7498]">
             Apa Kata Orang Lain Tentang Tiebymin AI
           </p>
           <div className="flex flex-col font-serif">
-            <span className="font-bold text-[46px]">Dengar Testimoni Dari</span>
-            <span className="font-bold text-[46px]">
+            <span className="font-bold text-[30px] lg:text-[46px]">
+              Dengar Testimoni Dari
+            </span>
+            <span className="font-bold text-[30px] lg:text-[46px]">
               Pengguna Tercinta Kita
             </span>
           </div>
-          <p className="text-[20px] text-gray-400 mt-4">
+          <p className="text-[16px] lg:text-[20px] text-gray-400 my-4">
             Feedback Dari Pengguna Kami Sangat Berharga Untuk <br />
             Meningkatkan Kualitas Layanan Tiebymin AI
           </p>
@@ -141,7 +141,7 @@ const TestimonialSection = () => {
             </div>
           </div>
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col my-4">
           <p className="text-[24px] italic">“Tipsnya gampang diikuti, bikin</p>
           <p className="text-[24px] italic">
             bikin aku makin percaya diri styling

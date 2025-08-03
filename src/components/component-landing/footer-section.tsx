@@ -26,7 +26,6 @@ const footerLinks = {
   ],
 };
 
-// --- Komponen Utama Footer ---
 export default function Footer() {
   return (
     <>
@@ -38,7 +37,7 @@ export default function Footer() {
             <br />
             Dibandingkan Yang Lain
           </h2>
-          <p className="max-w-3xl mx-auto mt-4 text-gray-600 text-[#AA5770]">
+          <p className="max-w-3xl mx-auto mt-4 text-[#AA5770]">
             Temukan Fashion Yang Sesuai Untukmu Dengan Cara Yang Cerdas. Hanya
             Butuh Satu Foto. Tiebymin AI Memberikan Rekomendasi Instan Tanpa
             Perlu Repot, Serta Hemat Waktu Dan Biaya.

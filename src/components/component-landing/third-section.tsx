@@ -61,12 +61,12 @@ export const ThirdSection = () => {
             <p className="text-[16px] text-[#EC7498] font-semibold">
               Apa Kata Orang Lain Tentang Tiebymin AI
             </p>
-            <h2 className="font-serif text-[46px] font-bold text-gray-900 mt-2">
+            <h2 className="font-serif text-[30px] lg:text-[46px] font-bold text-gray-900 mt-2">
               Apa Yang Membuat <br /> Analisis Kami Berbeda
             </h2>
           </div>
           <div className="flex items-center">
-            <p className="text-gray-600 text-[24px]">
+            <p className="text-gray-600 text-[16px] lg:text-[24px]">
               Tiebymin AI dibuat untuk merekomendasikan <br /> gaya berpakaian,
               yang menyesuaikan dengan data <br /> personal pengguna.
             </p>
