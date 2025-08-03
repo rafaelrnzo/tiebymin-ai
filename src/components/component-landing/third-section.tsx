@@ -1,5 +1,5 @@
+import { Sparkles } from "lucide-react";
 import Image from "next/image";
-import { Sparkles, Star } from "lucide-react";
 
 const products = [
   {
@@ -43,14 +43,6 @@ const products = [
     isBestMatch: false,
   },
 ];
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
 
 export const ThirdSection = () => {
   return (
