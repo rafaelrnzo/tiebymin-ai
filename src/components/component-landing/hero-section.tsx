@@ -16,7 +16,7 @@ export const HeroSection = () => {
     >
       <div className="container mx-auto px-4 z-20 relative">
         <div className="text-center">
-          <h1 className="text-[62px] lg:text-[128px] font-bold text-white tracking-tight">
+          <h1 className="font-serif text-[64px] lg:text-[128px] font-bold text-white tracking-tight">
             AI Temukan
             <br />
             <div className="flex text-center gap-4 justify-center lg:justify-evenly items-center">
@@ -33,13 +33,13 @@ export const HeroSection = () => {
             width={520}
             height={520}
             priority
+            className="invisible lg:visible"
           />
         </div>
 
-        {/* === Kartu Informasi === */}
         <div className="relative z-20 mt-10 lg:mt-24">
           <div className="flex flex-row gap-4 overflow-x-auto snap-x snap-mandatory lg:overflow-visible pb-4">
-            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col justify-between p-4">
+            <Card className="bg-white border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col gap-6 p-4">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="text-[22px] text-[#33333] font-semibold">
@@ -50,12 +50,12 @@ export const HeroSection = () => {
                 <Gem className="h-[2.5rem] w-[2.5rem] bg-[#EC7498] p-2 rounded-lg text-white" />
               </div>
               <div className="flex flex-col gap-2">
-                <p className="text-[16px] text-[#33333] font-semibold">
+                <p className="text-[20px] text-[#33333] font-semibold">
                   Fakta Unik
                 </p>
                 <div className="flex flex-col items-center bg-[#FFE5ED] rounded-md p-4">
-                  <p className="text-[12px] font-bold">Hanya 5–8% Manusia</p>
-                  <p className="text-[10px]">Yang memiliki bentuk wajah ini</p>
+                  <p className="text-[16px] font-bold">Hanya 5–8% Manusia</p>
+                  <p className="text-[16px]">Yang memiliki bentuk wajah ini</p>
                 </div>
               </div>
               <div className="flex flex-col">

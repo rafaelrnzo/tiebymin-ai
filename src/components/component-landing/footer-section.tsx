@@ -33,12 +33,12 @@ export default function Footer() {
       {/* === Seksi CTA === */}
       <section className="bg-[#EEA0B5] py-12 px-4">
         <div className="container mx-auto bg-[#FAD9E6] rounded-2xl p-8 lg:p-16 text-center">
-          <h2 className="text-4xl lg:text-5xl font-bold text-[#D44A87] leading-tight">
+          <h2 className="font-serif text-4xl lg:text-5xl font-bold text-[#D44A87] leading-tight">
             Siap Jadi Yang Paling Stylish
             <br />
             Dibandingkan Yang Lain
           </h2>
-          <p className="max-w-2xl mx-auto mt-4 text-gray-600">
+          <p className="max-w-3xl mx-auto mt-4 text-gray-600 text-[#AA5770]">
             Temukan Fashion Yang Sesuai Untukmu Dengan Cara Yang Cerdas. Hanya
             Butuh Satu Foto. Tiebymin AI Memberikan Rekomendasi Instan Tanpa
             Perlu Repot, Serta Hemat Waktu Dan Biaya.

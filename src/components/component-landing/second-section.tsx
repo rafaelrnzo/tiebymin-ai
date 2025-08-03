@@ -41,34 +41,37 @@ export const SecondSection = () => {
               </div>
 
               <div className="flex flex-col">
-                <h2 className="mt-4 text-[60px] font-bold text-white">Up To</h2>
-                <h2 className="text-[60px] font-bold text-white">30% Off</h2>
+                <h2 className="mt-4 text-[60px] font-serif font-bold text-white">
+                  Cuman
+                </h2>
+                <h2 className="text-[70px] font-serif font-bold text-white">
+                  Rp 10k
+                </h2>
               </div>
 
               <p className="mt-4 text-white text-[20px]">
-                Gunakan Kode Promo Pengguna Baru Yaitu{" "}
-                <strong className="font-bold text-white">
-                  “COBATIEBYMINAI”
-                </strong>{" "}
-                Untuk Dapatkan Potongan Harga Analisa Pertama Kamu.
+                Nggak perlu mahal! Dengan cuma{" "}
+                <strong className="font-bold text-white">10 Ribuan Aja</strong>{" "}
+                kamu udah bisa buka semua Hasil analisa AI, lengkap dan
+                rekomendasi.
               </p>
             </div>
 
             {/* Dua Kartu Statistik */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-[#FFE5ED] p-4 rounded-md flex flex-col justify-center items-center aspect-square">
-                <p className="text-3xl lg:text-4xl font-bold text-[#EF789B]">
-                  {"<"}3m
+                <p className="font-serif text-3xl lg:text-[48px] font-bold text-[#EF789B]">
+                  {"<"}2m
                 </p>
-                <p className="text-[24px] text-[#EF789B] mt-1 text-center">
+                <p className="text-[22px] text-[#EF789B] mt-1 text-center">
                   Hasil Selesai
                 </p>
               </div>
               <div className="bg-[#FFE5ED] p-4 rounded-md flex flex-col justify-center items-center aspect-square">
-                <p className="text-3xl lg:text-4xl font-bold text-[#EF789B]">
+                <p className="font-serif text-3xl lg:text-[48px] font-bold text-[#EF789B]">
                   100%
                 </p>
-                <p className="text-[24px] text-[#EF789B] mt-1 text-center">
+                <p className="text-[22px] text-[#EF789B] mt-1 text-center">
                   Buatan Lokal
                 </p>
               </div>

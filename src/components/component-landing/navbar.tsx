@@ -1,7 +1,5 @@
-// components/navbar.tsx
-
 import Link from "next/link";
-import Image from "next/image"; // <- Jangan lupa import Image
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, WandSparkles } from "lucide-react";
@@ -17,9 +15,9 @@ export function Navbar() {
   const rightNavLinks = [{ href: "/testimoni", label: "Testimoni" }];
 
   return (
-    <div className="sticky top-4 z-50 w-full px-4 lg:px-8">
-      <header className="rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
-        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+    <div className="mx-auto sticky top-4 z-50 w-full px-4 lg:px-8">
+      <header className="mx-auto rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
+        <div className="container mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6">
           <div className="flex items-center flex-1">
             <div className="lg:hidden">
               <Sheet>
@@ -70,9 +68,9 @@ export function Navbar() {
           <div className="flex justify-center">
             <Link href="/">
               <Image
-                src="/tiebymin-logo.png" // Pastikan path ini sesuai
+                src="/tiebymin-logo.png"
                 alt="Tiebymin Logo"
-                width={120} // Sesuaikan lebar logo
+                width={120}
                 height={28}
                 priority
               />

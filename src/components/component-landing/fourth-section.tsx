@@ -44,11 +44,11 @@ const FaqSection = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-36 items-center">
           <div className="flex flex-col gap-6">
-            <p className="text-sm text-[#EC7498]">
+            <p className="text-[16px] text-[#EC7498]">
               Siapa Yang Cocok Menggunakan Tiebymin AI
             </p>
             <div>
-              <h2 className="text-[60px] md:text-4xl font-bold text-gray-900 mt-2">
+              <h2 className="font-serif text-[60px] md:text-4xl font-bold text-gray-900 mt-2">
                 Sempurna Untuk Semua <br /> Pecinta Fashion!
               </h2>
               <p className="mt-4 text-gray-600 text-[20px]">
@@ -69,18 +69,21 @@ const FaqSection = () => {
                   value={item.value}
                   className="p-4 my-4 rounded-2xl border-none transition-colors duration-300 data-[state=closed]:bg-[#FFE5ED] data-[state=open]:bg-[#EF789B]"
                 >
-                  <AccordionTrigger className="text-[20px] w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-white">
+                  <AccordionTrigger className="font-serif text-[20px] w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-white">
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-[15px] px-4 pb-4 text-white/90">
+                  <AccordionContent className="font-serif text-[15px] px-4 pb-4 text-white/90">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
 
-            <Button className="bg-[#EC7498] hover:bg-pink-700 text-white rounded-full self-start text-[24px]">
-              Coba Analisis
+            <Button
+              size="lg"
+              className="bg-[#EC7498] hover:bg-pink-700 text-white rounded-full self-start text-[24px]"
+            >
+              <span>Coba Analisis</span>
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -108,13 +111,13 @@ const TestimonialSection = () => {
           <p className="text-[16px] font-semibold text-[#EC7498]">
             Apa Kata Orang Lain Tentang Tiebymin AI
           </p>
-          <div className="flex flex-col">
+          <div className="flex flex-col font-serif">
             <span className="font-bold text-[46px]">Dengar Testimoni Dari</span>
             <span className="font-bold text-[46px]">
               Pengguna Tercinta Kita
             </span>
           </div>
-          <p className="text-[20px] text-gray-400">
+          <p className="text-[20px] text-gray-400 mt-4">
             Feedback Dari Pengguna Kami Sangat Berharga Untuk <br />
             Meningkatkan Kualitas Layanan Tiebymin AI
           </p>
