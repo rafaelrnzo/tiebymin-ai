@@ -24,7 +24,7 @@ export const HeroSection = () => {
               <span className="block lg:mt-2 lg:mr-[0rem]">Kamu</span>
             </div>
           </h1>
-          <div className="mx-10 mt-24 flex justify-center gap-4 visible lg:invisible">
+          <div className="mx-10 mt-24 md:mt-6 flex justify-center gap-4 visible lg:invisible">
             <Button
               size="lg"
               className="rounded-full bg-[#EF789B] text-white text-[20px] py-6 border-0"
@@ -33,7 +33,7 @@ export const HeroSection = () => {
             </Button>
             <Button
               size="lg"
-              className="rounded-full border-2 text-[20px] py-[1.4rem] border-[#EF789B]"
+              className="rounded-full border-2 text-[20px] bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
             >
               <p className="text-[#EF789B]">Cara Kerja AI</p>
             </Button>
@@ -47,10 +47,10 @@ export const HeroSection = () => {
             width={560}
             height={560}
             priority
-            className="hidden lg:block w-[700px] h-[700px] lg:mb-0 lg:w-[800px] lg:h-[1100px] object-cover"
+            className="hidden lg:block w-[700px] h-[700px] lg:mb-0 lg:w-[600px] lg:h-[900px] object-cover"
           />
         </div>
-        <div className="relative z-20 mt-[12rem] lg:mt-28">
+        <div className="relative z-20 mt-[12rem] lg:mt-2">
           <div className="flex flex-row gap-4 overflow-x-auto snap-x snap-mandatory lg:overflow-visible pt-4">
             <div className="bg-white mt-4 border-0 snap-start flex-shrink-0 w-4/5 md:w-2/5 lg:w-auto lg:flex-1 flex flex-col justify-between p-4 rounded-xl">
               <div className="flex justify-between items-center">
