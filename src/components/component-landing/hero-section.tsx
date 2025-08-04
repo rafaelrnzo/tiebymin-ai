@@ -20,11 +20,11 @@ export const HeroSection = () => {
             AI Temukan
             <br />
             <div className="flex text-center gap-4 justify-center lg:justify-evenly items-center">
-              <span className="block lg:mt-2 lg:mr-[12rem]">Gaya</span>
-              <span className="block lg:mt-2 lg:mr-[4rem]">Kamu</span>
+              <span className="block lg:mt-2 lg:mr-[0rem]">Gaya</span>
+              <span className="block lg:mt-2 lg:mr-[0rem]">Kamu</span>
             </div>
           </h1>
-          <div className="absolute top-[21rem] left-0 right-0 mx-10 flex justify-center gap-4 visible lg:invisible">
+          <div className="mx-10 mt-24 flex justify-center gap-4 visible lg:invisible">
             <Button
               size="lg"
               className="rounded-full bg-[#EF789B] text-white text-[20px] py-6 border-0"
@@ -33,9 +33,9 @@ export const HeroSection = () => {
             </Button>
             <Button
               size="lg"
-              className="rounded-full border text-[20px] py-[1.4rem]"
+              className="rounded-full border-2 text-[20px] py-[1.4rem] border-[#EF789B]"
             >
-              <p>Cara Kerja AI</p>
+              <p className="text-[#EF789B]">Cara Kerja AI</p>
             </Button>
           </div>
         </div>
@@ -47,7 +47,7 @@ export const HeroSection = () => {
             width={560}
             height={560}
             priority
-            className="hidden lg:block w-[700px] h-[700px] lg:mb-0 lg:w-[560px] lg:h-[850px]"
+            className="hidden lg:block w-[700px] h-[700px] lg:mb-0 lg:w-[800px] lg:h-[1100px] object-cover"
           />
         </div>
         <div className="relative z-20 mt-[12rem] lg:mt-28">
