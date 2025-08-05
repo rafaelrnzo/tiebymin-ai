@@ -2,3 +2,8 @@
 @import "tw-animate-css";
 
 
+
+.font-oswald {
+    font-family: var(--font-oswald);
+  }
+  

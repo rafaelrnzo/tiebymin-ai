@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, PT_Serif } from "next/font/google";
+import { Geist, PT_Serif, Oswald } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,6 +15,12 @@ const ptSerif = PT_Serif({
   subsets: ["latin"],
 });
 
+const oswald = Oswald({
+  weight: ["400", "700"],
+  variable: "--font-oswald",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Tiebymin AI",
   description: "Website fashion ditenagai dengan AI",
@@ -27,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${ptSerif.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${ptSerif.variable} ${oswald.variable} antialiased`}>
         {children}
       </body>
     </html>
