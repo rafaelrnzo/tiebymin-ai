@@ -19,9 +19,9 @@ export const HeroSection = () => {
           <h1 className="font-serif text-[64px] translate-y-12 lg:text-[128px] font-bold text-white tracking-tight">
             AI Temukan
             <br />
-            <div className="flex text-center gap-4 justify-center lg:justify-evenly items-center">
+            <div className="flex text-center gap-64 justify-center lg:justify- items-center">
               <span className="block lg:mt-2 lg:mr-[0rem]">Gaya</span>
-              <span className="block lg:mt-2 lg:mr-[0rem]">Kamu</span>
+              <span className="block lg:mt-2 lg:pl-[8rem]">Kamu</span>
             </div>
           </h1>
           <div className="mx-10 mt-24 md:mt-6 flex justify-center gap-4 visible lg:invisible">
