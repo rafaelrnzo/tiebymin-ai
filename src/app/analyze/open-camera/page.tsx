@@ -111,12 +111,9 @@ export default function HalamanKameraWajah() {
     if (appState === 'ANALYZING') {
       setLoadingStep(0);
       setProgress(0);
-      let step = 0;
-      let percent = 0;
       const stepCount = LOADING_STEPS.length;
       const totalDuration = 4000 + stepCount * 1200; // total waktu loading (ms)
       const stepDuration = 1200; // ms per step
-      const progressInterval = 40; // ms per progress tick
 
       // Step animation
       const stepTimer = setInterval(() => {
@@ -228,6 +225,13 @@ export default function HalamanKameraWajah() {
   }
 
   if (appState === 'RESULTS') {
+    // List analisa hasil, bisa diubah sesuai kebutuhan
+    const analysesList = [
+      "Analisa bentuk wajahmu",
+      "Analisa tone kulitmu",
+      "Analisa kecocokan gaya selebriti",
+      "Rekomendasi hijab personal"
+    ];
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center">
@@ -235,7 +239,7 @@ export default function HalamanKameraWajah() {
           <p className="text-2xl font-bold mt-4">99%</p>
         </div>
         <div className="mt-12 w-full max-w-sm flex flex-col gap-3">
-          {Array.from({ length: totalAnalyses }).map((_, index) => {
+          {analysesList.map((label, index) => {
             const isCompleted = index < completedAnalyses;
             return (
               <button
@@ -247,7 +251,7 @@ export default function HalamanKameraWajah() {
                   }
                 `}
               >
-                <span>Analisa bentuk wajahmu</span>
+                <span>{label}</span>
                 {isCompleted ? (
                   <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                     <CheckIcon className="text-gray-800" />
