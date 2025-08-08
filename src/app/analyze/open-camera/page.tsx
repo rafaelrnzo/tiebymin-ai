@@ -27,22 +27,59 @@ const LoadingSpinnerIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...props}> <polyline points="20 6 9 17 4 12"></polyline> </svg> );
 
-
 type AppState = 'CAMERA' | 'CONFIRM' | 'ANALYZING' | 'RESULTS';
 
+const LOADING_STEPS = [
+  {
+    title: "Sedang mengenali kecantikan unikmu...",
+    desc: "Kami memproses foto selfie-mu dengan teknologi AI yang terlatih menggunakan ribuan data dari berbagai bentuk wajah dan tone kulit."
+  },
+  {
+    title: "Menganalisis bentuk wajahmu...",
+    desc: "Deteksi proporsi wajah sedang berjalan—dari lebar dahi hingga garis rahang, kami perhatikan semuanya."
+  },
+  {
+    title: "Mendeteksi tone kulit secara akurat...",
+    desc: "Kami menganalisis undertone-mu (cool, warm, atau neutral) untuk memastikan rekomendasi warna hijab yang paling glowing untukmu."
+  },
+  {
+    title: "Menyesuaikan dengan karakteristik tubuhmu...",
+    desc: "Berdasarkan pilihan bentuk tubuhmu, kami menyesuaikan rekomendasi gaya hijab yang menyeimbangkan siluetmu secara alami."
+  },
+  {
+    title: "Mencocokkan dengan gaya selebriti favorit...",
+    desc: "Apakah kamu mirip dengan selebriti idola? Kami sedang mencari kemiripan gaya untuk memberimu inspirasi styling."
+  },
+  {
+    title: "Menggabungkan semua data untuk rekomendasi personal...",
+    desc: "Setiap detail—dari wajah, kulit, hingga tubuh—sedang kami padukan untuk memberimu hasil yang benar-benar khusus untukmu."
+  },
+  {
+    title: "Hampir selesai... Hasil personalmu sedang dikurasi!",
+    desc: "Kami percaya setiap wanita unik. Maka dari itu, analisis ini bukan sekadar algoritma—tapi perayaan atas keindahanmu."
+  },
+  {
+    title: "Versi terbaik dari gaya hijabmu sedang dibuat...",
+    desc: "Sabar ya, kami ingin hasilnya sempurna buat kamu. Sebentar lagi, kamu akan melihat versi stylishmu yang sesungguhnya."
+  }
+];
+
 export default function HalamanKameraWajah() {
-  const router = useRouter(); // <-- 2. Inisialisasi router
+  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  
+
   const [appState, setAppState] = useState<AppState>('CAMERA');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string>('');
-  
-  // <-- 3. State baru untuk animasi hasil
+
+  // Untuk animasi hasil (tidak dipakai di loading baru)
   const [completedAnalyses, setCompletedAnalyses] = useState(0);
-  const totalAnalyses = 4; // Jumlah item hasil analisa
+  const totalAnalyses = 4;
+
+  // Untuk loading step
+  const [loadingStep, setLoadingStep] = useState(0);
 
   // Effect untuk mengontrol kamera
   useEffect(() => {
@@ -69,18 +106,55 @@ export default function HalamanKameraWajah() {
     return () => { if (currentStream) currentStream.getTracks().forEach((track) => track.stop()); };
   }, [appState]);
 
-  // Effect untuk simulasi loading
+  // Effect untuk simulasi loading step-by-step
   useEffect(() => {
     if (appState === 'ANALYZING') {
-      const timer = setInterval(() => setProgress(prev => { if (prev >= 100) { clearInterval(timer); setAppState('RESULTS'); return 100; } return prev + 1; }), 40);
-      return () => clearInterval(timer);
+      setLoadingStep(0);
+      setProgress(0);
+      const stepCount = LOADING_STEPS.length;
+      const totalDuration = 4000 + stepCount * 1200; // total waktu loading (ms)
+      const stepDuration = 1200; // ms per step
+
+      // Step animation
+      const stepTimer = setInterval(() => {
+        setLoadingStep((prev) => {
+          if (prev < stepCount - 1) {
+            return prev + 1;
+          } else {
+            clearInterval(stepTimer);
+            return prev;
+          }
+        });
+      }, stepDuration);
+
+      // Progress animation
+      const progressTimer = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 99) {
+            clearInterval(progressTimer);
+            return 99;
+          }
+          return prev + 1;
+        });
+      }, Math.max(20, totalDuration / 100));
+
+      // Selesai loading, masuk ke results
+      const finishTimer = setTimeout(() => {
+        setProgress(100);
+        setAppState('RESULTS');
+      }, totalDuration);
+
+      return () => {
+        clearInterval(stepTimer);
+        clearInterval(progressTimer);
+        clearTimeout(finishTimer);
+      };
     }
   }, [appState]);
 
-  // <-- 4. Effect baru untuk animasi hasil dan redirect
+  // Effect untuk animasi hasil dan redirect
   useEffect(() => {
     if (appState === 'RESULTS') {
-      // Animasikan item satu per satu
       const animationTimer = setInterval(() => {
         setCompletedAnalyses(prev => {
           if (prev >= totalAnalyses) {
@@ -89,31 +163,42 @@ export default function HalamanKameraWajah() {
           }
           return prev + 1;
         });
-      }, 700); // Jeda 700ms antar item
-
+      }, 700);
       return () => clearInterval(animationTimer);
     }
   }, [appState]);
-  
-  // <-- 5. Effect baru KHUSUS untuk redirect setelah animasi selesai
-  useEffect(() => {
-      if (completedAnalyses >= totalAnalyses) {
-          // Setelah semua animasi selesai, tunggu 1 detik lalu redirect
-          const redirectTimer = setTimeout(() => {
-              router.push('/ai-overview');
-          }, 1000);
 
-          return () => clearTimeout(redirectTimer);
-      }
+  // Redirect setelah animasi selesai
+  useEffect(() => {
+    if (completedAnalyses >= totalAnalyses) {
+      const redirectTimer = setTimeout(() => {
+        router.push('/ai-overview');
+      }, 1000);
+      return () => clearTimeout(redirectTimer);
+    }
   }, [completedAnalyses, router, totalAnalyses]);
 
+  const handleCapture = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (!context) return;
+      context.translate(canvas.width, 0);
+      context.scale(-1, 1);
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageDataUrl = canvas.toDataURL('image/png');
+      setCapturedImage(imageDataUrl);
+      setAppState('CONFIRM');
+    }
+  };
 
-  const handleCapture = () => { /* ... logika sama ... */ if (videoRef.current && canvasRef.current) { const video = videoRef.current; const canvas = canvasRef.current; canvas.width = video.videoWidth; canvas.height = video.videoHeight; const context = canvas.getContext('2d'); if (!context) return; context.translate(canvas.width, 0); context.scale(-1, 1); context.drawImage(video, 0, 0, canvas.width, canvas.height); const imageDataUrl = canvas.toDataURL('image/png'); setCapturedImage(imageDataUrl); setAppState('CONFIRM'); } };
-  
   const handleRetake = () => {
     setCapturedImage(null);
     setProgress(0);
-    setCompletedAnalyses(0); // <-- 6. Reset state animasi
+    setCompletedAnalyses(0);
     setAppState('CAMERA');
   };
 
@@ -123,52 +208,63 @@ export default function HalamanKameraWajah() {
 
   // --- Render Berdasarkan State ---
 
-  if (appState === 'ANALYZING' || appState === 'RESULTS') {
+  if (appState === 'ANALYZING') {
+    const step = LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
+    return (
+      <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
+        <div className="text-center max-w-lg mx-auto">
+          <LoadingSpinnerIcon className="mx-auto animate-spin text-gray-700" />
+          <p className="text-2xl font-bold mt-4">{progress < 100 ? `${progress}%` : '99%'}</p>
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold mb-2">{step.title}</h2>
+            <p className="text-gray-600 text-base">{step.desc}</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (appState === 'RESULTS') {
+    // List analisa hasil, bisa diubah sesuai kebutuhan
+    const analysesList = [
+      "Analisa bentuk wajahmu",
+      "Analisa tone kulitmu",
+      "Analisa kecocokan gaya selebriti",
+      "Rekomendasi hijab personal"
+    ];
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center">
-            {appState === 'ANALYZING' ? (
-                <LoadingSpinnerIcon className="mx-auto animate-spin text-gray-700" />
-            ) : (
-                <LoadingSpinnerIcon className="mx-auto text-gray-700" />
-            )}
-            
-            <p className="text-2xl font-bold mt-4">
-                {appState === 'ANALYZING' ? `${progress}%` : '99%'}
-            </p>
-            <p className="text-gray-600 mt-1">AI lagi lihat kecantikan kamu...</p>
+          <LoadingSpinnerIcon className="mx-auto text-gray-700" />
+          <p className="text-2xl font-bold mt-4">99%</p>
         </div>
-        
-        {/* <-- 7. Tampilan Hasil yang sudah dianimasikan --> */}
-        {appState === 'RESULTS' && (
-            <div className="mt-12 w-full max-w-sm flex flex-col gap-3">
-                {Array.from({ length: totalAnalyses }).map((_, index) => {
-                    const isCompleted = index < completedAnalyses;
-                    return (
-                        <button
-                            key={index}
-                            className={`w-full p-3 font-semibold rounded-xl flex items-center justify-between transition-all duration-500
-                                ${isCompleted
-                                    ? "bg-gray-800 text-white"
-                                    : "bg-white text-gray-500 border border-gray-200"
-                                }
-                            `}
-                        >
-                            <span>Analisa bentuk wajahmu</span>
-                            {isCompleted ? (
-                                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                                    <CheckIcon className="text-gray-800" />
-                                </div>
-                            ) : (
-                                <AnalysisIcon className="stroke-gray-400"/>
-                            )}
-                        </button>
-                    )
-                })}
-            </div>
-        )}
+        <div className="mt-12 w-full max-w-sm flex flex-col gap-3">
+          {analysesList.map((label, index) => {
+            const isCompleted = index < completedAnalyses;
+            return (
+              <button
+                key={index}
+                className={`w-full p-3 font-semibold rounded-xl flex items-center justify-between transition-all duration-500
+                  ${isCompleted
+                    ? "bg-gray-800 text-white"
+                    : "bg-white text-gray-500 border border-gray-200"
+                  }
+                `}
+              >
+                <span>{label}</span>
+                {isCompleted ? (
+                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                    <CheckIcon className="text-gray-800" />
+                  </div>
+                ) : (
+                  <AnalysisIcon className="stroke-gray-400"/>
+                )}
+              </button>
+            )
+          })}
+        </div>
       </main>
-    )
+    );
   }
 
   // --- Tampilan Kamera & Konfirmasi (Tidak ada perubahan) ---

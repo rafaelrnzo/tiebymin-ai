@@ -38,8 +38,8 @@ export default function Step2Page() {
                             Lengkapi Data Diri
                         </h2>
                         <p className='mb-4'>
-                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ratione, ipsa. Repellendus eligendi asperiores deserunt quo dicta itaque. Veritatis repellendus quam aperiam adipisci quo deleniti, reiciendis quis. Culpa blanditiis eius mollitia!
-                        </p>
+                           Semakin lengkap data kamu akan membuat hasil analisa kami jauh lebih tepat, jangan lupa di isi ya....                  
+                       </p>
                         <BodyMeasurementsForm
                             formData={formData}
                             onFormDataChange={handleFormDataChange}
