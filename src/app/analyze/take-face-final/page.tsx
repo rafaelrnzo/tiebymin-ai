@@ -25,7 +25,8 @@ export default function FaceScanFinalPage() {
   const router = useRouter();
 
   const handleNext = () => {
-    // Implement navigation or next step here
+    // Next step ke page open-camera
+    router.push("/analyze/open-camera");
   };
 
   return (

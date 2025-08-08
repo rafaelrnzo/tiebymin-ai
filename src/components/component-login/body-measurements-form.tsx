@@ -20,43 +20,56 @@ export default function BodyMeasurementsForm({ formData, onFormDataChange, onSub
                     <label className="whitespace-nowrap text-gray-700 font-medium" htmlFor="tinggi-input">
                         Tinggi Badan
                     </label>
-                    <TextInputField
-                        label=""
-                        value={formData.tinggi}
-                        onChange={(value) => onFormDataChange('tinggi', value)}
-                        width="100%"
-                    />
-                    <label className="whitespace-nowrap text-gray-400 font-medium" htmlFor="tinggi-input">
-                        cm
-                    </label>
+                    <div className="relative w-full">
+                        <TextInputField
+                            label=""
+                            value={formData.tinggi}
+                            onChange={(value) => onFormDataChange('tinggi', value)}
+                            width="100%"
+                            id="tinggi-input"
+                            type="number"
+                            inputClassName="pr-12"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium pointer-events-none select-none">
+                            cm
+                        </span>
+                    </div>
                 </div>
                 {/* Berat Badan */}
                 <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2 md:px-4">
                     <label className="whitespace-nowrap text-gray-700 font-medium" htmlFor="berat-input">
                         Berat Badan
                     </label>
-                    <TextInputField
-                        label=""
-                        value={formData.berat}
-                        onChange={(value) => onFormDataChange('berat', value)}
-                        width="100%"
-                    />
-                    <label className="whitespace-nowrap text-gray-400 font-medium" htmlFor="berat-input">
-                        kg
-                    </label>
+                    <div className="relative w-full">
+                        <TextInputField
+                            label=""
+                            value={formData.berat}
+                            onChange={(value) => onFormDataChange('berat', value)}
+                            width="100%"
+                            id="berat-input"
+                            type="number"
+                            inputClassName="pr-12"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium pointer-events-none select-none">
+                            kg
+                        </span>
+                    </div>
                 </div>
                 {/* Umur */}
                 <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2 md:pl-8">
                     <label className="whitespace-nowrap text-gray-700 font-medium" htmlFor="umur-input">
                         Umur
                     </label>
-                    <TextInputField
-                        label=""
-                        value={formData.umur}
-                        onChange={(value) => onFormDataChange('umur', value)}
-                        type="number"
-                        width="100%"
-                    />
+                    <div className="relative w-full">
+                        <TextInputField
+                            label=""
+                            value={formData.umur}
+                            onChange={(value) => onFormDataChange('umur', value)}
+                            type="number"
+                            width="100%"
+                            id="umur-input"
+                        />
+                    </div>
                 </div>
             </div>
 

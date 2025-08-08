@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export interface Step {
     number: string;
@@ -8,14 +8,16 @@ export interface Step {
 }
 
 export function useStepsProgress(currentStep: number) {
-    const [steps, setSteps] = useState<Step[]>([
+    const initialSteps: Step[] = useMemo(() => [
         { number: "01", title: "Buat Akun", active: false, completed: false },
         { number: "02", title: "Lengkapi Data", active: false, completed: false },
         { number: "03", title: "Analisa", active: false, completed: false },
-    ]);
+    ], []);
+
+    const [steps, setSteps] = useState<Step[]>(initialSteps);
 
     useEffect(() => {
-        const updatedSteps = steps.map((step, index) => {
+        const updatedSteps = initialSteps.map((step, index) => {
             const stepNumber = index + 1;
             return {
                 ...step,
@@ -24,7 +26,7 @@ export function useStepsProgress(currentStep: number) {
             };
         });
         setSteps(updatedSteps);
-    }, [currentStep]);
+    }, [currentStep, initialSteps]);
 
     const markStepCompleted = (stepNumber: number) => {
         setSteps(prev => prev.map((step, index) => {

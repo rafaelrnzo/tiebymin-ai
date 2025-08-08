@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -90,7 +90,7 @@ const BODY_TYPES = [
   },
 ];
 
-export default function BodyTypeAnalyzer() {
+export default function PrepareFacePage() {
   const [selectedTypeId, setSelectedTypeId] = useState("pear");
   const [showOverlay, setShowOverlay] = useState(false);
   const router = useRouter();
@@ -111,8 +111,31 @@ export default function BodyTypeAnalyzer() {
     router.push("/analyze/take-face");
   };
 
+  const initialBgStyle: React.CSSProperties = {
+    backgroundImage: "url('/login-bg.png')",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  };
+
+  const [bgStyle, setBgStyle] = useState(initialBgStyle);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 640) {
+      setBgStyle({
+        ...initialBgStyle,
+        backgroundPosition: "top",
+        backgroundSize: "auto 100%",
+      });
+    }
+    // eslint-disable-next-line
+  }, []);
+
   return (
-    <div className="min-h-screen w-full bg-[url('/login-bg.png')] bg-pink-200 px-2 sm:px-4 md:px-8 lg:px-12 py-8 md:py-16 lg:py-24 flex flex-col items-center justify-center relative">
+    <div
+      className="min-h-screen w-full px-2 sm:px-4 md:px-4 lg:px-12 py-8 md:py-16 lg:py-24 flex flex-col items-center justify-center relative"
+      style={bgStyle}
+    >
       {/* Overlay Scan Wajah */}
       {showOverlay && (
         <div
@@ -123,7 +146,6 @@ export default function BodyTypeAnalyzer() {
         >
           {/* Overlay background */}
           <div
-            className="absolute inset-0 bg-white bg-opacity-90"
             style={{
               background:
                 "linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.6) 70%, rgba(255,255,255,0.0) 100%)",
@@ -135,6 +157,7 @@ export default function BodyTypeAnalyzer() {
               top: 0,
             }}
             onClick={handleCloseOverlay}
+            className="absolute inset-0 hidden md:block"
           />
           {/* Modal content */}
           <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
