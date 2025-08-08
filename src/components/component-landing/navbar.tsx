@@ -69,14 +69,15 @@ export function Navbar() {
                   >
                     {testimoniLink.label}
                   </Link>
-                  <Button
-                    size="lg"
-                    className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-fit"
-                    onClick={closeSheet}
-                  >
-                    <Sparkle className="w-4 h-4 text-white" />
-                    <span>Coba Sekarang</span>
-                  </Button>
+                  <Link href="/login" onClick={closeSheet}>
+                    <Button
+                      size="lg"
+                      className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-fit"
+                    >
+                      <Sparkle className="w-4 h-4 text-white" />
+                      <span>Coba Sekarang</span>
+                    </Button>
+                  </Link>
                 </div>
               </SheetContent>
             </Sheet>
@@ -102,14 +103,16 @@ export function Navbar() {
             >
               {testimoniLink.label}
             </Link>
-            <Button
-              size="lg"
-              className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2"
-            >
-              <Sparkle className="w-4 h-4 text-white" />
-              <span className="hidden sm:inline">Coba Sekarang</span>
-              <span className="sm:hidden">Coba Sekarang</span>
-            </Button>
+            <Link href="/login">
+              <Button
+                size="lg"
+                className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2"
+              >
+                <Sparkle className="w-4 h-4 text-white" />
+                <span className="hidden sm:inline">Coba Sekarang</span>
+                <span className="sm:hidden">Coba Sekarang</span>
+              </Button>
+            </Link>
           </div>
 
           <div className="lg:hidden">
