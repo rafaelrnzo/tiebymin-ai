@@ -178,7 +178,7 @@ export default function BeautyAnalysisPage() {
             Rekomendasi Produk
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-8">
-            {hijabProducts.map((product, idx) => (
+            {hijabProducts.map((product) => (
               <div key={product.id} className="border-1 rounded-2xl overflow-hidden shadow-sm">
                 <div className="relative p-2 sm:p-4 rounded-lg overflow-hidden">
                   <Image

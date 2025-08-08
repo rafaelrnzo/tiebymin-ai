@@ -187,11 +187,11 @@ export default function BeautyAnalysisPage() {
                     className="w-full h-72 object-cover rounded-xl"
                   />
                   <span className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
-                    <Image src={product.matchIcon || "/placeholder.svg"} width={14} height={14} alt="Match" />
+                    <Image src={product.matchIcon || "/placeholder.svg"} width={14} height={14} alt="Match" className="object-cover" />
                     {product.match}
                   </span>
                   <span className="absolute bottom-4 right-4 bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
-                    <Image src={product.starIcon || "/placeholder.svg"} width={16} height={16} alt="Star" />
+                    <Image src={product.starIcon || "/placeholder.svg"} width={16} height={16} alt="Star"  className="object-cover" />
                     {product.star}
                   </span>
                 </div>

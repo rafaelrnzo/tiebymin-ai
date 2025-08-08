@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
-import flower from '/flower.png';
+import Image from 'next/image';
 
 // --- Helper Components (SVG Icons) - Tidak ada perubahan di sini ---
 const CameraIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}> <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /> <circle cx="12" cy="13" r="3" /> </svg> );
@@ -48,7 +48,23 @@ export default function HalamanKameraWajah() {
   useEffect(() => {
     if (appState !== 'CAMERA' && appState !== 'CONFIRM') return;
     let currentStream: MediaStream | null = null;
-    const startCamera = async () => { /* ... logika kamera sama ... */ try { const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1920 }, height: { ideal: 1080 } } }); currentStream = mediaStream; if (videoRef.current) { videoRef.current.srcObject = mediaStream; } } catch (err) { setError('Kamera tidak dapat diakses.'); } };
+    const startCamera = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          }
+        });
+        currentStream = mediaStream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+      } catch {
+        setError('Kamera tidak dapat diakses.');
+      }
+    };
     startCamera();
     return () => { if (currentStream) currentStream.getTracks().forEach((track) => track.stop()); };
   }, [appState]);
@@ -163,7 +179,35 @@ export default function HalamanKameraWajah() {
       
       {appState === 'CAMERA' && ( <div className="absolute inset-0 z-10 flex flex-col items-center justify-between p-6"> <div className="text-center text-white"> <h1 className="text-2xl font-bold [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Verifikasi Wajah</h1> <p className="[text-shadow:_0_1px_2px_rgb(0_0_0_/_50%)]">Posisikan wajah Anda di dalam bingkai</p> </div> <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-square border-4 sm:border-[6px] border-dashed border-green-400 rounded-full animate-pulse" style={{ animationDuration: '3s' }}></div> <button onClick={handleCapture} className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"> <div className="w-[72px] h-[72px] bg-white rounded-full border-2 border-black flex items-center justify-center"> <CameraIcon className="text-black w-9 h-9" /> </div> </button> </div> )}
 
-      {appState === 'CONFIRM' && capturedImage && ( <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-lg"> <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4"> <h2 className="text-2xl font-bold text-gray-800">Gunakan Gambar Ini</h2> <p className="text-gray-500 text-sm mt-1 mb-6">Kamu bisa ambil gambar beberapa kali</p> <img src={capturedImage} alt="Hasil Foto" className="rounded-lg w-full h-auto object-cover mb-6" /> <div className="w-full flex flex-col gap-3"> <button onClick={handleRetake} className="w-full py-3 px-4 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100">Ambil gambar ulang</button> <button onClick={handleAnalyze} className="w-full py-3 px-4 bg-pink-200 text-pink-800 font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"> Mulai Analisa <AnalysisIcon className="stroke-pink-800"/> </button> </div> </div> </div> )}
+      {appState === 'CONFIRM' && capturedImage && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-lg">
+          <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
+            <h2 className="text-2xl font-bold text-gray-800">Gunakan Gambar Ini</h2>
+            <p className="text-gray-500 text-sm mt-1 mb-6">Kamu bisa ambil gambar beberapa kali</p>
+            <Image
+              src={capturedImage}
+              alt="Hasil Foto"
+              width={400}
+              height={400}
+              className="rounded-lg w-full h-auto object-cover mb-6"
+            />
+            <div className="w-full flex flex-col gap-3">
+              <button
+                onClick={handleRetake}
+                className="w-full py-3 px-4 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100"
+              >
+                Ambil gambar ulang
+              </button>
+              <button
+                onClick={handleAnalyze}
+                className="w-full py-3 px-4 bg-pink-200 text-pink-800 font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+              >
+                Mulai Analisa <AnalysisIcon className="stroke-pink-800" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && ( <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 p-4"> <p className="text-center text-red-400">{error}</p> </div> )}
     </main>

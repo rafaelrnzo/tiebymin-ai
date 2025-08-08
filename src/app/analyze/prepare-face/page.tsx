@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -90,7 +90,7 @@ const BODY_TYPES = [
   },
 ];
 
-export default function BodyTypeAnalyzer() {
+export default function PrepareFacePage() {
   const [selectedTypeId, setSelectedTypeId] = useState("pear");
   const [showOverlay, setShowOverlay] = useState(false);
   const router = useRouter();
@@ -111,7 +111,6 @@ export default function BodyTypeAnalyzer() {
     router.push("/analyze/take-face");
   };
 
-
   const initialBgStyle: React.CSSProperties = {
     backgroundImage: "url('/login-bg.png')",
     backgroundRepeat: "no-repeat",
@@ -122,14 +121,15 @@ export default function BodyTypeAnalyzer() {
   const [bgStyle, setBgStyle] = useState(initialBgStyle);
 
   useEffect(() => {
-    if (window.innerWidth < 640) {
+    if (typeof window !== "undefined" && window.innerWidth < 640) {
       setBgStyle({
         ...initialBgStyle,
         backgroundPosition: "top",
         backgroundSize: "auto 100%",
       });
     }
-  }, []); 
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <div
