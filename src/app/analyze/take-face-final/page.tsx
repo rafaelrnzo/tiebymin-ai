@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const INSTRUCTION_CARDS = [
   {
@@ -24,9 +24,13 @@ const INSTRUCTION_CARDS = [
 export default function FaceScanFinalPage() {
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+
+  const selectedBodyType = searchParams.get("bodyType");
+
   const handleNext = () => {
     // Next step ke page open-camera
-    router.push("/analyze/open-camera");
+    router.push(`/analyze/open-camera?bodyType=${selectedBodyType}`);
   };
 
   return (
@@ -43,19 +47,24 @@ export default function FaceScanFinalPage() {
               priority
               className="object-contain"
               style={{ width: "auto", height: "auto", maxWidth: "100%" }}
-
             />
           </div>
 
           {/* Step 1: Analisa */}
           <div className="bg-[#F0F0F0] rounded-xl px-4 py-3 flex items-center justify-between w-full">
-            <span className="text-gray-800 font-bold text-base md:text-lg">Analisa</span>
-            <span className="text-gray-800 font-bold text-base md:text-lg">03</span>
+            <span className="text-gray-800 font-bold text-base md:text-lg">
+              Analisa
+            </span>
+            <span className="text-gray-800 font-bold text-base md:text-lg">
+              03
+            </span>
           </div>
 
           {/* Step 2: Pilih Bentuk Tubuh */}
           <div className="bg-[#F0F0F0] rounded-xl px-4 py-3 flex items-center justify-between w-full">
-            <span className="text-gray-800 font-bold text-base md:text-lg">Pilih bentuk Tubuh Kamu</span>
+            <span className="text-gray-800 font-bold text-base md:text-lg">
+              Pilih bentuk Tubuh Kamu
+            </span>
             <Image
               src="/stars.png"
               alt="stars"
@@ -68,11 +77,15 @@ export default function FaceScanFinalPage() {
           {/* Step 3: Scan Wajah (Active) */}
           <div className="bg-[#EF789B] rounded-2xl p-4 md:p-5 text-white w-full">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-base md:text-lg font-bold">Scan Wajah Kamu</h2>
+              <h2 className="text-base md:text-lg font-bold">
+                Scan Wajah Kamu
+              </h2>
               <Image src="/stars.png" alt="stars" width={24} height={24} />
-            </div>  
+            </div>
             <p className="text-xs md:text-sm leading-relaxed text-white">
-              Kami butuh foto selfie-mu biar bisa analisis bentuk wajah dan warna kulit dengan akurat. Dengan begitu, rekomendasi hijab yang kami kasih bisa lebih sesuai.
+              Kami butuh foto selfie-mu biar bisa analisis bentuk wajah dan
+              warna kulit dengan akurat. Dengan begitu, rekomendasi hijab yang
+              kami kasih bisa lebih sesuai.
             </p>
           </div>
         </div>
@@ -102,8 +115,12 @@ export default function FaceScanFinalPage() {
                     height={48}
                   />
                 </div>
-                <h3 className="font-bold text-base sm:text-lg text-gray-800">{card.title}</h3>
-                <p className="text-xs sm:text-sm text-gray-700 leading-snug">{card.description}</p>
+                <h3 className="font-bold text-base sm:text-lg text-gray-800">
+                  {card.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-700 leading-snug">
+                  {card.description}
+                </p>
               </div>
             ))}
           </div>

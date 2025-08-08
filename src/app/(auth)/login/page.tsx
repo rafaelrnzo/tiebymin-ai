@@ -21,7 +21,6 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Login data submitted:", formData);
-    // Navigate to analyze/prepare-face page after login
     router.push("/analyze/prepare-face");
   };
 
