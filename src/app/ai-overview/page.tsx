@@ -23,13 +23,13 @@ const analysisTabs = [
 const hijabProducts = [
   {
       id: 1,
-      image: "/overview-ai/model-hijab.png",
+      image: "/hijab-1.png",
       match: "67% Match",
       matchIcon: "/overview-ai/icons/ai-generate.svg",
       matchAlt: "Heart",
       star: 4.6,
       starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-      title: "Hijab Segi Empat Premium",
+      title: "Fay Hijab Sporty",
       price: "Rp49.000",
       oldPrice: "Rp99.000",
       heartIcon: "/overview-ai/icons/mdi_heart.svg",
@@ -51,8 +51,8 @@ const hijabProducts = [
       matchAlt: "Heart",
       star: 4.6,
       starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-      title: "Hijab Segi Empat Premium",
-      price: "Rp49.000",
+      title: "Alana Bergo Jersey",
+      price: "Rp75.000",
       oldPrice: "Rp99.000",
       heartIcon: "/overview-ai/icons/mdi_heart.svg",
       heartAlt: "Heart",
@@ -67,14 +67,14 @@ const hijabProducts = [
   },
   {
       id: 3,
-      image: "/overview-ai/model-hijab.png",
+      image: "/hijab-3.png",
       match: "67% Match",
       matchIcon: "/overview-ai/icons/ai-generate.svg",
       matchAlt: "Heart",
       star: 4.6,
       starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-      title: "Hijab Segi Empat Premium",
-      price: "Rp49.000",
+      title: "Hijab Bergo",
+      price: "Rp55.000",
       oldPrice: "Rp99.000",
       heartIcon: "/overview-ai/icons/mdi_heart.svg",
       heartAlt: "Heart",
@@ -87,6 +87,72 @@ const hijabProducts = [
       size: "XS-XXL",
       reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
   },
+  {
+    id: 4,
+    image: "/hijab-5.jpg",
+    match: "67% Match",
+    matchIcon: "/overview-ai/icons/ai-generate.svg",
+    matchAlt: "Heart",
+    star: 4.6,
+    starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
+    title: "Hijab Bergo",
+    price: "Rp55.000",
+    oldPrice: "Rp99.000",
+    heartIcon: "/overview-ai/icons/mdi_heart.svg",
+    heartAlt: "Heart",
+    reviews: 432,
+    colorRecommendations: [
+        { color: "bg-teal-600", border: "border-2 border-gray-300" },
+        { color: "bg-blue-900" },
+        { color: "bg-gray-800" },
+    ],
+    size: "XS-XXL",
+    reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
+},
+{
+  id: 5,
+  image: "/hijab-8.jpg",
+  match: "67% Match",
+  matchIcon: "/overview-ai/icons/ai-generate.svg",
+  matchAlt: "Heart",
+  star: 4.6,
+  starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
+  title: "Hijab Bergo",
+  price: "Rp55.000",
+  oldPrice: "Rp99.000",
+  heartIcon: "/overview-ai/icons/mdi_heart.svg",
+  heartAlt: "Heart",
+  reviews: 432,
+  colorRecommendations: [
+      { color: "bg-teal-600", border: "border-2 border-gray-300" },
+      { color: "bg-blue-900" },
+      { color: "bg-gray-800" },
+  ],
+  size: "XS-XXL",
+  reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
+},
+{
+  id: 6 ,
+  image: "/hijab-6.png",
+  match: "67% Match",
+  matchIcon: "/overview-ai/icons/ai-generate.svg",
+  matchAlt: "Heart",
+  star: 4.6,
+  starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
+  title: "Hijab Bergo",
+  price: "Rp55.000",
+  oldPrice: "Rp99.000",
+  heartIcon: "/overview-ai/icons/mdi_heart.svg",
+  heartAlt: "Heart",
+  reviews: 432,
+  colorRecommendations: [
+      { color: "bg-teal-600", border: "border-2 border-gray-300" },
+      { color: "bg-blue-900" },
+      { color: "bg-gray-800" },
+  ],
+  size: "XS-XXL",
+  reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
+},
 ];
 
 export default function BeautyAnalysisPage() {
@@ -96,6 +162,11 @@ export default function BeautyAnalysisPage() {
 
   // State analysisData akan menyimpan SELURUH respons dari API
   const [analysisData, setAnalysisData] = useState<any>(null);
+  const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
+
+
+  const [recommendedProducts, setRecommendedProducts] = useState<any[]>([]);
+
   
 
 
@@ -103,6 +174,9 @@ export default function BeautyAnalysisPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const shuffled = [...hijabProducts].sort(() => 0.5 - Math.random());
+    setRecommendedProducts(shuffled.slice(0, 3)); // Ambil 3 produk pertama dari array yang sudah diacak
+
     const resultId = searchParams.get('result_id');
 
     if (!resultId) {
@@ -112,32 +186,40 @@ export default function BeautyAnalysisPage() {
     }
 
   
-   
-    const fetchAnalysisData = async ( ) => {
+    const fetchAllData = async () => {
       setIsLoading(true);
       setError(null);
-      
       try {
-        const response = await axios.get(
-          `https://b70ab926860b.ngrok-free.app/v1/user-analysis-results/${resultId}`,
-          {
-            headers: {
-              'ngrok-skip-browser-warning': 'true' 
-            }
-          }
-        );        setAnalysisData(response.data);
-        console.log("Data fetched successfully:", response.data);
+        const [analysisResponse, photosResponse] = await Promise.all([
+          axios.get(`https://b70ab926860b.ngrok-free.app/v1/user-analysis-results/${resultId}`, {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+          }),
+          axios.get(`https://b70ab926860b.ngrok-free.app/v1/user-photos/analysis-results/${resultId}/photos`, {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+          })
+        ]);
+
+        setAnalysisData(analysisResponse.data);
+
+        const processedPhoto = photosResponse.data.find((photo: any) => photo.is_processed === true);
+        if (processedPhoto) {
+          setUserPhotoUrl(processedPhoto.file_path);
+        } else {
+            const originalPhoto = photosResponse.data.find((photo: any) => photo.photo_type === 'face_original');
+            if(originalPhoto) setUserPhotoUrl(originalPhoto.file_path);
+        }
+        
       } catch (err) {
-        setError("Gagal memuat data analisa. Silakan coba lagi.");
+        setError("Gagal memuat data analisa lengkap. Silakan coba lagi.");
         console.error("Fetch error:", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchAnalysisData();
-    
-  }, [searchParams]); // Dependency array sudah benar
+    fetchAllData();
+  }, [searchParams]);
+
 
 
   const renderContent = () => {
@@ -156,14 +238,14 @@ export default function BeautyAnalysisPage() {
       case 'body':
         return <BodySection 
                   bodyShapeId={analysisData.body_shape_id} 
-                  // Teruskan objek bmi langsung dari analysis_details
-                  bmiResult={analysisData.analysis_details.bmi} 
+                  bmiCategoryId={analysisData.bmi_category_id} 
+                  bmiResult={analysisData.analysis_details.bmi}
                />;
       case 'celebrity':
         // Teruskan celebrity_id. Komponen anak akan menangani jika nilainya null
-        return <CelebrityMatchSection matchId={analysisData.celebrity_id} />;
+        return <CelebrityMatchSection celebrityId={analysisData.celebrity_id} />;
       case 'tips':
-        return <TipsSection />;
+        return <TipsSection analysisData={analysisData} />;
       default:
         return <ShapeSection shapeId={analysisData.face_shape_id} />;
     }
@@ -179,7 +261,7 @@ export default function BeautyAnalysisPage() {
           <div className="bg-[#2D2D2D] w-full lg:w-[35%] rounded-3xl p-6 sm:p-8 text-white flex flex-col">
             <div className="mb-6">
               <Image
-                src="/overview-ai/person.png"
+                src={userPhotoUrl || "/overview-ai/person.png"}
                 alt="Analysis Result"
                 width={300}
                 height={200}
@@ -191,7 +273,7 @@ export default function BeautyAnalysisPage() {
               Hasil Analisa Kamu
             </h2>
             <p className="text-gray-300 text-sm mb-8 leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna.
+              Dapatkan insight mendalam tentang fashion terbaik untuk kamu dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
             <div className="mt-auto flex flex-col sm:flex-row gap-4">
               <button className="bg-white text-sm text-[#2D2D2D] px-4 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200">
@@ -238,7 +320,7 @@ export default function BeautyAnalysisPage() {
             Rekomendasi Produk
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {hijabProducts.map((product) => (
+            {recommendedProducts.map((product) => (
               <div key={product.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-300">
                 <div className="relative p-2">
                   <Image

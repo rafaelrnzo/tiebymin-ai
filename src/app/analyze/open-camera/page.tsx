@@ -139,7 +139,7 @@ function HalamanKameraWajahContent() {
       if (typeof window !== "undefined") {
         localStorage.removeItem('tiebymin-analysis-data');
         // Reset state di context juga
-        setAnalysisData({ tinggi: '', berat: '', umur: '', bodyType: 'pear' });
+        setAnalysisData({ tinggi: '', berat: '', umur: '', body_shape_id: '' });
       }
 
       const redirectTimer = setTimeout(() => {
@@ -193,14 +193,14 @@ function HalamanKameraWajahContent() {
   };
 
   const handleFullAnalysis = async () => {
-    const { tinggi, berat, umur, bodyType } = analysisData;
+    const { tinggi, berat, umur, body_shape_id } = analysisData;
 
 
     console.log("MENGIRIM PAYLOAD KE API:", {
-      tinggi, berat, umur, bodyType, foto_wajah: "ada"
+      tinggi, berat, umur, body_shape_id, foto_wajah: "ada"
   });
 
-    if (!capturedImage || !bodyType) {
+    if (!capturedImage) {
       setApiError(
         "Informasi tidak lengkap. Foto atau tipe tubuh tidak ditemukan."
       );
@@ -220,8 +220,7 @@ function HalamanKameraWajahContent() {
     formData.append("tinggi_badan", tinggi);
     formData.append("berat_badan", berat);
     formData.append("umur", umur);
-    formData.append("bodyType", bodyType);
-    formData.append("body_shape_id", "4e2ec663-4087-4393-95f0-e866b1b36c45")
+    formData.append("body_shape_id", body_shape_id)
     formData.append("foto_wajah", imageBlob, "face-photo.png");
 
 
