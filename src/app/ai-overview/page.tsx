@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense} from "react";
 import { Navbar } from "@/components/component-landing/navbar";
 import Image from "next/image";
 
@@ -9,6 +9,8 @@ import ColorToneSection from "./sections/ColorToneSection";
 import BodySection from "./sections/BodySection";
 import CelebrityMatchSection from "./sections/CelebrityMatchSection";
 import TipsSection from "./sections/TipsSection";
+import { useSearchParams } from "next/navigation";
+import axios from "axios";
 
 const analysisTabs = [
   { id: 'shape', text: 'Shape', icon: '/overview-ai/icons/ri_shape-fill.svg' },
@@ -89,21 +91,81 @@ const hijabProducts = [
 
 export default function BeautyAnalysisPage() {
   const [activeTab, setActiveTab] = useState('shape');
+  const searchParams = useSearchParams();
+
+
+  // State analysisData akan menyimpan SELURUH respons dari API
+  const [analysisData, setAnalysisData] = useState<any>(null);
+  
+
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const resultId = searchParams.get('result_id');
+
+    if (!resultId) {
+      setError("Analysis Result ID tidak ditemukan di URL.");
+      setIsLoading(false);
+      return; // Keluar dari useEffect jika tidak ada ID
+    }
+
+  
+   
+    const fetchAnalysisData = async ( ) => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const response = await axios.get(
+          `https://b70ab926860b.ngrok-free.app/v1/user-analysis-results/${resultId}`,
+          {
+            headers: {
+              'ngrok-skip-browser-warning': 'true' 
+            }
+          }
+        );        setAnalysisData(response.data);
+        console.log("Data fetched successfully:", response.data);
+      } catch (err) {
+        setError("Gagal memuat data analisa. Silakan coba lagi.");
+        console.error("Fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalysisData();
+    
+  }, [searchParams]); // Dependency array sudah benar
+
 
   const renderContent = () => {
+
+
+    if (isLoading) return <div className="text-center p-8">Loading analysis data...</div>;
+    if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
+    // Jika data utama tidak ada setelah fetch, tampilkan pesan
+    if (!analysisData) return <div className="text-center p-8">No analysis data found.</div>;
+
     switch (activeTab) {
       case 'shape':
-        return <ShapeSection />;
+        return <ShapeSection shapeId={analysisData.face_shape_id} />;
       case 'color':
-        return <ColorToneSection />;
+        return <ColorToneSection colorAnalysisId={analysisData.color_analysis_id} />;
       case 'body':
-        return <BodySection />;
+        return <BodySection 
+                  bodyShapeId={analysisData.body_shape_id} 
+                  // Teruskan objek bmi langsung dari analysis_details
+                  bmiResult={analysisData.analysis_details.bmi} 
+               />;
       case 'celebrity':
-        return <CelebrityMatchSection />;
+        // Teruskan celebrity_id. Komponen anak akan menangani jika nilainya null
+        return <CelebrityMatchSection matchId={analysisData.celebrity_id} />;
       case 'tips':
         return <TipsSection />;
       default:
-        return <ShapeSection />; 
+        return <ShapeSection shapeId={analysisData.face_shape_id} />;
     }
   };
 

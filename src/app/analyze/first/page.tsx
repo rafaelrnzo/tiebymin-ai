@@ -5,26 +5,24 @@ import { useRouter } from 'next/navigation';
 import LeftSideSection from '@/components/component-login/left-side-section';
 import BodyMeasurementsForm from '@/components/component-login/body-measurements-form';
 import { useStepsProgress } from '@/hooks/useStepsProgress';
+import { useAnalysis } from '@/context/AnalysisContext'; 
+
 
 export default function Step2Page() {
     const router = useRouter();
     const { steps } = useStepsProgress(2);
-    const [formData, setFormData] = useState({
-        tinggi: '',
-        berat: '',
-        umur: '',
-    });
+    const { analysisData, setAnalysisData } = useAnalysis();
+
 
     const handleFormDataChange = (field: string, value: string) => {
-        setFormData(prev => ({
+        setAnalysisData(prev => ({
             ...prev,
             [field]: value,
-        }));
-    };
+        }));    
+    }
 
     const handleSubmit = () => {
-        console.log('Form data submitted:', formData);
-        // Navigate to analyze prepare-face page
+        console.log('Data dari context:', analysisData); 
         router.push('/analyze/prepare-face');
     };
 
@@ -41,7 +39,7 @@ export default function Step2Page() {
                            Semakin lengkap data kamu akan membuat hasil analisa kami jauh lebih tepat, jangan lupa di isi ya....                  
                        </p>
                         <BodyMeasurementsForm
-                            formData={formData}
+                            formData={analysisData}
                             onFormDataChange={handleFormDataChange}
                             onSubmit={handleSubmit}
                         />

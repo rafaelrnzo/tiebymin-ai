@@ -21,7 +21,7 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Login data submitted:", formData);
-    router.push("/analyze/prepare-face");
+    router.push("/analyze/first");
   };
 
   const steps = [
