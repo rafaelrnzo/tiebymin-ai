@@ -7,7 +7,7 @@ interface AnalysisData {
   tinggi: string;
   berat: string;
   umur: string;
-  bodyType: string;
+  body_shape_id: string;
 }
 
 // Tipe context tidak berubah
@@ -27,7 +27,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     tinggi: '',
     berat: '',
     umur: '',
-    bodyType: 'pear',
+    body_shape_id: '',
   });
 
   // Ambil data dari localStorage saat komponen mount (hanya di client)
