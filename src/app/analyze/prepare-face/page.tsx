@@ -108,7 +108,7 @@ export default function PrepareFacePage() {
   const handleCloseOverlay = () => setShowOverlay(false);
 
   const handleNext = () => {
-    router.push("/analyze/take-face");
+    router.push(`/analyze/take-face?bodyType=${selectedTypeId}`);
   };
 
   const initialBgStyle: React.CSSProperties = {
@@ -179,7 +179,9 @@ export default function PrepareFacePage() {
                   height={120}
                   className="mb-4"
                 />
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Scan Wajah Kamu</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Scan Wajah Kamu
+                </h2>
                 <p className="text-gray-600 text-center mb-4">
                   Fitur scan wajah akan segera tersedia! <br />
                   Nantikan update dari kami.
@@ -225,7 +227,8 @@ export default function PrepareFacePage() {
                 </div>
               </div>
               <p className="text-white/90 text-sm leading-relaxed">
-                Dengan mengetahui bentuk tubuhmu, kami bisa memberikan rekomendasi pakaian yang sesuai dengan proporsi tubuhmu
+                Dengan mengetahui bentuk tubuhmu, kami bisa memberikan
+                rekomendasi pakaian yang sesuai dengan proporsi tubuhmu
               </p>
             </div>
 
@@ -371,7 +374,9 @@ export default function PrepareFacePage() {
               </p>
 
               <div className="mb-8">
-                <h3 className="font-bold text-gray-800 mb-3 text-left">Karakteristik</h3>
+                <h3 className="font-bold text-gray-800 mb-3 text-left">
+                  Karakteristik
+                </h3>
                 <ul className="space-y-2 text-sm text-gray-600 text-left">
                   {selectedType?.info?.characteristics?.map((char, idx) => (
                     <li className="flex items-start" key={idx}>
