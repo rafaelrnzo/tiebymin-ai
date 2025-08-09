@@ -6,6 +6,8 @@ interface TextInputFieldProps {
     type?: string;
     suffix?: string;
     width?: string; 
+    id?: string;
+    inputClassName?: string;
 }
 
 export default function TextInputField({ 
@@ -15,7 +17,9 @@ export default function TextInputField({
     placeholder = "", 
     type = "text",
     suffix,
-    width 
+    width,
+    id,
+    inputClassName
 }: TextInputFieldProps) {
     return (
         <div className="space-y-2" style={width ? { width } : undefined}>
