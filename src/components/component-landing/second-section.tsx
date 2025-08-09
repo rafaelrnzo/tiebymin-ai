@@ -50,8 +50,8 @@ export const SecondSection = () => {
               </div>
 
               <p className="mt-4 text-white text-[20px]">
-                Nggak perlu mahal! Dengan cuma{" "}
-                <strong className="font-bold text-white">10 Ribuan Aja</strong>{" "}
+                Nggak perlu mahal! Dengan cuma
+                <strong className="font-bold text-white">10 Ribuan Aja</strong>
                 kamu udah bisa buka semua Hasil analisa AI, lengkap dan
                 rekomendasi.
               </p>

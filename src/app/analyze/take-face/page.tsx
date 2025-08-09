@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { useAnalysis } from "@/context/AnalysisContext"; 
 
 const INSTRUCTION_CARDS = [
   {
@@ -23,23 +24,11 @@ const INSTRUCTION_CARDS = [
 
 export default function FaceScanPrepPage() {
   const router = useRouter();
+  const { analysisData } = useAnalysis();
 
-  const searchParams = useSearchParams();
-
-  const selectedBodyType = searchParams.get("bodyType");
-
-  useEffect(() => {
-    if (selectedBodyType) {
-      console.log("Tipe tubuh yang diterima:", selectedBodyType);
-    } else {
-      console.log(
-        "Tidak ada tipe tubuh yang dipilih, kembali ke halaman pemilihan."
-      );
-    }
-  }, [selectedBodyType, router]);
 
   const handleNext = () => {
-    router.push(`/analyze/take-face-final?bodyType=${selectedBodyType}`);
+    router.push(`/analyze/take-face-final`);
   };
 
   return (

@@ -204,7 +204,7 @@ export default function LoginPage() {
 
               {/* Login Link */}
               <p className="text-center text-gray-500 text-sm mt-6">
-                Sudah punya akun?{" "}
+                Sudah punya akun?
                 <a
                   href="/login"
                   className="text-gray-800 ml-1 font-extrabold underline"

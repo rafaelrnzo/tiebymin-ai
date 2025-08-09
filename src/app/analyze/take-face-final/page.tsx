@@ -2,6 +2,8 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAnalysis } from "@/context/AnalysisContext"; 
+
 
 const INSTRUCTION_CARDS = [
   {
@@ -23,14 +25,10 @@ const INSTRUCTION_CARDS = [
 
 export default function FaceScanFinalPage() {
   const router = useRouter();
-
-  const searchParams = useSearchParams();
-
-  const selectedBodyType = searchParams.get("bodyType");
+  const { analysisData } = useAnalysis(); 
 
   const handleNext = () => {
-    // Next step ke page open-camera
-    router.push(`/analyze/open-camera?bodyType=${selectedBodyType}`);
+    router.push(`/analyze/open-camera`);
   };
 
   return (

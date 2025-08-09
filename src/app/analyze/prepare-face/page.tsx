@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAnalysis } from '@/context/AnalysisContext';
 
 const BODY_TYPES = [
   {
@@ -91,7 +92,12 @@ const BODY_TYPES = [
 ];
 
 export default function PrepareFacePage() {
-  const [selectedTypeId, setSelectedTypeId] = useState("pear");
+  const { analysisData, setAnalysisData } = useAnalysis();
+  const selectedTypeId = analysisData.bodyType;
+
+  const selectedType = BODY_TYPES.find((type) => type.id === selectedTypeId);
+
+
   const [showOverlay, setShowOverlay] = useState(false);
   const router = useRouter();
 
@@ -102,13 +108,15 @@ export default function PrepareFacePage() {
   const topRow = BODY_TYPES.slice(0, 3);
   const bottomRow = BODY_TYPES.slice(3, 6);
 
-  const selectedType = BODY_TYPES.find((type) => type.id === selectedTypeId);
+  const handleSelectBodyType = (typeId: string) => {
+    setAnalysisData(prev => ({ ...prev, bodyType: typeId }));
+  };  
 
   const handleShowOverlay = () => setShowOverlay(true);
   const handleCloseOverlay = () => setShowOverlay(false);
 
   const handleNext = () => {
-    router.push(`/analyze/take-face?bodyType=${selectedTypeId}`);
+    router.push(`/analyze/take-face`);
   };
 
   const initialBgStyle: React.CSSProperties = {
@@ -261,7 +269,7 @@ export default function PrepareFacePage() {
                   <button
                     key={type.id}
                     type="button"
-                    onClick={() => setSelectedTypeId(type.id)}
+                    onClick={() => handleSelectBodyType(type.id)}
                     className="focus:outline-none"
                   >
                     <div className="flex flex-col items-center">
@@ -307,7 +315,7 @@ export default function PrepareFacePage() {
                   <button
                     key={type.id}
                     type="button"
-                    onClick={() => setSelectedTypeId(type.id)}
+                    onClick={() => handleSelectBodyType(type.id)}
                     className="focus:outline-none"
                   >
                     <div className="flex flex-col items-center">

@@ -127,7 +127,7 @@ export const ThirdSection = () => {
                 <div className="mt-4 bg-[#fccfdd] text-gray-700 p-3 rounded-lg text-sm border-l-8 border-l-[#EF789B]">
                   <strong className="font-bold text-[#EF789B]">
                     Kenapa cocok:
-                  </strong>{" "}
+                  </strong>
                   <span className="text-[#EF789B]">{product.reason}</span>
                 </div>
               </div>

@@ -21,7 +21,7 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Login data submitted:", formData);
-    router.push("/analyze/prepare-face");
+    router.push("/analyze/first");
   };
 
   const steps = [
@@ -138,7 +138,7 @@ export default function LoginPage() {
 
               {/* Register Link */}
               <p className="text-center text-gray-500 text-sm mt-6">
-                Belum punya akun?{" "}
+                Belum punya akun?
                 <a
                   href="/register"
                   className="text-gray-800 ml-1 font-extrabold underline"
