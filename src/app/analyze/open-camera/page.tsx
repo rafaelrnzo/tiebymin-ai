@@ -5,7 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation'; 
 import Image from 'next/image';
 import axios from 'axios';
-import { useAnalysis } from "@/context/AnalysisContext"; 
+import { useAnalysis } from "@/context/AnalysisContext";
+import { useRive } from '@rive-app/react-canvas';
+
 
 const CameraIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}> <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /> <circle cx="12" cy="13" r="3" /> </svg> );
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}> <path d="M12 2a10 10 0 1 0 10 10c0-4.42-2.87-8.17-6.84-9.5c-.52-.17-1.04.22-1 .75c.03.35.25.65.57.8c2.32.93 3.97 3.19 3.97 5.95a6 6 0 1 1-7.23-5.45c.4-.19.68-.59.59-1.03c-.1-0.44-.52-.75-.97-.63C5.66 3.6 2 7.4 2 12a10 10 0 0 0 10 10z"/> <path d="m15.58 12.5-1.08-2.5-2.5-1.08 1.08-2.5 2.5-1.08 1.08 2.5 2.5 1.08-1.08 2.5-2.5 1.08z"/> <path d="m6.5 12.5-1-2-2-1 1-2 2-1 1 2 2 1-1 2-2 1z"/> </svg> );
@@ -41,6 +43,22 @@ const LOADING_STEPS = [
   { title: "Hampir selesai... Hasil personalmu sedang dikurasi!", desc: "Kami percaya setiap wanita unik. Maka dari itu, analisis ini bukan sekadar algoritma—tapi perayaan atas keindahanmu.", },
   { title: "Versi terbaik dari gaya hijabmu sedang dibuat...", desc: "Sabar ya, kami ingin hasilnya sempurna buat kamu. Sebentar lagi, kamu akan melihat versi stylishmu yang sesungguhnya.", },
 ];
+
+const RiveLoadingAnimation = () => {
+  const { RiveComponent } = useRive({
+    src: '/animations/animation.riv',
+    stateMachines: "State Machine 1",
+    autoplay: true,
+  });
+
+  return (
+    <div className="w-48 h-48 mx-auto">
+       <RiveComponent />
+    </div>
+  );
+};
+
+
 
 function HalamanKameraWajahContent() {
   const router = useRouter();
@@ -263,8 +281,8 @@ function HalamanKameraWajahContent() {
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center max-w-lg mx-auto">
-          <LoadingSpinnerIcon className="mx-auto text-pink-500" />
-          <p className="text-2xl font-bold mt-4">
+          <RiveLoadingAnimation />
+        <p className="text-2xl font-bold mt-4">
             {progress < 100 ? `${progress}%` : "99%"}
           </p>
           <div className="mt-8">
@@ -287,8 +305,8 @@ function HalamanKameraWajahContent() {
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center">
-          <LoadingSpinnerIcon className="mx-auto text-gray-700" />
-          <p className="text-2xl font-bold mt-4">99%</p>
+          <RiveLoadingAnimation />
+        <p className="text-2xl font-bold mt-4">99%</p>
         </div>
         <div className="mt-12 w-full max-w-sm flex flex-col gap-3">
           {analysesList.map((label, index) => {
