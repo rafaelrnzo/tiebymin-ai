@@ -191,10 +191,10 @@ export default function BeautyAnalysisPage() {
       setError(null);
       try {
         const [analysisResponse, photosResponse] = await Promise.all([
-          axios.get(`https://b70ab926860b.ngrok-free.app/v1/user-analysis-results/${resultId}`, {
+          axios.get(`https://26297bc18648.ngrok-free.app/v1/user-analysis-results/${resultId}`, {
             headers: { 'ngrok-skip-browser-warning': 'true' }
           }),
-          axios.get(`https://b70ab926860b.ngrok-free.app/v1/user-photos/analysis-results/${resultId}/photos`, {
+          axios.get(`https://26297bc18648.ngrok-free.app/v1/user-photos/analysis-results/${resultId}/photos`, {
             headers: { 'ngrok-skip-browser-warning': 'true' }
           })
         ]);

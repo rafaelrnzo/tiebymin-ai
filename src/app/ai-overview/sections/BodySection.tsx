@@ -38,11 +38,11 @@ const BodySection: React.FC<BodySectionProps> = ({ bodyShapeId, bmiResult, bmiCa
           try {
               const [bodyShapeResponse, bmiCategoryResponse] = await Promise.all([
               
-                  axios.get(`https://b70ab926860b.ngrok-free.app/v1/body-shapes/${bodyShapeId}`, {
+                  axios.get(`https://26297bc18648.ngrok-free.app/v1/body-shapes/${bodyShapeId}`, {
                       headers: { 'ngrok-skip-browser-warning': 'true' }
                   }),
           
-                  axios.get(`https://b70ab926860b.ngrok-free.app/v1/bmi-categories/${bmiCategoryId}`, {
+                  axios.get(`https://26297bc18648.ngrok-free.app/v1/bmi-categories/${bmiCategoryId}`, {
                       headers: { 'ngrok-skip-browser-warning': 'true' }
                   })
               ]);

@@ -25,7 +25,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({ celebrity
             setError(null);
             try {
                 // Endpoint untuk mengambil detail selebriti berdasarkan ID
-                const response = await axios.get(`https://b70ab926860b.ngrok-free.app/v1/celebrities/${celebrityId}`, {
+                const response = await axios.get(`https://26297bc18648.ngrok-free.app/v1/celebrities/${celebrityId}`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 setMatchData(response.data);

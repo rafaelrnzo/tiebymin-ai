@@ -24,7 +24,7 @@ export default function PrepareFacePage() {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await axios.get(`https://b70ab926860b.ngrok-free.app/v1/body-shapes/`, {
+                const response = await axios.get(`https://26297bc18648.ngrok-free.app/v1/body-shapes/`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
 
