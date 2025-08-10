@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense} from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Navbar } from "@/components/component-landing/navbar";
 import Image from "next/image";
 
@@ -155,20 +155,16 @@ const hijabProducts = [
 },
 ];
 
-export default function BeautyAnalysisPage() {
+// Move all logic that uses useSearchParams into a child component wrapped in Suspense
+function BeautyAnalysisPageInner() {
   const [activeTab, setActiveTab] = useState('shape');
   const searchParams = useSearchParams();
-
 
   // State analysisData akan menyimpan SELURUH respons dari API
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
 
-
   const [recommendedProducts, setRecommendedProducts] = useState<any[]>([]);
-
-  
-
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -185,7 +181,6 @@ export default function BeautyAnalysisPage() {
       return; // Keluar dari useEffect jika tidak ada ID
     }
 
-  
     const fetchAllData = async () => {
       setIsLoading(true);
       setError(null);
@@ -220,11 +215,7 @@ export default function BeautyAnalysisPage() {
     fetchAllData();
   }, [searchParams]);
 
-
-
   const renderContent = () => {
-
-
     if (isLoading) return <div className="text-center p-8">Loading analysis data...</div>;
     if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
     // Jika data utama tidak ada setelah fetch, tampilkan pesan
@@ -381,5 +372,13 @@ export default function BeautyAnalysisPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function BeautyAnalysisPage() {
+  return (
+    <Suspense fallback={<div className="text-center p-8">Loading...</div>}>
+      <BeautyAnalysisPageInner />
+    </Suspense>
   );
 }
