@@ -89,7 +89,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await axios.get(`https://b70ab926860b.ngrok-free.app/v1/face-shapes/${shapeId}`, {
+                const response = await axios.get(`https://26297bc18648.ngrok-free.app/v1/face-shapes/${shapeId}`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 setShapeDetails(response.data);

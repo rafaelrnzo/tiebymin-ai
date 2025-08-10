@@ -47,12 +47,13 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
       setIsLoading(true);
       setError(null);
       try {
+        
         // Lakukan SEMUA panggilan API untuk mendapatkan tips secara paralel
         const [faceRes, colorRes, bodyRes, bmiRes] = await Promise.all([
-          axios.get(`https://b70ab926860b.ngrok-free.app/v1/face-shapes/${face_shape_id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
-          axios.get(`https://b70ab926860b.ngrok-free.app/v1/color-analysis/${color_analysis_id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
-          axios.get(`https://b70ab926860b.ngrok-free.app/v1/body-shapes/${body_shape_id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
-          axios.get(`https://b70ab926860b.ngrok-free.app/v1/bmi-categories/${bmi_category_id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } })
+          axios.get(`https://26297bc18648.ngrok-free.app/v1/face-shapes/${face_shape_id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
+          axios.get(`https://26297bc18648.ngrok-free.app/v1/color-analysis/${color_analysis_id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
+          axios.get(`https://26297bc18648.ngrok-free.app/v1/body-shapes/${body_shape_id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
+          axios.get(`https://26297bc18648.ngrok-free.app/v1/bmi-categories/${bmi_category_id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } })
         ]);
 
         // Gabungkan semua tips yang relevan ke dalam satu objek

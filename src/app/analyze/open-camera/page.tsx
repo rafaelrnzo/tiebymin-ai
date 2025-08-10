@@ -226,7 +226,7 @@ function HalamanKameraWajahContent() {
 
     try {
       const response = await axios.post(
-        "https://b70ab926860b.ngrok-free.app/v1/analysis/full-analysis",
+        "https://26297bc18648.ngrok-free.app/v1/analysis/full-analysis",
         formData 
       );
 
@@ -350,26 +350,30 @@ function HalamanKameraWajahContent() {
 
       {appState === "CAMERA" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between p-6">
-          <div className="text-center text-white">
-            <h1 className="text-2xl font-bold [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">
-              Pemindaian Wajah
+           <div className="relative z-20 text-center flex items-center gap-3 text-black bg-[#FFC6C6] mt-18 py-4 px-6 rounded-2xl">
+            <Image src="/si_warning-fill.svg" alt="si-warning" width={25} height={25}/>
+            <h1 className="text-md">
+            Letakan Wajah di dalam Frame
             </h1>
-            <p className="[text-shadow:_0_1px_2px_rgb(0_0_0_/_50%)]">
-              Posisikan wajah Anda di dalam bingkai
-            </p>
+       
           </div>
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-square border-4 sm:border-[6px] border-dashed border-green-400 rounded-full animate-pulse"
-            style={{ animationDuration: "3s" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] rounded-[50%/60%] shadow-[0_0_0_99vmax_rgba(0,0,0,0.5)] pointer-events-none"
           ></div>
+
+          {/* Bingkai Pemandu Hijau */}
+          <div
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] border-4 sm:border-[6px] border-dashed border-green-400 rounded-[50%/60%] animate-pulse pointer-events-none"
+              style={{ animationDuration: "3s" }}
+            ></div>
           <button
-            onClick={handleCapture}
-            className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
-          >
-            <div className="w-[72px] h-[72px] bg-white rounded-full border-2 border-black flex items-center justify-center">
-              <CameraIcon className="text-black w-9 h-9" />
-            </div>
-          </button>
+              onClick={handleCapture}
+              className="relative z-20 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
+            >
+              <div className="w-[72px] h-[72px] bg-white rounded-full border-2 border-black flex items-center justify-center">
+                <CameraIcon className="text-black w-9 h-9" />
+              </div>
+            </button>
         </div>
       )}
 
