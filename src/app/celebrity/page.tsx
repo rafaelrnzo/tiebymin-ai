@@ -105,13 +105,13 @@ export default function BeautyAnalysisPage() {
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <button className="bg-white text-[14px] text-[#323232] px-4 py-3 rounded-full text-sm flex items-center gap-2 transition-colors duration-200 hover:bg-gray-200 hover:text-[#323232] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#FFC6C6]">
+              <Button className="bg-white text-[14px] text-[#323232] px-4 py-3 rounded-full text-sm flex items-center gap-2 transition-colors duration-200 hover:bg-gray-200 hover:text-[#323232] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#FFC6C6]">
                 <Image src="/overview-ai/icons/material-symbols_share.svg" width={16} height={16} alt="bagikan hasil" />
                 <span>
                   Bagikan Hasil
                 </span>
               </button>
-              <button className="bg-[#FFC6C6] text-black px-4 py-3 rounded-full text-sm flex items-center gap-2 transition-colors duration-200 hover:bg-[#ffb3b3] hover:text-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#FFC6C6]">
+              <Button className="bg-[#FFC6C6] text-black px-4 py-3 rounded-full text-sm flex items-center gap-2 transition-colors duration-200 hover:bg-[#ffb3b3] hover:text-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#FFC6C6]">
                 <Image src="/overview-ai/icons/ic_round-download.svg" width={16} height={16} alt="Download Analisa" />
                 <span>Download Analisa</span>
               </button>
@@ -123,7 +123,7 @@ export default function BeautyAnalysisPage() {
             {/* Tab Navigation */}
             <div className="flex flex-wrap gap-2 mb-6">
               {analysisTabs.map((tab) => (
-                <button
+                <Button
                   key={tab.id}
                   className={`px-4 py-2 text-gray-500 text-sm flex items-center gap-2 ${
                     tab.active

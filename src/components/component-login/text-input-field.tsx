@@ -1,53 +1,154 @@
-interface TextInputFieldProps {
-    label: string;
-    value: string;
-    onChange: (value: string) => void;
-    placeholder?: string;
-    type?: string;
-    suffix?: string;
-    width?: string; 
-    id?: string;
-    inputClassName?: string;
+"use client";
+
+import React from "react";
+import { Button } from "../ui/button";
+
+// Komponen baru untuk input angka dengan tombol kontrol
+interface NumberInputWithControlsProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  unit?: string; // Satuan seperti 'cm' atau 'kg' (opsional)
+  id: string;
 }
 
-export default function TextInputField({ 
-    label, 
-    value, 
-    onChange, 
-    placeholder = "", 
-    type = "text",
-    suffix,
-    width,
-    id,
-    inputClassName
-}: TextInputFieldProps) {
-    return (
-        <div className="space-y-2" style={width ? { width } : undefined}>
-            <label className="text-sm font-medium text-gray-700">{label}</label>
-            <div className="relative">
-                {suffix ? (
-                    <div className="flex items-center">
-                        <span className="text-gray-600 font-bold mr-4">{suffix}</span>
-                        <input
-                            type={type}
-                            value={value}
-                            onChange={(e) => onChange(e.target.value)}
-                            className="flex-1 h-12 px-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-transparent"
-                            placeholder={placeholder}
-                            style={width ? { width } : undefined}
-                        />
-                    </div>
-                ) : (
-                    <input
-                        type={type}
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
-                        className="w-full h-12 px-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-transparent"
-                        placeholder={placeholder}
-                        style={width ? { width } : undefined}
-                    />
-                )}
-            </div>
+function NumberInputWithControls({
+  label,
+  value,
+  onChange,
+  unit,
+  id,
+}: NumberInputWithControlsProps) {
+  const handleIncrement = () => {
+    const currentValue = parseInt(value, 10) || 0;
+    onChange((currentValue + 1).toString());
+  };
+
+  const handleDecrement = () => {
+    const currentValue = parseInt(value, 10) || 0;
+    // Mencegah nilai negatif jika tidak diinginkan
+    if (currentValue > 0) {
+      onChange((currentValue - 1).toString());
+    }
+  };
+
+  return (
+    <div className="flex items-center space-x-2">
+      <label
+        htmlFor={id}
+        className="text-gray-700 font-medium whitespace-nowrap"
+      >
+        {label}
+      </label>
+      <div className="flex items-center border border-gray-300 rounded-md">
+        <input
+          id={id}
+          type="number"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          // Menghilangkan panah default dari input number
+          className="w-16 text-center border-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+        {unit && <span className="text-gray-500 pr-2">{unit}</span>}
+        <div className="flex flex-col items-center justify-center h-full border-l border-gray-300 p-1">
+          <Button
+            onClick={handleIncrement}
+            className="w-5 h-5 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-sm"
+          >
+            {/* SVG untuk panah atas */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m18 15-6-6-6 6" />
+            </svg>
+          </Button>
+          <Button
+            onClick={handleDecrement}
+            className="w-5 h-5 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-sm"
+          >
+            {/* SVG untuk panah bawah */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </Button>
         </div>
-    );
-} 
+      </div>
+    </div>
+  );
+}
+
+// Komponen Form Utama yang telah diperbarui
+interface BodyMeasurementsFormProps {
+  formData: {
+    tinggi: string;
+    berat: string;
+    umur: string;
+  };
+  onFormDataChange: (field: string, value: string) => void;
+  onSubmit: () => void;
+}
+
+export default function BodyMeasurementsForm({
+  formData,
+  onFormDataChange,
+  onSubmit,
+}: BodyMeasurementsFormProps) {
+  return (
+    <div className="p-8 bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold text-gray-800">Lengkapi Data Diri</h1>
+      <p className="text-gray-500 mt-2 mb-8">
+        Semakin lengkap data kamu akan membuat hasil analisa kami jauh lebih
+        tepat, jangan lupa diisi ya....
+      </p>
+
+      <div className="flex flex-col md:flex-row items-center justify-center md:justify-around space-y-6 md:space-y-0 md:space-x-4 mb-8">
+        <NumberInputWithControls
+          label="Tinggi Badan"
+          id="tinggi-input"
+          value={formData.tinggi}
+          onChange={(value) => onFormDataChange("tinggi", value)}
+          unit="cm"
+        />
+        <NumberInputWithControls
+          label="Berat Badan"
+          id="berat-input"
+          value={formData.berat}
+          onChange={(value) => onFormDataChange("berat", value)}
+          unit="kg"
+        />
+        <NumberInputWithControls
+          label="Umur"
+          id="umur-input"
+          value={formData.umur}
+          onChange={(value) => onFormDataChange("umur", value)}
+        />
+      </div>
+
+      {/* Tombol Submit */}
+      <Button
+        onClick={onSubmit}
+        className="w-full h-14 bg-gray-800 hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
+      >
+        Selanjutnya
+      </Button>
+    </div>
+  );
+}

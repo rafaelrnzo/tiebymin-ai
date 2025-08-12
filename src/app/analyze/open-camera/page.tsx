@@ -1,68 +1,88 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense} from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/navigation'; 
-import Image from 'next/image';
-import axios from 'axios';
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import axios from "axios";
 import { useAnalysis } from "@/context/AnalysisContext";
-import { useRive } from '@rive-app/react-canvas';
+import { useRive } from "@rive-app/react-canvas";
+import { Button } from "@/components/ui/button";
+import url from "@/lib/url";
+import { Camera, Check } from "lucide-react";
 
-
-const CameraIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}> <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /> <circle cx="12" cy="13" r="3" /> </svg> );
-const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}> <path d="M12 2a10 10 0 1 0 10 10c0-4.42-2.87-8.17-6.84-9.5c-.52-.17-1.04.22-1 .75c.03.35.25.65.57.8c2.32.93 3.97 3.19 3.97 5.95a6 6 0 1 1-7.23-5.45c.4-.19.68-.59.59-1.03c-.1-0.44-.52-.75-.97-.63C5.66 3.6 2 7.4 2 12a10 10 0 0 0 10 10z"/> <path d="m15.58 12.5-1.08-2.5-2.5-1.08 1.08-2.5 2.5-1.08 1.08 2.5 2.5 1.08-1.08 2.5-2.5 1.08z"/> <path d="m6.5 12.5-1-2-2-1 1-2 2-1 1 2 2 1-1 2-2 1z"/> </svg> );
-const LoadingSpinnerIcon = (props: React.SVGProps<SVGSVGElement>) => (
+const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="48"
-    height="48"
+    width="20"
+    height="20"
     viewBox="0 0 24 24"
     fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
     {...props}
   >
-    <image
-      href="@flower.png"
-      x="2"
-      y="2"
-      width="20"
-      height="20"
-    />
+    <path d="M12 2a10 10 0 1 0 10 10c0-4.42-2.87-8.17-6.84-9.5c-.52-.17-1.04.22-1 .75c.03.35.25.65.57.8c2.32.93 3.97 3.19 3.97 5.95a6 6 0 1 1-7.23-5.45c.4-.19.68-.59.59-1.03c-.1-0.44-.52-.75-.97-.63C5.66 3.6 2 7.4 2 12a10 10 0 0 0 10 10z" />{" "}
+    <path d="m15.58 12.5-1.08-2.5-2.5-1.08 1.08-2.5 2.5-1.08 1.08 2.5 2.5 1.08-1.08 2.5-2.5 1.08z" />{" "}
+    <path d="m6.5 12.5-1-2-2-1 1-2 2-1 1 2 2 1-1 2-2 1z" />
   </svg>
 );
-const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...props}> <polyline points="20 6 9 17 4 12"></polyline> </svg> );
 
 type AppState = "CAMERA" | "CONFIRM" | "ANALYZING" | "RESULTS" | "API_ERROR";
 
 const LOADING_STEPS = [
-  { title: "Sedang mengenali kecantikan unikmu...", desc: "Kami memproses foto selfie-mu dengan teknologi AI yang terlatih menggunakan ribuan data dari berbagai bentuk wajah dan tone kulit.", },
-  { title: "Menganalisis bentuk wajahmu...", desc: "Deteksi proporsi wajah sedang berjalan—dari lebar dahi hingga garis rahang, kami perhatikan semuanya.", },
-  { title: "Mendeteksi tone kulit secara akurat...", desc: "Kami menganalisis undertone-mu (cool, warm, atau neutral) untuk memastikan rekomendasi warna hijab yang paling glowing untukmu.", },
-  { title: "Menyesuaikan dengan karakteristik tubuhmu...", desc: "Berdasarkan pilihan bentuk tubuhmu, kami menyesuaikan rekomendasi gaya hijab yang menyeimbangkan siluetmu secara alami.", },
-  { title: "Mencocokkan dengan gaya selebriti favorit...", desc: "Apakah kamu mirip dengan selebriti idola? Kami sedang mencari kemiripan gaya untuk memberimu inspirasi styling.", },
-  { title: "Menggabungkan semua data untuk rekomendasi personal...", desc: "Setiap detail—dari wajah, kulit, hingga tubuh—sedang kami padukan untuk memberimu hasil yang benar-benar khusus untukmu.", },
-  { title: "Hampir selesai... Hasil personalmu sedang dikurasi!", desc: "Kami percaya setiap wanita unik. Maka dari itu, analisis ini bukan sekadar algoritma—tapi perayaan atas keindahanmu.", },
-  { title: "Versi terbaik dari gaya hijabmu sedang dibuat...", desc: "Sabar ya, kami ingin hasilnya sempurna buat kamu. Sebentar lagi, kamu akan melihat versi stylishmu yang sesungguhnya.", },
+  {
+    title: "Sedang mengenali kecantikan unikmu...",
+    desc: "Kami memproses foto selfie-mu dengan teknologi AI yang terlatih menggunakan ribuan data dari berbagai bentuk wajah dan tone kulit.",
+  },
+  {
+    title: "Menganalisis bentuk wajahmu...",
+    desc: "Deteksi proporsi wajah sedang berjalan—dari lebar dahi hingga garis rahang, kami perhatikan semuanya.",
+  },
+  {
+    title: "Mendeteksi tone kulit secara akurat...",
+    desc: "Kami menganalisis undertone-mu (cool, warm, atau neutral) untuk memastikan rekomendasi warna hijab yang paling glowing untukmu.",
+  },
+  {
+    title: "Menyesuaikan dengan karakteristik tubuhmu...",
+    desc: "Berdasarkan pilihan bentuk tubuhmu, kami menyesuaikan rekomendasi gaya hijab yang menyeimbangkan siluetmu secara alami.",
+  },
+  {
+    title: "Mencocokkan dengan gaya selebriti favorit...",
+    desc: "Apakah kamu mirip dengan selebriti idola? Kami sedang mencari kemiripan gaya untuk memberimu inspirasi styling.",
+  },
+  {
+    title: "Menggabungkan semua data untuk rekomendasi personal...",
+    desc: "Setiap detail—dari wajah, kulit, hingga tubuh—sedang kami padukan untuk memberimu hasil yang benar-benar khusus untukmu.",
+  },
+  {
+    title: "Hampir selesai... Hasil personalmu sedang dikurasi!",
+    desc: "Kami percaya setiap wanita unik. Maka dari itu, analisis ini bukan sekadar algoritma—tapi perayaan atas keindahanmu.",
+  },
+  {
+    title: "Versi terbaik dari gaya hijabmu sedang dibuat...",
+    desc: "Sabar ya, kami ingin hasilnya sempurna buat kamu. Sebentar lagi, kamu akan melihat versi stylishmu yang sesungguhnya.",
+  },
 ];
 
 const RiveLoadingAnimation = () => {
   const { RiveComponent } = useRive({
-    src: '/animations/animation.riv',
+    src: "/animations/animation.riv",
     stateMachines: "State Machine 1",
     autoplay: true,
   });
 
   return (
     <div className="w-48 h-48 mx-auto">
-       <RiveComponent />
+      <RiveComponent />
     </div>
   );
 };
 
-
-
 function HalamanKameraWajahContent() {
   const router = useRouter();
-  const { analysisData, setAnalysisData } = useAnalysis(); 
+  const { analysisData, setAnalysisData } = useAnalysis();
   const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -78,7 +98,6 @@ function HalamanKameraWajahContent() {
   const totalAnalyses = 4;
 
   const [loadingStep, setLoadingStep] = useState(0);
-
 
   useEffect(() => {
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
@@ -155,9 +174,9 @@ function HalamanKameraWajahContent() {
   useEffect(() => {
     if (completedAnalyses >= totalAnalyses && analysisResultId) {
       if (typeof window !== "undefined") {
-        localStorage.removeItem('tiebymin-analysis-data');
+        localStorage.removeItem("tiebymin-analysis-data");
         // Reset state di context juga
-        setAnalysisData({ tinggi: '', berat: '', umur: '', body_shape_id: '' });
+        setAnalysisData({ tinggi: "", berat: "", umur: "", body_shape_id: "" });
       }
 
       const redirectTimer = setTimeout(() => {
@@ -166,8 +185,13 @@ function HalamanKameraWajahContent() {
 
       return () => clearTimeout(redirectTimer);
     }
-  }, [completedAnalyses, analysisResultId, totalAnalyses, router, setAnalysisData]); // Tambahkan dependency
-
+  }, [
+    completedAnalyses,
+    analysisResultId,
+    totalAnalyses,
+    router,
+    setAnalysisData,
+  ]); // Tambahkan dependency
 
   // Helper function to convert data URL to Blob
   const dataURLtoBlob = (dataurl: string) => {
@@ -213,10 +237,13 @@ function HalamanKameraWajahContent() {
   const handleFullAnalysis = async () => {
     const { tinggi, berat, umur, body_shape_id } = analysisData;
 
-
     console.log("MENGIRIM PAYLOAD KE API:", {
-      tinggi, berat, umur, body_shape_id, foto_wajah: "ada"
-  });
+      tinggi,
+      berat,
+      umur,
+      body_shape_id,
+      foto_wajah: "ada",
+    });
 
     if (!capturedImage) {
       setApiError(
@@ -234,30 +261,31 @@ function HalamanKameraWajahContent() {
     }
 
     const formData = new FormData();
-    formData.append("user_id", "8a40ef18-1335-479e-8465-b63cdc3ebc88");  
+    formData.append("user_id", "8a40ef18-1335-479e-8465-b63cdc3ebc88");
     formData.append("tinggi_badan", tinggi);
     formData.append("berat_badan", berat);
     formData.append("umur", umur);
-    formData.append("body_shape_id", body_shape_id)
+    formData.append("body_shape_id", body_shape_id);
     formData.append("foto_wajah", imageBlob, "face-photo.png");
-
 
     try {
       const response = await axios.post(
-        "https://26297bc18648.ngrok-free.app/v1/analysis/full-analysis",
-        formData 
+        `${url}/v1/analysis/full-analysis`,
+        formData
       );
 
       if (response.status >= 200 && response.status < 300) {
         const resultId = response.data.analysis_result_id;
         if (resultId) {
           setAnalysisResultId(resultId);
-          setAppState("ANALYZING"); 
+          setAppState("ANALYZING");
         } else {
           throw new Error("API berhasil tapi tidak mengembalikan result ID.");
         }
       } else {
-        throw new Error(response.data?.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          response.data?.message || `HTTP error! status: ${response.status}`
+        );
       }
 
       setAppState("ANALYZING");
@@ -266,7 +294,7 @@ function HalamanKameraWajahContent() {
       setApiError(
         error.message ||
           "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
-      );  
+      );
       setAppState("API_ERROR");
     }
   };
@@ -282,7 +310,7 @@ function HalamanKameraWajahContent() {
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center max-w-lg mx-auto">
           <RiveLoadingAnimation />
-        <p className="text-2xl font-bold mt-4">
+          <p className="text-2xl font-bold mt-4">
             {progress < 100 ? `${progress}%` : "99%"}
           </p>
           <div className="mt-8">
@@ -294,25 +322,25 @@ function HalamanKameraWajahContent() {
     );
   }
 
-  if (appState === 'RESULTS') {
+  if (appState === "RESULTS") {
     // List analisa hasil, bisa diubah sesuai kebutuhan
     const analysesList = [
       "Analisa bentuk wajahmu",
       "Analisa tone kulitmu",
       "Analisa kecocokan gaya selebriti",
-      "Rekomendasi hijab personal"
+      "Rekomendasi hijab personal",
     ];
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center">
           <RiveLoadingAnimation />
-        <p className="text-2xl font-bold mt-4">99%</p>
+          <p className="text-2xl font-bold mt-4">99%</p>
         </div>
         <div className="mt-12 w-full max-w-sm flex flex-col gap-3">
           {analysesList.map((label, index) => {
             const isCompleted = index < completedAnalyses;
             return (
-              <button
+              <Button
                 key={index}
                 className={`w-full p-3 font-semibold rounded-xl flex items-center justify-between transition-all duration-500
                   ${
@@ -325,12 +353,12 @@ function HalamanKameraWajahContent() {
                 <span>{label}</span>
                 {isCompleted ? (
                   <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                    <CheckIcon className="text-gray-800" />
+                    <Check className="text-gray-800" />
                   </div>
                 ) : (
                   <AnalysisIcon className="stroke-gray-400" />
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -344,12 +372,12 @@ function HalamanKameraWajahContent() {
         <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
           <h2 className="text-2xl font-bold text-red-600">Analisa Gagal</h2>
           <p className="text-gray-600 mt-2 mb-6">{apiError}</p>
-          <button
+          <Button
             onClick={handleRetake}
             className="w-full py-3 px-4 bg-gray-700 text-white font-semibold rounded-xl hover:bg-gray-800"
           >
             Coba Lagi
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -368,30 +396,28 @@ function HalamanKameraWajahContent() {
 
       {appState === "CAMERA" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between p-6">
-           <div className="relative z-20 text-center flex items-center gap-3 text-black bg-[#FFC6C6] mt-18 py-4 px-6 rounded-2xl">
-            <Image src="/si_warning-fill.svg" alt="si-warning" width={25} height={25}/>
-            <h1 className="text-md">
-            Letakan Wajah di dalam Frame
-            </h1>
-       
+          <div className="relative z-20 text-center flex items-center gap-3 text-black bg-[#FFC6C6] mt-18 py-4 px-6 rounded-2xl">
+            <Image
+              src="/si_warning-fill.svg"
+              alt="si-warning"
+              width={25}
+              height={25}
+            />
+            <h1 className="text-md">Letakan Wajah di dalam Frame</h1>
           </div>
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] rounded-[50%/60%] shadow-[0_0_0_99vmax_rgba(0,0,0,0.5)] pointer-events-none"
-          ></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] rounded-[50%/60%] shadow-[0_0_0_99vmax_rgba(0,0,0,0.5)] pointer-events-none"></div>
 
           {/* Bingkai Pemandu Hijau */}
           <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] border-4 sm:border-[6px] border-dashed border-green-400 rounded-[50%/60%] animate-pulse pointer-events-none"
-              style={{ animationDuration: "3s" }}
-            ></div>
-          <button
-              onClick={handleCapture}
-              className="relative z-20 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
-            >
-              <div className="w-[72px] h-[72px] bg-white rounded-full border-2 border-black flex items-center justify-center">
-                <CameraIcon className="text-black w-9 h-9" />
-              </div>
-            </button>
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] border-4 sm:border-[6px] border-dashed border-green-400 rounded-[50%/60%] animate-pulse pointer-events-none"
+            style={{ animationDuration: "3s" }}
+          ></div>
+          <Button
+            onClick={handleCapture}
+            className="relative z-20 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
+          >
+            <Camera className="text-white size-12 fill-black" />
+          </Button>
         </div>
       )}
 
@@ -412,18 +438,18 @@ function HalamanKameraWajahContent() {
               className="rounded-lg w-full h-auto object-cover mb-6"
             />
             <div className="w-full flex flex-col gap-3">
-              <button
+              <Button
                 onClick={handleRetake}
                 className="w-full py-3 px-4 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100"
               >
                 Ambil gambar ulang
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleAnalyze}
-                className="w-full py-3 px-4 bg-pink-200 text-pink-800 font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-[#FFC6C6] text-black font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
               >
-                Mulai Analisa <AnalysisIcon className="stroke-pink-800" />
-              </button>
+                Mulai Analisa <AnalysisIcon className="stroke-black" />
+              </Button>
             </div>
           </div>
         </div>
