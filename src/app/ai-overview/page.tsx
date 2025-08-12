@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
 import { Navbar } from "@/components/component-landing/navbar";
 import Image from "next/image";
+import { Suspense, useEffect, useState } from "react";
 
-import ShapeSection from "../../components/sections/ShapeSection";
-import ColorToneSection from "../../components/sections/ColorToneSection";
-import BodySection from "../../components/sections/BodySection";
-import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
-import TipsSection from "../../components/sections/TipsSection";
-import { useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
 import { AnalysisData as GlobalAnalysisData } from "@/types";
+import axios from "axios";
+import { useSearchParams } from "next/navigation";
+import BodySection from "../../components/sections/BodySection";
+import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
+import ColorToneSection from "../../components/sections/ColorToneSection";
+import ShapeSection from "../../components/sections/ShapeSection";
+import TipsSection from "../../components/sections/TipsSection";
 
 const analysisTabs = [
   { id: "shape", text: "Shape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
@@ -182,7 +182,6 @@ interface PhotoData {
 }
 
 function BeautyAnalysisPageInner() {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState("shape");
   const searchParams = useSearchParams();
 
@@ -194,6 +193,7 @@ function BeautyAnalysisPageInner() {
   >([]);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -242,6 +242,35 @@ function BeautyAnalysisPageInner() {
 
     fetchAllData();
   }, [searchParams]);
+
+  const downloadPDF = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch("/api/generate-pdf", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to generate PDF: ${errorText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "hasil-analisa-lengkap.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Gagal mengunduh PDF. Silakan periksa konsol untuk detail.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const renderContent = () => {
     if (isLoading)
@@ -331,16 +360,17 @@ function BeautyAnalysisPageInner() {
                 <span>Bagikan Hasil</span>
               </Button>
               <Button
-                onClick={() => router.push("/ai-overview/pdf")}
-                className="bg-[#F8B4C4] text-sm text-black px-4 py-2 rounded-full flex items-center justify-center gap-1 transition hover:bg-pink-300"
+                onClick={downloadPDF}
+                disabled={isDownloading}
+                className="bg-pink-500 text-white px-4 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400"
               >
                 <Image
                   src="/overview-ai/icons/ic_round-download.svg"
                   width={18}
                   height={18}
-                  alt="Download Analisa"
+                  alt="Unduh Hasil"
                 />
-                <span>Download Analisa</span>
+                <span>{isDownloading ? "Downloading..." : "Unduh Hasil"}</span>
               </Button>
             </div>
           </div>

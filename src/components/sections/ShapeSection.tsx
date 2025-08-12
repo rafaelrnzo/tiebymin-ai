@@ -47,7 +47,7 @@ const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
 );
 
 const generateGimmickChartData = (mainShapeName: string): IShape[] => {
-  const allShapes = ["Heart", "Oblong", "Oval", "Round", "Square"];
+  const allShapes = ["Heart", "Oblong", "Oval", "Round", "Square", "Diamond"];
 
   const mainValue = 90;
   const otherCount = allShapes.length - 1;
@@ -121,19 +121,21 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
   return (
     <div className="flex flex-col gap-y-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="border border-gray-300 rounded-2xl p-4 sm:p-6">
+        <div className="border rounded-2xl p-4 sm:p-6">
           <h3 className="font-bold text-5xl font-oswald">
             {shapeDetails.name}
           </h3>
           <p className="text-gray-600 leading-relaxed mt-4">
-            <span className="text-lg">Fakta Unik</span>
             {shapeDetails.penjelasan_face_shape
               .split("-")
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) =>
                 index === 0 ? (
-                  <span key={index} className="block mb-1">
-                    {item.trim()}
+                  <span key={index}>
+                    <span className="block">{item.trim()}</span>
+                    <span className="block text-lg my-3 font-bold font-handlee text-black">
+                      Fakta Unik
+                    </span>
                   </span>
                 ) : (
                   <span key={index} className="block">
@@ -154,7 +156,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .map((item: string, index: number) => (
                 <li key={index} className="flex items-center">
                   <span className="mr-3 text-gray-500">•</span>
-                  <span className="text-sm">{item.trim()}</span>
+                  <span>{item.trim()}</span>
                 </li>
               ))}
           </ul>
