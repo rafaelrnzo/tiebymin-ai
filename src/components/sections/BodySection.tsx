@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
+import { BodyShape, BmiCategory } from "@/types";
 
 // --- Data Statis Preview ---
 const ALL_BODY_TYPES_PREVIEW = [
@@ -28,8 +29,9 @@ const BodySection: React.FC<BodySectionProps> = ({
   bmiResult,
   bmiCategoryId,
 }) => {
-  const [bodyDetails, setBodyDetails] = useState<any>(null);
-  const [bmiCategoryDetails, setBmiCategoryDetails] = useState<any>(null);
+  const [bodyDetails, setBodyDetails] = useState<BodyShape | null>(null);
+  const [bmiCategoryDetails, setBmiCategoryDetails] =
+    useState<BmiCategory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

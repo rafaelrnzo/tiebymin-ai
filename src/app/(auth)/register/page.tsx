@@ -150,7 +150,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Register Button */}
               <Button
                 type="submit"
                 className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-3 rounded-lg font-bold mt-8 transition-colors"
@@ -158,7 +157,6 @@ export default function LoginPage() {
                 Daftar Sekarang
               </Button>
 
-              {/* Social Login */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
                 <Button
                   type="button"

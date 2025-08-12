@@ -4,15 +4,16 @@ import { useState, useEffect, Suspense } from "react";
 import { Navbar } from "@/components/component-landing/navbar";
 import Image from "next/image";
 
-import ShapeSection from "./sections/ShapeSection";
-import ColorToneSection from "./sections/ColorToneSection";
-import BodySection from "./sections/BodySection";
-import CelebrityMatchSection from "./sections/CelebrityMatchSection";
-import TipsSection from "./sections/TipsSection";
-import { useSearchParams } from "next/navigation";
+import ShapeSection from "../../components/sections/ShapeSection";
+import ColorToneSection from "../../components/sections/ColorToneSection";
+import BodySection from "../../components/sections/BodySection";
+import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
+import TipsSection from "../../components/sections/TipsSection";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
+import { AnalysisData as GlobalAnalysisData } from "@/types";
 
 const analysisTabs = [
   { id: "shape", text: "Shape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
@@ -165,30 +166,44 @@ const hijabProducts = [
   },
 ];
 
-// Move all logic that uses useSearchParams into a child component wrapped in Suspense
+interface AnalysisData extends GlobalAnalysisData {
+  celebrity_id: number | null;
+  analysis_details: {
+    bmi: number;
+  };
+}
+
+interface PhotoData {
+  is_processed: boolean;
+  file_path: string;
+  photo_type: "face_original" | "face_processed" | string;
+}
+
 function BeautyAnalysisPageInner() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("shape");
   const searchParams = useSearchParams();
 
-  // State analysisData akan menyimpan SELURUH respons dari API
-  const [analysisData, setAnalysisData] = useState<any>(null);
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
 
-  const [recommendedProducts, setRecommendedProducts] = useState<any[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState<
+    typeof hijabProducts
+  >([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const shuffled = [...hijabProducts].sort(() => 0.5 - Math.random());
-    setRecommendedProducts(shuffled.slice(0, 3)); // Ambil 3 produk pertama dari array yang sudah diacak
+    setRecommendedProducts(shuffled.slice(0, 3));
 
     const resultId = searchParams.get("result_id");
 
     if (!resultId) {
       setError("Analysis Result ID tidak ditemukan di URL.");
       setIsLoading(false);
-      return; // Keluar dari useEffect jika tidak ada ID
+      return;
     }
 
     const fetchAllData = async () => {
@@ -205,13 +220,13 @@ function BeautyAnalysisPageInner() {
         setAnalysisData(analysisResponse.data);
 
         const processedPhoto = photosResponse.data.find(
-          (photo: any) => photo.is_processed === true
+          (photo: PhotoData) => photo.is_processed === true
         );
         if (processedPhoto) {
           setUserPhotoUrl(processedPhoto.file_path);
         } else {
           const originalPhoto = photosResponse.data.find(
-            (photo: any) => photo.photo_type === "face_original"
+            (photo: PhotoData) => photo.photo_type === "face_original"
           );
           if (originalPhoto) setUserPhotoUrl(originalPhoto.file_path);
         }
@@ -231,34 +246,50 @@ function BeautyAnalysisPageInner() {
       return <div className="text-center p-8">Loading analysis data...</div>;
     if (error)
       return <div className="text-center p-8 text-red-500">{error}</div>;
-    // Jika data utama tidak ada setelah fetch, tampilkan pesan
     if (!analysisData)
       return <div className="text-center p-8">No analysis data found.</div>;
 
     switch (activeTab) {
       case "shape":
-        return <ShapeSection shapeId={analysisData.face_shape_id} />;
+        return <ShapeSection shapeId={analysisData.face_shape_id.toString()} />;
       case "color":
         return (
-          <ColorToneSection colorAnalysisId={analysisData.color_analysis_id} />
+          <ColorToneSection
+            colorAnalysisId={analysisData.color_analysis_id.toString()}
+          />
         );
       case "body":
         return (
           <BodySection
-            bodyShapeId={analysisData.body_shape_id}
-            bmiCategoryId={analysisData.bmi_category_id}
-            bmiResult={analysisData.analysis_details.bmi}
+            bodyShapeId={analysisData.body_shape_id.toString()}
+            bmiCategoryId={analysisData.bmi_category_id.toString()}
+            bmiResult={{ value: analysisData.analysis_details.bmi }}
           />
         );
       case "celebrity":
-        // Teruskan celebrity_id. Komponen anak akan menangani jika nilainya null
         return (
-          <CelebrityMatchSection celebrityId={analysisData.celebrity_id} />
+          <CelebrityMatchSection
+            celebrityId={
+              analysisData.celebrity_id
+                ? analysisData.celebrity_id.toString()
+                : null
+            }
+          />
         );
       case "tips":
-        return <TipsSection analysisData={analysisData} />;
+        return (
+          <TipsSection
+            analysisData={{
+              ...analysisData,
+              face_shape_id: analysisData.face_shape_id.toString(),
+              color_analysis_id: analysisData.color_analysis_id.toString(),
+              body_shape_id: analysisData.body_shape_id.toString(),
+              bmi_category_id: analysisData.bmi_category_id.toString(),
+            }}
+          />
+        );
       default:
-        return <ShapeSection shapeId={analysisData.face_shape_id} />;
+        return <ShapeSection shapeId={analysisData.face_shape_id.toString()} />;
     }
   };
 
@@ -268,7 +299,6 @@ function BeautyAnalysisPageInner() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row justify-between w-full gap-8 mb-16">
-          {/* Left Side - Analysis Result Card */}
           <div className="bg-[#2D2D2D] w-full lg:w-[35%] rounded-3xl p-6 sm:p-8 text-white flex flex-col">
             <div className="mb-6">
               <Image
@@ -298,7 +328,10 @@ function BeautyAnalysisPageInner() {
                 />
                 <span>Bagikan Hasil</span>
               </Button>
-              <Button className="bg-[#F8B4C4] text-sm text-black px-4 py-2 rounded-full flex items-center justify-center gap-1 transition hover:bg-pink-300">
+              <Button
+                onClick={() => router.push("/ai-overview/pdf")}
+                className="bg-[#F8B4C4] text-sm text-black px-4 py-2 rounded-full flex items-center justify-center gap-1 transition hover:bg-pink-300"
+              >
                 <Image
                   src="/overview-ai/icons/ic_round-download.svg"
                   width={18}
@@ -310,9 +343,7 @@ function BeautyAnalysisPageInner() {
             </div>
           </div>
 
-          {/* Right Side - Dynamic Content Area */}
           <div className="w-full lg:w-[70%]">
-            {/* Tab Navigation */}
             <div className="flex flex-wrap border-b border-gray-300">
               {analysisTabs.map((tab) => (
                 <Button
@@ -336,12 +367,10 @@ function BeautyAnalysisPageInner() {
               ))}
             </div>
 
-            {/* Dynamic Content Rendered Here */}
             <div className="mt-6">{renderContent()}</div>
           </div>
         </div>
 
-        {/* Product Recommendations Section */}
         <section>
           <h1 className="text-4xl lg:text-5xl font-oswald font-bold text-[#333333] mb-10">
             Rekomendasi Produk

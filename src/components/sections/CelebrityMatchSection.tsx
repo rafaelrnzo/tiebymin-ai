@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
 import url from "@/lib/url";
+import { Celebrity } from "@/types";
 
 // --- Komponen Utama ---
 interface CelebrityMatchSectionProps {
@@ -13,7 +14,7 @@ interface CelebrityMatchSectionProps {
 const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
   celebrityId,
 }) => {
-  const [matchData, setMatchData] = useState<any>(null);
+  const [matchData, setMatchData] = useState<Celebrity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [matchPercentage] = useState(

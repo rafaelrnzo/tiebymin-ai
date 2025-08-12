@@ -119,11 +119,11 @@ export default function FaceScanPrepPage() {
           response.data?.message || `HTTP error! status: ${response.status}`
         );
       }
-    } catch (error: any) {
-      console.error("API Error:", error);
-      setApiError(
-        error.message || "Terjadi kesalahan saat menghubungi server."
-      );
+    } catch (error) {
+      const err = error as Error;
+
+      console.error("API Error:", err);
+      setApiError(err.message || "Terjadi kesalahan saat menghubungi server.");
     } finally {
       setIsApiLoading(false);
       setSelectedImage(null); // Tutup modal setelah selesai
@@ -170,19 +170,17 @@ export default function FaceScanPrepPage() {
             />
           </div>
 
-          {/* Step 1: Analisa */}
           <div className="bg-[#F0F0F0] rounded-xl px-4 py-3 flex items-center justify-between w-full shadow-md">
-            <span className="text-gray-800 font-bold text-base sm:text-lg">
+            <span className="text-gray-800 font-poppins font-bold text-base sm:text-lg">
               Analisa
             </span>
-            <span className="text-gray-800 font-bold text-base sm:text-lg">
+            <span className="text-gray-800 font-poppins font-bold text-base sm:text-lg">
               03
             </span>
           </div>
 
-          {/* Step 2: Pilih Bentuk Tubuh */}
           <div className="bg-[#F0F0F0] rounded-xl px-4 py-3 flex items-center justify-between w-full shadow-md">
-            <span className="text-gray-800 font-bold text-base sm:text-lg">
+            <span className="text-gray-800 font-bold font-poppins text-base sm:text-lg">
               Pilih bentuk Tubuh Kamu
             </span>
             <Image
@@ -197,7 +195,7 @@ export default function FaceScanPrepPage() {
           {/* Step 3: Scan Wajah (Active) */}
           <div className="bg-[#EF789B] rounded-2xl p-4 sm:p-5 text-white w-full shadow-md">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-base sm:text-lg font-bold">
+              <h2 className="font-poppins text-base sm:text-lg font-bold">
                 Scan Wajah Kamu
               </h2>
               <Image
@@ -208,7 +206,7 @@ export default function FaceScanPrepPage() {
                 className="sparkle-animation"
               />
             </div>
-            <p className="text-xs sm:text-sm leading-relaxed text-white">
+            <p className="font-poppins text-xs sm:text-sm leading-relaxed text-white">
               Kami butuh foto selfie-mu biar bisa analisis bentuk wajah dan
               warna kulit dengan akurat. Dengan begitu, rekomendasi hijab yang
               kami kasih bisa lebih sesuai.
@@ -223,7 +221,9 @@ export default function FaceScanPrepPage() {
               Siapkan Wajahmu
             </h1>
             <div className="hidden sm:flex items-center gap-2 bg-[#EF789B] rounded-full px-4 py-2 shadow-md">
-              <span className="text-md font-bold text-white">AI Powered</span>
+              <span className="text-md font-bold text-white font-poppins">
+                AI Powered
+              </span>
               <Image
                 src="/stars.png"
                 alt="stars"
@@ -240,7 +240,7 @@ export default function FaceScanPrepPage() {
                 key={index}
                 className="bg-transparent border border-black rounded-2xl p-4 sm:p-6 flex flex-col items-center text-center space-y-3 sm:space-y-4"
               >
-                <h3 className="font-bold text-base sm:text-lg text-gray-800">
+                <h3 className="font-poppins font-bold text-base sm:text-lg text-gray-800">
                   {card.title}
                 </h3>
                 <div className="h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center mb-1 sm:mb-2">
@@ -253,7 +253,7 @@ export default function FaceScanPrepPage() {
                   />
                 </div>
 
-                <p className="text-xs sm:text-sm text-gray-700 leading-snug">
+                <p className="font-poppins text-xs sm:text-sm text-gray-700 leading-snug">
                   {card.description}
                 </p>
               </div>
@@ -275,15 +275,19 @@ export default function FaceScanPrepPage() {
               className="bg-[#323232] text-white rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
               onClick={handleTakePhoto}
             >
-              <Camera className="mt-0.5 size-[30px] fill-white text-[#323232]" />
-              <span className="text-[20px]">Ambil Foto Sekarang</span>
+              <Camera className="size-[26px] fill-white text-[#323232]" />
+              <span className="text-[16px] font-poppins">
+                Ambil Foto Sekarang
+              </span>
             </Button>
             <Button
               className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
               onClick={handleUploadFromGallery}
             >
-              <ImageIcon className="transition-colors group-hover:text-white size-[30px]" />
-              <span className="text-[20px]">Upload dari Galeri</span>
+              <ImageIcon className="transition-colors group-hover:text-white size-[26px]" />
+              <span className="text-[16px] font-poppins">
+                Upload dari Galeri
+              </span>
             </Button>
           </div>
         </div>
@@ -293,10 +297,10 @@ export default function FaceScanPrepPage() {
       {selectedImage && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-lg">
           <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="font-oswald text-2xl font-bold text-gray-800">
               Gunakan Gambar Ini
             </h2>
-            <p className="text-gray-500 text-sm mt-1 mb-6">
+            <p className="font-poppins text-gray-500 text-sm mt-1 mb-6">
               Pastikan wajah terlihat jelas ya
             </p>
             <Image

@@ -32,7 +32,7 @@ export default function Step2Page() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-center lg:text-left">
               Lengkapi Data Diri
             </h2>
-            <p className="mb-4">
+            <p className="mb-4 font-poppins">
               Semakin lengkap data kamu akan membuat hasil analisa kami jauh
               lebih tepat, jangan lupa di isi ya....
             </p>
