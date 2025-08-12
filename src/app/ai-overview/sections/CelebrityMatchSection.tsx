@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
+import url from "@/lib/url";
 
 // --- Komponen Utama ---
 interface CelebrityMatchSectionProps {
@@ -30,10 +31,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
       try {
         // Endpoint untuk mengambil detail selebriti berdasarkan ID
         const response = await axios.get(
-          `${process.env.HTTP_URL}/v1/celebrities/${celebrityId}`,
-          {
-            headers: { "ngrok-skip-browser-warning": "true" },
-          }
+          `${url}/v1/celebrities/${celebrityId}`
         );
         setMatchData(response.data);
       } catch (err) {

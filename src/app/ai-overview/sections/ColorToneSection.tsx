@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import url from "@/lib/url";
 
 interface ColorCircleProps {
   color: string;
@@ -70,10 +71,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
       setError(null);
       try {
         const response = await axios.get(
-          `${process.env.HTTP_URL}/v1/color-analysis/${colorAnalysisId}`,
-          {
-            headers: { "ngrok-skip-browser-warning": "true" },
-          }
+          `${url}/v1/color-analysis/${colorAnalysisId}`
         );
         setColorData(response.data);
       } catch (err) {

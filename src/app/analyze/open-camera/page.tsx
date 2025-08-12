@@ -1,30 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import { useAnalysis } from "@/context/AnalysisContext";
 import { useRive } from "@rive-app/react-canvas";
+import { Button } from "@/components/ui/button";
+import url from "@/lib/url";
+import { Camera, Check } from "lucide-react";
 
-const CameraIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />{" "}
-    <circle cx="12" cy="13" r="3" />
-  </svg>
-);
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -41,22 +26,6 @@ const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path d="M12 2a10 10 0 1 0 10 10c0-4.42-2.87-8.17-6.84-9.5c-.52-.17-1.04.22-1 .75c.03.35.25.65.57.8c2.32.93 3.97 3.19 3.97 5.95a6 6 0 1 1-7.23-5.45c.4-.19.68-.59.59-1.03c-.1-0.44-.52-.75-.97-.63C5.66 3.6 2 7.4 2 12a10 10 0 0 0 10 10z" />{" "}
     <path d="m15.58 12.5-1.08-2.5-2.5-1.08 1.08-2.5 2.5-1.08 1.08 2.5 2.5 1.08-1.08 2.5-2.5 1.08z" />{" "}
     <path d="m6.5 12.5-1-2-2-1 1-2 2-1 1 2 2 1-1 2-2 1z" />
-  </svg>
-);
-const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <polyline points="20 6 9 17 4 12"></polyline>
   </svg>
 );
 
@@ -301,7 +270,7 @@ function HalamanKameraWajahContent() {
 
     try {
       const response = await axios.post(
-        `${process.env.HTTP_URL}/v1/analysis/full-analysis`,
+        `${url}/v1/analysis/full-analysis`,
         formData
       );
 
@@ -371,7 +340,7 @@ function HalamanKameraWajahContent() {
           {analysesList.map((label, index) => {
             const isCompleted = index < completedAnalyses;
             return (
-              <button
+              <Button
                 key={index}
                 className={`w-full p-3 font-semibold rounded-xl flex items-center justify-between transition-all duration-500
                   ${
@@ -384,12 +353,12 @@ function HalamanKameraWajahContent() {
                 <span>{label}</span>
                 {isCompleted ? (
                   <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                    <CheckIcon className="text-gray-800" />
+                    <Check className="text-gray-800" />
                   </div>
                 ) : (
                   <AnalysisIcon className="stroke-gray-400" />
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -403,12 +372,12 @@ function HalamanKameraWajahContent() {
         <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
           <h2 className="text-2xl font-bold text-red-600">Analisa Gagal</h2>
           <p className="text-gray-600 mt-2 mb-6">{apiError}</p>
-          <button
+          <Button
             onClick={handleRetake}
             className="w-full py-3 px-4 bg-gray-700 text-white font-semibold rounded-xl hover:bg-gray-800"
           >
             Coba Lagi
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -443,14 +412,12 @@ function HalamanKameraWajahContent() {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] border-4 sm:border-[6px] border-dashed border-green-400 rounded-[50%/60%] animate-pulse pointer-events-none"
             style={{ animationDuration: "3s" }}
           ></div>
-          <button
+          <Button
             onClick={handleCapture}
             className="relative z-20 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
           >
-            <div className="w-[72px] h-[72px] bg-white rounded-full border-2 border-black flex items-center justify-center">
-              <CameraIcon className="text-black w-9 h-9" />
-            </div>
-          </button>
+            <Camera className="text-white size-12 fill-black" />
+          </Button>
         </div>
       )}
 
@@ -471,18 +438,18 @@ function HalamanKameraWajahContent() {
               className="rounded-lg w-full h-auto object-cover mb-6"
             />
             <div className="w-full flex flex-col gap-3">
-              <button
+              <Button
                 onClick={handleRetake}
                 className="w-full py-3 px-4 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100"
               >
                 Ambil gambar ulang
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleAnalyze}
-                className="w-full py-3 px-4 bg-pink-200 text-pink-800 font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-[#FFC6C6] text-black font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
               >
-                Mulai Analisa <AnalysisIcon className="stroke-pink-800" />
-              </button>
+                Mulai Analisa <AnalysisIcon className="stroke-black" />
+              </Button>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
+import url from "@/lib/url";
 
 // --- Komponen Helper untuk Kartu Tip ---
 interface TipCardProps {
@@ -19,7 +20,17 @@ const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
     <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg sm:text-xl">
       {category}
     </h3>
-    <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">{tip}</p>
+    <ul className="text-gray-600 text-xs sm:text-sm leading-relaxed space-y-2">
+      {tip
+        .split("-")
+        .filter((item) => item.trim() !== "")
+        .map((item, index) => (
+          <li key={index} className="flex items-center">
+            <span className="mr-3 mt-1 text-gray-500 mb-1">•</span>
+            <span>{item.trim()}</span>
+          </li>
+        ))}
+    </ul>
   </div>
 );
 
@@ -57,20 +68,10 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
       try {
         // Lakukan SEMUA panggilan API untuk mendapatkan tips secara paralel
         const [faceRes, colorRes, bodyRes, bmiRes] = await Promise.all([
-          axios.get(`${process.env.HTTP_URL}/v1/face-shapes/${face_shape_id}`, {
-            headers: { "ngrok-skip-browser-warning": "true" },
-          }),
-          axios.get(
-            `${process.env.HTTP_URL}/v1/color-analysis/${color_analysis_id}`,
-            { headers: { "ngrok-skip-browser-warning": "true" } }
-          ),
-          axios.get(`${process.env.HTTP_URL}/v1/body-shapes/${body_shape_id}`, {
-            headers: { "ngrok-skip-browser-warning": "true" },
-          }),
-          axios.get(
-            `${process.env.HTTP_URL}/v1/bmi-categories/${bmi_category_id}`,
-            { headers: { "ngrok-skip-browser-warning": "true" } }
-          ),
+          axios.get(`${url}/v1/face-shapes/${face_shape_id}`),
+          axios.get(`${url}/v1/color-analysis/${color_analysis_id}`),
+          axios.get(`${url}/v1/body-shapes/${body_shape_id}`),
+          axios.get(`${url}/v1/bmi-categories/${bmi_category_id}`),
         ]);
 
         // Gabungkan semua tips yang relevan ke dalam satu objek

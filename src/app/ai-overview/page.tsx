@@ -11,6 +11,8 @@ import CelebrityMatchSection from "./sections/CelebrityMatchSection";
 import TipsSection from "./sections/TipsSection";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import url from "@/lib/url";
 
 const analysisTabs = [
   { id: "shape", text: "Shape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
@@ -194,17 +196,9 @@ function BeautyAnalysisPageInner() {
       setError(null);
       try {
         const [analysisResponse, photosResponse] = await Promise.all([
+          axios.get(`${url}/v1/user-analysis-results/${resultId}`),
           axios.get(
-            `${process.env.HTTP_URL}/v1/user-analysis-results/${resultId}`,
-            {
-              headers: { "ngrok-skip-browser-warning": "true" },
-            }
-          ),
-          axios.get(
-            `${process.env.HTTP_URL}/v1/user-photos/analysis-results/${resultId}/photos`,
-            {
-              headers: { "ngrok-skip-browser-warning": "true" },
-            }
+            `${url}/v1/user-photos/analysis-results/${resultId}/photos`
           ),
         ]);
 
@@ -295,7 +289,7 @@ function BeautyAnalysisPageInner() {
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
             <div className="mt-auto flex flex-col sm:flex-row gap-4">
-              <button className="bg-white text-sm text-[#2D2D2D] px-4 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200">
+              <Button className="bg-white text-sm text-[#2D2D2D] px-4 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200">
                 <Image
                   src="/overview-ai/icons/material-symbols_share.svg"
                   width={18}
@@ -303,8 +297,8 @@ function BeautyAnalysisPageInner() {
                   alt="Bagikan Hasil"
                 />
                 <span>Bagikan Hasil</span>
-              </button>
-              <button className="bg-[#F8B4C4] text-sm text-black px-4 py-2 rounded-full flex items-center justify-center gap-1 transition hover:bg-pink-300">
+              </Button>
+              <Button className="bg-[#F8B4C4] text-sm text-black px-4 py-2 rounded-full flex items-center justify-center gap-1 transition hover:bg-pink-300">
                 <Image
                   src="/overview-ai/icons/ic_round-download.svg"
                   width={18}
@@ -312,7 +306,7 @@ function BeautyAnalysisPageInner() {
                   alt="Download Analisa"
                 />
                 <span>Download Analisa</span>
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -321,7 +315,7 @@ function BeautyAnalysisPageInner() {
             {/* Tab Navigation */}
             <div className="flex flex-wrap border-b border-gray-300">
               {analysisTabs.map((tab) => (
-                <button
+                <Button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-2 text-sm transition-all -mb-px ${
@@ -338,7 +332,7 @@ function BeautyAnalysisPageInner() {
                     className={`${activeTab !== tab.id && "opacity-60"}`}
                   />
                   <span>{tab.text}</span>
-                </button>
+                </Button>
               ))}
             </div>
 
@@ -434,7 +428,7 @@ function BeautyAnalysisPageInner() {
                       <span className="text-gray-600"> {product.reason}</span>
                     </p>
                   </div>
-                  <button className="mt-auto bg-[#ED80A7] w-full py-3 px-4 font-bold rounded-lg text-white flex items-center justify-center gap-3 text-base hover:bg-pink-500 transition-colors">
+                  <Button className="mt-auto bg-[#ED80A7] w-full py-3 px-4 font-bold rounded-lg text-white flex items-center justify-center gap-3 text-base hover:bg-pink-500 transition-colors">
                     Beli Sekarang
                     <Image
                       src="/overview-ai/icons/mynaui_cart-solid.svg"
@@ -442,7 +436,7 @@ function BeautyAnalysisPageInner() {
                       height={20}
                       alt="Shopping Cart"
                     />
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}

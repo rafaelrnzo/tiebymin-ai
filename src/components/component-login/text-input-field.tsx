@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Button } from "../ui/button";
 
 // Komponen baru untuk input angka dengan tombol kontrol
 interface NumberInputWithControlsProps {
@@ -33,7 +34,10 @@ function NumberInputWithControls({
 
   return (
     <div className="flex items-center space-x-2">
-      <label htmlFor={id} className="text-gray-700 font-medium whitespace-nowrap">
+      <label
+        htmlFor={id}
+        className="text-gray-700 font-medium whitespace-nowrap"
+      >
         {label}
       </label>
       <div className="flex items-center border border-gray-300 rounded-md">
@@ -47,20 +51,49 @@ function NumberInputWithControls({
         />
         {unit && <span className="text-gray-500 pr-2">{unit}</span>}
         <div className="flex flex-col items-center justify-center h-full border-l border-gray-300 p-1">
-          <button onClick={handleIncrement} className="w-5 h-5 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-sm">
+          <Button
+            onClick={handleIncrement}
+            className="w-5 h-5 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-sm"
+          >
             {/* SVG untuk panah atas */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-          </button>
-          <button onClick={handleDecrement} className="w-5 h-5 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-sm">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m18 15-6-6-6 6" />
+            </svg>
+          </Button>
+          <Button
+            onClick={handleDecrement}
+            className="w-5 h-5 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-sm"
+          >
             {/* SVG untuk panah bawah */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-          </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </Button>
         </div>
       </div>
     </div>
   );
 }
-
 
 // Komponen Form Utama yang telah diperbarui
 interface BodyMeasurementsFormProps {
@@ -80,11 +113,12 @@ export default function BodyMeasurementsForm({
 }: BodyMeasurementsFormProps) {
   return (
     <div className="p-8 bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800">Lengkapi Data Diri</h1>
-        <p className="text-gray-500 mt-2 mb-8">
-            Semakin lengkap data kamu akan membuat hasil analisa kami jauh lebih tepat, jangan lupa diisi ya....
-        </p>
-      
+      <h1 className="text-3xl font-bold text-gray-800">Lengkapi Data Diri</h1>
+      <p className="text-gray-500 mt-2 mb-8">
+        Semakin lengkap data kamu akan membuat hasil analisa kami jauh lebih
+        tepat, jangan lupa diisi ya....
+      </p>
+
       <div className="flex flex-col md:flex-row items-center justify-center md:justify-around space-y-6 md:space-y-0 md:space-x-4 mb-8">
         <NumberInputWithControls
           label="Tinggi Badan"
@@ -109,12 +143,12 @@ export default function BodyMeasurementsForm({
       </div>
 
       {/* Tombol Submit */}
-      <button
+      <Button
         onClick={onSubmit}
         className="w-full h-14 bg-gray-800 hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
       >
         Selanjutnya
-      </button>
+      </Button>
     </div>
   );
 }

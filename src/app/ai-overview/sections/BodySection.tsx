@@ -3,6 +3,8 @@
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import url from "@/lib/url";
 
 // --- Data Statis Preview ---
 const ALL_BODY_TYPES_PREVIEW = [
@@ -44,16 +46,9 @@ const BodySection: React.FC<BodySectionProps> = ({
       setError(null);
       try {
         const [bodyShapeResponse, bmiCategoryResponse] = await Promise.all([
-          axios.get(`${process.env.HTTP_URL}/v1/body-shapes/${bodyShapeId}`, {
-            headers: { "ngrok-skip-browser-warning": "true" },
-          }),
+          axios.get(`${url}/v1/body-shapes/${bodyShapeId}`),
 
-          axios.get(
-            `${process.env.HTTP_URL}/v1/bmi-categories/${bmiCategoryId}`,
-            {
-              headers: { "ngrok-skip-browser-warning": "true" },
-            }
-          ),
+          axios.get(`${url}/v1/bmi-categories/${bmiCategoryId}`),
         ]);
         setBodyDetails(bodyShapeResponse.data);
         setBmiCategoryDetails(bmiCategoryResponse.data);
@@ -93,7 +88,7 @@ const BodySection: React.FC<BodySectionProps> = ({
         </p>
         <div className="flex gap-2 justify-center mt-6">
           {ALL_BODY_TYPES_PREVIEW.map((bt) => (
-            <button
+            <Button
               key={bt.id}
               type="button"
               className={`rounded-lg p-1 border transition-all ${
@@ -112,7 +107,7 @@ const BodySection: React.FC<BodySectionProps> = ({
                 className="w-9 h-16 object-contain"
                 style={{ opacity: bt.name === bodyDetails.name ? 1 : 0.5 }}
               />
-            </button>
+            </Button>
           ))}
         </div>
       </div>

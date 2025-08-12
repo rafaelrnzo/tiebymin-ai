@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Button } from "../ui/button";
 
 // Komponen baru untuk input angka dengan tombol kontrol
 interface NumberInputWithControlsProps {
@@ -47,7 +48,7 @@ function NumberInputWithControls({
       />
       {unit && <span className="text-gray-300 font-medium w-5">{unit}</span>}
       <div className="flex flex-col items-center justify-center">
-        <button
+        <Button
           onClick={handleIncrement}
           className="w-6 h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100"
         >
@@ -65,8 +66,8 @@ function NumberInputWithControls({
           >
             <path d="m18 15-6-6-6 6" />
           </svg>
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleDecrement}
           className="w-6 h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100"
         >
@@ -84,7 +85,7 @@ function NumberInputWithControls({
           >
             <path d="m6 9 6 6 6-6" />
           </svg>
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -133,12 +134,12 @@ export default function BodyMeasurementsForm({
       </div>
 
       {/* Tombol Submit */}
-      <button
+      <Button
         onClick={onSubmit}
         className="w-full h-14 bg-gray-800 hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
       >
         Selanjutnya
-      </button>
+      </Button>
     </>
   );
 }

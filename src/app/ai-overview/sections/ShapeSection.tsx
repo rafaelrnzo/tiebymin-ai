@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
-// ======================================================================
-// BAGIAN 1: KOMPONEN-KOMPONEN KECIL (HELPER)
-// ======================================================================
+import url from "@/lib/url";
 
 interface IShape {
   name: string;
@@ -43,7 +40,6 @@ const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
 );
 
 const generateGimmickChartData = (mainShapeName: string): IShape[] => {
-  // Daftar semua kemungkinan bentuk wajah
   const allShapes = [
     "Square",
     "Round",
@@ -53,20 +49,17 @@ const generateGimmickChartData = (mainShapeName: string): IShape[] => {
     "Oblong",
   ];
 
-  // Nilai utama: 90% untuk shape terpilih, sisanya 10% dibagi rata ke yang lain
   const mainValue = 90;
   const otherCount = allShapes.length - 1;
-  // Bagi 10% ke shape lain, bagi rata, lalu sisa dibagi ke beberapa (biar "real")
+
   let baseOtherValue = Math.floor(10 / otherCount);
   let sisa = 10 - baseOtherValue * otherCount;
 
-  // Buat data chart
   let chartData: IShape[] = [];
   allShapes.forEach((shapeName, idx) => {
     if (shapeName.toLowerCase() === mainShapeName.toLowerCase()) {
       chartData.push({ name: shapeName, value: mainValue });
     } else {
-      // Bagi sisa ke beberapa shape biar "real"
       let value = baseOtherValue;
       if (sisa > 0) {
         value += 1;
@@ -79,10 +72,6 @@ const generateGimmickChartData = (mainShapeName: string): IShape[] => {
   return chartData;
 };
 
-// ======================================================================
-// BAGIAN 3: KOMPONEN UTAMA (ShapeSection)
-// ======================================================================
-
 interface ShapeSectionProps {
   shapeId: string;
 }
@@ -92,7 +81,6 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // State baru untuk menyimpan data chart gimmick
   const [gimmickChartData, setGimmickChartData] = useState<IShape[]>([]);
 
   useEffect(() => {
@@ -105,15 +93,11 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await axios.get(
-          `${process.env.HTTP_URL}/v1/face-shapes/${shapeId}`,
-          {
-            headers: { "ngrok-skip-browser-warning": "true" },
-          }
-        );
+        const response = await axios.get(`${url}/v1/face-shapes/${shapeId}`, {
+          headers: { "ngrok-skip-browser-warning": "true" },
+        });
         setShapeDetails(response.data);
 
-        // Setelah data API didapat, buat data gimmick berdasarkan nama bentuk wajah
         if (response.data && response.data.name) {
           const chartData = generateGimmickChartData(response.data.name);
           setGimmickChartData(chartData);
@@ -151,14 +135,30 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
           <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg text-left">
             Karakteristik
           </h3>
-          <ul className="list-disc pl-5 text-gray-600 leading-relaxed space-y-2">
-            <li>{shapeDetails.karakteristik}</li>
+          <ul className="text-gray-600 leading-relaxed space-y-2">
+            {shapeDetails.karakteristik
+              .split("-")
+              .filter((item: string) => item.trim() !== "")
+              .map((item: string, index: number) => (
+                <li key={index} className="flex items-center">
+                  <span className="mr-3 text-gray-500">•</span>
+                  <span className="text-sm">{item.trim()}</span>
+                </li>
+              ))}
           </ul>
           <h3 className="font-bold font-handlee text-gray-800 mt-4 mb-3 text-lg text-left">
             Tips
           </h3>
-          <ul className="list-disc pl-5 text-gray-600 leading-relaxed space-y-2">
-            <li>{shapeDetails.tips_bentuk_wajah}</li>
+          <ul className="text-gray-600 leading-relaxed space-y-2">
+            {shapeDetails.tips_bentuk_wajah
+              .split("-")
+              .filter((item: string) => item.trim() !== "")
+              .map((item: string, index: number) => (
+                <li key={index} className="flex items-center">
+                  <span className="mr-3 text-gray-500">•</span>
+                  <span className="text-sm">{item.trim()}</span>
+                </li>
+              ))}
           </ul>
         </div>
       </div>

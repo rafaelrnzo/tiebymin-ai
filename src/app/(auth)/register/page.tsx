@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import LeftSideSection from "@/components/component-login/left-side-section";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -150,16 +151,16 @@ export default function LoginPage() {
               </div>
 
               {/* Register Button */}
-              <button
+              <Button
                 type="submit"
                 className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-3 rounded-lg font-bold mt-8 transition-colors"
               >
                 Daftar Sekarang
-              </button>
+              </Button>
 
               {/* Social Login */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
-                <button
+                <Button
                   type="button"
                   className="flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
                 >
@@ -184,8 +185,8 @@ export default function LoginPage() {
                   <span className="text-sm text-gray-700">
                     Sign up with Google
                   </span>
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   className="flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
                 >
@@ -199,7 +200,7 @@ export default function LoginPage() {
                   <span className="text-sm text-gray-700">
                     Sign up with Apple
                   </span>
-                </button>
+                </Button>
               </div>
 
               {/* Login Link */}
