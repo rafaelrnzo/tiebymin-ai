@@ -68,7 +68,7 @@ const LOADING_STEPS = [
 
 const RiveLoadingAnimation = () => {
   const { RiveComponent } = useRive({
-    src: "/animations/animation.riv",
+    src: "/animations/Loading.riv",
     stateMachines: "State Machine 1",
     autoplay: true,
   });
@@ -128,7 +128,6 @@ function HalamanKameraWajahContent() {
     };
   }, [appState]);
 
-  // Effect for loading simulation
   useEffect(() => {
     if (appState === "ANALYZING") {
       setLoadingStep(0);
@@ -158,7 +157,6 @@ function HalamanKameraWajahContent() {
     }
   }, [appState]);
 
-  // Effect for results animation and redirect
   useEffect(() => {
     if (appState === "RESULTS") {
       const animationTimer = setInterval(() => {
@@ -170,12 +168,10 @@ function HalamanKameraWajahContent() {
     }
   }, [appState]);
 
-  // Redirect after animation is complete
   useEffect(() => {
     if (completedAnalyses >= totalAnalyses && analysisResultId) {
       if (typeof window !== "undefined") {
         localStorage.removeItem("tiebymin-analysis-data");
-        // Reset state di context juga
         setAnalysisData({ tinggi: "", berat: "", umur: "", body_shape_id: "" });
       }
 
@@ -289,10 +285,11 @@ function HalamanKameraWajahContent() {
       }
 
       setAppState("ANALYZING");
-    } catch (error: any) {
-      console.error("API Error:", error);
+    } catch (error) {
+      const err = error as Error;
+      console.error("API Error:", err);
       setApiError(
-        error.message ||
+        err.message ||
           "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
       );
       setAppState("API_ERROR");
@@ -424,10 +421,10 @@ function HalamanKameraWajahContent() {
       {appState === "CONFIRM" && capturedImage && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-lg">
           <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="font-oswald text-2xl font-bold text-gray-800">
               Gunakan Gambar Ini
             </h2>
-            <p className="text-gray-500 text-sm mt-1 mb-6">
+            <p className="font-poppins text-gray-500 text-sm mt-1 mb-6">
               Kamu bisa ambil gambar beberapa kali
             </p>
             <Image
@@ -442,13 +439,14 @@ function HalamanKameraWajahContent() {
                 onClick={handleRetake}
                 className="w-full py-3 px-4 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100"
               >
-                Ambil gambar ulang
+                <span className="font-poppins">Ambil gambar ulang</span>
               </Button>
               <Button
                 onClick={handleAnalyze}
                 className="w-full py-3 px-4 bg-[#FFC6C6] text-black font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
               >
-                Mulai Analisa <AnalysisIcon className="stroke-black" />
+                <span className="font-poppins">Mulai Analisa</span>{" "}
+                <AnalysisIcon className="stroke-black" />
               </Button>
             </div>
           </div>

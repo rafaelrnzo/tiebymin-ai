@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
 import url from "@/lib/url";
+import { AllTips, AnalysisData } from "@/types";
 
-// --- Komponen Helper untuk Kartu Tip ---
 interface TipCardProps {
   category: string;
   tip: string;
@@ -34,23 +34,19 @@ const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
   </div>
 );
 
-// --- Komponen Utama ---
 interface TipsSectionProps {
-  analysisData: any; // Menerima seluruh data analisa utama
+  analysisData: AnalysisData;
 }
 
 const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
-  // State untuk menyimpan semua rangkuman tips
-  const [allTips, setAllTips] = useState<any>(null);
+  const [allTips, setAllTips] = useState<AllTips | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Ambil semua ID yang diperlukan dari data utama
     const { face_shape_id, color_analysis_id, body_shape_id, bmi_category_id } =
       analysisData;
 
-    // Pastikan semua ID ada sebelum melanjutkan
     if (
       !face_shape_id ||
       !color_analysis_id ||
@@ -66,7 +62,6 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
       setIsLoading(true);
       setError(null);
       try {
-        // Lakukan SEMUA panggilan API untuk mendapatkan tips secara paralel
         const [faceRes, colorRes, bodyRes, bmiRes] = await Promise.all([
           axios.get(`${url}/v1/face-shapes/${face_shape_id}`),
           axios.get(`${url}/v1/color-analysis/${color_analysis_id}`),
@@ -74,7 +69,6 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
           axios.get(`${url}/v1/bmi-categories/${bmi_category_id}`),
         ]);
 
-        // Gabungkan semua tips yang relevan ke dalam satu objek
         setAllTips({
           faceTip: faceRes.data.tips_bentuk_wajah,
           bodyTip: bodyRes.data.tips_body_shape,
@@ -91,7 +85,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
     };
 
     fetchAllTips();
-  }, [analysisData]); // Jalankan useEffect saat 'analysisData' tersedia
+  }, [analysisData]);
 
   if (isLoading)
     return (
@@ -122,7 +116,6 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
         tip={allTips.colorTip}
         icon="/overview-ai/icons/mdi_color.svg"
       />
-      {/* Kartu Rekap Cepat bisa diisi dengan gabungan atau tips makeup */}
       <div className="bg-pink-100 rounded-2xl p-4 sm:p-6">
         <div className="mb-3">
           <Image

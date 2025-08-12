@@ -1,6 +1,6 @@
-
 "use client";
 import { Navbar } from "@/components/component-landing/navbar";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 // Ganti semua import Image dari next/image menjadi img bawaan HTML
@@ -74,7 +74,12 @@ const analysisTabs = [
   { id: "shape", text: "Shape", icon: "/icons/shape.svg" },
   { id: "color", text: "Color Tone", icon: "/icons/color-tone.svg" },
   { id: "body", text: "Body", icon: "/icons/body.svg" },
-  { id: "celebrity", text: "Celebrity Match", icon: "/icons/crown.svg", active: true },
+  {
+    id: "celebrity",
+    text: "Celebrity Match",
+    icon: "/icons/crown.svg",
+    active: true,
+  },
   { id: "tips", text: "Tips & Trick", icon: "/icons/tips.svg" },
 ];
 
@@ -98,23 +103,33 @@ export default function BeautyAnalysisPage() {
               />
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 leading-tight font-handlee text-[#FFC6C6]">
-              Hi Yasmin, Ini Dia<br />
+              Hi Yasmin, Ini Dia
+              <br />
               Hasil Analisa Kamu
             </h2>
             <p className="text-gray-300 text-xs sm:text-sm mb-8 leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button className="bg-white text-[14px] text-[#323232] px-4 py-3 rounded-full text-sm flex items-center gap-2 transition-colors duration-200 hover:bg-gray-200 hover:text-[#323232] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#FFC6C6]">
-                <Image src="/overview-ai/icons/material-symbols_share.svg" width={16} height={16} alt="bagikan hasil" />
-                <span>
-                  Bagikan Hasil
-                </span>
-              </button>
+                <Image
+                  src="/overview-ai/icons/material-symbols_share.svg"
+                  width={16}
+                  height={16}
+                  alt="bagikan hasil"
+                />
+                <span>Bagikan Hasil</span>
+              </Button>
               <Button className="bg-[#FFC6C6] text-black px-4 py-3 rounded-full text-sm flex items-center gap-2 transition-colors duration-200 hover:bg-[#ffb3b3] hover:text-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#FFC6C6]">
-                <Image src="/overview-ai/icons/ic_round-download.svg" width={16} height={16} alt="Download Analisa" />
+                <Image
+                  src="/overview-ai/icons/ic_round-download.svg"
+                  width={16}
+                  height={16}
+                  alt="Download Analisa"
+                />
                 <span>Download Analisa</span>
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -131,9 +146,15 @@ export default function BeautyAnalysisPage() {
                       : "hover:text-[#323232]"
                   }`}
                 >
-                  <Image src={tab.icon} width={16} height={16} alt={tab.text} className={!tab.active ? "opacity-60" : ""} />
+                  <Image
+                    src={tab.icon}
+                    width={16}
+                    height={16}
+                    alt={tab.text}
+                    className={!tab.active ? "opacity-60" : ""}
+                  />
                   <span>{tab.text}</span>
-                </button>
+                </Button>
               ))}
             </div>
 
@@ -141,16 +162,26 @@ export default function BeautyAnalysisPage() {
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex flex-col gap-6 w-full md:w-2/5">
                 <div className="bg-white rounded-2xl p-4 sm:p-6">
-                  <p className="font-handlee text-[#ED80A7] text-lg mb-1">Kamu mirip</p>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-800">Siren Sungkar</h3>
+                  <p className="font-handlee text-[#ED80A7] text-lg mb-1">
+                    Kamu mirip
+                  </p>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                    Siren Sungkar
+                  </h3>
                   <p className="text-gray-600 text-xs sm:text-sm mt-3 leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua.
                   </p>
                 </div>
                 <div className="bg-pink-200 rounded-2xl p-4 sm:p-6">
-                  <h4 className="font-bold text-gray-800 text-md mb-2">Kenapa cocok?</h4>
+                  <h4 className="font-bold text-gray-800 text-md mb-2">
+                    Kenapa cocok?
+                  </h4>
                   <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua.
                   </p>
                 </div>
               </div>
@@ -164,7 +195,12 @@ export default function BeautyAnalysisPage() {
                   priority
                 />
                 <span className="absolute bottom-4 left-4 bg-[#323232] text-white px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
-                  <Image src="/overview-ai/icons/ai-match.svg" width={16} height={16} alt="Match Icon" />
+                  <Image
+                    src="/overview-ai/icons/ai-match.svg"
+                    width={16}
+                    height={16}
+                    alt="Match Icon"
+                  />
                   88% Match
                 </span>
               </div>
@@ -179,7 +215,10 @@ export default function BeautyAnalysisPage() {
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-8">
             {hijabProducts.map((product) => (
-              <div key={product.id} className="border-1 rounded-2xl overflow-hidden shadow-sm">
+              <div
+                key={product.id}
+                className="border-1 rounded-2xl overflow-hidden shadow-sm"
+              >
                 <div className="relative p-2 sm:p-4 rounded-lg overflow-hidden">
                   <Image
                     src={product.image}
@@ -189,51 +228,82 @@ export default function BeautyAnalysisPage() {
                     height={256}
                   />
                   <span className="absolute bottom-5 sm:bottom-7 left-4 sm:left-6 bg-[#323232] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
-                    <Image src={product.matchIcon} width={20} height={20} alt="Match" />
+                    <Image
+                      src={product.matchIcon}
+                      width={20}
+                      height={20}
+                      alt="Match"
+                    />
                     {product.match}
                   </span>
                   <span className="absolute bottom-5 sm:bottom-7 right-24 sm:right-32 text-[#323232] bg-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
-                    <Image src={product.starIcon} width={20} height={20} alt="Star" />
+                    <Image
+                      src={product.starIcon}
+                      width={20}
+                      height={20}
+                      alt="Star"
+                    />
                     {product.star}
                   </span>
                 </div>
                 <div className="p-4 sm:p-6">
                   <div className="flex items-center mb-2">
-                    <h3 className="font-bold text-gray-800 text-base sm:text-lg">{product.title}</h3>
+                    <h3 className="font-bold text-gray-800 text-base sm:text-lg">
+                      {product.title}
+                    </h3>
                   </div>
                   <div className="flex items-center mb-3">
-                    <span className="text-gray-800 font-extrabold text-xl sm:text-2xl">{product.price}</span>
-                    <span className="text-gray-400 text-xs sm:text-sm ml-2 line-through">{product.oldPrice}</span>
+                    <span className="text-gray-800 font-extrabold text-xl sm:text-2xl">
+                      {product.price}
+                    </span>
+                    <span className="text-gray-400 text-xs sm:text-sm ml-2 line-through">
+                      {product.oldPrice}
+                    </span>
                   </div>
                   <div className="mb-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
                       <div className="flex flex-col items-start">
-                        <p className="text-xs sm:text-sm text-gray-600 mr-2">Rekomendasi Warna:</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mr-2">
+                          Rekomendasi Warna:
+                        </p>
                         <div className="flex space-x-2 mt-2">
                           {product.colorRecommendations.map((color, i) => (
                             <div
                               key={i}
-                              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full ${color.color} ${color.border ? color.border : ""}`}
+                              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full ${
+                                color.color
+                              } ${color.border ? color.border : ""}`}
                             ></div>
                           ))}
                         </div>
                       </div>
                       <div className="flex flex-col items-start">
-                        <span className="text-xs sm:text-sm text-gray-600 mr-1">Ukuran:</span>
-                        <span className="text-xs sm:text-sm font-medium mt-2">{product.size}</span>
+                        <span className="text-xs sm:text-sm text-gray-600 mr-1">
+                          Ukuran:
+                        </span>
+                        <span className="text-xs sm:text-sm font-medium mt-2">
+                          {product.size}
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="border-1 p-2 sm:p-3 rounded-lg">
                     <p className="text-xs sm:text-sm flex flex-col">
-                      <span className="text-gray-900 font-bold">Kenapa Cocok:</span>
+                      <span className="text-gray-900 font-bold">
+                        Kenapa Cocok:
+                      </span>
                       <span className="text-gray-600"> {product.reason}</span>
                     </p>
                   </div>
                   <div className="bg-pink-400 mt-4 py-2 sm:py-3 px-3 sm:px-4 font-bold rounded-2xl text-white flex items-center justify-between text-sm sm:text-base">
                     Beli Sekarang
-                    <Image src="/overview-ai/icons/mynaui_cart-solid.svg" width={20} height={20} alt="Star" />
+                    <Image
+                      src="/overview-ai/icons/mynaui_cart-solid.svg"
+                      width={20}
+                      height={20}
+                      alt="Star"
+                    />
                   </div>
                 </div>
               </div>

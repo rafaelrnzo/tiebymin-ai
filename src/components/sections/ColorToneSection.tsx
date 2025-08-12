@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import url from "@/lib/url";
+import { ColorAnalysis } from "@/types";
 
 interface ColorCircleProps {
   color: string;
@@ -56,7 +57,7 @@ interface ColorToneSectionProps {
 const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   colorAnalysisId,
 }) => {
-  const [colorData, setColorData] = useState<any>(null);
+  const [colorData, setColorData] = useState<ColorAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, PT_Serif, Oswald, Handlee } from "next/font/google";
+import { Geist, PT_Serif, Oswald, Handlee, Poppins } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,6 +27,12 @@ const handlee = Handlee({
   subsets: ["latin"],
 });
 
+const poppins = Poppins({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Tiebymin AI",
   description: "Website fashion ditenagai dengan AI",
@@ -39,7 +45,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${ptSerif.variable} ${oswald.variable} ${handlee.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${ptSerif.variable} ${oswald.variable} ${handlee.variable} ${poppins.variable} antialiased`}
+      >
         {children}
       </body>
     </html>

@@ -32,10 +32,18 @@ const BodyTypeSkeleton = () => (
 );
 
 // --- Komponen Utama ---
+interface BodyType {
+  id: string;
+  name: string;
+  link_picture: string;
+  penjelasan_body_shape: string;
+  karakteristik: string;
+}
+
 export default function PrepareFacePage() {
   const { analysisData, setAnalysisData } = useAnalysis();
 
-  const [allBodyTypes, setAllBodyTypes] = useState<any[]>([]); // Menyimpan semua data bentuk tubuh dari API
+  const [allBodyTypes, setAllBodyTypes] = useState<BodyType[]>([]); // Menyimpan semua data bentuk tubuh dari API
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showOverlay, setShowOverlay] = useState(false); // Untuk modal "Scan Wajah"
@@ -83,7 +91,6 @@ export default function PrepareFacePage() {
   const handleSelectBodyType = (typeId: string) => {
     setAnalysisData((prev) => ({
       ...prev,
-      bodyType: typeId,
       body_shape_id: typeId,
     }));
   };
@@ -97,7 +104,7 @@ export default function PrepareFacePage() {
   const handleCloseOverlay = () => setShowOverlay(false);
 
   // --- Variabel turunan untuk mempermudah rendering ---
-  const selectedTypeId = analysisData.bodyType;
+  const selectedTypeId = analysisData.body_shape_id;
   const selectedType = allBodyTypes.find((type) => type.id === selectedTypeId);
 
   // Membagi data secara dinamis untuk tampilan dua baris
@@ -200,12 +207,16 @@ export default function PrepareFacePage() {
               />
             </div>
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs mx-auto shadow-md">
-              <span className="text-gray-700 font-medium">Analisa</span>
-              <span className="text-gray-700 font-bold">03</span>
+              <span className="text-gray-700 font-medium font-poppins">
+                Analisa
+              </span>
+              <span className="text-gray-700 font-bold font-poppins">03</span>
             </div>
             <div className="bg-[#EF789B] rounded-2xl p-6 text-white w-full max-w-xs mx-auto shadow-md">
               <div className="flex items-start justify-between mb-4">
-                <h2 className="text-xl font-bold">Pilih Bentuk Tubuh Kamu</h2>
+                <h2 className="text-xl font-bold font-poppins">
+                  Pilih Bentuk Tubuh Kamu
+                </h2>
                 <div className="w-6 h-6 rounded flex items-center justify-center">
                   <Image
                     src="/stars.png"

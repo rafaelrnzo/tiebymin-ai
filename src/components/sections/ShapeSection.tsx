@@ -14,6 +14,13 @@ interface ShapeBarProps {
   value: number;
 }
 
+interface ShapeDetails {
+  name: string;
+  penjelasan_face_shape: string;
+  karakteristik: string;
+  tips_bentuk_wajah: string;
+}
+
 const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
   <div>
     <p className="text-base text-gray-800">{name}</p>
@@ -40,23 +47,16 @@ const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
 );
 
 const generateGimmickChartData = (mainShapeName: string): IShape[] => {
-  const allShapes = [
-    "Square",
-    "Round",
-    "Diamond",
-    "Oval",
-    "Triangle",
-    "Oblong",
-  ];
+  const allShapes = ["Heart", "Oblong", "Oval", "Round", "Square"];
 
   const mainValue = 90;
   const otherCount = allShapes.length - 1;
 
-  let baseOtherValue = Math.floor(10 / otherCount);
+  const baseOtherValue = Math.floor(10 / otherCount);
   let sisa = 10 - baseOtherValue * otherCount;
 
-  let chartData: IShape[] = [];
-  allShapes.forEach((shapeName, idx) => {
+  const chartData: IShape[] = [];
+  allShapes.forEach((shapeName) => {
     if (shapeName.toLowerCase() === mainShapeName.toLowerCase()) {
       chartData.push({ name: shapeName, value: mainValue });
     } else {
@@ -77,7 +77,7 @@ interface ShapeSectionProps {
 }
 
 const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
-  const [shapeDetails, setShapeDetails] = useState<any>(null);
+  const [shapeDetails, setShapeDetails] = useState<ShapeDetails>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,9 +93,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await axios.get(`${url}/v1/face-shapes/${shapeId}`, {
-          headers: { "ngrok-skip-browser-warning": "true" },
-        });
+        const response = await axios.get(`${url}/v1/face-shapes/${shapeId}`);
         setShapeDetails(response.data);
 
         if (response.data && response.data.name) {
@@ -162,8 +160,6 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
           </ul>
         </div>
       </div>
-
-      {/* Render komponen bar chart HANYA jika datanya sudah siap */}
       {gimmickChartData.length > 0 && (
         <FaceShapeAnalysis data={gimmickChartData} />
       )}

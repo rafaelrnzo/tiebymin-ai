@@ -114,7 +114,7 @@ export default function BodyMeasurementsForm({
   return (
     <div className="p-8 bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold text-gray-800">Lengkapi Data Diri</h1>
-      <p className="text-gray-500 mt-2 mb-8">
+      <p className="text-gray-500 mt-2 mb-8 font-poppins">
         Semakin lengkap data kamu akan membuat hasil analisa kami jauh lebih
         tepat, jangan lupa diisi ya....
       </p>
