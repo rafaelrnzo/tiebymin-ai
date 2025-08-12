@@ -26,7 +26,7 @@ const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
     <p className="text-base text-gray-800">{name}</p>
     <div className="mt-2 w-full bg-gray-200 rounded-full h-3.5">
       <div
-        className="bg-pink-400 h-3.5 rounded-full"
+        className={`h-3.5 rounded-full bg-gradient-to-l from-[#FFA2BD] to-[#FF7EA4]`}
         style={{ width: `${value}%` }}
       ></div>
     </div>
@@ -126,7 +126,21 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
             {shapeDetails.name}
           </h3>
           <p className="text-gray-600 leading-relaxed mt-4">
-            {shapeDetails.penjelasan_face_shape}
+            <span className="text-lg">Fakta Unik</span>
+            {shapeDetails.penjelasan_face_shape
+              .split("-")
+              .filter((item: string) => item.trim() !== "")
+              .map((item: string, index: number) =>
+                index === 0 ? (
+                  <span key={index} className="block mb-1">
+                    {item.trim()}
+                  </span>
+                ) : (
+                  <span key={index} className="block">
+                    •{item.trim()}
+                  </span>
+                )
+              )}
           </p>
         </div>
         <div className="bg-pink-100 rounded-2xl p-4 sm:p-6">
@@ -148,15 +162,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
             Tips
           </h3>
           <ul className="text-gray-600 leading-relaxed space-y-2">
-            {shapeDetails.tips_bentuk_wajah
-              .split("-")
-              .filter((item: string) => item.trim() !== "")
-              .map((item: string, index: number) => (
-                <li key={index} className="flex items-center">
-                  <span className="mr-3 text-gray-500">•</span>
-                  <span className="text-sm">{item.trim()}</span>
-                </li>
-              ))}
+            {shapeDetails.tips_bentuk_wajah}
           </ul>
         </div>
       </div>

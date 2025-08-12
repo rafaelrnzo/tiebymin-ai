@@ -169,7 +169,9 @@ const hijabProducts = [
 interface AnalysisData extends GlobalAnalysisData {
   celebrity_id: number | null;
   analysis_details: {
-    bmi: number;
+    bmi: {
+      value: string | number;
+    };
   };
 }
 
@@ -304,8 +306,8 @@ function BeautyAnalysisPageInner() {
               <Image
                 src={userPhotoUrl || "/overview-ai/person.png"}
                 alt="Analysis Result"
-                width={300}
-                height={200}
+                width={450}
+                height={361}
                 className="w-full h-auto object-cover rounded-2xl"
               />
             </div>

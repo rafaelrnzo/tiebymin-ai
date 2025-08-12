@@ -29,6 +29,10 @@ const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const Spinner = () => (
+  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-pink-800"></div>
+);
+
 type AppState = "CAMERA" | "CONFIRM" | "ANALYZING" | "RESULTS" | "API_ERROR";
 
 const LOADING_STEPS = [
@@ -93,7 +97,7 @@ function HalamanKameraWajahContent() {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string>("");
   const [apiError, setApiError] = useState<string>("");
-
+  const [isApiLoading, setIsApiLoading] = useState(false);
   const [completedAnalyses, setCompletedAnalyses] = useState(0);
   const totalAnalyses = 4;
 
@@ -187,7 +191,7 @@ function HalamanKameraWajahContent() {
     totalAnalyses,
     router,
     setAnalysisData,
-  ]); // Tambahkan dependency
+  ]);
 
   // Helper function to convert data URL to Blob
   const dataURLtoBlob = (dataurl: string) => {
@@ -256,14 +260,20 @@ function HalamanKameraWajahContent() {
       return;
     }
 
+    const tinggiParse = parseFloat(tinggi);
+    const beratParse = parseFloat(berat);
+    const umurParse = parseInt(umur, 10);
+
     const formData = new FormData();
     formData.append("user_id", "8a40ef18-1335-479e-8465-b63cdc3ebc88");
-    formData.append("tinggi_badan", tinggi);
-    formData.append("berat_badan", berat);
-    formData.append("umur", umur);
+    formData.append("tinggi_badan", String(tinggiParse));
+    formData.append("berat_badan", String(beratParse));
+    formData.append("umur", String(umurParse));
     formData.append("body_shape_id", body_shape_id);
     formData.append("foto_wajah", imageBlob, "face-photo.png");
 
+    setIsApiLoading(true);
+    setApiError("");
     try {
       const response = await axios.post(
         `${url}/v1/analysis/full-analysis`,
@@ -293,6 +303,8 @@ function HalamanKameraWajahContent() {
           "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
       );
       setAppState("API_ERROR");
+    } finally {
+      setIsApiLoading(false);
     }
   };
 
@@ -320,7 +332,6 @@ function HalamanKameraWajahContent() {
   }
 
   if (appState === "RESULTS") {
-    // List analisa hasil, bisa diubah sesuai kebutuhan
     const analysesList = [
       "Analisa bentuk wajahmu",
       "Analisa tone kulitmu",
@@ -444,9 +455,16 @@ function HalamanKameraWajahContent() {
               <Button
                 onClick={handleAnalyze}
                 className="w-full py-3 px-4 bg-[#FFC6C6] text-black font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                disabled={isApiLoading}
               >
-                <span className="font-poppins">Mulai Analisa</span>{" "}
-                <AnalysisIcon className="stroke-black" />
+                {isApiLoading ? (
+                  <Spinner />
+                ) : (
+                  <>
+                    <span className="font-poppins">Mulai Analisa</span>{" "}
+                    <AnalysisIcon className="stroke-black" />
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -462,8 +480,6 @@ function HalamanKameraWajahContent() {
   );
 }
 
-// The final export wraps the main component in Suspense
-// This is best practice when using `useSearchParams` in Next.js App Router
 export default function HalamanKameraWajah() {
   return (
     <Suspense

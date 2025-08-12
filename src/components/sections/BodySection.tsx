@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
 import { BodyShape, BmiCategory } from "@/types";
 
-// --- Data Statis Preview ---
 const ALL_BODY_TYPES_PREVIEW = [
   { id: "diamond", img: "/body-select/diamond.png", name: "Diamond" },
   { id: "pear", img: "/body-select/pear.png", name: "Pear" },
@@ -17,10 +16,9 @@ const ALL_BODY_TYPES_PREVIEW = [
   { id: "oval", img: "/body-select/oval.png", name: "Oval" },
 ];
 
-// --- Komponen Utama ---
 interface BodySectionProps {
   bodyShapeId: string;
-  bmiResult?: { value: number };
+  bmiResult?: { value: { value: string | number } }; // Izinkan string untuk menangani format yang salah
   bmiCategoryId?: string;
 }
 
@@ -36,7 +34,6 @@ const BodySection: React.FC<BodySectionProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log(bodyShapeId, bmiCategoryId);
     if (!bodyShapeId || !bmiCategoryId) {
       setError("Data ID untuk tubuh atau BMI tidak lengkap.");
       setIsLoading(false);
@@ -49,7 +46,6 @@ const BodySection: React.FC<BodySectionProps> = ({
       try {
         const [bodyShapeResponse, bmiCategoryResponse] = await Promise.all([
           axios.get(`${url}/v1/body-shapes/${bodyShapeId}`),
-
           axios.get(`${url}/v1/bmi-categories/${bmiCategoryId}`),
         ]);
         setBodyDetails(bodyShapeResponse.data);
@@ -64,6 +60,21 @@ const BodySection: React.FC<BodySectionProps> = ({
 
     fetchAllBodyData();
   }, [bodyShapeId, bmiCategoryId]);
+
+  // Fungsi untuk membersihkan dan memformat nilai BMI
+  const formatBmiValue = (value: number | string | undefined): string => {
+    if (value === undefined || value === null) {
+      return "0.00";
+    }
+    // 1. Ubah ke string untuk memastikan .replace() aman digunakan
+    const stringValue = String(value);
+    // 2. Ganti koma dengan titik
+    const sanitizedValue = stringValue.replace(",", ".");
+    // 3. Konversi ke Angka dan format
+    const numberValue = Number(sanitizedValue);
+    // 4. Periksa apakah hasilnya NaN, jika ya, kembalikan 0
+    return isNaN(numberValue) ? "0.00" : numberValue.toFixed(2);
+  };
 
   if (isLoading)
     return <div className="text-center p-8">Loading body information...</div>;
@@ -120,9 +131,7 @@ const BodySection: React.FC<BodySectionProps> = ({
         <hr className="w-full" />
         <div className="p-6 rounded-full border border-[#323232] w-fit bg-transparent flex items-center justify-center">
           <p className="text-3xl font-bold">
-            {bmiResult?.value
-              ? (Math.round(bmiResult.value * 10) / 10).toFixed(1)
-              : "N/A"}
+            {formatBmiValue(bmiResult?.value.value)}
           </p>
         </div>
         <p className="text-gray-600 text-xs sm:text-sm leading-relaxed text-center">
