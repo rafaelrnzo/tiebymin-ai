@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Image from "next/image";
-import axios from "axios";
-import url from "@/lib/url";
-import { AllTips, AnalysisData } from "@/types";
+import { AnalysisData } from "@/types";
+import { useAllTips } from "@/hooks/useAllTips"; // Adjust path sesuai struktur project Anda
 
 interface TipCardProps {
   category: string;
@@ -46,65 +45,36 @@ interface TipsSectionProps {
 }
 
 const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
-  const [allTips, setAllTips] = useState<AllTips | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: allTips,
+    isLoading,
+    error,
+    isError,
+  } = useAllTips({
+    analysisData,
+  });
 
-  useEffect(() => {
-    const { face_shape_id, color_analysis_id, body_shape_id, bmi_category_id } =
-      analysisData;
-
-    if (
-      !face_shape_id ||
-      !color_analysis_id ||
-      !body_shape_id ||
-      !bmi_category_id
-    ) {
-      setError("Data ID tidak lengkap untuk merangkum semua tips.");
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchAllTips = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [faceRes, colorRes, bodyRes, bmiRes] = await Promise.all([
-          axios.get(`${url}/v1/face-shapes/${face_shape_id}`),
-          axios.get(`${url}/v1/color-analysis/${color_analysis_id}`),
-          axios.get(`${url}/v1/body-shapes/${body_shape_id}`),
-          axios.get(`${url}/v1/bmi-categories/${bmi_category_id}`),
-        ]);
-
-        setAllTips({
-          faceTip: faceRes.data.tips_bentuk_wajah,
-          bodyTip: bodyRes.data.tips_body_shape,
-          colorTip: colorRes.data.tips_warna_kulit_pakaian,
-          makeupTip: colorRes.data.make_up_tips,
-          bmiTip: bmiRes.data.tips_fashion,
-        });
-      } catch (err) {
-        setError("Gagal memuat rangkuman tips.");
-        console.error("Fetch error in TipsSection:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllTips();
-  }, [analysisData]);
-
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="text-center p-8">Merangkum tips terbaik untukmu...</div>
     );
-  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
-  if (!allTips)
+  }
+
+  if (isError || error) {
+    return (
+      <div className="text-center p-8 text-red-500">
+        {error?.message || "Gagal memuat rangkuman tips."}
+      </div>
+    );
+  }
+
+  if (!allTips) {
     return (
       <div className="text-center p-8">
         Tidak ada tips yang bisa ditampilkan.
       </div>
     );
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

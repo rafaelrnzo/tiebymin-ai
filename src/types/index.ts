@@ -1,9 +1,17 @@
-export interface BodyShape {
+export interface BodyShapeData {
   id: string;
   name: string;
   penjelasan_body_shape: string;
   tips_body_shape: string;
   link_picture: string;
+}
+
+export interface BodyType {
+  id: string;
+  name: string;
+  link_picture: string;
+  penjelasan_body_shape: string;
+  karakteristik: string;
 }
 
 export interface BmiCategory {
@@ -48,4 +56,50 @@ export interface AnalysisData {
   color_analysis_id: string;
   body_shape_id: string;
   bmi_category_id: string;
+}
+
+export interface UserData {
+  name: string;
+  faceShape: string;
+  bodyShape: string;
+  colorTone: string;
+  bmi: {
+    value:number;
+    category:string;
+    desc:string;
+  }
+  celebrityMatch: {
+    name: string;
+    matchPercentage: number;
+    imageUrl: string;
+    reason: string[];
+  };
+  faceShapeAnalysis: {
+    uniqueFact: string;
+    characteristics: string[];
+  };
+  bodyShapeAnalysis: {
+    description: string;
+    characteristics: string[];
+    imageUrl: string;
+  };
+  colorToneAnalysis: {
+    description: string;
+    bestColors: string[];
+    neutralColors: string[];
+    worstColors: string[];
+    combination: string[];
+    tips: {
+      makeup: string[];
+      outfit: string[];
+      personality: string[];
+      characteristics: string[];
+    };
+  };
+  conclusionTips: {
+    face: string[];
+    body: string[];
+    color: string[];
+    quickRecap: string[];
+  };
 }

@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import url from "@/lib/url";
+import { useFaceShapeData } from "@/hooks/useAnalysisData";
+import React from "react";
 
 interface IShape {
   name: string;
@@ -12,13 +11,6 @@ interface IShape {
 interface ShapeBarProps {
   name: string;
   value: number;
-}
-
-interface ShapeDetails {
-  name: string;
-  penjelasan_face_shape: string;
-  karakteristik: string;
-  tips_bentuk_wajah: string;
 }
 
 const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
@@ -77,42 +69,19 @@ interface ShapeSectionProps {
 }
 
 const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
-  const [shapeDetails, setShapeDetails] = useState<ShapeDetails>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [gimmickChartData, setGimmickChartData] = useState<IShape[]>([]);
-
-  useEffect(() => {
-    if (!shapeId) {
-      setError("Shape ID tidak tersedia.");
-      setIsLoading(false);
-      return;
-    }
-    const fetchShapeDetails = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get(`${url}/v1/face-shapes/${shapeId}`);
-        setShapeDetails(response.data);
-
-        if (response.data && response.data.name) {
-          const chartData = generateGimmickChartData(response.data.name);
-          setGimmickChartData(chartData);
-        }
-      } catch (err) {
-        setError("Gagal memuat detail bentuk wajah.");
-        console.error("Fetch error in ShapeSection:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchShapeDetails();
-  }, [shapeId]);
+  const { data: shapeDetails, isLoading, error } = useFaceShapeData(shapeId);
+  const gimmickChartData = shapeDetails?.name
+    ? generateGimmickChartData(shapeDetails.name)
+    : [];
 
   if (isLoading)
     return <div className="text-center p-8">Loading shape information...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
+  if (error)
+    return (
+      <div className="text-center p-8 text-red-500">
+        {error.message || "An error occurred"}
+      </div>
+    );
   if (!shapeDetails)
     return (
       <div className="text-center p-8">Data bentuk wajah tidak ditemukan.</div>

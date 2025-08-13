@@ -1,21 +1,22 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useState } from "react";
-
-// Interface untuk data chart bentuk wajah
-interface IShape {
-  label: string;
-  value: number;
-  active?: boolean;
-}
 import Image from "next/image";
-// import { Button } from "@/components/ui/button"; // Removed unused import
 import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
 
-// Fungsi untuk menghasilkan data chart bentuk wajah
-const generateGimmickChartData = (mainShapeName: string): IShape[] => {
-  const allShapes = ["Square", "Oblong", "Oval", "Round", "Heart", "Diamond"];
+import {
+  MainHeader,
+  FaceShapeSection,
+  ColorToneSection,
+  BodyAndBmiSection,
+  ShareAndActionSection,
+  type StoryUserData,
+} from "@/components/story-components";
 
+const generateGimmickChartData = (
+  mainShapeName: string
+): StoryUserData["faceShapeAnalysis"] => {
+  const allShapes = ["Square", "Oblong", "Oval", "Round", "Heart", "Diamond"];
   const shapeNameMap: { [key: string]: string } = {
     Hati: "Heart",
     Oblong: "Oblong",
@@ -24,71 +25,52 @@ const generateGimmickChartData = (mainShapeName: string): IShape[] => {
     Kotak: "Square",
     Diamond: "Diamond",
   };
-
   const englishMainShapeName = shapeNameMap[mainShapeName] || mainShapeName;
+  const mainValue = Math.floor(Math.random() * 11) + 85;
+  const remainingValue = 100 - mainValue;
 
-  const mainValue = 90;
-  const otherCount = allShapes.length - 1;
+  const otherValues = Array.from({ length: allShapes.length - 1 }, () => {
+    const randomValue = Math.random();
+    return randomValue;
+  });
+  const sumOfRandoms = otherValues.reduce((a, b) => a + b, 0);
+  const normalizedValues = otherValues.map((v) =>
+    Math.round((v / sumOfRandoms) * remainingValue)
+  );
 
-  const baseOtherValue = Math.floor(10 / otherCount);
-  let sisa = 10 - baseOtherValue * otherCount;
+  const currentSum = normalizedValues.reduce((a, b) => a + b, 0);
+  const diff = remainingValue - currentSum;
+  if (normalizedValues.length > 0) normalizedValues[0] += diff;
 
-  const chartData: IShape[] = [];
+  const chartData: StoryUserData["faceShapeAnalysis"] = [];
+  let otherIndex = 0;
   allShapes.forEach((shapeName) => {
     if (shapeName.toLowerCase() === englishMainShapeName.toLowerCase()) {
-      chartData.push({ 
-        label: shapeName, 
-        value: mainValue, 
-        active: true 
-      });
+      chartData.push({ label: shapeName, value: mainValue, active: true });
     } else {
-      let value = baseOtherValue;
-      if (sisa > 0) {
-        value += 1;
-        sisa -= 1;
-      }
-      chartData.push({ 
-        label: shapeName, 
-        value, 
-        active: false 
+      chartData.push({
+        label: shapeName,
+        value: normalizedValues[otherIndex++] || 0,
+        active: false,
       });
     }
   });
 
   return chartData;
 };
-import {
-  ActionButtons,
-  BMISection,
-  BodyShapeSection,
-  // ColorPalette, // Removed unused import
-  ColorToneSection,
-  FaceShapeSection,
-  ShareSection,
-  StoryHeader,
-  StoryUserData,
-  UserProfile,
-} from "@/components/story-components";
 
 function StoryPage() {
   const searchParams = useSearchParams();
   const resultId = searchParams.get("result_id");
 
-  // Fetch analysis data using the custom hook
   const { data, isLoading, error: fetchError } = useAnalysisData(resultId);
-
   const { userData, userPhotoUrl } = data || {
     userData: null,
     userPhotoUrl: null,
   };
 
-  // Generate story query
-  const {
-    refetch: generateStory,
-    isLoading: isGenerating,
-    // error: storyError, // Removed unused variable
-  } = useGenerateStory();
-
+  const { refetch: generateStory, isLoading: isGenerating } =
+    useGenerateStory();
   const [error, setError] = useState<string | null>(null);
 
   const showToast = (message: string, type: "success" | "error") => {
@@ -124,41 +106,29 @@ function StoryPage() {
     }, 4000);
   };
 
-  const handleDownloadPNG = async () => {
+  const handleDownloadStory = async () => {
     if (!resultId) return;
-
     try {
       setError(null);
-      // Memanggil generateStory tanpa parameter
       const result = await generateStory();
-
       if (result.data) {
-        // Create download link
         const url = window.URL.createObjectURL(result.data);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `hasil-analisa-story-${Date.now()}.png`;
-
-        // Trigger download
+        link.download = `story-tiebymin-${Date.now()}.png`;
         document.body.appendChild(link);
         link.click();
-
-        // Cleanup
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-
-        // Show success message
-        showToast("Story berhasil didownload!", "success");
-
-        // Redirect to Instagram
-        window.open("https://www.instagram.com", "_blank");
+        showToast("Story berhasil diunduh!", "success");
+        setTimeout(() => {
+          window.open("https://www.instagram.com", "_blank");
+        }, 1000);
       }
     } catch (error) {
       console.error("Error downloading PNG:", error);
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Terjadi kesalahan saat mendownload story";
+        error instanceof Error ? error.message : "Gagal mengunduh story";
       setError(errorMessage);
       showToast(errorMessage, "error");
     }
@@ -185,67 +155,56 @@ function StoryPage() {
     return <p>No data found</p>;
   }
 
+  // Siapkan data sekali untuk semua komponen
+  const storyUserData: StoryUserData = {
+    name: userData.name,
+    faceShape: userData.faceShape,
+    faceShapeDesc:
+      userData.faceShapeAnalysis?.uniqueFact || "Bentuk wajah kamu itu unik!",
+    faceShapeAnalysis: generateGimmickChartData(userData.faceShape),
+    colorTone: userData.colorTone,
+    colorToneDesc:
+      userData.colorToneAnalysis?.description ||
+      "Setiap warna memiliki cerita tersendiri untukmu.",
+    colorPalettes: {
+      best: userData.colorToneAnalysis?.bestColors || [],
+      neutral: userData.colorToneAnalysis?.neutralColors || [],
+      worst: userData.colorToneAnalysis?.worstColors || [],
+      combination: userData.colorToneAnalysis?.combination || [],
+    },
+    bodyShape: userData.bodyShape,
+    bodyShapeDesc:
+      userData.bodyShapeAnalysis?.description ||
+      "Proporsi tubuhmu memberikan keunikan dalam bergaya.",
+    bodyCharacteristics: userData.bodyShapeAnalysis?.characteristics || [],
+    bmi: {
+      value: userData.bmi.value,
+      category: userData.bmi.category || "Ideal",
+      desc: userData.bmi.desc || "Jaga selalu kesehatan tubuhmu.",
+    },
+  };
+
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-gray-50 min-h-screen p-4">
       <div
         id="story-content"
-        className="relative w-full max-w-md mx-auto bg-white"
+        className="relative w-full max-w-2xl mx-auto bg-gray-50 p-4 rounded-2xl"
       >
-        <StoryHeader />
+        <MainHeader name={userData.name} userPhotoUrl={userPhotoUrl} />
 
-        <UserProfile name={userData.name} userPhotoUrl={userPhotoUrl} />
-
-        {(() => {
-          const storyUserData: StoryUserData = {
-            name: userData.name,
-            faceShape: userData.faceShape,
-            faceShapeDesc:
-              userData.faceShapeAnalysis?.uniqueFact ||
-              "Bentuk wajah kamu itu unik!",
-            faceShapeAnalysis: generateGimmickChartData(userData.faceShape),
-            colorTone: userData.colorTone,
-            colorToneDesc: userData.colorToneAnalysis?.description || "",
-            colorPalettes: {
-              best: userData.colorToneAnalysis?.bestColors || [],
-              neutral: userData.colorToneAnalysis?.neutralColors || [],
-              worst: userData.colorToneAnalysis?.worstColors || [],
-              combination: userData.colorToneAnalysis?.combination || [],
-            },
-            bodyShape: userData.bodyShape,
-            bodyShapeDesc: userData.bodyShapeAnalysis?.description || "",
-            bodyCharacteristics:
-              userData.bodyShapeAnalysis?.characteristics || [],
-            bmi: {
-              value:
-                typeof userData.bmi === "string"
-                  ? parseFloat(userData.bmi)
-                  : userData.bmi,
-              category: "Normal",
-              desc: "Tubuhmu Berada Di Titik Ideal Yang Bikin Eksplorasi Gaya Bisa Lebih Bebas.",
-            },
-          };
-
-          return (
-            <>
-              <FaceShapeSection userData={storyUserData} />
-
-              <ColorToneSection userData={storyUserData} />
-
-              <BodyShapeSection userData={storyUserData} />
-
-              <BMISection userData={storyUserData} />
-
-              <ShareSection />
-            </>
-          );
-        })()}
+        <main>
+          <FaceShapeSection userData={storyUserData} />
+          <ColorToneSection userData={storyUserData} />
+          <BodyAndBmiSection userData={storyUserData} />
+          <ShareAndActionSection
+            onDownload={handleDownloadStory}
+            onShare={() =>
+              window.open("https://www.instagram.com/tiebymin/", "_blank")
+            }
+            isDownloading={isGenerating}
+          />
+        </main>
       </div>
-
-      <ActionButtons
-        onDownload={handleDownloadPNG}
-        onShare={() => window.open("https://www.instagram.com", "_blank")}
-        isDownloading={isGenerating}
-      />
     </div>
   );
 }

@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import url from "@/lib/url";
-import { ColorAnalysis } from "@/types";
+import React from "react";
+import { useColorToneData } from "@/hooks/useAnalysisData";
 
 interface ColorCircleProps {
   color: string;
@@ -53,37 +51,24 @@ interface ColorToneSectionProps {
 const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   colorAnalysisId,
 }) => {
-  const [colorData, setColorData] = useState<ColorAnalysis | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!colorAnalysisId) {
-      setError("Color Analysis ID tidak tersedia.");
-      setIsLoading(false);
-      return;
-    }
-    const fetchColorData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get(
-          `${url}/v1/color-analysis/${colorAnalysisId}`
-        );
-        setColorData(response.data);
-      } catch (err) {
-        setError("Gagal memuat data analisa warna.");
-        console.error("Fetch error in ColorToneSection:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchColorData();
-  }, [colorAnalysisId]);
+  const {
+    data: colorData,
+    isLoading,
+    error,
+  } = useColorToneData(colorAnalysisId);
 
   if (isLoading)
     return <div className="text-center p-8">Loading color analysis...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
+
+  if (error)
+    return (
+      <div className="text-center p-8 text-red-500">
+        {error instanceof Error
+          ? error.message
+          : "Gagal memuat data analisa warna."}
+      </div>
+    );
+
   if (!colorData)
     return (
       <div className="text-center p-8">Data analisa warna tidak ditemukan.</div>
@@ -159,6 +144,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           {' " '}
         </p>
       </div>
+
       {/* Bagian Bawah: Tips & Info Tambahan */}
       <div className="bg-[#FADADD] p-6 rounded-2xl">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">

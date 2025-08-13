@@ -4,7 +4,11 @@ import React, { Suspense, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-import { useAnalysisData, useDownloadPdf, UserData, defaultUserData } from "@/hooks/useAnalysisData";
+import {
+  useAnalysisData,
+  useBodyShapeData,
+  useDownloadPdf,
+} from "@/hooks/useAnalysisData";
 import {
   BackCover,
   BodyShape,
@@ -15,27 +19,31 @@ import {
   FaceShape,
   PageFooter,
 } from "@/components/pdf-components";
+import { defaultUserData } from "@/lib/mock-data";
+import { BodyShapeData, UserData } from "@/types";
 
 function PdfPage() {
   const searchParams = useSearchParams();
   const resultId = searchParams.get("result_id");
   const isPrintMode = searchParams.get("print") === "true";
 
-  // Fetch analysis data using the custom hook
   const {
-    data,
+    data: analysisResult,
     isLoading,
     error: fetchError,
   } = useAnalysisData(resultId);
+  const { rawAnalysisData } = analysisResult || {
+    rawAnalysisData: null,
+  };
+  const analysisData = rawAnalysisData;
 
-  const { userData = defaultUserData, userPhotoUrl } = data || {};
+  const { data: bodyDetails } = useBodyShapeData(
+    analysisData?.body_shape_id?.toString()
+  );
 
-  // Download PDF query
-  const {
-    refetch: downloadPdf,
-    isLoading: isGenerating,
-    // error: pdfError, // Removed unused variable
-  } = useDownloadPdf();
+  const { userData = defaultUserData, userPhotoUrl } = analysisResult || {};
+
+  const { refetch: downloadPdf, isLoading: isGenerating } = useDownloadPdf();
 
   const [error, setError] = useState<string | null>(null);
 
@@ -79,7 +87,7 @@ function PdfPage() {
       setError(null);
       // Memanggil downloadPdf tanpa parameter
       const result = await downloadPdf();
-      
+
       if (result.data) {
         // Create download link
         const url = window.URL.createObjectURL(result.data);
@@ -123,6 +131,7 @@ function PdfPage() {
     [key: string]: React.ComponentType<{
       userData: UserData;
       userPhotoUrl?: string | null;
+      bodyDetails?: BodyShapeData; // Add bodyDetails prop
     }>;
   } = {
     Cover,
@@ -151,6 +160,7 @@ function PdfPage() {
               <ComponentToPrint
                 userData={userData}
                 userPhotoUrl={userPhotoUrl}
+                bodyDetails={bodyDetails} // Pass bodyDetails
               />
             </section>
           );
@@ -213,7 +223,11 @@ function PdfPage() {
         </div>
       </nav>
       <div className="w-full">
-        <ActiveComponent userData={userData} userPhotoUrl={userPhotoUrl} />
+        <ActiveComponent
+          userData={userData}
+          userPhotoUrl={userPhotoUrl}
+          bodyDetails={bodyDetails}
+        />
       </div>
       <PageFooter pageNumber="" />
     </div>
