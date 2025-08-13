@@ -264,7 +264,7 @@ function BeautyAnalysisPageInner() {
           <BodySection
             bodyShapeId={analysisData.body_shape_id.toString()}
             bmiCategoryId={analysisData.bmi_category_id.toString()}
-            bmiResult={{ value: analysisData.analysis_details.bmi }}
+            bmiResult={{ value: analysisData.analysis_details.bmi.value }}
           />
         );
       case "celebrity":
@@ -300,7 +300,7 @@ function BeautyAnalysisPageInner() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col lg:flex-row justify-between w-full gap-6 sm:gap-8 mb-10 sm:mb-16">
-          <div className="bg-[#2D2D2D] h-[680px] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
+          <div className="bg-[#2D2D2D] h-[670px] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               <Image
                 src={userPhotoUrl || "/overview-ai/person.png"}
@@ -319,7 +319,7 @@ function BeautyAnalysisPageInner() {
               Dapatkan insight mendalam tentang fashion terbaik untuk kamu
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
-            <div className="mt-auto flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <div className="mt-auto mb-2 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Button
                 onClick={() =>
                   router.push(`/ai-overview/story?result_id=${resultId}`)

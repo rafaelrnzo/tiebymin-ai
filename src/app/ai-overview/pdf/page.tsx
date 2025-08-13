@@ -232,7 +232,6 @@ export const BackCover = () => (
 
 export const PageHeader = ({
   name,
-  width,
   fill,
 }: {
   name?: string;
@@ -275,7 +274,10 @@ export const BodyShape = ({ userData }: { userData: UserData }) => (
           <Image
             width={250}
             height={500}
-            src={userData.bodyShapeAnalysis.imageUrl || "https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh"}
+            src={
+              userData.bodyShapeAnalysis.imageUrl ||
+              "https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh"
+            }
             alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
             className="object-contain"
             unoptimized
@@ -848,6 +850,7 @@ function PdfPage() {
             characteristics:
               bodyShapeData?.characteristics ||
               defaultUserData.bodyShapeAnalysis.characteristics,
+            imageUrl: defaultUserData.bodyShapeAnalysis.imageUrl,
           },
           colorToneAnalysis: {
             description:
@@ -934,10 +937,10 @@ function PdfPage() {
 
       // Get the redirect URL from the response
       const redirectUrl = response.url;
-      
+
       // Open the print dialog in a new window
-      const printWindow = window.open(redirectUrl, '_blank');
-      
+      const printWindow = window.open(redirectUrl, "_blank");
+
       if (printWindow) {
         // Wait for the page to load
         printWindow.onload = () => {
@@ -949,7 +952,9 @@ function PdfPage() {
           };
         };
       } else {
-        throw new Error('Popup blocked. Please allow popups for PDF generation.');
+        throw new Error(
+          "Popup blocked. Please allow popups for PDF generation."
+        );
       }
     } catch (error) {
       console.error("Download error:", error);
@@ -1048,9 +1053,9 @@ function PdfPage() {
       </nav>
       <div className="w-full">
         <ActiveComponent userData={userData} userPhotoUrl={userPhotoUrl} />
+      </div>
+      <PageFooter pageNumber="" />
     </div>
-    <PageFooter pageNumber="" />
-  </div>
   );
 }
 

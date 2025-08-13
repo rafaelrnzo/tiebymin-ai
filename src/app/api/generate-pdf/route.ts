@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import puppeteer from 'puppeteer';
+import puppeteer from "puppeteer";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     // Navigate to the page and wait for content to load
     await page.goto(pdfUrl.toString(), {
-      waitUntil: ['networkidle0', 'domcontentloaded'],
+      waitUntil: ["networkidle0", "domcontentloaded"],
     });
 
     // Wait for specific content to ensure everything is loaded
@@ -38,29 +38,32 @@ export async function POST(req: NextRequest) {
 
     // Generate PDF with high quality settings
     const pdf = await page.pdf({
-      format: 'A4',
+      format: "A4",
       printBackground: true,
       margin: {
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px',
+        top: "20px",
+        right: "20px",
+        bottom: "20px",
+        left: "20px",
       },
       preferCSSPageSize: true,
     });
 
     await browser.close();
 
-    const pdfBuffer = Buffer.from(pdf);
+    // Convert Buffer to Blob which is a valid BodyInit type
+    // Create a proper Uint8Array from the Buffer to ensure compatibility
+    const uint8Array = new Uint8Array(pdf);
+    const blob = new Blob([uint8Array], { type: "application/pdf" });
 
     // Return the PDF with appropriate headers
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(blob, {
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename=hasil-analisa-lengkap.pdf',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=hasil-analisa-lengkap.pdf",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     });
   } catch (error) {
