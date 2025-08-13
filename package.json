@@ -16,6 +16,7 @@
     "@sparticuz/chromium": "^138.0.2",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.54.0",
+    "@tanstack/react-query": "^5.85.0",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -1,201 +1,95 @@
 "use client";
-import { Instagram, Music, Download, Share2 } from "lucide-react"; // Menggunakan ikon Music untuk TikTok
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
-import axios from "axios";
-import url from "@/lib/url";
-import { AnalysisData as GlobalAnalysisData } from "@/types";
-import QRCode from "react-qr-code";
+import React, { Suspense, useState } from "react";
 
-interface AnalysisData extends GlobalAnalysisData {
-  celebrity_id: number | null;
-  user_name?: string;
-  analysis_details: {
-    bmi: {
-      value: string | number;
-    };
-  };
-}
-
-interface PhotoData {
-  is_processed: boolean;
-  file_path: string;
-  photo_type: "face_original" | "face_processed" | string;
-}
-
-interface FaceShapeData {
-  name: string;
-  description: string;
-  characteristics: string[];
-}
-
-interface ColorToneData {
-  name: string;
-  description: string;
-  best_colors: string[];
-  neutral_colors: string[];
-  worst_colors: string[];
-  combination_colors: string[];
-}
-
-interface BodyShapeData {
-  name: string;
-  description: string;
-  characteristics: string[];
-}
-
-interface BMICategoryData {
-  name: string;
-  description: string;
-}
-
-// Fallback data jika API gagal
-const defaultUserData = {
-  name: "User",
-  faceShape: "Kotak",
-  faceShapeDesc:
-    "Bentuk wajah kamu itu kotak! Kamu punya garis rahang yang tegas dan dahi nggak terlalu lebar atau sempit.",
-  faceShapeAnalysis: [
-    { label: "Square", value: 90, active: true },
-    { label: "Oblong", value: 40 },
-    { label: "Oval", value: 60 },
-    { label: "Round", value: 20 },
-    { label: "Heart", value: 50 },
-    { label: "Diamond", value: 70 },
-  ],
-  colorTone: "Cool Winter",
-  colorToneDesc:
-    "Ini berarti kulitmu memiliki undertone dingin dengan hint biru atau pink yang memberikan kesan elegan.",
-  colorPalettes: {
-    best: ["#323232", "#3B3B98", "#653456", "#6A2E35", "#37598B", "#692F5C"],
-    neutral: ["#323232", "#6B7280", "#4A4A4A", "#9CA3AF", "#D1D5DB", "#111827"],
-    worst: ["#F59E0B", "#FACC15", "#D97706", "#B45309", "#78350F", "#451A03"],
-    combination: [
-      "#DC2626",
-      "#3B82F6",
-      "#323232",
-      "#6B21A8",
-      "#9333EA",
-      "#C084FC",
-    ],
-  },
-  bodyShape: "Hourglass",
-  bodyShapeDesc:
-    "Bentuk Tubuhmu Memiliki Proporsi Seimbang Antara Bagian Atas Dan Bawah, Dengan Pinggang Yang Terlihat Ramping.",
-  bodyCharacteristics: [
-    "Bahu dan pinggul kamu lebar-nya sama.",
-    "Pinggang yang jelas dan ramping bikin lekuk tubuhmu makin stunning.",
-    "Kamu punya kesan feminin alami yang bakal bikin outfit apapun terlihat bagus",
-  ],
-  bmi: {
-    value: 61.43,
-    category: "Normal",
-    desc: "Tubuhmu Berada Di Titik Ideal Yang Bikin Eksplorasi Gaya Bisa Lebih Bebas.",
-  },
-};
-
-// Komponen untuk Bar Bentuk Wajah
-const ShapeBar = ({
-  label,
-  value,
-  active,
-}: {
+// Interface untuk data chart bentuk wajah
+interface IShape {
   label: string;
   value: number;
   active?: boolean;
-}) => (
-  <div>
-    <span
-      className={`text-sm ${
-        active ? "font-bold text-gray-800" : "text-gray-500"
-      }`}
-    >
-      {label}
-    </span>
-    <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-      <div
-        className="bg-[#EF789B] h-1.5 rounded-full"
-        style={{ width: `${value}%` }}
-      ></div>
-    </div>
-  </div>
-);
+}
+import Image from "next/image";
+// import { Button } from "@/components/ui/button"; // Removed unused import
+import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
 
-// Komponen untuk Palet Warna
-const ColorPalette = ({
-  title,
-  colors,
-}: {
-  title: string;
-  colors: string[];
-}) => (
-  <div>
-    <h4 className="font-semibold text-sm text-gray-600 mb-2">{title}</h4>
-    <div className="flex space-x-1">
-      {colors.map((color, index) => (
-        <div
-          key={index}
-          className="w-8 h-8 rounded-md shadow-sm"
-          style={{ backgroundColor: color }}
-        ></div>
-      ))}
-    </div>
-  </div>
-);
+// Fungsi untuk menghasilkan data chart bentuk wajah
+const generateGimmickChartData = (mainShapeName: string): IShape[] => {
+  const allShapes = ["Square", "Oblong", "Oval", "Round", "Heart", "Diamond"];
 
-function StoryPageContent() {
-  const searchParams = useSearchParams();
-  const [userData, setUserData] = useState(defaultUserData);
-  const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const downloadPNG = async () => {
-    const resultId = searchParams.get("result_id");
-    if (!resultId) {
-      alert("Result ID tidak ditemukan");
-      return;
-    }
-    try {
-      const res = await fetch(`/api/generate-story?result_id=${resultId}`, {
-        method: "POST",
-      });
-
-      if (!res.ok) {
-        console.error("Gagal generate PNG");
-        return;
-      }
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-
-      // Download file ke device
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "hasil-analisa.png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Deteksi device
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-      // Arahkan sesuai device
-      setTimeout(() => {
-        if (isMobile) {
-          window.location.href = "instagram://story-camera";
-        } else {
-          window.open("https://www.instagram.com/", "_blank");
-        }
-      }, 1500);
-    } catch (error) {
-      console.error("Download error:", error);
-      alert("Gagal mengunduh PNG. Silakan periksa konsol untuk detail.");
-    }
+  const shapeNameMap: { [key: string]: string } = {
+    Hati: "Heart",
+    Oblong: "Oblong",
+    Oval: "Oval",
+    Bulat: "Round",
+    Kotak: "Square",
+    Diamond: "Diamond",
   };
+
+  const englishMainShapeName = shapeNameMap[mainShapeName] || mainShapeName;
+
+  const mainValue = 90;
+  const otherCount = allShapes.length - 1;
+
+  const baseOtherValue = Math.floor(10 / otherCount);
+  let sisa = 10 - baseOtherValue * otherCount;
+
+  const chartData: IShape[] = [];
+  allShapes.forEach((shapeName) => {
+    if (shapeName.toLowerCase() === englishMainShapeName.toLowerCase()) {
+      chartData.push({ 
+        label: shapeName, 
+        value: mainValue, 
+        active: true 
+      });
+    } else {
+      let value = baseOtherValue;
+      if (sisa > 0) {
+        value += 1;
+        sisa -= 1;
+      }
+      chartData.push({ 
+        label: shapeName, 
+        value, 
+        active: false 
+      });
+    }
+  });
+
+  return chartData;
+};
+import {
+  ActionButtons,
+  BMISection,
+  BodyShapeSection,
+  // ColorPalette, // Removed unused import
+  ColorToneSection,
+  FaceShapeSection,
+  ShareSection,
+  StoryHeader,
+  StoryUserData,
+  UserProfile,
+} from "@/components/story-components";
+
+function StoryPage() {
+  const searchParams = useSearchParams();
+  const resultId = searchParams.get("result_id");
+
+  // Fetch analysis data using the custom hook
+  const { data, isLoading, error: fetchError } = useAnalysisData(resultId);
+
+  const { userData, userPhotoUrl } = data || {
+    userData: null,
+    userPhotoUrl: null,
+  };
+
+  // Generate story query
+  const {
+    refetch: generateStory,
+    isLoading: isGenerating,
+    // error: storyError, // Removed unused variable
+  } = useGenerateStory();
+
+  const [error, setError] = useState<string | null>(null);
 
   const showToast = (message: string, type: "success" | "error") => {
     const toast = document.createElement("div");
@@ -230,466 +124,136 @@ function StoryPageContent() {
     }, 4000);
   };
 
-  // Fungsi untuk download PDF
-  const downloadPDF = async () => {
-    const resultId = searchParams.get("result_id");
-    setIsGenerating(true);
-    setError(null);
+  const handleDownloadPNG = async () => {
+    if (!resultId) return;
 
     try {
-      // Call API to generate PDF
-      const response = await fetch("/api/generate-pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ resultId }),
-      });
+      setError(null);
+      // Memanggil generateStory tanpa parameter
+      const result = await generateStory();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate PDF");
+      if (result.data) {
+        // Create download link
+        const url = window.URL.createObjectURL(result.data);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `hasil-analisa-story-${Date.now()}.png`;
+
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        // Show success message
+        showToast("Story berhasil didownload!", "success");
+
+        // Redirect to Instagram
+        window.open("https://www.instagram.com", "_blank");
       }
-
-      // Get PDF blob from response
-      const pdfBlob = await response.blob();
-
-      // Create download link
-      const url = window.URL.createObjectURL(pdfBlob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `hasil-analisa-lengkap-${Date.now()}.pdf`;
-
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-
-      // Cleanup
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      // Show success message
-      showToast("PDF berhasil didownload!", "success");
     } catch (error) {
-      console.error("Error downloading PDF:", error);
+      console.error("Error downloading PNG:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Terjadi kesalahan saat mendownload PDF";
+          : "Terjadi kesalahan saat mendownload story";
       setError(errorMessage);
       showToast(errorMessage, "error");
-    } finally {
-      setIsGenerating(false);
     }
   };
-
-  // Fungsi untuk mengambil screenshot halaman dan mengunduhnya sebagai PNG
-  const captureAndDownloadScreenshot = async () => {
-    try {
-      // Gunakan html2canvas untuk mengambil screenshot (perlu ditambahkan ke dependencies)
-      // Ini adalah alternatif client-side untuk puppeteer
-      const html2canvas = (await import("html2canvas")).default;
-      const element = document.getElementById("story-content");
-
-      if (!element) {
-        console.error("Element story-content tidak ditemukan");
-        return;
-      }
-
-      const canvas = await html2canvas(element, {
-        useCORS: true,
-        allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight,
-      });
-
-      // Konversi canvas ke blob
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          console.error("Gagal membuat blob dari canvas");
-          return;
-        }
-
-        // Buat URL dan unduh
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "hasil-analisa.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        // Deteksi device untuk redirect ke Instagram
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        setTimeout(() => {
-          if (isMobile) {
-            window.location.href = "instagram://story-camera";
-          } else {
-            window.open("https://www.instagram.com/", "_blank");
-          }
-        }, 1500);
-      }, "image/png");
-    } catch (error) {
-      console.error("Error capturing screenshot:", error);
-      alert("Gagal mengambil screenshot. Silakan coba lagi.");
-    }
-  };
-
-  useEffect(() => {
-    const resultId = searchParams.get("result_id");
-    const shouldDownload = searchParams.get("download") === "true";
-
-    if (!resultId) {
-      setError("Analysis Result ID tidak ditemukan di URL.");
-      setIsLoading(false);
-      return;
-    }
-
-    // Jika parameter download=true, otomatis unduh setelah halaman dimuat
-    if (shouldDownload) {
-      // Tunggu konten dimuat sebelum mengambil screenshot
-      const timer = setTimeout(() => {
-        captureAndDownloadScreenshot();
-      }, 2000); // Tunggu 2 detik untuk memastikan konten dimuat
-
-      return () => clearTimeout(timer);
-    }
-
-    const fetchAllData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // Fetch analysis data dan foto
-        const [analysisResponse, photosResponse] = await Promise.all([
-          axios.get(`${url}/v1/user-analysis-results/${resultId}`),
-          axios.get(
-            `${url}/v1/user-photos/analysis-results/${resultId}/photos`
-          ),
-        ]);
-
-        const analysisData: AnalysisData = analysisResponse.data;
-
-        // Fetch data tambahan berdasarkan ID dari hasil analisis
-        const [
-          faceShapeResponse,
-          colorToneResponse,
-          bodyShapeResponse,
-          bmiCategoryResponse,
-        ] = await Promise.all([
-          axios.get(`${url}/v1/face-shapes/${analysisData.face_shape_id}`),
-          axios.get(
-            `${url}/v1/color-analysis/${analysisData.color_analysis_id}`
-          ),
-          axios.get(`${url}/v1/body-shapes/${analysisData.body_shape_id}`),
-          axios.get(`${url}/v1/bmi-categories/${analysisData.bmi_category_id}`),
-        ]);
-
-        const faceShapeData: FaceShapeData = faceShapeResponse.data;
-        const colorToneData: ColorToneData = colorToneResponse.data;
-        const bodyShapeData: BodyShapeData = bodyShapeResponse.data;
-        const bmiCategoryData: BMICategoryData = bmiCategoryResponse.data;
-
-        // Transformasi data untuk format yang dibutuhkan komponen
-        const transformedData = {
-          name: analysisData.user_name || "User",
-          faceShape: faceShapeData?.name || defaultUserData.faceShape,
-          faceShapeDesc:
-            faceShapeData?.description || defaultUserData.faceShapeDesc,
-          faceShapeAnalysis: [
-            {
-              label: "Square",
-              value: faceShapeData?.name === "Square" ? 90 : 40,
-              active: faceShapeData?.name === "Square",
-            },
-            {
-              label: "Oblong",
-              value: faceShapeData?.name === "Oblong" ? 90 : 40,
-              active: faceShapeData?.name === "Oblong",
-            },
-            {
-              label: "Oval",
-              value: faceShapeData?.name === "Oval" ? 90 : 40,
-              active: faceShapeData?.name === "Oval",
-            },
-            {
-              label: "Round",
-              value: faceShapeData?.name === "Round" ? 90 : 40,
-              active: faceShapeData?.name === "Round",
-            },
-            {
-              label: "Heart",
-              value: faceShapeData?.name === "Heart" ? 90 : 40,
-              active: faceShapeData?.name === "Heart",
-            },
-            {
-              label: "Diamond",
-              value: faceShapeData?.name === "Diamond" ? 90 : 40,
-              active: faceShapeData?.name === "Diamond",
-            },
-          ],
-          colorTone: colorToneData?.name || defaultUserData.colorTone,
-          colorToneDesc:
-            colorToneData?.description || defaultUserData.colorToneDesc,
-          colorPalettes: {
-            best:
-              colorToneData?.best_colors || defaultUserData.colorPalettes.best,
-            neutral:
-              colorToneData?.neutral_colors ||
-              defaultUserData.colorPalettes.neutral,
-            worst:
-              colorToneData?.worst_colors ||
-              defaultUserData.colorPalettes.worst,
-            combination:
-              colorToneData?.combination_colors ||
-              defaultUserData.colorPalettes.combination,
-          },
-          bodyShape: bodyShapeData?.name || defaultUserData.bodyShape,
-          bodyShapeDesc:
-            bodyShapeData?.description || defaultUserData.bodyShapeDesc,
-          bodyCharacteristics:
-            bodyShapeData?.characteristics ||
-            defaultUserData.bodyCharacteristics,
-          bmi: {
-            value:
-              typeof analysisData.analysis_details.bmi.value === "string"
-                ? parseFloat(analysisData.analysis_details.bmi.value)
-                : Number(analysisData.analysis_details.bmi.value),
-            category: bmiCategoryData?.name || defaultUserData.bmi.category,
-            desc: bmiCategoryData?.description || defaultUserData.bmi.desc,
-          },
-        };
-
-        setUserData(transformedData);
-
-        // Set foto user
-        const processedPhoto = photosResponse.data.find(
-          (photo: PhotoData) => photo.is_processed === true
-        );
-        if (processedPhoto) {
-          setUserPhotoUrl(processedPhoto.file_path);
-        } else {
-          const originalPhoto = photosResponse.data.find(
-            (photo: PhotoData) => photo.photo_type === "face_original"
-          );
-          if (originalPhoto) setUserPhotoUrl(originalPhoto.file_path);
-        }
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Gagal memuat data analisa. Menggunakan data default.");
-        // Tetap gunakan fallback data jika terjadi error
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllData();
-  }, [searchParams]);
 
   if (isLoading) {
     return (
-      <div className="bg-gray-100 min-h-screen p-4 sm:p-8 flex items-center justify-center">
-        <div className="text-center p-8">Loading analysis data...</div>
+      <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
+        <Image
+          src="/tie-by-min-logo-light.png"
+          alt="Logo Tie By Min"
+          width={180}
+          height={80}
+        />
       </div>
     );
   }
 
+  if (fetchError || error) {
+    return <p>Error: {fetchError?.message || error}</p>;
+  }
+
+  if (!userData) {
+    return <p>No data found</p>;
+  }
+
   return (
-    <div className="bg-gray-100 min-h-screen p-2 sm:p-8 flex items-center justify-center">
-      <main
+    <div className="bg-white min-h-screen">
+      <div
         id="story-content"
-        className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 max-w-4xl w-full font-sans"
+        className="relative w-full max-w-md mx-auto bg-white"
       >
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => {
-                const resultId = searchParams.get("result_id");
-                if (resultId) {
-                  window.location.href = `/ai-overview/pdf?result_id=${resultId}`;
-                }
-              }}
-              className="flex items-center justify-center space-x-1 text-gray-600 hover:text-gray-800 transition"
-            >
-              <Share2 className="w-4 h-4 rotate-180" />
-              <span className="text-sm">Kembali</span>
-            </button>
-            <Image
-              src="/tie-by-min-logo.png"
-              alt="Logo Tie By Min"
-              width={120}
-              height={40}
-            />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 text-right">
-            HASIL ANALISA {userData.name.toUpperCase()}
-          </h1>
-        </div>
+        <StoryHeader />
 
-        {/* Bagian Atas: Foto & QR */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="relative w-full aspect-[1/1] rounded-lg overflow-hidden">
-            <Image
-              src={userPhotoUrl || "/model.png"}
-              alt={`Foto ${userData.name}`}
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="p-3 bg-white rounded-lg shadow-md">
-              <QRCode
-                value={window.location.href}
-                size={150}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-              />
-            </div>
-            <p className="text-sm text-gray-600 mt-4 mb-4 max-w-xs">
-              Yuk share ke temen kamu untuk coba AI ini dengan scan barcode di
-              atas!
-            </p>
-            <div className="flex flex-col space-y-3 w-full">
-              <div className="flex space-x-3 w-full">
-                <button
-                  onClick={downloadPNG}
-                  className="flex-1 flex items-center justify-center space-x-2 border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition bg-pink-500 text-white hover:bg-pink-600"
-                >
-                  <Instagram className="w-4 h-4" />
-                  <span>Share Instagram</span>
-                </button>
-                <button
-                  onClick={() => {
-                    // Buka TikTok dengan URL sharing
-                    window.open("https://www.tiktok.com/@tiebymin", "_blank");
-                    // Download PDF
-                    downloadPDF();
-                  }}
-                  className="flex-1 flex items-center justify-center space-x-2 border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition bg-black text-white hover:bg-gray-800"
-                >
-                  <Music className="w-4 h-4" />
-                  <span>Share TikTok</span>
-                </button>
-              </div>
-              <button
-                onClick={downloadPDF}
-                disabled={isDownloading}
-                className="w-full flex items-center justify-center space-x-2 border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-400"
-              >
-                <Download className="w-4 h-4" />
-                <span>{isDownloading ? "Downloading..." : "Download PDF"}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <UserProfile name={userData.name} userPhotoUrl={userPhotoUrl} />
 
-        {/* Analisa Wajah */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-            {userData.faceShapeAnalysis.map((shape) => (
-              <ShapeBar key={shape.label} {...shape} />
-            ))}
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-gray-800">
-              Bentuk wajah kamu {userData.faceShape}
-            </h2>
-            <p className="text-gray-600 mt-2 text-sm leading-relaxed">
-              {userData.faceShapeDesc}
-            </p>
-          </div>
-        </div>
+        {(() => {
+          const storyUserData: StoryUserData = {
+            name: userData.name,
+            faceShape: userData.faceShape,
+            faceShapeDesc:
+              userData.faceShapeAnalysis?.uniqueFact ||
+              "Bentuk wajah kamu itu unik!",
+            faceShapeAnalysis: generateGimmickChartData(userData.faceShape),
+            colorTone: userData.colorTone,
+            colorToneDesc: userData.colorToneAnalysis?.description || "",
+            colorPalettes: {
+              best: userData.colorToneAnalysis?.bestColors || [],
+              neutral: userData.colorToneAnalysis?.neutralColors || [],
+              worst: userData.colorToneAnalysis?.worstColors || [],
+              combination: userData.colorToneAnalysis?.combination || [],
+            },
+            bodyShape: userData.bodyShape,
+            bodyShapeDesc: userData.bodyShapeAnalysis?.description || "",
+            bodyCharacteristics:
+              userData.bodyShapeAnalysis?.characteristics || [],
+            bmi: {
+              value:
+                typeof userData.bmi === "string"
+                  ? parseFloat(userData.bmi)
+                  : userData.bmi,
+              category: "Normal",
+              desc: "Tubuhmu Berada Di Titik Ideal Yang Bikin Eksplorasi Gaya Bisa Lebih Bebas.",
+            },
+          };
 
-        {/* Color Tone */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-800">
-            Color tone kamu {userData.colorTone}
-          </h2>
-          <p className="text-gray-600 mt-2 mb-6 text-sm">
-            {userData.colorToneDesc}
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <ColorPalette
-              title="Best Color"
-              colors={userData.colorPalettes.best}
-            />
-            <ColorPalette
-              title="Neutral Color"
-              colors={userData.colorPalettes.neutral}
-            />
-            <ColorPalette
-              title="Worst Color"
-              colors={userData.colorPalettes.worst}
-            />
-            <ColorPalette
-              title="Combination"
-              colors={userData.colorPalettes.combination}
-            />
-          </div>
-        </div>
+          return (
+            <>
+              <FaceShapeSection userData={storyUserData} />
 
-        {/* Bentuk Tubuh & BMI */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Bentuk tubuh kamu {userData.bodyShape}
-          </h2>
-          <p className="text-gray-600 text-sm mb-6">{userData.bodyShapeDesc}</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex justify-center items-center">
-              <Image
-                src={`/body-select/${userData.bodyShape.toLowerCase()}.png`}
-                alt={`Bentuk tubuh ${userData.bodyShape}`}
-                width={100}
-                height={250}
-                className="object-contain"
-              />
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-              <h4 className="font-bold text-sm mb-2">Karakteristik</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-                {userData.bodyCharacteristics.map((char, i) => (
-                  <li key={i}>{char}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-              <h4 className="font-bold text-sm mb-2">BMI Index</h4>
-              <div className="w-full bg-gray-200 rounded-full h-4 relative my-3">
-                <div
-                  className="bg-[#EF789B] h-4 rounded-full"
-                  style={{ width: `${userData.bmi.value}%` }}
-                ></div>
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
-                  {typeof userData.bmi.value === "number"
-                    ? userData.bmi.value.toFixed(2)
-                    : userData.bmi.value}{" "}
-                  {userData.bmi.category}
-                </span>
-              </div>
-              <p className="text-sm text-gray-700 text-center">
-                {userData.bmi.desc}
-              </p>
-            </div>
-          </div>
-        </div>
-        {error && <div className="text-center p-4 text-red-500">{error}</div>}
-      </main>
+              <ColorToneSection userData={storyUserData} />
+
+              <BodyShapeSection userData={storyUserData} />
+
+              <BMISection userData={storyUserData} />
+
+              <ShareSection />
+            </>
+          );
+        })()}
+      </div>
+
+      <ActionButtons
+        onDownload={handleDownloadPNG}
+        onShare={() => window.open("https://www.instagram.com", "_blank")}
+        isDownloading={isGenerating}
+      />
     </div>
   );
 }
 
-export default function HasilAnalisa() {
+export default function App() {
   return (
-    <Suspense
-      fallback={
-        <div className="bg-gray-100 min-h-screen p-4 sm:p-8 flex items-center justify-center">
-          <div className="text-center p-8">Loading analysis data...</div>
-        </div>
-      }
-    >
-      <StoryPageContent />
+    <Suspense fallback={<div>Loading...</div>}>
+      <StoryPage />
     </Suspense>
   );
 }
