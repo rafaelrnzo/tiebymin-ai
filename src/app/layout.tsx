@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, PT_Serif, Oswald, Handlee, Poppins } from "next/font/google";
 import "./globals.css";
+import QueryProvider from "@/context/QueryProvider";
 
 const geistSans = Geist({
   weight: ["400", "700"],
@@ -48,7 +49,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${ptSerif.variable} ${oswald.variable} ${handlee.variable} ${poppins.variable} antialiased`}
       >
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
