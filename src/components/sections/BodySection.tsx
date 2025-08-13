@@ -18,7 +18,7 @@ const ALL_BODY_TYPES_PREVIEW = [
 
 interface BodySectionProps {
   bodyShapeId: string;
-  bmiResult?: { value: { value: string | number } }; // Izinkan string untuk menangani format yang salah
+  bmiResult?: { value: string | number };
   bmiCategoryId?: string;
 }
 
@@ -138,7 +138,7 @@ const BodySection: React.FC<BodySectionProps> = ({
               <div className="rounded-full border-2 border-[#EC7498] p-1">
                 <div className="rounded-full border border-neutral-600 w-24 h-24 flex items-center justify-center">
                   <p className="text-lg font-bold">
-                    {formatBmiValue(bmiResult?.value.value)}
+                    {formatBmiValue(bmiResult?.value)}
                   </p>
                 </div>
               </div>

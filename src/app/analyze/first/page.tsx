@@ -24,11 +24,11 @@ export default function Step2Page() {
   };
 
   return (
-    <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center p-4">
-      <div className="w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+    <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center p-4 sm:p-6">
+      <div className="mx-auto container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 xl:gap-16">
         <LeftSideSection steps={steps} />
-        <div className="w-full lg:flex-1 lg:max-w-[65%]">
-          <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border-0 py-8 px-4 sm:py-12 sm:px-6 md:px-10">
+        <div className="w-full lg:flex-1 lg:max-w-[65%] px-4 sm:px-6 md:px-8">
+          <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-center lg:text-left">
               Lengkapi Data Diri
             </h2>

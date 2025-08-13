@@ -1,37 +1,51 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import puppeteer from "puppeteer";
 
-export async function POST(req: NextRequest) {
+export const runtime = "nodejs";
+
+export async function POST(req: Request) {
   try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+    const url = new URL(req.url);
+    const resultId = url.searchParams.get("result_id");
+
+    const storyUrl = new URL(
+      "/ai-overview/story",
+      req.headers.get("origin") || ""
+    );
+    if (resultId) {
+      storyUrl.searchParams.set("result_id", resultId);
+    }
+    storyUrl.searchParams.set("print", "true");
+
+    const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
+    await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 2 });
+    await page.goto(storyUrl.toString(), { waitUntil: "networkidle0" });
 
-    const url = new URL("/ai-overview/story?print=true", req.nextUrl.origin);
+    await page.waitForSelector("#story-content");
+    const element = await page.$("#story-content");
 
-    await page.goto(url.toString(), {
-      waitUntil: "networkidle0",
-    });
+    if (!element) {
+      throw new Error("Could not find element #story-content");
+    }
 
-    // Ambil screenshot sebagai PNG
-    const pngBuffer = await page.screenshot({
+    const imageBuffer = (await element.screenshot({
       type: "png",
-      fullPage: true,
-    });
+    })) as Buffer; // pastikan di-cast jadi Buffer
 
     await browser.close();
 
-    // Kembalikan file PNG ke client
-    return new NextResponse(pngBuffer, {
-      headers: {
-        "Content-Type": "image/png",
-        "Content-Disposition": `attachment; filename="hasil-analisa.png"`,
-      },
-    });
+    return new NextResponse(
+      new Uint8Array(imageBuffer), // konversi aman dari Buffer
+      {
+        headers: {
+          "Content-Type": "image/png",
+          "Content-Disposition": "attachment; filename=hasil-analisa.png",
+        },
+      }
+    );
   } catch (error) {
-    console.error("Error generating PNG:", error);
+    console.error("Error generating story PNG:", error);
     return new NextResponse("Failed to generate PNG", { status: 500 });
   }
 }

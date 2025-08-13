@@ -81,6 +81,7 @@ const defaultUserData: UserData = {
     ],
   },
   bodyShapeAnalysis: {
+    imageUrl: "https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh",
     description:
       "Bagian Tengah Tubuhmu Lebih Dominan, Dengan Bagian Tengah Yang Lebih Menonjol Dan Bahu Yang Lebar Serta Bagian Dada Yang Penuh.",
     characteristics: [
@@ -191,6 +192,7 @@ interface UserData {
   bodyShapeAnalysis: {
     description: string;
     characteristics: string[];
+    imageUrl: string;
   };
   colorToneAnalysis: {
     description: string;
@@ -224,12 +226,12 @@ export const BackCover = () => (
       priority
       unoptimized
     />
+    <PageFooter pageNumber="" />
   </div>
 );
 
 export const PageHeader = ({
   name,
-  width,
   fill,
 }: {
   name?: string;
@@ -240,17 +242,16 @@ export const PageHeader = ({
     <Image
       src="/tie-by-min-logo.png"
       alt="Logo Tie By Min"
-      width={width ?? 180}
+      width={180}
       height={80}
-      className="ml-10"
-      unoptimized
+      className="ml-4 sm:ml-10 w-[120px] sm:w-auto"
     />
     {fill ? (
-      <div className="font-poppins bg-gray-800 text-white text-sm font-semibold px-4 py-2 rounded-sm text-start w-[180px]">
+      <div className="font-poppins bg-gray-800 text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] mr-2 sm:mr-0 truncate">
         {name}
       </div>
     ) : (
-      <div className="font-poppins text-gray-800 text-sm font-semibold px-4 py-2 rounded-sm text-start w-[180px]">
+      <div className="font-poppins text-gray-800 text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] mr-2 sm:mr-0 truncate">
         {name}
       </div>
     )}
@@ -258,7 +259,7 @@ export const PageHeader = ({
 );
 
 export const PageFooter = ({ pageNumber }: { pageNumber: string }) => (
-  <footer className="w-full flex justify-between text-gray-600 my-10 px-10">
+  <footer className="w-full flex justify-between text-gray-600 my-5 sm:my-10 px-4 sm:px-10 text-xs sm:text-base">
     <span>© 2025, Tiebymin AI</span>
     <span className="font-bold">{pageNumber}</span>
   </footer>
@@ -273,7 +274,10 @@ export const BodyShape = ({ userData }: { userData: UserData }) => (
           <Image
             width={250}
             height={500}
-            src="https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh"
+            src={
+              userData.bodyShapeAnalysis.imageUrl ||
+              "https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh"
+            }
             alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
             className="object-contain"
             unoptimized
@@ -525,15 +529,6 @@ export const Cover = ({ userData }: { userData: UserData }) => (
         LENGKAP
       </h1>
     </main>
-    <div className="absolute bottom-0 left-0 right-0 h-1/3">
-      <Image
-        src="/many-flower.png"
-        alt="Pola Bunga Latar Belakang"
-        fill
-        className="object-cover"
-        unoptimized
-      />
-    </div>
     <PageFooter pageNumber="" />
   </div>
 );
@@ -693,13 +688,82 @@ function PdfPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fungsi untuk menghasilkan PDF di sisi klien
+  const generatePDFInBrowser = async () => {
+    try {
+      // Gunakan jspdf untuk membuat PDF di browser (perlu ditambahkan ke dependencies)
+      const jsPDF = await import("jspdf");
+      const html2canvas = await import("html2canvas");
+
+      // Dapatkan semua elemen halaman PDF
+      const pdfContent = document.getElementById("pdf-content");
+
+      if (!pdfContent) {
+        console.error("Element pdf-content tidak ditemukan");
+        return;
+      }
+
+      const pdf = new jsPDF.default("p", "mm", "a4");
+      const pages = pdfContent.querySelectorAll(".pdf-page");
+
+      // Tampilkan loading indicator untuk mobile
+      const loadingIndicator = document.createElement("div");
+      loadingIndicator.className =
+        "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50";
+      loadingIndicator.innerHTML =
+        '<div class="bg-white p-4 rounded-lg"><p class="text-center">Generating PDF...</p></div>';
+      document.body.appendChild(loadingIndicator);
+
+      // Untuk setiap halaman, ambil screenshot dan tambahkan ke PDF
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i] as HTMLElement;
+
+        const canvas = await html2canvas.default(page, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+        });
+
+        const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+        // Tambahkan halaman baru setelah halaman pertama
+        if (i > 0) {
+          pdf.addPage();
+        }
+
+        // Tambahkan gambar ke PDF
+        pdf.addImage(imgData, "JPEG", 0, 0, 210, 297); // A4 size
+      }
+
+      // Hapus loading indicator
+      document.body.removeChild(loadingIndicator);
+
+      // Unduh PDF
+      pdf.save("hasil-analisa-lengkap.pdf");
+    } catch (error) {
+      console.error("Error generating PDF in browser:", error);
+      alert("Gagal membuat PDF. Silakan coba lagi.");
+    }
+  };
+
   useEffect(() => {
     const resultId = searchParams.get("result_id");
+    const shouldDownload = searchParams.get("download") === "true";
 
     if (!resultId) {
       setError("Analysis Result ID tidak ditemukan di URL.");
       setIsLoading(false);
       return;
+    }
+
+    // Jika parameter download=true, otomatis unduh setelah halaman dimuat
+    if (shouldDownload) {
+      // Tunggu konten dimuat sebelum menghasilkan PDF
+      const timer = setTimeout(() => {
+        generatePDFInBrowser();
+      }, 3000); // Tunggu 3 detik untuk memastikan konten dimuat
+
+      return () => clearTimeout(timer);
     }
 
     const fetchAllData = async () => {
@@ -786,6 +850,7 @@ function PdfPage() {
             characteristics:
               bodyShapeData?.characteristics ||
               defaultUserData.bodyShapeAnalysis.characteristics,
+            imageUrl: defaultUserData.bodyShapeAnalysis.imageUrl,
           },
           colorToneAnalysis: {
             description:
@@ -870,15 +935,27 @@ function PdfPage() {
         throw new Error(`Failed to generate PDF: ${errorText}`);
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "hasil-analisa-lengkap.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      // Get the redirect URL from the response
+      const redirectUrl = response.url;
+
+      // Open the print dialog in a new window
+      const printWindow = window.open(redirectUrl, "_blank");
+
+      if (printWindow) {
+        // Wait for the page to load
+        printWindow.onload = () => {
+          // Trigger print dialog
+          printWindow.print();
+          // Close the window after printing
+          printWindow.onafterprint = () => {
+            printWindow.close();
+          };
+        };
+      } else {
+        throw new Error(
+          "Popup blocked. Please allow popups for PDF generation."
+        );
+      }
     } catch (error) {
       console.error("Download error:", error);
       alert("Gagal mengunduh PDF. Silakan periksa konsol untuk detail.");
@@ -897,14 +974,18 @@ function PdfPage() {
     }
   };
 
-  // Jika dalam mode cetak, render semua halaman untuk Puppeteer
+  // Jika dalam mode cetak, render semua halaman untuk Puppeteer atau browser PDF
   if (isPrintMode) {
     return (
-      <main>
+      <main id="pdf-content">
         {pageOrder.map((pageKey) => {
           const ComponentToPrint = pages[pageKey];
           return (
-            <section key={pageKey} style={{ pageBreakAfter: "always" }}>
+            <section
+              key={pageKey}
+              className="pdf-page"
+              style={{ pageBreakAfter: "always" }}
+            >
               <ComponentToPrint
                 userData={userData}
                 userPhotoUrl={userPhotoUrl}
@@ -938,37 +1019,42 @@ function PdfPage() {
 
   return (
     <div className="bg-gray-100">
-      <nav className="p-4 bg-white shadow-md sticky top-0 z-50 flex flex-wrap justify-center gap-2">
-        {pageOrder.map((page) => (
-          <Button
-            key={page}
-            onClick={() => setActivePage(page)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activePage === page
-                ? "bg-gray-800 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+      <nav className="p-2 sm:p-4 bg-white shadow-md sticky top-0 z-50 flex flex-wrap justify-center gap-1 sm:gap-2 overflow-x-auto">
+        <div className="flex flex-nowrap overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto justify-start sm:justify-center">
+          {pageOrder.map((page) => (
+            <Button
+              key={page}
+              onClick={() => setActivePage(page)}
+              className={`px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-colors whitespace-nowrap mr-1 sm:mr-0 ${
+                activePage === page
+                  ? "bg-gray-800 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {page}
+            </Button>
+          ))}
+        </div>
+        <div className="flex w-full sm:w-auto justify-center mt-2 sm:mt-0">
+          <button
+            onClick={shareToStory}
+            className="bg-purple-500 text-white px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm rounded-md hover:bg-purple-600 transition mr-2"
           >
-            {page}
-          </Button>
-        ))}
-        <button
-          onClick={shareToStory}
-          className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 transition mr-2"
-        >
-          Bagikan ke Instagram
-        </button>
-        <button
-          onClick={downloadPDF}
-          disabled={isDownloading}
-          className="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 transition disabled:bg-gray-400"
-        >
-          {isDownloading ? "Downloading..." : "Download PDF"}
-        </button>
+            Bagikan ke Instagram
+          </button>
+          <button
+            onClick={downloadPDF}
+            disabled={isDownloading}
+            className="bg-pink-500 text-white px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm rounded-md hover:bg-pink-600 transition disabled:bg-gray-400"
+          >
+            {isDownloading ? "Downloading..." : "Download PDF"}
+          </button>
+        </div>
       </nav>
       <div className="w-full">
         <ActiveComponent userData={userData} userPhotoUrl={userPhotoUrl} />
       </div>
+      <PageFooter pageNumber="" />
     </div>
   );
 }
