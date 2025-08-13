@@ -240,7 +240,7 @@ function BeautyAnalysisPageInner() {
     };
 
     fetchAllData();
-  }, [searchParams]);
+  }, [searchParams, resultId]);
 
   const renderContent = () => {
     if (isLoading)

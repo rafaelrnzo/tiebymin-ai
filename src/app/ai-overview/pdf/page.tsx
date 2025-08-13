@@ -48,11 +48,6 @@ interface BodyShapeData {
   characteristics: string[];
 }
 
-interface BMICategoryData {
-  name: string;
-  description: string;
-}
-
 interface CelebrityData {
   name: string;
   match_percentage: number;
@@ -219,7 +214,7 @@ interface UserData {
 }
 
 // Komponen Halaman
-export const BackCover = ({ userData }: { userData?: UserData }) => (
+export const BackCover = () => (
   <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
     <Image
       src="/tie-by-min-logo-light.png"
@@ -241,7 +236,7 @@ export const PageHeader = ({
   width?: number;
   fill?: boolean;
 }) => (
-  <header className="flex justify-between items-center mt-10">
+  <header className="flex justify-between items-center">
     <Image
       src="/tie-by-min-logo.png"
       alt="Logo Tie By Min"
@@ -416,7 +411,7 @@ export const ColorTone = ({ userData }: { userData: UserData }) => {
   );
 
   return (
-    <div className="relative bg-white min-h-screen">
+    <div className="relative bg-white">
       <PageHeader width={100} name={userData.name} />
       <main className="py-10">
         <div className="max-w-5xl mx-auto px-8">
@@ -468,9 +463,9 @@ export const ColorTone = ({ userData }: { userData: UserData }) => {
               icon={<Star className="mr-2" />}
             />
           </div>
+          <PageFooter pageNumber="02" />
         </div>
       </main>
-      <PageFooter pageNumber="02" />
     </div>
   );
 };
@@ -658,7 +653,8 @@ export const FaceShape = ({
                 label={shape.name}
                 value={shape.value}
                 active={
-                  shape.name.toLowerCase() === englishMainShapeName.toLowerCase()
+                  shape.name.toLowerCase() ===
+                  englishMainShapeName.toLowerCase()
                 }
               />
             ))}
@@ -697,8 +693,6 @@ function PdfPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
-
   useEffect(() => {
     const resultId = searchParams.get("result_id");
 
@@ -727,7 +721,6 @@ function PdfPage() {
           faceShapeResponse,
           colorToneResponse,
           bodyShapeResponse,
-          bmiCategoryResponse,
           celebrityResponse,
         ] = await Promise.all([
           axios.get(`${url}/v1/face-shapes/${analysisData.face_shape_id}`),
@@ -735,9 +728,7 @@ function PdfPage() {
             `${url}/v1/color-analysis/${analysisData.color_analysis_id}`
           ),
           axios.get(`${url}/v1/body-shapes/${analysisData.body_shape_id}`),
-          axios.get(
-            `${url}/v1/bmi-categories/${analysisData.bmi_category_id}`
-          ),
+          axios.get(`${url}/v1/bmi-categories/${analysisData.bmi_category_id}`),
           analysisData.celebrity_id
             ? axios.get(`${url}/v1/celebrities/${analysisData.celebrity_id}`)
             : Promise.resolve({ data: null }),
@@ -746,7 +737,6 @@ function PdfPage() {
         const faceShapeData: FaceShapeData = faceShapeResponse.data;
         const colorToneData: ColorToneData = colorToneResponse.data;
         const bodyShapeData: BodyShapeData = bodyShapeResponse.data;
-        const bmiCategoryData: BMICategoryData = bmiCategoryResponse.data;
         const celebrityData: CelebrityData | null = celebrityResponse.data;
 
         // Proses data foto
@@ -776,8 +766,7 @@ function PdfPage() {
             matchPercentage:
               celebrityData?.match_percentage ||
               defaultUserData.celebrityMatch.matchPercentage,
-            imageUrl:
-              "https://placehold.co/400/f0f0f0/333?text=Selebriti", // Placeholder
+            imageUrl: "https://placehold.co/400/f0f0f0/333?text=Selebriti", // Placeholder
             reason: celebrityData?.reason
               ? [celebrityData.reason]
               : defaultUserData.celebrityMatch.reason,
@@ -925,6 +914,23 @@ function PdfPage() {
         })}
       </main>
     );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
+        <Image
+          src="/tie-by-min-logo-light.png"
+          alt="Logo Tie By Min"
+          width={180}
+          height={80}
+        />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>;
   }
 
   // Jika tidak, render UI interaktif
