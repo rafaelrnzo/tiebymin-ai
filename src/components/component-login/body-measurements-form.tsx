@@ -45,7 +45,7 @@ function NumberInputWithControls({
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="w-16 text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       {unit && (
         <span className="text-gray-300 font-medium w-4 sm:w-4 md:w-5 flex-shrink-0">

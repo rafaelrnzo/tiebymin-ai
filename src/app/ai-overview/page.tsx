@@ -300,22 +300,22 @@ function BeautyAnalysisPageInner() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col lg:flex-row justify-between w-full gap-6 sm:gap-8 mb-10 sm:mb-16">
-          <div className="bg-[#2D2D2D] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
+          <div className="bg-[#2D2D2D] h-[680px] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               <Image
                 src={userPhotoUrl || "/overview-ai/person.png"}
                 alt="Analysis Result"
                 width={450}
-                height={311}
-                className="w-full h-auto max-h-[311px] object-cover rounded-xl"
+                height={280}
+                className="h-[250px] w-[450px] object-cover rounded-xl"
               />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 font-handlee text-[#F8B4C4]">
+            <h2 className="text-4xl font-bold mb-3 sm:mb-4 font-handlee text-[#F8B4C4] italic">
               Hi Yasmin, Ini Dia
               <br />
               Hasil Analisa Kamu
             </h2>
-            <p className="text-gray-300 text-xs sm:text-sm mb-6 sm:mb-8 leading-relaxed">
+            <p className="text-gray-300 text-lg mb-6 sm:mb-8 leading-relaxed font-poppins">
               Dapatkan insight mendalam tentang fashion terbaik untuk kamu
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>

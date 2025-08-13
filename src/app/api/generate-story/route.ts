@@ -1,35 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
+import puppeteer from 'puppeteer';
 
-export const runtime = 'edge'; // Gunakan Edge Runtime untuk performa lebih baik
+export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
-    // Dapatkan result_id dari request jika ada
     const url = new URL(req.url);
-    const resultId = url.searchParams.get("result_id") || "";
-    
-    // Redirect ke halaman story dengan parameter untuk menampilkan versi cetak
-    // dan tambahkan parameter download=true untuk memicu unduhan di browser
+    const resultId = url.searchParams.get("result_id");
+
     const storyUrl = new URL("/ai-overview/story", req.nextUrl.origin);
-    storyUrl.searchParams.set("print", "true");
-    storyUrl.searchParams.set("download", "true");
-    
-    // Tambahkan result_id jika ada
     if (resultId) {
       storyUrl.searchParams.set("result_id", resultId);
     }
-    
-    // Alih-alih membuat PNG di server, kita redirect ke halaman yang akan
-    // memicu browser untuk mengunduh gambar
-    return NextResponse.redirect(storyUrl.toString(), {
+    storyUrl.searchParams.set("print", "true");
+
+
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 2 }); // Instagram story dimensions
+    await page.goto(storyUrl.toString(), { waitUntil: 'networkidle0' });
+
+    await page.waitForSelector('#story-content');
+    const element = await page.$('#story-content');
+
+    if (!element) {
+      throw new Error("Could not find element #story-content");
+    }
+
+    const imageBuffer = await element.screenshot({
+      type: 'png'
+    });
+
+    await browser.close();
+
+    return new NextResponse(imageBuffer, {
       headers: {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
+        'Content-Type': 'image/png',
+        'Content-Disposition': 'attachment; filename=hasil-analisa.png',
       },
     });
   } catch (error) {
-    console.error("Error redirecting to story page:", error);
+    console.error("Error generating story PNG:", error);
     return new NextResponse("Failed to generate PNG", { status: 500 });
   }
 }
