@@ -29,9 +29,7 @@ const ColorCircle: React.FC<ColorCircleProps> = ({ color, className }) => (
 
 const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
   <div className="text-center">
-    <h3 className="font-script text-lg sm:text-xl font-bold text-gray-700 font-handlee">
-      {title}
-    </h3>
+    <h3 className="font-poppins text-lg font-bold text-gray-700">{title}</h3>
     <div className="mt-2 grid grid-cols-3 grid-rows-2 gap-2 sm:gap-3">
       {/* Fallback ke array kosong '|| []' untuk mencegah error jika data tidak ada */}
       {(colors || []).map((color, index) => (
@@ -43,9 +41,7 @@ const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
 
 const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
   <div>
-    <h4 className="font-script text-xl font-bold text-gray-800 font-handlee">
-      {title}
-    </h4>
+    <h4 className="font-poppins text-xl font-bold text-gray-800">{title}</h4>
     <p className="mt-1 text-sm text-gray-700">{text}</p>
   </div>
 );
@@ -116,7 +112,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
 
         {/* Kartu Kanan: Color Guide Line */}
         <div className="lg:col-span-2 p-6 rounded-2xl border-[1px] border-neutral-600">
-          <h2 className="text-center font-script font-handlee text-xl font-bold text-gray-700">
+          <h2 className="text-center font-script font-handlee text-xl font-bold text-gray-800">
             Color Guide Line
           </h2>
 
@@ -151,6 +147,18 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
         </div>
       </div>
 
+      <div className="flex gap-x-1 my-9 items-center justify-center">
+        <p className="font-script font-handlee italic text-center font-bold text-6xl -ml-4">
+          {' " '}
+        </p>
+        <span className="font-script font-handlee italic text-center font-bold text-2xl mx-1">
+          Setiap manusia memiliki warna kulit yang unik oleh karena itu gunakan
+          panduan ini untuk menonjolkan kecantikan alamimu yang sudah ada.
+        </span>
+        <p className="font-script font-handlee italic text-center font-bold text-6xl mr-4">
+          {' " '}
+        </p>
+      </div>
       {/* Bagian Bawah: Tips & Info Tambahan */}
       <div className="bg-[#FADADD] p-6 rounded-2xl">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">

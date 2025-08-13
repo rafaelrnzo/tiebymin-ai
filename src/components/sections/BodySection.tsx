@@ -124,19 +124,52 @@ const BodySection: React.FC<BodySectionProps> = ({
           ))}
         </div>
       </div>
-      <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6 space-y-8 flex flex-col items-center">
-        <h3 className="font-bold text-5xl text-center font-oswald">
-          BMI Analyst ({bmiCategoryDetails.kategori})
-        </h3>
-        <hr className="w-full" />
-        <div className="p-6 rounded-full border border-[#323232] w-fit bg-transparent flex items-center justify-center">
-          <p className="text-3xl font-bold">
-            {formatBmiValue(bmiResult?.value.value)}
-          </p>
+      <div className="flex flex-col gap-6">
+        <div className="border border-neutral-600 rounded-2xl p-6 sm:p-8 text-black">
+          {/* Judul */}
+          <h3 className="font-bold text-4xl sm:text-5xl font-oswald">
+            BMI Analyst
+          </h3>
+          <hr className="my-4 border-neutral-300" />
+
+          <div className="flex items-center gap-4">
+            {/* Lingkaran BMI */}
+            <div className="flex items-center justify-center">
+              <div className="rounded-full border-2 border-[#EC7498] p-1">
+                <div className="rounded-full border border-neutral-600 w-24 h-24 flex items-center justify-center">
+                  <p className="text-lg font-bold">
+                    {formatBmiValue(bmiResult?.value.value)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Teks Keterangan */}
+            <div className="flex flex-col">
+              <span className="font-bold text-base sm:text-lg">
+                {bmiCategoryDetails.kategori}
+              </span>
+              <p className="text-neutral-600 text-sm sm:text-base leading-relaxed font-poppins">
+                {bmiCategoryDetails.tips_fashion
+                  .split(" ")
+                  .slice(0, 12)
+                  .join(" ") +
+                  (bmiCategoryDetails.tips_fashion.split(" ").length > 12
+                    ? "..."
+                    : "")}
+              </p>
+            </div>
+          </div>
         </div>
-        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed text-center">
-          {bmiCategoryDetails.tips_fashion}
-        </p>
+
+        <div className="bg-pink-100 rounded-2xl px-4 py-14 sm:p-6">
+          <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg text-left">
+            Karakteristik
+          </h3>
+          <span className="font-poppins text-sm">
+            {bodyDetails.penjelasan_body_shape}
+          </span>
+        </div>
       </div>
     </div>
   );

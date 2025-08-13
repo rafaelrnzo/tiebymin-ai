@@ -3,10 +3,6 @@ import { Navbar } from "@/components/component-landing/navbar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-// Ganti semua import Image dari next/image menjadi img bawaan HTML
-// Karena next/image tidak support path public ("/icons/xxx.svg") di dev mode tanpa config khusus
-// dan untuk SVG kecil lebih baik pakai <img> biasa
-
 const hijabProducts = [
   {
     id: 1,
@@ -133,9 +129,7 @@ export default function BeautyAnalysisPage() {
             </div>
           </div>
 
-          {/* Right Side - Celebrity Match */}
           <div className="w-full lg:w-[65%]">
-            {/* Tab Navigation */}
             <div className="flex flex-wrap gap-2 mb-6">
               {analysisTabs.map((tab) => (
                 <Button

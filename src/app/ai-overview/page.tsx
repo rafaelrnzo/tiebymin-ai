@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
 import { Navbar } from "@/components/component-landing/navbar";
 import Image from "next/image";
+import { Suspense, useEffect, useState } from "react";
 
-import ShapeSection from "../../components/sections/ShapeSection";
-import ColorToneSection from "../../components/sections/ColorToneSection";
-import BodySection from "../../components/sections/BodySection";
-import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
-import TipsSection from "../../components/sections/TipsSection";
-import { useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
 import { AnalysisData as GlobalAnalysisData } from "@/types";
+import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
+import BodySection from "../../components/sections/BodySection";
+import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
+import ColorToneSection from "../../components/sections/ColorToneSection";
+import ShapeSection from "../../components/sections/ShapeSection";
+import TipsSection from "../../components/sections/TipsSection";
 
 const analysisTabs = [
   { id: "shape", text: "Shape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
@@ -195,12 +195,11 @@ function BeautyAnalysisPageInner() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const resultId = searchParams.get("result_id");
 
   useEffect(() => {
     const shuffled = [...hijabProducts].sort(() => 0.5 - Math.random());
     setRecommendedProducts(shuffled.slice(0, 3));
-
-    const resultId = searchParams.get("result_id");
 
     if (!resultId) {
       setError("Analysis Result ID tidak ditemukan di URL.");
@@ -241,7 +240,7 @@ function BeautyAnalysisPageInner() {
     };
 
     fetchAllData();
-  }, [searchParams]);
+  }, [searchParams, resultId]);
 
   const renderContent = () => {
     if (isLoading)
@@ -307,8 +306,8 @@ function BeautyAnalysisPageInner() {
                 src={userPhotoUrl || "/overview-ai/person.png"}
                 alt="Analysis Result"
                 width={450}
-                height={361}
-                className="w-full h-auto object-cover rounded-2xl"
+                height={311}
+                className="w-[450px] h-[311px] object-cover rounded-xl"
               />
             </div>
             <h2 className="text-3xl font-bold mb-4 font-handlee text-[#F8B4C4]">
@@ -320,8 +319,13 @@ function BeautyAnalysisPageInner() {
               Dapatkan insight mendalam tentang fashion terbaik untuk kamu
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
-            <div className="mt-auto flex flex-col sm:flex-row gap-4">
-              <Button className="bg-white text-sm text-[#2D2D2D] px-4 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200">
+            <div className="mt-auto flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={() =>
+                  router.push(`/ai-overview/story?result_id=${resultId}`)
+                }
+                className="bg-white text-sm text-[#2D2D2D] px-6 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200"
+              >
                 <Image
                   src="/overview-ai/icons/material-symbols_share.svg"
                   width={18}
@@ -331,29 +335,31 @@ function BeautyAnalysisPageInner() {
                 <span>Bagikan Hasil</span>
               </Button>
               <Button
-                onClick={() => router.push("/ai-overview/pdf")}
-                className="bg-[#F8B4C4] text-sm text-black px-4 py-2 rounded-full flex items-center justify-center gap-1 transition hover:bg-pink-300"
+                onClick={() =>
+                  router.push(`/ai-overview/pdf?result_id=${resultId}`)
+                }
+                className="bg-[#FFC6C6] text-black px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400"
               >
                 <Image
                   src="/overview-ai/icons/ic_round-download.svg"
                   width={18}
                   height={18}
-                  alt="Download Analisa"
+                  alt="Unduh Hasil"
                 />
-                <span>Download Analisa</span>
+                <span>Unduh Hasil</span>
               </Button>
             </div>
           </div>
 
           <div className="w-full lg:w-[70%]">
-            <div className="flex flex-wrap border-b border-gray-300">
+            <div className="flex border-b border-gray-300">
               {analysisTabs.map((tab) => (
-                <Button
+                <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm transition-all -mb-px ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-poppins transition-all -mb-px ${
                     activeTab === tab.id
-                      ? "border-b-2 border-black text-black font-semibold"
+                      ? "text-black font-bold"
                       : "text-gray-500 hover:text-black"
                   }`}
                 >
@@ -365,7 +371,7 @@ function BeautyAnalysisPageInner() {
                     className={`${activeTab !== tab.id && "opacity-60"}`}
                   />
                   <span>{tab.text}</span>
-                </Button>
+                </button>
               ))}
             </div>
 
