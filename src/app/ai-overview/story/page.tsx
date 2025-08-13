@@ -151,6 +151,7 @@ function StoryPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const downloadPNG = async () => {
     const resultId = searchParams.get("result_id");
@@ -196,15 +197,47 @@ function StoryPageContent() {
     }
   };
 
+  const showToast = (message: string, type: "success" | "error") => {
+    const toast = document.createElement("div");
+    toast.textContent = message;
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 10000;
+      background: ${type === "success" ? "#10B981" : "#EF4444"};
+      animation: slideIn 0.3s ease;
+    `;
+
+    // Add slide animation
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+      style.remove();
+    }, 4000);
+  };
+
   // Fungsi untuk download PDF
   const downloadPDF = async () => {
-    setIsDownloading(true);
-    try {
-      const resultId = searchParams.get("result_id");
-      if (!resultId) {
-        throw new Error("Result ID tidak ditemukan");
-      }
+    const resultId = searchParams.get("result_id");
+    setIsGenerating(true);
+    setError(null);
 
+    try {
+      // Call API to generate PDF
       const response = await fetch("/api/generate-pdf", {
         method: "POST",
         headers: {
@@ -214,24 +247,39 @@ function StoryPageContent() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to generate PDF: ${errorText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate PDF");
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "hasil-analisa-lengkap.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      // Get PDF blob from response
+      const pdfBlob = await response.blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `hasil-analisa-lengkap-${Date.now()}.pdf`;
+
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      // Show success message
+      showToast("PDF berhasil didownload!", "success");
     } catch (error) {
-      console.error("Download error:", error);
-      alert("Gagal mengunduh PDF. Silakan periksa konsol untuk detail.");
+      console.error("Error downloading PDF:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Terjadi kesalahan saat mendownload PDF";
+      setError(errorMessage);
+      showToast(errorMessage, "error");
     } finally {
-      setIsDownloading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -240,14 +288,14 @@ function StoryPageContent() {
     try {
       // Gunakan html2canvas untuk mengambil screenshot (perlu ditambahkan ke dependencies)
       // Ini adalah alternatif client-side untuk puppeteer
-      const html2canvas = (await import('html2canvas')).default;
-      const element = document.getElementById('story-content');
-      
+      const html2canvas = (await import("html2canvas")).default;
+      const element = document.getElementById("story-content");
+
       if (!element) {
-        console.error('Element story-content tidak ditemukan');
+        console.error("Element story-content tidak ditemukan");
         return;
       }
-      
+
       const canvas = await html2canvas(element, {
         useCORS: true,
         allowTaint: true,
@@ -256,24 +304,24 @@ function StoryPageContent() {
         windowWidth: document.documentElement.offsetWidth,
         windowHeight: document.documentElement.offsetHeight,
       });
-      
+
       // Konversi canvas ke blob
       canvas.toBlob((blob) => {
         if (!blob) {
-          console.error('Gagal membuat blob dari canvas');
+          console.error("Gagal membuat blob dari canvas");
           return;
         }
-        
+
         // Buat URL dan unduh
         const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.download = 'hasil-analisa.png';
+        link.download = "hasil-analisa.png";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        
+
         // Deteksi device untuk redirect ke Instagram
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         setTimeout(() => {
@@ -283,13 +331,13 @@ function StoryPageContent() {
             window.open("https://www.instagram.com/", "_blank");
           }
         }, 1500);
-      }, 'image/png');
+      }, "image/png");
     } catch (error) {
-      console.error('Error capturing screenshot:', error);
-      alert('Gagal mengambil screenshot. Silakan coba lagi.');
+      console.error("Error capturing screenshot:", error);
+      alert("Gagal mengambil screenshot. Silakan coba lagi.");
     }
   };
-  
+
   useEffect(() => {
     const resultId = searchParams.get("result_id");
     const shouldDownload = searchParams.get("download") === "true";
@@ -299,14 +347,14 @@ function StoryPageContent() {
       setIsLoading(false);
       return;
     }
-    
+
     // Jika parameter download=true, otomatis unduh setelah halaman dimuat
     if (shouldDownload) {
       // Tunggu konten dimuat sebelum mengambil screenshot
       const timer = setTimeout(() => {
         captureAndDownloadScreenshot();
       }, 2000); // Tunggu 2 detik untuk memastikan konten dimuat
-      
+
       return () => clearTimeout(timer);
     }
 
@@ -450,7 +498,10 @@ function StoryPageContent() {
 
   return (
     <div className="bg-gray-100 min-h-screen p-2 sm:p-8 flex items-center justify-center">
-      <main id="story-content" className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 max-w-4xl w-full font-sans">
+      <main
+        id="story-content"
+        className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 max-w-4xl w-full font-sans"
+      >
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2">

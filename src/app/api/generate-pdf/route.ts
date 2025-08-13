@@ -1,27 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-import puppeteer from "puppeteer";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const url = new URL(req.url);
-    const resultId = url.searchParams.get("result_id");
-    
-    // Create the URL for the PDF page
+    // Get result_id from request body instead of URL params
+    const body = await req.json();
+    const { resultId } = body;
+
     const pdfUrl = new URL("/ai-overview/pdf", req.nextUrl.origin);
     pdfUrl.searchParams.set("print", "true");
     if (resultId) {
       pdfUrl.searchParams.set("result_id", resultId);
     }
 
-    // Launch puppeteer
-    const browser = await puppeteer.launch({
+    // Determine if running on Vercel
+    const isVercel = !!process.env.VERCEL_ENV;
+    let puppeteer;
+    let launchOptions: {
+      headless: boolean;
+      args?: string[];
+      executablePath?: string;
+    } = {
       headless: true,
-    });
+    };
+
+    // Use different puppeteer setup based on environment
+    if (isVercel) {
+      const chromium = (await import("@sparticuz/chromium")).default;
+      puppeteer = await import("puppeteer-core");
+      launchOptions = {
+        ...launchOptions,
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
+      };
+    } else {
+      puppeteer = await import("puppeteer");
+    }
+
+    // Launch puppeteer
+    const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
 
-    // Set viewport to ensure consistent rendering
     await page.setViewport({
       width: 1200,
       height: 1600,
@@ -31,10 +51,17 @@ export async function POST(req: NextRequest) {
     // Navigate to the page and wait for content to load
     await page.goto(pdfUrl.toString(), {
       waitUntil: ["networkidle0", "domcontentloaded"],
+      timeout: 30000, // Add timeout
     });
 
     // Wait for specific content to ensure everything is loaded
-    await page.waitForSelector('#pdf-content');
+    try {
+      await page.waitForSelector("#pdf-content", { timeout: 10000 });
+    } catch (error) {
+      console.warn(
+        `PDF content selector not found, continuing anyway, ${error}`
+      );
+    }
 
     // Generate PDF with high quality settings
     const pdf = await page.pdf({
@@ -51,23 +78,28 @@ export async function POST(req: NextRequest) {
 
     await browser.close();
 
-    // Convert Buffer to Blob which is a valid BodyInit type
-    // Create a proper Uint8Array from the Buffer to ensure compatibility
-    const uint8Array = new Uint8Array(pdf);
-    const blob = new Blob([uint8Array], { type: "application/pdf" });
-
-    // Return the PDF with appropriate headers
-    return new NextResponse(blob, {
+    // Return PDF as response
+    return new NextResponse(pdf, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": "attachment; filename=hasil-analisa-lengkap.pdf",
         "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
+        "Content-Length": pdf.length.toString(),
       },
     });
   } catch (error) {
     console.error("Error generating PDF:", error);
-    return new NextResponse("Failed to generate PDF", { status: 500 });
+    return new NextResponse(
+      JSON.stringify({
+        error: "Failed to generate PDF",
+        details: error.message,
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 }
