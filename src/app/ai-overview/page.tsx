@@ -298,38 +298,38 @@ function BeautyAnalysisPageInner() {
     <div className="min-h-screen bg-gray-50 bg-[url('/bg-pattern.png')] bg-repeat">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col lg:flex-row justify-between w-full gap-8 mb-16">
-          <div className="bg-[#2D2D2D] w-full lg:w-[35%] rounded-3xl p-6 sm:p-8 text-white flex flex-col">
-            <div className="mb-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="flex flex-col lg:flex-row justify-between w-full gap-6 sm:gap-8 mb-10 sm:mb-16">
+          <div className="bg-[#2D2D2D] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
+            <div className="mb-4 sm:mb-6">
               <Image
                 src={userPhotoUrl || "/overview-ai/person.png"}
                 alt="Analysis Result"
                 width={450}
                 height={311}
-                className="w-[450px] h-[311px] object-cover rounded-xl"
+                className="w-full h-auto max-h-[311px] object-cover rounded-xl"
               />
             </div>
-            <h2 className="text-3xl font-bold mb-4 font-handlee text-[#F8B4C4]">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 font-handlee text-[#F8B4C4]">
               Hi Yasmin, Ini Dia
               <br />
               Hasil Analisa Kamu
             </h2>
-            <p className="text-gray-300 text-sm mb-8 leading-relaxed">
+            <p className="text-gray-300 text-xs sm:text-sm mb-6 sm:mb-8 leading-relaxed">
               Dapatkan insight mendalam tentang fashion terbaik untuk kamu
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
-            <div className="mt-auto flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="mt-auto flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Button
                 onClick={() =>
                   router.push(`/ai-overview/story?result_id=${resultId}`)
                 }
-                className="bg-white text-sm text-[#2D2D2D] px-6 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200"
+                className="bg-white text-xs sm:text-sm text-[#2D2D2D] px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200"
               >
                 <Image
                   src="/overview-ai/icons/material-symbols_share.svg"
-                  width={18}
-                  height={18}
+                  width={16}
+                  height={16}
                   alt="Bagikan Hasil"
                 />
                 <span>Bagikan Hasil</span>
@@ -338,12 +338,12 @@ function BeautyAnalysisPageInner() {
                 onClick={() =>
                   router.push(`/ai-overview/pdf?result_id=${resultId}`)
                 }
-                className="bg-[#FFC6C6] text-black px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400"
+                className="bg-[#FFC6C6] text-black px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"
               >
                 <Image
                   src="/overview-ai/icons/ic_round-download.svg"
-                  width={18}
-                  height={18}
+                  width={16}
+                  height={16}
                   alt="Unduh Hasil"
                 />
                 <span>Unduh Hasil</span>

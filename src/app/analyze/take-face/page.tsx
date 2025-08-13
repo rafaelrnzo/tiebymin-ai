@@ -132,7 +132,7 @@ export default function FaceScanPrepPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[url('/login-bg.png')] px-4 py-8 sm:p-8 flex items-center justify-center font-sans">
+    <div className="min-h-screen w-full bg-[url('/login-bg.png')] px-4 py-6 sm:p-8 flex items-center justify-center font-sans">
       {/* CSS untuk Animasi Bintang */}
       <style jsx global>{`
         @keyframes rotate-sparkle {

@@ -14,10 +14,10 @@ interface LeftSideSectionProps {
 
 export default function LeftSideSection({ steps }: LeftSideSectionProps) {
     return (
-        <div className="w-full lg:flex-1 lg:max-w-[40%] lg:pr-20 mb-8 lg:mb-0 flex flex-col items-center">
+        <div className="w-full lg:flex-1 lg:max-w-[40%] lg:pr-20 mb-8 lg:mb-0 flex flex-col items-center px-4 sm:px-6">
             <BrandLogo width={200} height={64} />
             <DescriptionSection />
             <StepsSection steps={steps} />
         </div>
     );
-} 
+}

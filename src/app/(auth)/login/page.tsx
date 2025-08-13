@@ -33,12 +33,12 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center p-4">
-      <div className="w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+      <div className="mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
         <LeftSideSection steps={steps} />
 
         {/* Right Side - Login Form */}
-        <div className="w-full lg:flex-1 lg:max-w-[65%]">
-          <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border-0 py-8 px-4 sm:py-12 sm:px-6 md:px-10">
+        <div className="w-full lg:flex-1 lg:max-w-[65%] px-4 sm:px-0">
+          <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-center lg:text-left">
               Masuk ke Akun
             </h2>

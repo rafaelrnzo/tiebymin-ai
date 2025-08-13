@@ -235,13 +235,79 @@ function StoryPageContent() {
     }
   };
 
+  // Fungsi untuk mengambil screenshot halaman dan mengunduhnya sebagai PNG
+  const captureAndDownloadScreenshot = async () => {
+    try {
+      // Gunakan html2canvas untuk mengambil screenshot (perlu ditambahkan ke dependencies)
+      // Ini adalah alternatif client-side untuk puppeteer
+      const html2canvas = (await import('html2canvas')).default;
+      const element = document.getElementById('story-content');
+      
+      if (!element) {
+        console.error('Element story-content tidak ditemukan');
+        return;
+      }
+      
+      const canvas = await html2canvas(element, {
+        useCORS: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight,
+      });
+      
+      // Konversi canvas ke blob
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error('Gagal membuat blob dari canvas');
+          return;
+        }
+        
+        // Buat URL dan unduh
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'hasil-analisa.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        // Deteksi device untuk redirect ke Instagram
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        setTimeout(() => {
+          if (isMobile) {
+            window.location.href = "instagram://story-camera";
+          } else {
+            window.open("https://www.instagram.com/", "_blank");
+          }
+        }, 1500);
+      }, 'image/png');
+    } catch (error) {
+      console.error('Error capturing screenshot:', error);
+      alert('Gagal mengambil screenshot. Silakan coba lagi.');
+    }
+  };
+  
   useEffect(() => {
     const resultId = searchParams.get("result_id");
+    const shouldDownload = searchParams.get("download") === "true";
 
     if (!resultId) {
       setError("Analysis Result ID tidak ditemukan di URL.");
       setIsLoading(false);
       return;
+    }
+    
+    // Jika parameter download=true, otomatis unduh setelah halaman dimuat
+    if (shouldDownload) {
+      // Tunggu konten dimuat sebelum mengambil screenshot
+      const timer = setTimeout(() => {
+        captureAndDownloadScreenshot();
+      }, 2000); // Tunggu 2 detik untuk memastikan konten dimuat
+      
+      return () => clearTimeout(timer);
     }
 
     const fetchAllData = async () => {
@@ -383,8 +449,8 @@ function StoryPageContent() {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4 sm:p-8 flex items-center justify-center">
-      <main className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-4xl w-full font-sans">
+    <div className="bg-gray-100 min-h-screen p-2 sm:p-8 flex items-center justify-center">
+      <main id="story-content" className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 max-w-4xl w-full font-sans">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2">

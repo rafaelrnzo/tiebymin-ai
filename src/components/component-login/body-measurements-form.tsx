@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 // Komponen baru untuk input angka dengan tombol kontrol
 interface NumberInputWithControlsProps {
@@ -32,31 +33,36 @@ function NumberInputWithControls({
   };
 
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center gap-x-3 flex-grow basis-0 p-2 rounded-lg hover:bg-gray-50 transition">
       <label
         htmlFor={id}
-        className="text-gray-700 font-medium whitespace-nowrap"
+        className="text-gray-700 font-medium whitespace-nowrap text-xs sm:text-sm md:text-base flex-shrink-0"
       >
         {label}
       </label>
-      <input
+      <Input
         id={id}
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-20 text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
-      {unit && <span className="text-gray-300 font-medium w-5">{unit}</span>}
-      <div className="flex flex-col items-center justify-center">
+      {unit && (
+        <span className="text-gray-300 font-medium w-4 sm:w-4 md:w-5 flex-shrink-0">
+          {unit}
+        </span>
+      )}
+      <div className="flex flex-col items-center justify-center flex-shrink-0">
         <Button
           onClick={handleIncrement}
-          className="w-6 h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100"
+          className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
         >
           {/* SVG untuk panah atas */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
+            width="12"
+            height="12"
+            className="w-3 h-3 sm:w-3.5 sm:h-3.5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -69,13 +75,14 @@ function NumberInputWithControls({
         </Button>
         <Button
           onClick={handleDecrement}
-          className="w-6 h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100"
+          className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
         >
           {/* SVG untuk panah bawah */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
+            width="12"
+            height="12"
+            className="w-3 h-3 sm:w-3.5 sm:h-3.5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -110,7 +117,7 @@ export default function BodyMeasurementsForm({
   return (
     // Komponen sekarang hanya me-render elemen form
     <>
-      <div className="flex flex-col md:flex-row items-center justify-center md:justify-around space-y-6 md:space-y-0 md:space-x-4 mb-8">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-y-4 md:gap-x-4 mb-8 w-full">
         <NumberInputWithControls
           label="Tinggi Badan"
           id="tinggi-input"
