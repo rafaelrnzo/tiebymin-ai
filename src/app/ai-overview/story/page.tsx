@@ -2,7 +2,7 @@
 import { Instagram, Music, Download, Share2 } from "lucide-react"; // Menggunakan ikon Music untuk TikTok
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import axios from "axios";
 import url from "@/lib/url";
 import { AnalysisData as GlobalAnalysisData } from "@/types";
@@ -144,7 +144,7 @@ const ColorPalette = ({
   </div>
 );
 
-export default function HasilAnalisa() {
+function StoryPageContent() {
   const searchParams = useSearchParams();
   const [userData, setUserData] = useState(defaultUserData);
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
@@ -560,5 +560,19 @@ export default function HasilAnalisa() {
         {error && <div className="text-center p-4 text-red-500">{error}</div>}
       </main>
     </div>
+  );
+}
+
+export default function HasilAnalisa() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-gray-100 min-h-screen p-4 sm:p-8 flex items-center justify-center">
+          <div className="text-center p-8">Loading analysis data...</div>
+        </div>
+      }
+    >
+      <StoryPageContent />
+    </Suspense>
   );
 }
