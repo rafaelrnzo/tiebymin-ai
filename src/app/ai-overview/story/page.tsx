@@ -1,11 +1,12 @@
 "use client";
-import { Instagram, Music } from "lucide-react"; // Menggunakan ikon Music untuk TikTok
+import { Instagram, Music, Download, Share2 } from "lucide-react"; // Menggunakan ikon Music untuk TikTok
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import url from "@/lib/url";
 import { AnalysisData as GlobalAnalysisData } from "@/types";
+import QRCode from "react-qr-code";
 
 interface AnalysisData extends GlobalAnalysisData {
   celebrity_id: number | null;
@@ -53,7 +54,8 @@ interface BMICategoryData {
 const defaultUserData = {
   name: "User",
   faceShape: "Kotak",
-  faceShapeDesc: "Bentuk wajah kamu itu kotak! Kamu punya garis rahang yang tegas dan dahi nggak terlalu lebar atau sempit.",
+  faceShapeDesc:
+    "Bentuk wajah kamu itu kotak! Kamu punya garis rahang yang tegas dan dahi nggak terlalu lebar atau sempit.",
   faceShapeAnalysis: [
     { label: "Square", value: 90, active: true },
     { label: "Oblong", value: 40 },
@@ -63,15 +65,24 @@ const defaultUserData = {
     { label: "Diamond", value: 70 },
   ],
   colorTone: "Cool Winter",
-  colorToneDesc: "Ini berarti kulitmu memiliki undertone dingin dengan hint biru atau pink yang memberikan kesan elegan.",
+  colorToneDesc:
+    "Ini berarti kulitmu memiliki undertone dingin dengan hint biru atau pink yang memberikan kesan elegan.",
   colorPalettes: {
     best: ["#323232", "#3B3B98", "#653456", "#6A2E35", "#37598B", "#692F5C"],
     neutral: ["#323232", "#6B7280", "#4A4A4A", "#9CA3AF", "#D1D5DB", "#111827"],
     worst: ["#F59E0B", "#FACC15", "#D97706", "#B45309", "#78350F", "#451A03"],
-    combination: ["#DC2626", "#3B82F6", "#323232", "#6B21A8", "#9333EA", "#C084FC"],
+    combination: [
+      "#DC2626",
+      "#3B82F6",
+      "#323232",
+      "#6B21A8",
+      "#9333EA",
+      "#C084FC",
+    ],
   },
   bodyShape: "Hourglass",
-  bodyShapeDesc: "Bentuk Tubuhmu Memiliki Proporsi Seimbang Antara Bagian Atas Dan Bawah, Dengan Pinggang Yang Terlihat Ramping.",
+  bodyShapeDesc:
+    "Bentuk Tubuhmu Memiliki Proporsi Seimbang Antara Bagian Atas Dan Bawah, Dengan Pinggang Yang Terlihat Ramping.",
   bodyCharacteristics: [
     "Bahu dan pinggul kamu lebar-nya sama.",
     "Pinggang yang jelas dan ramping bikin lekuk tubuhmu makin stunning.",
@@ -139,6 +150,90 @@ export default function HasilAnalisa() {
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const downloadPNG = async () => {
+    const resultId = searchParams.get("result_id");
+    if (!resultId) {
+      alert("Result ID tidak ditemukan");
+      return;
+    }
+    try {
+      const res = await fetch(`/api/generate-story?result_id=${resultId}`, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        console.error("Gagal generate PNG");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      // Download file ke device
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "hasil-analisa.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Deteksi device
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      // Arahkan sesuai device
+      setTimeout(() => {
+        if (isMobile) {
+          window.location.href = "instagram://story-camera";
+        } else {
+          window.open("https://www.instagram.com/", "_blank");
+        }
+      }, 1500);
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Gagal mengunduh PNG. Silakan periksa konsol untuk detail.");
+    }
+  };
+
+  // Fungsi untuk download PDF
+  const downloadPDF = async () => {
+    setIsDownloading(true);
+    try {
+      const resultId = searchParams.get("result_id");
+      if (!resultId) {
+        throw new Error("Result ID tidak ditemukan");
+      }
+
+      const response = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ resultId }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to generate PDF: ${errorText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "hasil-analisa-lengkap.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Gagal mengunduh PDF. Silakan periksa konsol untuk detail.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   useEffect(() => {
     const resultId = searchParams.get("result_id");
@@ -156,15 +251,24 @@ export default function HasilAnalisa() {
         // Fetch analysis data dan foto
         const [analysisResponse, photosResponse] = await Promise.all([
           axios.get(`${url}/v1/user-analysis-results/${resultId}`),
-          axios.get(`${url}/v1/user-photos/analysis-results/${resultId}/photos`),
+          axios.get(
+            `${url}/v1/user-photos/analysis-results/${resultId}/photos`
+          ),
         ]);
 
         const analysisData: AnalysisData = analysisResponse.data;
 
         // Fetch data tambahan berdasarkan ID dari hasil analisis
-        const [faceShapeResponse, colorToneResponse, bodyShapeResponse, bmiCategoryResponse] = await Promise.all([
+        const [
+          faceShapeResponse,
+          colorToneResponse,
+          bodyShapeResponse,
+          bmiCategoryResponse,
+        ] = await Promise.all([
           axios.get(`${url}/v1/face-shapes/${analysisData.face_shape_id}`),
-          axios.get(`${url}/v1/color-analysis/${analysisData.color_analysis_id}`),
+          axios.get(
+            `${url}/v1/color-analysis/${analysisData.color_analysis_id}`
+          ),
           axios.get(`${url}/v1/body-shapes/${analysisData.body_shape_id}`),
           axios.get(`${url}/v1/bmi-categories/${analysisData.bmi_category_id}`),
         ]);
@@ -178,30 +282,67 @@ export default function HasilAnalisa() {
         const transformedData = {
           name: analysisData.user_name || "User",
           faceShape: faceShapeData?.name || defaultUserData.faceShape,
-          faceShapeDesc: faceShapeData?.description || defaultUserData.faceShapeDesc,
+          faceShapeDesc:
+            faceShapeData?.description || defaultUserData.faceShapeDesc,
           faceShapeAnalysis: [
-            { label: "Square", value: faceShapeData?.name === "Square" ? 90 : 40, active: faceShapeData?.name === "Square" },
-            { label: "Oblong", value: faceShapeData?.name === "Oblong" ? 90 : 40, active: faceShapeData?.name === "Oblong" },
-            { label: "Oval", value: faceShapeData?.name === "Oval" ? 90 : 40, active: faceShapeData?.name === "Oval" },
-            { label: "Round", value: faceShapeData?.name === "Round" ? 90 : 40, active: faceShapeData?.name === "Round" },
-            { label: "Heart", value: faceShapeData?.name === "Heart" ? 90 : 40, active: faceShapeData?.name === "Heart" },
-            { label: "Diamond", value: faceShapeData?.name === "Diamond" ? 90 : 40, active: faceShapeData?.name === "Diamond" },
+            {
+              label: "Square",
+              value: faceShapeData?.name === "Square" ? 90 : 40,
+              active: faceShapeData?.name === "Square",
+            },
+            {
+              label: "Oblong",
+              value: faceShapeData?.name === "Oblong" ? 90 : 40,
+              active: faceShapeData?.name === "Oblong",
+            },
+            {
+              label: "Oval",
+              value: faceShapeData?.name === "Oval" ? 90 : 40,
+              active: faceShapeData?.name === "Oval",
+            },
+            {
+              label: "Round",
+              value: faceShapeData?.name === "Round" ? 90 : 40,
+              active: faceShapeData?.name === "Round",
+            },
+            {
+              label: "Heart",
+              value: faceShapeData?.name === "Heart" ? 90 : 40,
+              active: faceShapeData?.name === "Heart",
+            },
+            {
+              label: "Diamond",
+              value: faceShapeData?.name === "Diamond" ? 90 : 40,
+              active: faceShapeData?.name === "Diamond",
+            },
           ],
           colorTone: colorToneData?.name || defaultUserData.colorTone,
-          colorToneDesc: colorToneData?.description || defaultUserData.colorToneDesc,
+          colorToneDesc:
+            colorToneData?.description || defaultUserData.colorToneDesc,
           colorPalettes: {
-            best: colorToneData?.best_colors || defaultUserData.colorPalettes.best,
-            neutral: colorToneData?.neutral_colors || defaultUserData.colorPalettes.neutral,
-            worst: colorToneData?.worst_colors || defaultUserData.colorPalettes.worst,
-            combination: colorToneData?.combination_colors || defaultUserData.colorPalettes.combination,
+            best:
+              colorToneData?.best_colors || defaultUserData.colorPalettes.best,
+            neutral:
+              colorToneData?.neutral_colors ||
+              defaultUserData.colorPalettes.neutral,
+            worst:
+              colorToneData?.worst_colors ||
+              defaultUserData.colorPalettes.worst,
+            combination:
+              colorToneData?.combination_colors ||
+              defaultUserData.colorPalettes.combination,
           },
           bodyShape: bodyShapeData?.name || defaultUserData.bodyShape,
-          bodyShapeDesc: bodyShapeData?.description || defaultUserData.bodyShapeDesc,
-          bodyCharacteristics: bodyShapeData?.characteristics || defaultUserData.bodyCharacteristics,
+          bodyShapeDesc:
+            bodyShapeData?.description || defaultUserData.bodyShapeDesc,
+          bodyCharacteristics:
+            bodyShapeData?.characteristics ||
+            defaultUserData.bodyCharacteristics,
           bmi: {
-            value: typeof analysisData.analysis_details.bmi.value === 'string' ? 
-              parseFloat(analysisData.analysis_details.bmi.value) : 
-              Number(analysisData.analysis_details.bmi.value),
+            value:
+              typeof analysisData.analysis_details.bmi.value === "string"
+                ? parseFloat(analysisData.analysis_details.bmi.value)
+                : Number(analysisData.analysis_details.bmi.value),
             category: bmiCategoryData?.name || defaultUserData.bmi.category,
             desc: bmiCategoryData?.description || defaultUserData.bmi.desc,
           },
@@ -246,12 +387,26 @@ export default function HasilAnalisa() {
       <main className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-4xl w-full font-sans">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <Image
-            src="/tie-by-min-logo.png"
-            alt="Logo Tie By Min"
-            width={120}
-            height={40}
-          />
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => {
+                const resultId = searchParams.get("result_id");
+                if (resultId) {
+                  window.location.href = `/ai-overview/pdf?result_id=${resultId}`;
+                }
+              }}
+              className="flex items-center justify-center space-x-1 text-gray-600 hover:text-gray-800 transition"
+            >
+              <Share2 className="w-4 h-4 rotate-180" />
+              <span className="text-sm">Kembali</span>
+            </button>
+            <Image
+              src="/tie-by-min-logo.png"
+              alt="Logo Tie By Min"
+              width={120}
+              height={40}
+            />
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 text-right">
             HASIL ANALISA {userData.name.toUpperCase()}
           </h1>
@@ -268,24 +423,46 @@ export default function HasilAnalisa() {
             />
           </div>
           <div className="flex flex-col items-center justify-center text-center">
-            <Image
-              src="/noise.png" // Ganti dengan QR code asli
-              alt="QR Code untuk Share"
-              width={150}
-              height={150}
-            />
+            <div className="p-3 bg-white rounded-lg shadow-md">
+              <QRCode
+                value={window.location.href}
+                size={150}
+                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+              />
+            </div>
             <p className="text-sm text-gray-600 mt-4 mb-4 max-w-xs">
               Yuk share ke temen kamu untuk coba AI ini dengan scan barcode di
               atas!
             </p>
-            <div className="flex space-x-3 w-full">
-              <button className="flex-1 flex items-center justify-center space-x-2 border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition">
-                <Instagram className="w-4 h-4" />
-                <span>tiebymin</span>
-              </button>
-              <button className="flex-1 flex items-center justify-center space-x-2 border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition">
-                <Music className="w-4 h-4" />
-                <span>tiebymin</span>
+            <div className="flex flex-col space-y-3 w-full">
+              <div className="flex space-x-3 w-full">
+                <button
+                  onClick={downloadPNG}
+                  className="flex-1 flex items-center justify-center space-x-2 border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition bg-pink-500 text-white hover:bg-pink-600"
+                >
+                  <Instagram className="w-4 h-4" />
+                  <span>Share Instagram</span>
+                </button>
+                <button
+                  onClick={() => {
+                    // Buka TikTok dengan URL sharing
+                    window.open("https://www.tiktok.com/@tiebymin", "_blank");
+                    // Download PDF
+                    downloadPDF();
+                  }}
+                  className="flex-1 flex items-center justify-center space-x-2 border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition bg-black text-white hover:bg-gray-800"
+                >
+                  <Music className="w-4 h-4" />
+                  <span>Share TikTok</span>
+                </button>
+              </div>
+              <button
+                onClick={downloadPDF}
+                disabled={isDownloading}
+                className="w-full flex items-center justify-center space-x-2 border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-400"
+              >
+                <Download className="w-4 h-4" />
+                <span>{isDownloading ? "Downloading..." : "Download PDF"}</span>
               </button>
             </div>
           </div>
@@ -341,9 +518,7 @@ export default function HasilAnalisa() {
           <h2 className="text-xl font-bold text-gray-800 mb-2">
             Bentuk tubuh kamu {userData.bodyShape}
           </h2>
-          <p className="text-gray-600 text-sm mb-6">
-            {userData.bodyShapeDesc}
-          </p>
+          <p className="text-gray-600 text-sm mb-6">{userData.bodyShapeDesc}</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex justify-center items-center">
               <Image
@@ -370,7 +545,10 @@ export default function HasilAnalisa() {
                   style={{ width: `${userData.bmi.value}%` }}
                 ></div>
                 <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
-                  {typeof userData.bmi.value === 'number' ? userData.bmi.value.toFixed(2) : userData.bmi.value} {userData.bmi.category}
+                  {typeof userData.bmi.value === "number"
+                    ? userData.bmi.value.toFixed(2)
+                    : userData.bmi.value}{" "}
+                  {userData.bmi.category}
                 </span>
               </div>
               <p className="text-sm text-gray-700 text-center">

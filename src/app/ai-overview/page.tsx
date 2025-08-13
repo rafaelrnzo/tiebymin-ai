@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
 import { AnalysisData as GlobalAnalysisData } from "@/types";
 import axios from "axios";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import BodySection from "../../components/sections/BodySection";
 import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
 import ColorToneSection from "../../components/sections/ColorToneSection";
@@ -182,37 +182,7 @@ interface PhotoData {
 }
 
 function BeautyAnalysisPageInner() {
-  const handleDownload = async () => {
-    const res = await fetch("/api/generate-story", { method: "POST" });
-
-    if (!res.ok) {
-      console.error("Gagal generate PNG");
-      return;
-    }
-
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-
-    // Download file ke device
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "hasil-analisa.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Deteksi device
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    // Arahkan sesuai device
-    setTimeout(() => {
-      if (isMobile) {
-        window.location.href = "instagram://story-camera";
-      } else {
-        window.location.href = "https://www.instagram.com/";
-      }
-    }, 1500);
-  };
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("shape");
   const searchParams = useSearchParams();
 
@@ -224,14 +194,12 @@ function BeautyAnalysisPageInner() {
   >([]);
 
   const [isLoading, setIsLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const resultId = searchParams.get("result_id");
 
   useEffect(() => {
     const shuffled = [...hijabProducts].sort(() => 0.5 - Math.random());
     setRecommendedProducts(shuffled.slice(0, 3));
-
-    const resultId = searchParams.get("result_id");
 
     if (!resultId) {
       setError("Analysis Result ID tidak ditemukan di URL.");
@@ -273,35 +241,6 @@ function BeautyAnalysisPageInner() {
 
     fetchAllData();
   }, [searchParams]);
-
-  const downloadPDF = async () => {
-    setIsDownloading(true);
-    try {
-      const response = await fetch("/api/generate-pdf", {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to generate PDF: ${errorText}`);
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "hasil-analisa-lengkap.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Download error:", error);
-      alert("Gagal mengunduh PDF. Silakan periksa konsol untuk detail.");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   const renderContent = () => {
     if (isLoading)
@@ -367,8 +306,8 @@ function BeautyAnalysisPageInner() {
                 src={userPhotoUrl || "/overview-ai/person.png"}
                 alt="Analysis Result"
                 width={450}
-                height={361}
-                className="w-full h-auto object-cover rounded-2xl"
+                height={311}
+                className="w-[450px] h-[311px] object-cover rounded-xl"
               />
             </div>
             <h2 className="text-3xl font-bold mb-4 font-handlee text-[#F8B4C4]">
@@ -380,10 +319,12 @@ function BeautyAnalysisPageInner() {
               Dapatkan insight mendalam tentang fashion terbaik untuk kamu
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
-            <div className="mt-auto flex flex-col sm:flex-row gap-4">
+            <div className="mt-auto flex flex-col sm:flex-row gap-4 justify-center">
               <Button
-                onClick={handleDownload}
-                className="bg-white text-sm text-[#2D2D2D] px-4 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200"
+                onClick={() =>
+                  router.push(`/ai-overview/story?result_id=${resultId}`)
+                }
+                className="bg-white text-sm text-[#2D2D2D] px-6 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200"
               >
                 <Image
                   src="/overview-ai/icons/material-symbols_share.svg"
@@ -394,9 +335,10 @@ function BeautyAnalysisPageInner() {
                 <span>Bagikan Hasil</span>
               </Button>
               <Button
-                onClick={downloadPDF}
-                disabled={isDownloading}
-                className="bg-pink-500 text-white px-4 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400"
+                onClick={() =>
+                  router.push(`/ai-overview/pdf?result_id=${resultId}`)
+                }
+                className="bg-[#FFC6C6] text-black px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400"
               >
                 <Image
                   src="/overview-ai/icons/ic_round-download.svg"
@@ -404,20 +346,20 @@ function BeautyAnalysisPageInner() {
                   height={18}
                   alt="Unduh Hasil"
                 />
-                <span>{isDownloading ? "Downloading..." : "Unduh Hasil"}</span>
+                <span>Unduh Hasil</span>
               </Button>
             </div>
           </div>
 
           <div className="w-full lg:w-[70%]">
-            <div className="flex flex-wrap border-b border-gray-300">
+            <div className="flex border-b border-gray-300">
               {analysisTabs.map((tab) => (
-                <Button
+                <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm transition-all -mb-px ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-poppins transition-all -mb-px ${
                     activeTab === tab.id
-                      ? "border-b-2 border-black text-black font-semibold"
+                      ? "text-black font-bold"
                       : "text-gray-500 hover:text-black"
                   }`}
                 >
@@ -429,7 +371,7 @@ function BeautyAnalysisPageInner() {
                     className={`${activeTab !== tab.id && "opacity-60"}`}
                   />
                   <span>{tab.text}</span>
-                </Button>
+                </button>
               ))}
             </div>
 

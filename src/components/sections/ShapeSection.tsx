@@ -38,7 +38,7 @@ const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
     <h3 className="font-bold text-2xl font-oswald mb-4">
       Face Shape Distribution
     </h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
       {data.map((shape) => (
         <ShapeBar key={shape.name} {...shape} />
       ))}
@@ -132,14 +132,14 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .map((item: string, index: number) =>
                 index === 0 ? (
                   <span key={index}>
-                    <span className="block">{item.trim()}</span>
+                    <span className="block text-[14px]">{item.trim()}</span>
                     <span className="block text-lg my-3 font-bold font-handlee text-black">
                       Fakta Unik
                     </span>
                   </span>
                 ) : (
-                  <span key={index} className="block">
-                    •{item.trim()}
+                  <span key={index} className="block text-[14px]">
+                    • <span className="text-[14px] ml-2">{item.trim()}</span>
                   </span>
                 )
               )}
@@ -155,17 +155,17 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) => (
                 <li key={index} className="flex items-center">
-                  <span className="mr-3 text-gray-500">•</span>
-                  <span>{item.trim()}</span>
+                  <span className="mr-2 text-gray-500 mb-1">•</span>
+                  <span className="text-[14px]">{item.trim()}</span>
                 </li>
               ))}
           </ul>
           <h3 className="font-bold font-handlee text-gray-800 mt-4 mb-3 text-lg text-left">
             Tips
           </h3>
-          <ul className="text-gray-600 leading-relaxed space-y-2">
+          <span className="text-gray-600 leading-relaxed space-y-2 text-[14px]">
             {shapeDetails.tips_bentuk_wajah}
-          </ul>
+          </span>
         </div>
       </div>
       {gimmickChartData.length > 0 && (

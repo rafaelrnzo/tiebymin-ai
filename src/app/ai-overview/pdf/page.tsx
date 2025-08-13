@@ -335,7 +335,10 @@ export const CelebritiesMatch = ({ userData }: { userData: UserData }) => (
       <div className="grid md:grid-cols-2 gap-10 items-center">
         <div className="relative w-full aspect-[4/5] rounded-lg overflow-hidden shadow-lg">
           <Image
-            src={userData.celebrityMatch.imageUrl || "https://placehold.co/400x500/e8e8e8/333?text=Selebriti"}
+            src={
+              userData.celebrityMatch.imageUrl ||
+              "https://placehold.co/400x500/e8e8e8/333?text=Selebriti"
+            }
             alt={userData.celebrityMatch.name}
             fill
             className="object-cover"
@@ -351,7 +354,8 @@ export const CelebritiesMatch = ({ userData }: { userData: UserData }) => (
             {userData.celebrityMatch.name}
           </h2>
           <p className="text-gray-700 leading-relaxed mb-6">
-            Berdasarkan analisis AI, wajah kamu memiliki kemiripan dengan selebriti ini.
+            Berdasarkan analisis AI, wajah kamu memiliki kemiripan dengan
+            selebriti ini.
           </p>
           <div className="bg-[#323232] text-white p-6 rounded-lg">
             <h3 className="text-xl font-bold mb-3">Kenapa Cocok?</h3>
@@ -539,7 +543,68 @@ export const Cover = ({ userData }: { userData: UserData }) => (
   </div>
 );
 
-export const FaceShape = ({ userData, userPhotoUrl }: { userData: UserData, userPhotoUrl?: string | null }) => {
+interface IShape {
+  name: string;
+  value: number;
+}
+
+const generateGimmickChartData = (mainShapeName: string): IShape[] => {
+  const allShapes = ["Heart", "Oblong", "Oval", "Round", "Square", "Diamond"];
+
+  const shapeNameMap: { [key: string]: string } = {
+    Hati: "Heart",
+    Oblong: "Oblong",
+    Oval: "Oval",
+    Bulat: "Round",
+    Kotak: "Square",
+    Diamond: "Diamond",
+  };
+
+  const englishMainShapeName = shapeNameMap[mainShapeName] || mainShapeName;
+
+  const mainValue = 90;
+  const otherCount = allShapes.length - 1;
+
+  const baseOtherValue = Math.floor(10 / otherCount);
+  let sisa = 10 - baseOtherValue * otherCount;
+
+  const chartData: IShape[] = [];
+  allShapes.forEach((shapeName) => {
+    if (shapeName.toLowerCase() === englishMainShapeName.toLowerCase()) {
+      chartData.push({ name: shapeName, value: mainValue });
+    } else {
+      let value = baseOtherValue;
+      if (sisa > 0) {
+        value += 1;
+        sisa -= 1;
+      }
+      chartData.push({ name: shapeName, value });
+    }
+  });
+
+  return chartData;
+};
+
+export const FaceShape = ({
+  userData,
+  userPhotoUrl,
+}: {
+  userData: UserData;
+  userPhotoUrl?: string | null;
+}) => {
+  const shapeChartData = generateGimmickChartData(userData.faceShape);
+
+  const shapeNameMap: { [key: string]: string } = {
+    Hati: "Heart",
+    Oblong: "Oblong",
+    Oval: "Oval",
+    Bulat: "Round",
+    Kotak: "Square",
+    Diamond: "Diamond",
+  };
+  const englishMainShapeName =
+    shapeNameMap[userData.faceShape] || userData.faceShape;
+
   const ShapeBar = ({
     label,
     value,
@@ -575,7 +640,7 @@ export const FaceShape = ({ userData, userPhotoUrl }: { userData: UserData, user
             src={userPhotoUrl || "/model.png"}
             alt="Model Wajah"
             fill
-            className="w-full h-full object-cover"
+            className="w-[220px] h-[400px] object-cover"
             unoptimized
           />
         </div>
@@ -587,12 +652,16 @@ export const FaceShape = ({ userData, userPhotoUrl }: { userData: UserData, user
             {userData.faceShapeAnalysis.uniqueFact}
           </p>
           <div className="space-y-8 mb-10">
-            <ShapeBar label="Square" value={90} active={userData.faceShape === "Kotak"} />
-            <ShapeBar label="Oblong" value={40} active={userData.faceShape === "Oblong"} />
-            <ShapeBar label="Oval" value={60} active={userData.faceShape === "Oval"} />
-            <ShapeBar label="Round" value={30} active={userData.faceShape === "Bulat"} />
-            <ShapeBar label="Heart" value={50} active={userData.faceShape === "Hati"} />
-            <ShapeBar label="Diamond" value={70} active={userData.faceShape === "Diamond"} />
+            {shapeChartData.map((shape) => (
+              <ShapeBar
+                key={shape.name}
+                label={shape.name}
+                value={shape.value}
+                active={
+                  shape.name.toLowerCase() === englishMainShapeName.toLowerCase()
+                }
+              />
+            ))}
           </div>
         </div>
       </main>
@@ -627,89 +696,8 @@ function PdfPage() {
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Tambahkan BMIIndex ke pages
-  const BMIIndex = ({ userData }: { userData: UserData }) => {
-    const getBMICategory = (bmi: number | string) => {
-      const bmiValue = typeof bmi === 'string' ? parseFloat(bmi) : bmi;
-      if (bmiValue < 18.5) return "Underweight";
-      if (bmiValue < 25) return "Normal";
-      if (bmiValue < 30) return "Overweight";
-      return "Obese";
-    };
 
-    const bmiCategory = getBMICategory(userData.bmi);
 
-    return (
-      <div className="relative bg-white min-h-screen p-8">
-        <PageHeader width={100} name={userData.name} />
-        <main className="max-w-6xl mx-auto mt-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="font-oswald text-4xl font-bold text-gray-800 mb-6">
-                BMI Index
-              </h1>
-              <div className="bg-gray-100 p-6 rounded-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-gray-600">Underweight</span>
-                  <span className="text-gray-600">Obese</span>
-                </div>
-                <div className="w-full bg-gray-300 h-4 rounded-full relative">
-                  <div
-                    className="absolute top-0 bottom-0 bg-[#EF789B] rounded-full"
-                    style={{
-                      left: "0%",
-                      width: `${Math.min(100, (Number(userData.bmi) / 40) * 100)}%`,
-                    }}
-                  ></div>
-                  <div
-                    className="absolute top-0 bottom-0 w-4 h-4 bg-white border-2 border-[#EF789B] rounded-full"
-                    style={{
-                      left: `${Math.min(100, (Number(userData.bmi) / 40) * 100)}%`,
-                      transform: "translateX(-50%)",
-                    }}
-                  ></div>
-                </div>
-                <div className="flex justify-between mt-2">
-                  <span className="text-xs text-gray-500">16</span>
-                  <span className="text-xs text-gray-500">18.5</span>
-                  <span className="text-xs text-gray-500">25</span>
-                  <span className="text-xs text-gray-500">30</span>
-                  <span className="text-xs text-gray-500">40</span>
-                </div>
-                <div className="mt-6 text-center">
-                  <div className="text-2xl font-bold text-gray-800">
-                    {typeof userData.bmi === 'number' ? userData.bmi.toFixed(1) : Number(userData.bmi).toFixed(1)}
-                  </div>
-                  <div
-                    className={`text-lg font-medium ${
-                      bmiCategory === "Normal"
-                        ? "text-green-600"
-                        : bmiCategory === "Underweight"
-                        ? "text-blue-600"
-                        : "text-orange-600"
-                    }`}
-                  >
-                    {bmiCategory}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-lg">
-              <Image
-                src={`/body-select/${userData.bodyShape.toLowerCase()}.png`}
-                alt={`${userData.bodyShape} Body Shape`}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-          </div>
-        </main>
-        <PageFooter pageNumber="04" />
-      </div>
-    );
-  };
 
   useEffect(() => {
     const resultId = searchParams.get("result_id");
@@ -727,100 +715,133 @@ function PdfPage() {
         // Fetch analysis data dan foto
         const [analysisResponse, photosResponse] = await Promise.all([
           axios.get(`${url}/v1/user-analysis-results/${resultId}`),
-          axios.get(`${url}/v1/user-photos/analysis-results/${resultId}/photos`),
+          axios.get(
+            `${url}/v1/user-photos/analysis-results/${resultId}/photos`
+          ),
         ]);
 
         const analysisData: AnalysisData = analysisResponse.data;
-        const photosData = photosResponse.data;
 
         // Fetch data tambahan berdasarkan ID dari hasil analisis
-        const [faceShapeResponse, colorToneResponse, bodyShapeResponse, bmiCategoryResponse] = await Promise.all([
+        const [
+          faceShapeResponse,
+          colorToneResponse,
+          bodyShapeResponse,
+          bmiCategoryResponse,
+          celebrityResponse,
+        ] = await Promise.all([
           axios.get(`${url}/v1/face-shapes/${analysisData.face_shape_id}`),
-          axios.get(`${url}/v1/color-analysis/${analysisData.color_analysis_id}`),
+          axios.get(
+            `${url}/v1/color-analysis/${analysisData.color_analysis_id}`
+          ),
           axios.get(`${url}/v1/body-shapes/${analysisData.body_shape_id}`),
-          axios.get(`${url}/v1/bmi-categories/${analysisData.bmi_category_id}`),
+          axios.get(
+            `${url}/v1/bmi-categories/${analysisData.bmi_category_id}`
+          ),
+          analysisData.celebrity_id
+            ? axios.get(`${url}/v1/celebrities/${analysisData.celebrity_id}`)
+            : Promise.resolve({ data: null }),
         ]);
-
-        // Fetch celebrity data jika ada
-        let celebrityData: CelebrityData | null = null;
-        if (analysisData.celebrity_id) {
-          try {
-            const celebrityResponse = await axios.get(`${url}/v1/celebrities/${analysisData.celebrity_id}`);
-            celebrityData = celebrityResponse.data;
-          } catch (err) {
-            console.error("Failed to fetch celebrity data:", err);
-          }
-        }
 
         const faceShapeData: FaceShapeData = faceShapeResponse.data;
         const colorToneData: ColorToneData = colorToneResponse.data;
         const bodyShapeData: BodyShapeData = bodyShapeResponse.data;
         const bmiCategoryData: BMICategoryData = bmiCategoryResponse.data;
+        const celebrityData: CelebrityData | null = celebrityResponse.data;
 
-        // Transformasi data untuk format yang dibutuhkan komponen
-        const transformedData = {
-          name: analysisData.user_name || "User",
-          faceShape: faceShapeData.name,
-          faceShapeAnalysis: {
-            uniqueFact: faceShapeData.description,
-            characteristics: faceShapeData.characteristics,
-          },
-          bodyShape: bodyShapeData.name,
-          bodyShapeAnalysis: {
-            description: bodyShapeData.description,
-            characteristics: bodyShapeData.characteristics,
-          },
-          colorTone: colorToneData.name,
-          colorToneAnalysis: {
-            description: colorToneData.description,
-            bestColors: colorToneData.best_colors,
-            neutralColors: colorToneData.neutral_colors,
-            worstColors: colorToneData.worst_colors,
-            combination: colorToneData.combination_colors,
-            tips: {
-              makeup: colorToneData.tips.slice(0, 3),
-              outfit: colorToneData.tips.slice(3, 6),
-              personality: colorToneData.tips.slice(0, 3),
-              characteristics: colorToneData.tips.slice(0, 3),
-            },
-          },
-          bmi: typeof analysisData.analysis_details.bmi.value === 'string' ? parseFloat(analysisData.analysis_details.bmi.value) : analysisData.analysis_details.bmi.value,
-          celebrityMatch: celebrityData ? {
-            name: celebrityData.name,
-            matchPercentage: celebrityData.match_percentage,
-            imageUrl: "https://placehold.co/400/f0f0f0/333?text=Selebriti",
-            reason: [celebrityData.reason],
-          } : defaultUserData.celebrityMatch,
-          conclusionTips: {
-            face: faceShapeData.characteristics || defaultUserData.conclusionTips.face,
-            body: bodyShapeData.characteristics || defaultUserData.conclusionTips.body,
-            color: colorToneData.tips || defaultUserData.conclusionTips.color,
-            quickRecap: [
-              ...(faceShapeData.characteristics ? [faceShapeData.characteristics[0]] : [defaultUserData.conclusionTips.quickRecap[0]]),
-              ...(bodyShapeData.characteristics ? [bodyShapeData.characteristics[0]] : [defaultUserData.conclusionTips.quickRecap[1]]),
-              ...(colorToneData.tips ? [colorToneData.tips[0]] : [defaultUserData.conclusionTips.quickRecap[2]])
-            ],
-          },
-        };
-
-        setUserData(transformedData);
-
-        // Set foto user
-        const processedPhoto = photosData.find(
-          (photo: PhotoData) => photo.is_processed === true
+        // Proses data foto
+        const processedPhoto = photosResponse.data.find(
+          (p: PhotoData) => p.is_processed === true
         );
         if (processedPhoto) {
           setUserPhotoUrl(processedPhoto.file_path);
         } else {
-          const originalPhoto = photosData.find(
-            (photo: PhotoData) => photo.photo_type === "face_original"
+          const originalPhoto = photosResponse.data.find(
+            (p: PhotoData) => p.photo_type === "face_original"
           );
           if (originalPhoto) setUserPhotoUrl(originalPhoto.file_path);
         }
+
+        // Transformasi data untuk UI
+        const transformedData: UserData = {
+          name: analysisData.user_name || defaultUserData.name,
+          faceShape: faceShapeData?.name || defaultUserData.faceShape,
+          bodyShape: bodyShapeData?.name || defaultUserData.bodyShape,
+          colorTone: colorToneData?.name || defaultUserData.colorTone,
+          bmi:
+            parseFloat(analysisData.analysis_details.bmi.value as string) ||
+            defaultUserData.bmi,
+          celebrityMatch: {
+            name: celebrityData?.name || defaultUserData.celebrityMatch.name,
+            matchPercentage:
+              celebrityData?.match_percentage ||
+              defaultUserData.celebrityMatch.matchPercentage,
+            imageUrl:
+              "https://placehold.co/400/f0f0f0/333?text=Selebriti", // Placeholder
+            reason: celebrityData?.reason
+              ? [celebrityData.reason]
+              : defaultUserData.celebrityMatch.reason,
+          },
+          faceShapeAnalysis: {
+            uniqueFact:
+              faceShapeData?.description ||
+              defaultUserData.faceShapeAnalysis.uniqueFact,
+            characteristics:
+              faceShapeData?.characteristics ||
+              defaultUserData.faceShapeAnalysis.characteristics,
+          },
+          bodyShapeAnalysis: {
+            description:
+              bodyShapeData?.description ||
+              defaultUserData.bodyShapeAnalysis.description,
+            characteristics:
+              bodyShapeData?.characteristics ||
+              defaultUserData.bodyShapeAnalysis.characteristics,
+          },
+          colorToneAnalysis: {
+            description:
+              colorToneData?.description ||
+              defaultUserData.colorToneAnalysis.description,
+            bestColors:
+              colorToneData?.best_colors ||
+              defaultUserData.colorToneAnalysis.bestColors,
+            neutralColors:
+              colorToneData?.neutral_colors ||
+              defaultUserData.colorToneAnalysis.neutralColors,
+            worstColors:
+              colorToneData?.worst_colors ||
+              defaultUserData.colorToneAnalysis.worstColors,
+            combination:
+              colorToneData?.combination_colors ||
+              defaultUserData.colorToneAnalysis.combination,
+            tips: {
+              makeup:
+                colorToneData?.tips ||
+                defaultUserData.colorToneAnalysis.tips.makeup,
+              outfit:
+                colorToneData?.tips ||
+                defaultUserData.colorToneAnalysis.tips.outfit,
+              personality:
+                colorToneData?.tips ||
+                defaultUserData.colorToneAnalysis.tips.personality,
+              characteristics:
+                colorToneData?.tips ||
+                defaultUserData.colorToneAnalysis.tips.characteristics,
+            },
+          },
+          conclusionTips: {
+            face: defaultUserData.conclusionTips.face,
+            body: defaultUserData.conclusionTips.body,
+            color: defaultUserData.conclusionTips.color,
+            quickRecap: defaultUserData.conclusionTips.quickRecap,
+          },
+        };
+
+        setUserData(transformedData);
       } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Gagal memuat data analisa. Menggunakan data default.");
-        // Tetap gunakan fallback data jika terjadi error
+        console.error("Gagal mengambil data:", err);
+        setError("Gagal memuat data. Menggunakan data fallback.");
+        setUserData(defaultUserData); // Fallback ke data default jika ada error
       } finally {
         setIsLoading(false);
       }
@@ -829,12 +850,16 @@ function PdfPage() {
     fetchAllData();
   }, [searchParams]);
 
-  const pages: { [key: string]: React.ComponentType<{userData: UserData, userPhotoUrl?: string | null}> } = {
+  const pages: {
+    [key: string]: React.ComponentType<{
+      userData: UserData;
+      userPhotoUrl?: string | null;
+    }>;
+  } = {
     Cover,
     FaceShape,
     ColorTone,
     BodyShape,
-    BMIIndex,
     CelebritiesMatch,
     Conclusion,
     BackCover,
@@ -873,6 +898,16 @@ function PdfPage() {
     }
   };
 
+  const shareToStory = () => {
+    // Redirect ke halaman story dengan parameter result_id
+    const resultId = searchParams.get("result_id");
+    if (resultId) {
+      window.location.href = `/ai-overview/story?result_id=${resultId}`;
+    } else {
+      alert("Result ID tidak ditemukan. Tidak dapat membagikan hasil analisa.");
+    }
+  };
+
   // Jika dalam mode cetak, render semua halaman untuk Puppeteer
   if (isPrintMode) {
     return (
@@ -881,7 +916,10 @@ function PdfPage() {
           const ComponentToPrint = pages[pageKey];
           return (
             <section key={pageKey} style={{ pageBreakAfter: "always" }}>
-              <ComponentToPrint userData={userData} userPhotoUrl={userPhotoUrl} />
+              <ComponentToPrint
+                userData={userData}
+                userPhotoUrl={userPhotoUrl}
+              />
             </section>
           );
         })}
@@ -908,6 +946,12 @@ function PdfPage() {
             {page}
           </Button>
         ))}
+        <button
+          onClick={shareToStory}
+          className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 transition mr-2"
+        >
+          Bagikan ke Instagram
+        </button>
         <button
           onClick={downloadPDF}
           disabled={isDownloading}
