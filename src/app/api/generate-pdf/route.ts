@@ -9,8 +9,6 @@ export async function POST(req: NextRequest) {
     });
     const page = await browser.newPage();
 
-    // URL harus menunjuk ke halaman yang ingin Anda cetak.
-    // Pastikan server pengembangan Anda berjalan.
     const url = new URL("/ai-overview/pdf?print=true", req.nextUrl.origin);
 
     await page.goto(url.toString(), {

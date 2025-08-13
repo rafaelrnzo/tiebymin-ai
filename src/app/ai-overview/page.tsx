@@ -182,6 +182,37 @@ interface PhotoData {
 }
 
 function BeautyAnalysisPageInner() {
+  const handleDownload = async () => {
+    const res = await fetch("/api/generate-story", { method: "POST" });
+
+    if (!res.ok) {
+      console.error("Gagal generate PNG");
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+
+    // Download file ke device
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "hasil-analisa.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Deteksi device
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // Arahkan sesuai device
+    setTimeout(() => {
+      if (isMobile) {
+        window.location.href = "instagram://story-camera";
+      } else {
+        window.location.href = "https://www.instagram.com/";
+      }
+    }, 1500);
+  };
   const [activeTab, setActiveTab] = useState("shape");
   const searchParams = useSearchParams();
 
@@ -350,7 +381,10 @@ function BeautyAnalysisPageInner() {
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
             <div className="mt-auto flex flex-col sm:flex-row gap-4">
-              <Button className="bg-white text-sm text-[#2D2D2D] px-4 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200">
+              <Button
+                onClick={handleDownload}
+                className="bg-white text-sm text-[#2D2D2D] px-4 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200"
+              >
                 <Image
                   src="/overview-ai/icons/material-symbols_share.svg"
                   width={18}
