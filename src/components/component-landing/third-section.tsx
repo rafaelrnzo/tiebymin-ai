@@ -1,4 +1,4 @@
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import Image from "next/image";
 
 type Testimonial = {
@@ -8,7 +8,6 @@ type Testimonial = {
   badgeType: "success" | "highlight"; // Menentukan warna badge
 };
 
-// 2. Data Contoh (Anda bisa menggantinya dengan data dari API)
 const testimonials: Testimonial[] = [
   {
     type: "image",
@@ -37,12 +36,10 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-// 3. Komponen Badge yang bisa digunakan kembali
 const AuthorBadge: React.FC<{
   author: string;
   type: "success" | "highlight";
 }> = ({ author, type }) => {
-  // Menentukan warna berdasarkan tipe badge
   const badgeStyles = {
     success: "bg-[#E2F5E6] text-[#34A853]",
     highlight: "bg-[#FFE5ED] text-[#EF789B]",
@@ -60,14 +57,15 @@ const AuthorBadge: React.FC<{
   );
 };
 
-// 4. Komponen Kartu Testimoni Utama
 const TestimonialCard: React.FC<{ data: Testimonial }> = ({ data }) => {
   return (
     <div className="relative h-96 w-64 flex-shrink-0 overflow-hidden rounded-3xl shadow-lg transition-transform hover:-translate-y-2 duration-300">
       {data.type === "image" ? (
-        <img
+        <Image
           src={data.content}
           alt={`Testimonial by ${data.author}`}
+          width={300}
+          height={300}
           className="h-full w-full object-cover"
         />
       ) : (

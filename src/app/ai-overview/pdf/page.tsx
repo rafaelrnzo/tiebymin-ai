@@ -75,7 +75,7 @@ function PdfPage() {
     setTimeout(() => {
       toast.remove();
       style.remove();
-    }, 4000);
+    }, 2000);
   };
 
   const handleDownloadPDF = async () => {
