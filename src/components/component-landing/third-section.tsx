@@ -1,5 +1,7 @@
-import { Check } from "lucide-react";
+"use client";
+import { Check, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import React from "react";
 
 type Testimonial = {
   type: "image" | "text";
@@ -59,7 +61,7 @@ const AuthorBadge: React.FC<{
 
 const TestimonialCard: React.FC<{ data: Testimonial }> = ({ data }) => {
   return (
-    <div className="relative h-96 w-64 flex-shrink-0 overflow-hidden rounded-3xl shadow-lg transition-transform hover:-translate-y-2 duration-300">
+    <div className="relative h-[480px] w-80 flex-shrink-0 overflow-hidden rounded-3xl shadow-lg transition-transform hover:-translate-y-2 duration-300">
       {data.type === "image" ? (
         <Image
           src={data.content}
@@ -81,9 +83,17 @@ const TestimonialCard: React.FC<{ data: Testimonial }> = ({ data }) => {
 };
 
 export const ThirdSection = () => {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollNext = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
   return (
     <section>
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 relative">
         <hr className="my-[5rem]" />
         <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-10">
           <div>
@@ -93,11 +103,20 @@ export const ThirdSection = () => {
           </div>
         </div>
 
-        <div className="flex space-x-6 overflow-x-auto pb-4">
+        <div
+          ref={scrollRef}
+          className="flex space-x-6 overflow-x-auto pb-4 scroll-smooth"
+        >
           {testimonials.map((testimonial, index) => (
             <TestimonialCard key={index} data={testimonial} />
           ))}
         </div>
+        <button
+          onClick={scrollNext}
+          className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition"
+        >
+          <ChevronRight className="h-6 w-6 text-gray-800" />
+        </button>
       </div>
     </section>
   );

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import axios from "axios";
-import { useAnalysis } from "@/context/AnalysisContext";
-import { useRive } from "@rive-app/react-canvas";
 import { Button } from "@/components/ui/button";
-import url from "@/lib/url";
+import { useAnalysis } from "@/context/AnalysisContext";
+import { secureUrl } from "@/lib/api";
+import { useRive } from "@rive-app/react-canvas";
+import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -111,14 +111,16 @@ function HalamanKameraWajahContent() {
   useEffect(() => {
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
     let currentStream: MediaStream | null = null;
-    
+
     const startCamera = async () => {
       try {
         if (videoRef.current && videoRef.current.srcObject) {
-          (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
-      }
+          (videoRef.current.srcObject as MediaStream)
+            .getTracks()
+            .forEach((track) => track.stop());
+        }
 
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: facingMode,
             width: { ideal: 1920 },
@@ -148,8 +150,9 @@ function HalamanKameraWajahContent() {
       setLoadingStep(0);
       setProgress(0);
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 4000 + stepCount * 1200;
-      const stepDuration = 1200;
+      // 1 minute 40 seconds
+      const totalDuration = 100000;
+      const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
         setLoadingStep((prev) => (prev < stepCount - 1 ? prev + 1 : prev));
@@ -285,11 +288,11 @@ function HalamanKameraWajahContent() {
 
     setIsApiLoading(true);
     setApiError("");
+    const endpoint = secureUrl(`/v1/analysis/full-analysis`);
+    console.log("fetch endpoint:", endpoint);
+
     try {
-      const response = await axios.post(
-        `${url}/v1/analysis/full-analysis`,
-        formData
-      );
+      const response = await axios.post(endpoint, formData);
 
       if (response.status >= 200 && response.status < 300) {
         const resultId = response.data.analysis_result_id;
@@ -327,7 +330,7 @@ function HalamanKameraWajahContent() {
     const step =
       LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
     return (
-      <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
+      <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center max-w-lg mx-auto">
           <RiveLoadingAnimation />
           <p className="text-2xl font-bold mt-4">
@@ -350,7 +353,7 @@ function HalamanKameraWajahContent() {
       "Rekomendasi hijab personal",
     ];
     return (
-      <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
+      <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center">
           <RiveLoadingAnimation />
           <p className="text-2xl font-bold mt-4">99%</p>
@@ -431,26 +434,25 @@ function HalamanKameraWajahContent() {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] border-4 sm:border-[6px] border-dashed border-green-400 rounded-[50%/60%] animate-pulse pointer-events-none"
             style={{ animationDuration: "3s" }}
           ></div>
-         <div className="relative z-20 w-full max-w-sm flex justify-center items-center gap-12">
+          <div className="relative z-20 w-full max-w-sm flex justify-center items-center gap-12">
             {/* Tombol Ganti Kamera */}
             <Button
-                onClick={handleCameraSwitch}
-                className="w-16 h-16 -ml-12 bg-white/30 mr-2 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-white"
-                aria-label="Ganti Kamera"
+              onClick={handleCameraSwitch}
+              className="w-16 h-16 -ml-12 bg-white/30 mr-2 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+              aria-label="Ganti Kamera"
             >
-                <RotateCw className="text-white size-8" />
+              <RotateCw className="text-white size-8" />
             </Button>
 
             {/* Tombol Ambil Gambar */}
             <Button
-                onClick={handleCapture}
-                className="w-20 h-20 -ml-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
+              onClick={handleCapture}
+              className="w-20 h-20 -ml-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
             >
-                <Camera className="text-white size-12 fill-black" />
+              <Camera className="text-white size-12 fill-black" />
             </Button>
-
+          </div>
         </div>
-    </div>
       )}
 
       {appState === "CONFIRM" && capturedImage && (
@@ -509,7 +511,7 @@ export default function HalamanKameraWajah() {
     <Suspense
       fallback={
         <div className="h-screen w-screen flex items-center justify-center bg-black text-white">
-          Loading...
+          <div className="animate-pulse rounded-full h-16 w-16 bg-gray-700"></div>
         </div>
       }
     >

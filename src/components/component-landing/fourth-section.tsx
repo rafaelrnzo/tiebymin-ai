@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"; // Pastikan Anda mengimpor ini dari shadcn/ui
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clipboard } from "lucide-react";
+import { Clipboard } from "lucide-react";
 import Image from "next/image";
 import { ThirdSection } from "./third-section";
 
@@ -65,7 +65,7 @@ const FaqSection = () => {
                 <AccordionItem
                   key={item.value}
                   value={item.value}
-                  className="p-4 my-4 rounded-2xl border-none transition-colors duration-300 data-[state=closed]:bg-transparent data-[state=open]:bg-[#FFC6C6]"
+                  className="p-4 my-4 rounded-2xl transition-colors duration-300 data-[state=closed]:bg-transparent data-[state=open]:bg-[#FFC6C6] data-[state=closed]:border"
                 >
                   <AccordionTrigger className="font-poppins text-[20px] w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-[#323232]">
                     {item.question}

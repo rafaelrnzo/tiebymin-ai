@@ -1,7 +1,7 @@
 // hooks/useAllTips.ts
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import url from '@/lib/url';
+import { secureUrl } from '@/lib/api';
 import { AllTips, AnalysisData } from '@/types';
 
 interface UseAllTipsProps {
@@ -19,10 +19,10 @@ export const useAllTips = ({ analysisData, enabled = true }: UseAllTipsProps) =>
     }
 
     const [faceRes, colorRes, bodyRes, bmiRes] = await Promise.all([
-      axios.get(`${url}/v1/face-shapes/${face_shape_id}`),
-      axios.get(`${url}/v1/color-analysis/${color_analysis_id}`),
-      axios.get(`${url}/v1/body-shapes/${body_shape_id}`),
-      axios.get(`${url}/v1/bmi-categories/${bmi_category_id}`),
+      axios.get(secureUrl(`/v1/face-shapes/${face_shape_id}`)),
+      axios.get(secureUrl(`/v1/color-analysis/${color_analysis_id}`)),
+      axios.get(secureUrl(`/v1/body-shapes/${body_shape_id}`)),
+      axios.get(secureUrl(`/v1/bmi-categories/${bmi_category_id}`)),
     ]);
 
     return {

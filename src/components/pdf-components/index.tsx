@@ -97,7 +97,7 @@ export const Cover = ({ userData }: { userData: UserData }) => (
           HASIL ANALISA LENGKAP
         </h1>
       </main>
-      <div className="absolute bottom-0 left-0 right-0 h-1/3">
+      <div className="absolute bottom-0 left-0 right-0 h-[50%]">
         <Image
           src="/many-flower.png"
           alt="Pola Bunga Latar Belakang"
@@ -513,7 +513,9 @@ export const CelebritiesMatch = ({ userData }: { userData: UserData }) => (
             <div className="bg-[#323232] h-[250px] text-white p-8 rounded">
               <h3 className="text-sm font-bold mb-1">Kenapa Cocok?</h3>
               <p className="text-xs leading-snug">
-                {userData.celebrityMatch.reason}
+                {userData.celebrityMatch.reason.map((text, index) => (
+                  <span key={index}>{text}, </span>
+                ))}
               </p>
             </div>
           </div>

@@ -4,7 +4,6 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    // Get result_id from request body instead of URL params
     const body = await req.json();
     const { resultId } = body;
 
@@ -14,7 +13,6 @@ export async function POST(req: NextRequest) {
       pdfUrl.searchParams.set("result_id", resultId);
     }
 
-    // Determine if running on Vercel
     const isVercel = !!process.env.VERCEL_ENV;
     let puppeteer;
     let launchOptions: {
@@ -25,7 +23,6 @@ export async function POST(req: NextRequest) {
       headless: true,
     };
 
-    // Use different puppeteer setup based on environment
     if (isVercel) {
       const chromium = (await import("@sparticuz/chromium")).default;
       puppeteer = await import("puppeteer-core");
@@ -38,7 +35,6 @@ export async function POST(req: NextRequest) {
       puppeteer = await import("puppeteer");
     }
 
-    // Launch puppeteer
     const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
 
@@ -48,13 +44,11 @@ export async function POST(req: NextRequest) {
       deviceScaleFactor: 2,
     });
 
-    // Navigate to the page and wait for content to load
     await page.goto(pdfUrl.toString(), {
       waitUntil: ["networkidle0", "domcontentloaded"],
-      timeout: 30000, // Add timeout
+      timeout: 30000, 
     });
 
-    // Wait for specific content to ensure everything is loaded
     try {
       await page.waitForSelector("#pdf-content", { timeout: 10000 });
     } catch (error) {
@@ -63,7 +57,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate PDF with high quality settings
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,

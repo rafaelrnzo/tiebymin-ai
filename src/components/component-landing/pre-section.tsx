@@ -1,13 +1,11 @@
 import {
   Crown,
   Handbag,
-  Leaf,
   Palette,
   PersonStanding,
   ShoppingCart,
   Sparkles,
   Square,
-  Users,
 } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -157,11 +155,11 @@ const CelebrityCard = () => (
       <Image
         width={200}
         height={100}
-        src="/hijab-4.png"
+        src="/damoy.png"
         alt="Davina Karamoy"
         className="w-full h-[130px] object-cover rounded-lg"
       />
-      <div className="flex items-center bg-[#323232] w-fit absolute bottom-2 left-3 px-4 py-1 rounded-full gap-2">
+      <div className="flex items-center bg-[#323232] w-fit absolute bottom-2 left-3 px-4 pt-1 pb-2 rounded-full gap-2">
         <Image
           width={23}
           height={23}
@@ -185,13 +183,13 @@ const CelebrityCard = () => (
 const RecommendationContainer = () => {
   const products: ProductCardProps[] = [
     {
-      imageUrl: "/hijab-2.png",
+      imageUrl: "/hijab-9.png",
       title: "Premium Pasmina",
       description:
         "Hijab dengan neutral color gelap cocok untuk skin tone kamu",
     },
     {
-      imageUrl: "/hijab-1.png",
+      imageUrl: "/hijab-10.png",
       title: "Premium Bergo",
       description: "Produk ini memiliki neutral color yang kamu butuhkan",
     },

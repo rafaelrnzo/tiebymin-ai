@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
-import url from "@/lib/url";
+import { secureUrl } from "@/lib/api";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -67,7 +67,7 @@ export default function PrepareFacePage() {
       try {
         // Simulasi delay untuk melihat skeleton
         await new Promise((resolve) => setTimeout(resolve, 1500));
-        const response = await axios.get(`${url}/v1/body-shapes/`);
+        const response = await axios.get(secureUrl(`/v1/body-shapes/`));
 
         if (response.data && response.data.length > 0) {
           setAllBodyTypes(response.data);
@@ -120,7 +120,7 @@ export default function PrepareFacePage() {
 
   if (error)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-pink-100 text-red-500">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFC6C6] text-red-500">
         <p>{error}</p>
       </div>
     );

@@ -2,6 +2,7 @@
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useState } from "react";
 import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAnalysisData,
   useBmiCategoryData,
@@ -130,7 +131,13 @@ function StoryPage() {
 
 export default function App() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="bg-gray-100 min-h-screen flex justify-center p-6">
+          <Skeleton className="h-[812px] w-[456px]" />
+        </div>
+      }
+    >
       <StoryPage />
     </Suspense>
   );
