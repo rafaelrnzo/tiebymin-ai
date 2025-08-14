@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { analysisTabs } from "@/lib/mock-data";
 import {
@@ -78,9 +79,11 @@ function BeautyAnalysisPageInner() {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="text-center p-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p>Loading analysis data...</p>
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-1/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
         </div>
       );
     }
@@ -396,7 +399,20 @@ function BeautyAnalysisPageInner() {
 
 export default function BeautyAnalysisPage() {
   return (
-    <Suspense fallback={<div className="text-center p-8">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 p-8">
+          <Skeleton className="h-16 w-full mb-8" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <Skeleton className="h-[700px] w-full rounded-3xl" />
+            <div className="lg:col-span-2 space-y-4">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-96 w-full" />
+            </div>
+          </div>
+        </div>
+      }
+    >
       <BeautyAnalysisPageInner />
     </Suspense>
   );

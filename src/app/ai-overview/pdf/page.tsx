@@ -9,6 +9,7 @@ import {
   FaceShape,
 } from "@/components/pdf-components";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAnalysisData,
   useBodyShapeData,
@@ -177,12 +178,10 @@ function PdfPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
-        <Image
-          src="/tie-by-min-logo-light.png"
-          alt="Logo Tie By Min"
-          width={180}
-          height={80}
-        />
+        <div className="space-y-4">
+          <Skeleton className="h-96 w-96" />
+          <Skeleton className="h-8 w-96" />
+        </div>
       </div>
     );
   }
@@ -245,7 +244,13 @@ function PdfPage() {
 
 export default function App() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
+          <Skeleton className="h-96 w-96" />
+        </div>
+      }
+    >
       <PdfPage />
     </Suspense>
   );

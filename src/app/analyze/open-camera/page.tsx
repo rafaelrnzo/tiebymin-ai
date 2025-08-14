@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
-import url from "@/lib/url";
+import { secureUrl } from "@/lib/api";
 import { useRive } from "@rive-app/react-canvas";
 import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
@@ -150,8 +150,9 @@ function HalamanKameraWajahContent() {
       setLoadingStep(0);
       setProgress(0);
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 4000 + stepCount * 1200;
-      const stepDuration = 1200;
+      // 1 minute 40 seconds
+      const totalDuration = 100000;
+      const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
         setLoadingStep((prev) => (prev < stepCount - 1 ? prev + 1 : prev));
@@ -287,11 +288,11 @@ function HalamanKameraWajahContent() {
 
     setIsApiLoading(true);
     setApiError("");
+    const endpoint = secureUrl(`/v1/analysis/full-analysis`);
+    console.log("fetch endpoint:", endpoint);
+
     try {
-      const response = await axios.post(
-        `${url}/v1/analysis/full-analysis`,
-        formData
-      );
+      const response = await axios.post(endpoint, formData);
 
       if (response.status >= 200 && response.status < 300) {
         const resultId = response.data.analysis_result_id;
@@ -510,7 +511,7 @@ export default function HalamanKameraWajah() {
     <Suspense
       fallback={
         <div className="h-screen w-screen flex items-center justify-center bg-black text-white">
-          Loading...
+          <div className="animate-pulse rounded-full h-16 w-16 bg-gray-700"></div>
         </div>
       }
     >

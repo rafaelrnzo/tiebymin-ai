@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
-import url from "@/lib/url";
+import { secureUrl } from "@/lib/api";
 import axios from "axios";
 import { Camera, ImageIcon } from "lucide-react";
 import Image from "next/image";
@@ -103,7 +103,7 @@ export default function FaceScanPrepPage() {
 
     try {
       const response = await axios.post(
-        `${url}/v1/analysis/full-analysis`,
+        secureUrl(`/v1/analysis/full-analysis`),
         formData
       );
       if (response.status >= 200 && response.status < 300) {

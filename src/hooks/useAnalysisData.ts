@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import url from "@/lib/url";
+import { secureUrl } from "@/lib/api";
 import { BodyType } from "@/types";
 import { defaultUserData } from "@/lib/mock-data";
 
 async function fetchData(endpoint: string) {
-  console.log(`🔄 Fetching: ${url}${endpoint}`); // Debug log
+  const fullUrl = secureUrl(endpoint);
+  console.log(`🔄 Fetching: ${fullUrl}`); // Debug log
 
   try {
-    const response = await fetch(`${url}${endpoint}`, {
+    const response = await fetch(fullUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -388,7 +389,7 @@ export const useBodyShapes = () => {
     queryKey: ["bodyShapes"],
     queryFn: async (): Promise<BodyType[]> => {
       console.log("🔄 Fetching body shapes...");
-      const response = await fetch(`${url}/v1/body-shapes/`);
+      const response = await fetch(secureUrl(`/v1/body-shapes/`));
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

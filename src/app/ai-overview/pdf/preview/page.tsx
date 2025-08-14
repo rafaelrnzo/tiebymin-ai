@@ -2,6 +2,7 @@
 import { Navbar } from "@/components/component-landing/navbar";
 import { Cover, FaceShape } from "@/components/pdf-components";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysisData, useDownloadPdf } from "@/hooks/useAnalysisData";
 import { defaultUserData } from "@/lib/mock-data";
 import { ChevronRight, X } from "lucide-react";
@@ -98,7 +99,16 @@ function PreviewPdfPage() {
 
 export default function PreviewPdf() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="bg-[#F0F0F0] min-h-screen flex flex-col">
+          <Skeleton className="h-16 w-full" />
+          <div className="flex-grow flex items-center justify-center p-4">
+            <Skeleton className="h-[600px] w-full max-w-4xl" />
+          </div>
+        </div>
+      }
+    >
       <PreviewPdfPage />
     </Suspense>
   );
