@@ -8,7 +8,7 @@ import { useAnalysis } from "@/context/AnalysisContext";
 import { useRive } from "@rive-app/react-canvas";
 import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
-import { Camera, Check } from "lucide-react";
+import { Camera, Check, RotateCw } from "lucide-react";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -102,19 +102,30 @@ function HalamanKameraWajahContent() {
   const totalAnalyses = 4;
 
   const [loadingStep, setLoadingStep] = useState(0);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+
+  const handleCameraSwitch = () => {
+    setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
+  };
 
   useEffect(() => {
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
     let currentStream: MediaStream | null = null;
+    
     const startCamera = async () => {
       try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
+        if (videoRef.current && videoRef.current.srcObject) {
+          (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
+      }
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: "user",
+            facingMode: facingMode,
             width: { ideal: 1920 },
             height: { ideal: 1080 },
           },
         });
+
         currentStream = mediaStream;
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
@@ -420,13 +431,26 @@ function HalamanKameraWajahContent() {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] border-4 sm:border-[6px] border-dashed border-green-400 rounded-[50%/60%] animate-pulse pointer-events-none"
             style={{ animationDuration: "3s" }}
           ></div>
-          <Button
-            onClick={handleCapture}
-            className="relative z-20 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
-          >
-            <Camera className="text-white size-12 fill-black" />
-          </Button>
+         <div className="relative z-20 w-full max-w-sm flex justify-center items-center gap-12">
+            {/* Tombol Ganti Kamera */}
+            <Button
+                onClick={handleCameraSwitch}
+                className="w-16 h-16 -ml-12 bg-white/30 mr-2 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                aria-label="Ganti Kamera"
+            >
+                <RotateCw className="text-white size-8" />
+            </Button>
+
+            {/* Tombol Ambil Gambar */}
+            <Button
+                onClick={handleCapture}
+                className="w-20 h-20 -ml-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
+            >
+                <Camera className="text-white size-12 fill-black" />
+            </Button>
+
         </div>
+    </div>
       )}
 
       {appState === "CONFIRM" && capturedImage && (

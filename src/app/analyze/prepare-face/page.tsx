@@ -8,28 +8,41 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // --- Komponen Skeleton Loader untuk Kolom Tengah ---
-const BodyTypeSkeleton = () => (
-  <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 animate-pulse">
-    <div className="flex flex-col justify-between w-full gap-8">
-      <div className="flex flex-row gap-4 justify-center w-full">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div className="mb-2 h-48 sm:h-64 w-24 sm:w-32 bg-gray-300/50 rounded-lg"></div>
-            <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-row gap-4 justify-center w-full">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div className="mb-2 h-48 sm:h-64 w-24 sm:w-32 bg-gray-300/50 rounded-lg"></div>
-            <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
-          </div>
-        ))}
+// Skeleton loader ini akan menyesuaikan jumlah dan posisi dengan layout body type asli
+const BodyTypeSkeleton = ({ count = 6 }) => {
+  // Bagi skeleton ke dua baris, sama seperti layout aslinya
+  const topRowCount = Math.ceil(count / 2);
+  const bottomRowCount = count - topRowCount;
+  const topRow = Array(topRowCount).fill(0);
+  const bottomRow = Array(bottomRowCount).fill(0);
+
+  return (
+    <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
+      <div className="flex flex-col justify-between w-full gap-8 animate-pulse">
+        <div className="flex flex-row gap-4 justify-center w-full">
+          {topRow.map((_, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className="relative mb-2 flex h-48 sm:h-64 w-24 sm:w-32 items-center justify-center">
+                <div className="absolute inset-0 bg-gray-300/50 rounded-lg" />
+              </div>
+              <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-row gap-4 justify-center w-full">
+          {bottomRow.map((_, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className="relative mb-2 flex h-48 sm:h-64 w-24 sm:w-32 items-center justify-center">
+                <div className="absolute inset-0 bg-gray-300/50 rounded-lg" />
+              </div>
+              <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // --- Komponen Utama ---
 interface BodyType {
@@ -43,14 +56,13 @@ interface BodyType {
 export default function PrepareFacePage() {
   const { analysisData, setAnalysisData } = useAnalysis();
 
-  const [allBodyTypes, setAllBodyTypes] = useState<BodyType[]>([]); // Menyimpan semua data bentuk tubuh dari API
+  const [allBodyTypes, setAllBodyTypes] = useState<BodyType[]>([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showOverlay, setShowOverlay] = useState(false); // Untuk modal "Scan Wajah"
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const router = useRouter();
 
-  // useEffect untuk mengambil semua data bentuk tubuh dari API saat komponen pertama kali dimuat
   useEffect(() => {
     const fetchAllBodyShapes = async () => {
       setIsLoading(true);
@@ -63,12 +75,10 @@ export default function PrepareFacePage() {
         if (response.data && response.data.length > 0) {
           setAllBodyTypes(response.data);
 
-          // Jika belum ada pilihan bentuk tubuh di context, set pilihan default
-          // Pilihan default diambil dari item pertama yang diterima dari API
           if (!analysisData.body_shape_id) {
             setAnalysisData((prev) => ({
               ...prev,
-              bodyType: response.data[0].id, // Set bodyType untuk seleksi awal
+              bodyType: response.data[0].id, 
               body_shape_id: response.data[0].id,
             }));
           }
@@ -84,10 +94,8 @@ export default function PrepareFacePage() {
     };
 
     fetchAllBodyShapes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Dependency array kosong agar hanya berjalan sekali saat mount
+  }, []); 
 
-  // Fungsi untuk mengubah pilihan bentuk tubuh di context
   const handleSelectBodyType = (typeId: string) => {
     setAnalysisData((prev) => ({
       ...prev,
@@ -95,7 +103,6 @@ export default function PrepareFacePage() {
     }));
   };
 
-  // Navigasi ke halaman selanjutnya
   const handleNext = () => {
     router.push(`/analyze/take-face`);
   };
@@ -103,11 +110,9 @@ export default function PrepareFacePage() {
   const handleShowOverlay = () => setShowOverlay(true);
   const handleCloseOverlay = () => setShowOverlay(false);
 
-  // --- Variabel turunan untuk mempermudah rendering ---
   const selectedTypeId = analysisData.body_shape_id;
   const selectedType = allBodyTypes.find((type) => type.id === selectedTypeId);
 
-  // Membagi data secara dinamis untuk tampilan dua baris
   const topRow = allBodyTypes.slice(0, Math.ceil(allBodyTypes.length / 2));
   const bottomRow = allBodyTypes.slice(Math.ceil(allBodyTypes.length / 2));
 
@@ -116,7 +121,6 @@ export default function PrepareFacePage() {
   const bodyImageClass =
     "w-[80px] h-[180px] sm:w-[100px] sm:h-[220px] object-contain";
 
-  // --- Tampilan Error ---
   if (error)
     return (
       <div className="min-h-screen flex items-center justify-center bg-pink-100 text-red-500">
@@ -126,7 +130,7 @@ export default function PrepareFacePage() {
 
   // --- Tampilan Utama ---
   return (
-    <div className="min-h-screen w-full px-4 py-8 sm:p-8 flex flex-col items-center justify-center relative bg-[url('/login-bg.png')] bg-cover bg-center">
+    <div className="min-h-screen w-full p-2 sm:p-3 flex flex-col items-center justify-center relative bg-[url('/login-bg.png')] bg-cover bg-center">
       {/* CSS untuk Animasi Bintang */}
       <style jsx global>{`
         @keyframes rotate-sparkle {
@@ -251,7 +255,7 @@ export default function PrepareFacePage() {
 
           {/* Kolom Tengah - Pilihan Bentuk Tubuh (Dinamis dari API) */}
           {isLoading ? (
-            <BodyTypeSkeleton />
+            <BodyTypeSkeleton count={allBodyTypes.length > 0 ? allBodyTypes.length : 6} />
           ) : (
             <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
               <div className="flex flex-col justify-between w-full gap-8">
@@ -336,7 +340,7 @@ export default function PrepareFacePage() {
           )}
 
           {/* Kolom Kanan - Detail Pilihan (Dinamis dari API) */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-8 px-4 sm:px-6 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-8 px-4 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3">
             {isLoading || !selectedType ? (
               <div className="w-full animate-pulse">
                 <div className="h-12 w-3/4 bg-gray-300/70 rounded mb-6"></div>
