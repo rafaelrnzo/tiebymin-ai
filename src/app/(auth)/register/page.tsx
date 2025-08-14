@@ -152,15 +152,15 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-3 rounded-lg font-bold mt-8 transition-colors"
+                className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-4 h-[50px] rounded-xl font-bold transition-colors"
               >
                 Daftar Sekarang
               </Button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Button
                   type="button"
-                  className="flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-center gap-2 py-5 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -186,7 +186,7 @@ export default function LoginPage() {
                 </Button>
                 <Button
                   type="button"
-                  className="flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-center gap-2 py-5 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
                 >
                   <svg
                     className="w-5 h-5"

@@ -1,2 +1,2 @@
-const url = "http://localhost:8000"
-export default url
+const url = "https://tiebymin-be.withsummon.com"
+export default url  

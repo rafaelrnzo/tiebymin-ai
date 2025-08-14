@@ -32,8 +32,8 @@ export default function LoginPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center p-4">
-      <div className="mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+    <main className="min-h-screen bg-[url('/login-bg.png')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center py-4">
+      <div className="mx-2 lg:mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
         <LeftSideSection steps={steps} />
 
         {/* Right Side - Login Form */}
@@ -87,16 +87,16 @@ export default function LoginPage() {
               {/* Login Button */}
               <Button
                 type="submit"
-                className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-3 rounded-lg font-bold mt-8 transition-colors"
+                className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-8 transition-colors"
               >
                 Masuk
               </Button>
 
               {/* Social Login */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Button
                   type="button"
-                  className="flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-center gap-2 py-5 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -122,7 +122,7 @@ export default function LoginPage() {
                 </Button>
                 <Button
                   type="button"
-                  className="flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-center gap-2 py-5 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
                 >
                   <svg
                     className="w-5 h-5"
