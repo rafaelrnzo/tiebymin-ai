@@ -53,21 +53,21 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
             {matchData.name}
           </h3>
           <p className="text-gray-600 text-sm mt-3 leading-relaxed">
-            {matchData.similarity_text}
+            {matchData.description}
           </p>
         </div>
-        <div className="bg-[#FCE9EC] rounded-2xl p-6">
+        <div className="bg-[#FFC6C6] rounded-2xl p-6">
           <h4 className="font-bold font-handlee text-gray-800 text-md mb-2">
-            Tentang Artis Ini
+            Kenapa Cocok?
           </h4>
           <p className="text-gray-600 text-sm leading-relaxed">
-            {matchData.description}
+            {matchData.similarity_text}
           </p>
         </div>
       </div>
       <div className="relative w-full md:w-3/5 min-h-[400px]">
         <Image
-          src={matchData.picture_url || "/default-celebrity.png"}
+          src={matchData.picture_url || "/hijab-3.png"}
           alt={matchData.name}
           fill
           style={{ objectFit: "cover" }}

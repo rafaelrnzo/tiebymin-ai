@@ -120,7 +120,7 @@ export default function PrepareFacePage() {
 
   if (error)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-pink-100 text-red-500">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFC6C6] text-red-500">
         <p>{error}</p>
       </div>
     );

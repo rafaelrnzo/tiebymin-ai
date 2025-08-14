@@ -5,18 +5,7 @@ import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  useAnalysisData,
-  useProductBmiCompatibility,
-  useProductColorAnalysisCompatibility,
-  useProductFaceShapeCompatibility,
-} from "@/hooks/useAnalysisData";
-import { useRouter, useSearchParams } from "next/navigation";
-import BodySection from "../../components/sections/BodySection";
-import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
-import ColorToneSection from "../../components/sections/ColorToneSection";
-import ShapeSection from "../../components/sections/ShapeSection";
-import TipsSection from "../../components/sections/TipsSection";
+import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { analysisTabs } from "@/lib/mock-data";
 import {
   ProductBmiCompatibility,
@@ -24,6 +13,12 @@ import {
   ProductColorAnalysisCompatibility,
   ProductFaceShapeCompatibility,
 } from "@/types";
+import { useRouter, useSearchParams } from "next/navigation";
+import BodySection from "../../components/sections/BodySection";
+import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
+import ColorToneSection from "../../components/sections/ColorToneSection";
+import ShapeSection from "../../components/sections/ShapeSection";
+import TipsSection from "../../components/sections/TipsSection";
 
 function BeautyAnalysisPageInner() {
   const router = useRouter();
@@ -60,15 +55,6 @@ function BeautyAnalysisPageInner() {
     rawAnalysisData: null,
   };
 
-  const { data: faceShapeCompatibility } = useProductFaceShapeCompatibility(
-    rawAnalysisData?.face_shape_id
-  );
-  const { data: colorAnalysisCompatibility } =
-    useProductColorAnalysisCompatibility(rawAnalysisData?.color_analysis_id);
-  const { data: bmiCompatibility } = useProductBmiCompatibility(
-    rawAnalysisData?.bmi_category_id
-  );
-
   type RecommendedProduct =
     | ProductFaceShapeCompatibility
     | ProductColorAnalysisCompatibility
@@ -78,21 +64,6 @@ function BeautyAnalysisPageInner() {
     RecommendedProduct[]
   >([]);
 
-  useEffect(() => {
-    const products: RecommendedProduct[] = [];
-    if (faceShapeCompatibility) {
-      products.push(faceShapeCompatibility);
-    }
-    if (colorAnalysisCompatibility) {
-      products.push(colorAnalysisCompatibility);
-    }
-    if (bmiCompatibility) {
-      products.push(bmiCompatibility);
-    }
-    setRecommendedProducts(products);
-  }, [faceShapeCompatibility, colorAnalysisCompatibility, bmiCompatibility]);
-
-  // Debug useEffect
   useEffect(() => {
     console.log("🔄 Component state updated:", {
       resultId,
@@ -256,7 +227,7 @@ function BeautyAnalysisPageInner() {
               </Button>
               <Button
                 onClick={() =>
-                  router.push(`/ai-overview/pdf?result_id=${resultId}`)
+                  router.push(`/ai-overview/pdf/preview?result_id=${resultId}`)
                 }
                 disabled={!resultId}
                 className="bg-[#FFC6C6] text-black px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"

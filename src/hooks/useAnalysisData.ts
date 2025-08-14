@@ -186,7 +186,20 @@ export function useAnalysisData(resultId: string | null) {
             combination:
               colorToneData?.combination_colors ||
               defaultUserData.colorToneAnalysis.combination,
-            tips: colorToneData?.tips || defaultUserData.colorToneAnalysis.tips,
+            tips: {
+              makeup: colorToneData?.make_up_tips
+                ? [colorToneData.make_up_tips]
+                : defaultUserData.colorToneAnalysis.tips.makeup,
+              outfit: colorToneData?.tips_warna_kulit_pakaian
+                ? [colorToneData.tips_warna_kulit_pakaian]
+                : defaultUserData.colorToneAnalysis.tips.outfit,
+              personality: colorToneData?.personality
+                ? [colorToneData.personality]
+                : defaultUserData.colorToneAnalysis.tips.personality,
+              characteristics: colorToneData?.karakteristik
+                ? [colorToneData.karakteristik]
+                : defaultUserData.colorToneAnalysis.tips.characteristics,
+            },
           },
           conclusionTips: {
             face:
@@ -236,7 +249,6 @@ export function useAnalysisData(resultId: string | null) {
   });
 }
 
-// Individual hooks dengan error handling yang lebih baik
 export function useFaceShapeData(faceShapeId: string | null) {
   return useQuery({
     queryKey: ["faceShape", faceShapeId],
@@ -293,56 +305,6 @@ export function useBmiCategoryData(bmiCategoryId: string | null) {
   });
 }
 
-export function useProductFaceShapeCompatibility(
-  compatibilityId: string | null
-) {
-  return useQuery({
-    queryKey: ["productFaceShapeCompatibility", compatibilityId],
-    queryFn: async () => {
-      if (!compatibilityId) {
-        throw new Error("Compatibility ID is required");
-      }
-      return fetchData(
-        `/v1/product-face-shape-compatibility/${compatibilityId}`
-      );
-    },
-    enabled: !!compatibilityId,
-    retry: 2,
-  });
-}
-
-export function useProductColorAnalysisCompatibility(
-  compatibilityId: string | null
-) {
-  return useQuery({
-    queryKey: ["productColorAnalysisCompatibility", compatibilityId],
-    queryFn: async () => {
-      if (!compatibilityId) {
-        throw new Error("Compatibility ID is required");
-      }
-      return fetchData(
-        `/v1/product-color-analysis-compatibility/${compatibilityId}`
-      );
-    },
-    enabled: !!compatibilityId,
-    retry: 2,
-  });
-}
-
-export function useProductBmiCompatibility(compatibilityId: string | null) {
-  return useQuery({
-    queryKey: ["productBmiCompatibility", compatibilityId],
-    queryFn: async () => {
-      if (!compatibilityId) {
-        throw new Error("Compatibility ID is required");
-      }
-      return fetchData(`/v1/product-bmi-compatibility/${compatibilityId}`);
-    },
-    enabled: !!compatibilityId,
-    retry: 2,
-  });
-}
-
 export function useCelebrityData(celebrityId: string | null) {
   return useQuery({
     queryKey: ["celebrity", celebrityId],
@@ -357,9 +319,7 @@ export function useCelebrityData(celebrityId: string | null) {
   });
 }
 
-// Hook for downloading PDF
 export function useDownloadPdf() {
-  // Using URLSearchParams to get resultId from URL
   const searchParams =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search)

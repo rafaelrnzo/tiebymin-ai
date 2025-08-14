@@ -114,7 +114,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               )}
           </p>
         </div>
-        <div className="bg-pink-100 rounded-2xl p-4 sm:p-6">
+        <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6">
           <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg text-left">
             Karakteristik
           </h3>

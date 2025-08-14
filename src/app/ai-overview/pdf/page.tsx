@@ -1,13 +1,4 @@
 "use client";
-import { useSearchParams } from "next/navigation";
-import React, { Suspense, useState } from "react";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import {
-  useAnalysisData,
-  useBodyShapeData,
-  useDownloadPdf,
-} from "@/hooks/useAnalysisData";
 import {
   BackCover,
   BodyShape,
@@ -17,9 +8,18 @@ import {
   Cover,
   FaceShape,
 } from "@/components/pdf-components";
+import { Button } from "@/components/ui/button";
+import {
+  useAnalysisData,
+  useBodyShapeData,
+  useDownloadPdf,
+} from "@/hooks/useAnalysisData";
 import { defaultUserData } from "@/lib/mock-data";
 import { BodyShapeData, UserData } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import React, { Suspense, useState } from "react";
 
 function PdfPage() {
   const searchParams = useSearchParams();
@@ -114,6 +114,10 @@ function PdfPage() {
       alert("Result ID tidak ditemukan. Tidak dapat membagikan hasil analisa.");
     }
   };
+
+  // useEffect(() => {
+  //   handleDownloadPDF();
+  // }, []);
 
   const pages: {
     [key: string]: React.ComponentType<{

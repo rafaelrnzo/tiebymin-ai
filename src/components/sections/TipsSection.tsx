@@ -95,7 +95,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
         tip={allTips.colorTip}
         icon="/overview-ai/icons/mdi_color.svg"
       />
-      <div className="bg-pink-100 rounded-2xl p-4 sm:p-6">
+      <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6">
         <div className="mb-3">
           <Image
             src="/overview-ai/icons/ic_baseline-tips-and-updates.svg"
