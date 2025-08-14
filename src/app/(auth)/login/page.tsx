@@ -42,28 +42,47 @@ export default function LoginPage() {
     try {
       const uniqueGoogleId = generateUUID();
 
-      const response = await fetch(`${url}/v1/users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        mode: "cors",
-        body: JSON.stringify({
-          email: formData.email,
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          google_id: uniqueGoogleId,
-          is_active: true,
-          password: "qweqweasd",
-        }),
-      });
+      let endpoint = `${url}/v1/users/`;
+      endpoint = endpoint.replace(/([^:]\/)\/+/g, "$1");
+      console.log("fetch endpoint:", endpoint);
+
+      if (endpoint.startsWith("http://")) {
+        endpoint = endpoint.replace("http://", "https://");
+      }
+
+      let response;
+      try {
+        response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          redirect: "follow",
+          body: JSON.stringify({
+            email: formData.email,
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            google_id: uniqueGoogleId,
+            is_active: true,
+            password: "qweqweasd",
+          }),
+        });
+      } catch (fetchErr) {
+        setError(
+          "Tidak dapat terhubung ke server. Silakan coba lagi nanti atau hubungi admin."
+        );
+        setIsLoading(false);
+        return;
+      }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || `HTTP error! status: ${response.status}`
-        );
+        let errorMsg = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.message || errorMsg;
+        } catch {}
+        throw new Error(errorMsg);
       }
 
       const result = await response.json();
@@ -85,9 +104,19 @@ export default function LoginPage() {
       router.push("/analyze/first");
     } catch (err) {
       console.error("Registration error:", err);
-      setError(
-        err instanceof Error ? err.message : "Terjadi kesalahan saat mendaftar"
-      );
+      if (
+        err instanceof TypeError &&
+        err.message &&
+        err.message.toLowerCase().includes("failed to fetch")
+      ) {
+        setError(
+          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau hubungi admin jika masalah berlanjut."
+        );
+      } else {
+        setError(
+          err instanceof Error ? err.message : "Terjadi kesalahan saat mendaftar"
+        );
+      }
     } finally {
       setIsLoading(false);
     }

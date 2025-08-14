@@ -148,8 +148,9 @@ function HalamanKameraWajahContent() {
       setLoadingStep(0);
       setProgress(0);
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 4000 + stepCount * 1200;
-      const stepDuration = 1200;
+      // 1 minute 40 seconds
+      const totalDuration = 100000;
+      const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
         setLoadingStep((prev) => (prev < stepCount - 1 ? prev + 1 : prev));
@@ -285,9 +286,17 @@ function HalamanKameraWajahContent() {
 
     setIsApiLoading(true);
     setApiError("");
+    let endpoint = `${url}/v1/analysis/full-analysis`;
+    endpoint = endpoint.replace(/([^:]\/)\/+/g, "$1");
+    console.log("fetch endpoint:", endpoint);
+
+    if (endpoint.startsWith("http://")) {
+      endpoint = endpoint.replace("http://", "https://");
+    }
+
     try {
       const response = await axios.post(
-        `${url}/v1/analysis/full-analysis`,
+        endpoint,
         formData
       );
 
