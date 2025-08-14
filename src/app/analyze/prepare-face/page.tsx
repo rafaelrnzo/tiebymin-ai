@@ -7,10 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// --- Komponen Skeleton Loader untuk Kolom Tengah ---
-// Skeleton loader ini akan menyesuaikan jumlah dan posisi dengan layout body type asli
 const BodyTypeSkeleton = ({ count = 6 }) => {
-  // Bagi skeleton ke dua baris, sama seperti layout aslinya
   const topRowCount = Math.ceil(count / 2);
   const bottomRowCount = count - topRowCount;
   const topRow = Array(topRowCount).fill(0);
@@ -56,7 +53,7 @@ interface BodyType {
 export default function PrepareFacePage() {
   const { analysisData, setAnalysisData } = useAnalysis();
 
-  const [allBodyTypes, setAllBodyTypes] = useState<BodyType[]>([]); 
+  const [allBodyTypes, setAllBodyTypes] = useState<BodyType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -78,7 +75,7 @@ export default function PrepareFacePage() {
           if (!analysisData.body_shape_id) {
             setAnalysisData((prev) => ({
               ...prev,
-              bodyType: response.data[0].id, 
+              bodyType: response.data[0].id,
               body_shape_id: response.data[0].id,
             }));
           }
@@ -94,7 +91,7 @@ export default function PrepareFacePage() {
     };
 
     fetchAllBodyShapes();
-  }, []); 
+  }, []);
 
   const handleSelectBodyType = (typeId: string) => {
     setAnalysisData((prev) => ({
@@ -255,7 +252,9 @@ export default function PrepareFacePage() {
 
           {/* Kolom Tengah - Pilihan Bentuk Tubuh (Dinamis dari API) */}
           {isLoading ? (
-            <BodyTypeSkeleton count={allBodyTypes.length > 0 ? allBodyTypes.length : 6} />
+            <BodyTypeSkeleton
+              count={allBodyTypes.length > 0 ? allBodyTypes.length : 6}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
               <div className="flex flex-col justify-between w-full gap-8">

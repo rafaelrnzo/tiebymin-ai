@@ -1,0 +1,45 @@
+// hooks/useAllTips.ts
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import url from '@/lib/url';
+import { AllTips, AnalysisData } from '@/types';
+
+interface UseAllTipsProps {
+  analysisData: AnalysisData;
+  enabled?: boolean;
+}
+
+export const useAllTips = ({ analysisData, enabled = true }: UseAllTipsProps) => {
+  const { face_shape_id, color_analysis_id, body_shape_id, bmi_category_id } = analysisData;
+
+  const fetchAllTips = async (): Promise<AllTips> => {
+    // Validasi data ID
+    if (!face_shape_id || !color_analysis_id || !body_shape_id || !bmi_category_id) {
+      throw new Error("Data ID tidak lengkap untuk merangkum semua tips.");
+    }
+
+    const [faceRes, colorRes, bodyRes, bmiRes] = await Promise.all([
+      axios.get(`${url}/v1/face-shapes/${face_shape_id}`),
+      axios.get(`${url}/v1/color-analysis/${color_analysis_id}`),
+      axios.get(`${url}/v1/body-shapes/${body_shape_id}`),
+      axios.get(`${url}/v1/bmi-categories/${bmi_category_id}`),
+    ]);
+
+    return {
+      faceTip: faceRes.data.tips_bentuk_wajah,
+      bodyTip: bodyRes.data.tips_body_shape,
+      colorTip: colorRes.data.tips_warna_kulit_pakaian,
+      makeupTip: colorRes.data.make_up_tips,
+      bmiTip: bmiRes.data.tips_fashion,
+    };
+  };
+
+  return useQuery({
+    queryKey: ['allTips', face_shape_id, color_analysis_id, body_shape_id, bmi_category_id],
+    queryFn: fetchAllTips,
+    enabled: enabled && !!(face_shape_id && color_analysis_id && body_shape_id && bmi_category_id),
+    staleTime: 5 * 60 * 1000, // 5 menit
+    retry: 2,
+    retryDelay: 1000,
+  });
+};

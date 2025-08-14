@@ -1,16 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import LeftSideSection from "@/components/component-login/left-side-section";
 import { Button } from "@/components/ui/button";
+import url from "@/lib/url";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
+    first_name: "",
+    last_name: "",
   });
+
+  const generateUUID = () => {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -19,14 +34,67 @@ export default function LoginPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login data submitted:", formData);
-    router.push("/analyze/first");
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const uniqueGoogleId = generateUUID();
+
+      const response = await fetch(`${url}/v1/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        mode: "cors",
+        body: JSON.stringify({
+          email: formData.email,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          google_id: uniqueGoogleId,
+          is_active: true,
+          password: "qweqweasd",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      const result = await response.json();
+      console.log("Registration successful:", result);
+
+      if (result.id) {
+        localStorage.setItem("userId", result.id);
+        localStorage.setItem(
+          "namaUser",
+          `${result.first_name} ${result.last_name}`
+        );
+        console.log(
+          "User ID saved to localStorage:",
+          result.id,
+          result.first_name
+        );
+      }
+
+      router.push("/analyze/first");
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError(
+        err instanceof Error ? err.message : "Terjadi kesalahan saat mendaftar"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const steps = [
-    { number: "01", title: "Login", active: true },
+    { number: "01", title: "Register", active: true },
     { number: "02", title: "Lengkapi Data", active: false },
     { number: "03", title: "Analisa", active: false },
   ];
@@ -36,14 +104,66 @@ export default function LoginPage() {
       <div className="mx-2 lg:mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
         <LeftSideSection steps={steps} />
 
-        {/* Right Side - Login Form */}
+        {/* Right Side - Registration Form */}
         <div className="w-full lg:flex-1 lg:max-w-[65%] px-4 sm:px-0">
           <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-center lg:text-left">
-              Masuk ke Akun
+              Buat Akun Baru
             </h2>
 
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                {error}
+              </div>
+            )}
+
             <form className="space-y-6" onSubmit={handleSubmit}>
+              {/* First Name */}
+              <div className="flex w-full justify-center gap-4">
+                <div className="space-y-2 w-full">
+                  <label
+                    htmlFor="first_name"
+                    className="block text-gray-600 font-medium text-sm"
+                  >
+                    Nama Depan
+                  </label>
+                  <input
+                    id="first_name"
+                    type="text"
+                    value={formData.first_name}
+                    onChange={(e) =>
+                      handleInputChange("first_name", e.target.value)
+                    }
+                    className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                    placeholder="Masukkan nama depan"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+
+                {/* Last Name */}
+                <div className="space-y-2 w-full">
+                  <label
+                    htmlFor="last_name"
+                    className="block text-gray-600 font-medium text-sm"
+                  >
+                    Nama Belakang
+                  </label>
+                  <input
+                    id="last_name"
+                    type="text"
+                    value={formData.last_name}
+                    onChange={(e) =>
+                      handleInputChange("last_name", e.target.value)
+                    }
+                    className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                    placeholder="Masukkan nama belakang"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
               {/* Email */}
               <div className="space-y-2">
                 <label
@@ -60,36 +180,16 @@ export default function LoginPage() {
                   className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
                   placeholder="Masukkan email"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
-              {/* Password */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="password"
-                  className="block text-gray-600 font-medium text-sm"
-                >
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
-                  className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                  placeholder="Masukkan password"
-                  required
-                />
-              </div>
-
-              {/* Login Button */}
+              {/* Register Button */}
               <Button
                 type="submit"
                 className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-8 transition-colors"
               >
-                Masuk
+                {isLoading ? "Sedang Mendaftar..." : "Daftar"}
               </Button>
 
               {/* Social Login */}

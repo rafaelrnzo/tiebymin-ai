@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useCelebrityData } from "@/hooks/useAnalysisData";
 import Image from "next/image";
-import axios from "axios";
-import url from "@/lib/url";
-import { Celebrity } from "@/types";
+import React, { useState } from "react";
 
 // --- Komponen Utama ---
 interface CelebrityMatchSectionProps {
@@ -14,42 +12,21 @@ interface CelebrityMatchSectionProps {
 const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
   celebrityId,
 }) => {
-  const [matchData, setMatchData] = useState<Celebrity | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: matchData, isLoading, error } = useCelebrityData(celebrityId);
   const [matchPercentage] = useState(
     () => Math.floor(Math.random() * (95 - 80 + 1)) + 80
   );
-
-  useEffect(() => {
-    if (!celebrityId) {
-      setIsLoading(false);
-      return; // Berhenti jika tidak ada ID, akan menampilkan pesan "Belum Ada Kecocokan"
-    }
-    const fetchCelebrityMatch = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // Endpoint untuk mengambil detail selebriti berdasarkan ID
-        const response = await axios.get(
-          `${url}/v1/celebrities/${celebrityId}`
-        );
-        setMatchData(response.data);
-      } catch (err) {
-        setError("Gagal memuat data kecocokan selebriti.");
-        console.error("Fetch error in CelebrityMatchSection:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCelebrityMatch();
-  }, [celebrityId]);
 
   if (isLoading)
     return (
       <div className="text-center p-8">Finding your celebrity match...</div>
     );
-  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
+  if (error)
+    return (
+      <div className="text-center p-8 text-red-500">
+        {error.message || "An error occurred"}
+      </div>
+    );
 
   // Tampilan jika tidak ada kecocokan (celebrityId null atau fetch gagal)
   if (!matchData) {

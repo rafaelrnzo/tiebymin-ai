@@ -13,3 +13,17 @@
 .font-poppins {
   font-family: var(--font-poppins);
 }
+
+@media print {
+  .pdf-page {
+    width: 210mm;
+    height: 297mm;
+    page-break-after: always;
+    overflow: hidden;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+}

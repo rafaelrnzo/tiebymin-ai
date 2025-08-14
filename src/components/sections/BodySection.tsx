@@ -1,11 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
-import url from "@/lib/url";
-import { BodyShape, BmiCategory } from "@/types";
+import { useBmiCategoryData, useBodyShapeData } from "@/hooks/useAnalysisData";
+import Image from "next/image";
+import React from "react";
 
 const ALL_BODY_TYPES_PREVIEW = [
   { id: "diamond", img: "/body-select/diamond.png", name: "Diamond" },
@@ -27,58 +25,38 @@ const BodySection: React.FC<BodySectionProps> = ({
   bmiResult,
   bmiCategoryId,
 }) => {
-  const [bodyDetails, setBodyDetails] = useState<BodyShape | null>(null);
-  const [bmiCategoryDetails, setBmiCategoryDetails] =
-    useState<BmiCategory | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: bodyDetails,
+    isLoading: isLoadingBody,
+    error: errorBody,
+  } = useBodyShapeData(bodyShapeId);
+  const {
+    data: bmiCategoryDetails,
+    isLoading: isLoadingBmi,
+    error: errorBmi,
+  } = useBmiCategoryData(bmiCategoryId || null);
 
-  useEffect(() => {
-    if (!bodyShapeId || !bmiCategoryId) {
-      setError("Data ID untuk tubuh atau BMI tidak lengkap.");
-      setIsLoading(false);
-      return;
-    }
+  const isLoading = isLoadingBody || isLoadingBmi;
+  const error = errorBody || errorBmi;
 
-    const fetchAllBodyData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [bodyShapeResponse, bmiCategoryResponse] = await Promise.all([
-          axios.get(`${url}/v1/body-shapes/${bodyShapeId}`),
-          axios.get(`${url}/v1/bmi-categories/${bmiCategoryId}`),
-        ]);
-        setBodyDetails(bodyShapeResponse.data);
-        setBmiCategoryDetails(bmiCategoryResponse.data);
-      } catch (err) {
-        setError("Gagal memuat detail tubuh atau BMI.");
-        console.error("Fetch error in BodySection:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllBodyData();
-  }, [bodyShapeId, bmiCategoryId]);
-
-  // Fungsi untuk membersihkan dan memformat nilai BMI
   const formatBmiValue = (value: number | string | undefined): string => {
     if (value === undefined || value === null) {
       return "0.00";
     }
-    // 1. Ubah ke string untuk memastikan .replace() aman digunakan
     const stringValue = String(value);
-    // 2. Ganti koma dengan titik
     const sanitizedValue = stringValue.replace(",", ".");
-    // 3. Konversi ke Angka dan format
     const numberValue = Number(sanitizedValue);
-    // 4. Periksa apakah hasilnya NaN, jika ya, kembalikan 0
     return isNaN(numberValue) ? "0.00" : numberValue.toFixed(2);
   };
 
   if (isLoading)
     return <div className="text-center p-8">Loading body information...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
+  if (error)
+    return (
+      <div className="text-center p-8 text-red-500">
+        {error.message || "An error occurred"}
+      </div>
+    );
   if (!bodyDetails || !bmiCategoryDetails)
     return <div className="text-center p-8">Data tubuh tidak ditemukan.</div>;
 
