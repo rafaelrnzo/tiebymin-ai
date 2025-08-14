@@ -1,16 +1,12 @@
-// components/component-landing/second-section.tsx
-
+import { ArrowUpRight, Play } from "lucide-react";
 import Image from "next/image";
-import { Play, ArrowUpRight } from "lucide-react";
-import { Button } from "../ui/button"; // Pastikan path ini benar
 
 export const SecondSection = () => {
   return (
     <section className="bg-white py-16 sm:py-24">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Kolom Video (3/4 dari lebar) */}
-          <div className="lg:col-span-3 relative w-full aspect-video rounded-md overflow-hidden shadow-xl cursor-pointer group">
+          <div className="lg:col-span-3 relative w-full rounded-xl overflow-hidden shadow-xl cursor-pointer group">
             <Image
               src="/video-thumbnail.png"
               alt="Video thumbnail of fashion analysis"
@@ -26,33 +22,33 @@ export const SecondSection = () => {
             </div>
           </div>
 
-          {/* Kolom Konten (1/4 dari lebar) */}
-          <div className="lg:col-span-1 flex flex-col gap-4">
-            {/* Kartu Promo */}
-            <div className="bg-[#EC7498] p-6 rounded-md flex flex-col">
-              <div className="flex gap-4">
-                <Button
-                  variant="outline"
-                  className="flex-grow px-4 py-3 rounded-full text-white font-semibold border border-white bg-transparent hover:bg-white hover:text-[#EC7498] transition-colors"
-                >
-                  <span>Coba Sekarang!</span>
-                </Button>
-                <ArrowUpRight className="h-14 w-14 bg-white p-1 rounded-full text-[#EC7498]" />
+          <div className="lg:col-span-1 flex flex-col gap-4 w-full">
+            <div className="bg-[#F9ECEF] p-6 rounded-2xl flex flex-col gap-6 max-w-md mx-auto">
+              <div className="bg-[#2C2C2E] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105">
+                <span className="text-white font-semibold text-lg">
+                  Coba Sekarang Juga
+                </span>
+                <div className="bg-white/20 p-2 rounded-full">
+                  <ArrowUpRight className="h-6 w-6 text-white" />
+                </div>
               </div>
 
-              <div className="flex flex-col">
-                <h2 className="mt-4 text-[60px] font-serif font-bold text-white">
+              <div className="flex flex-col -space-y-4">
+                <h2 className="font-oswald text-[56px] text-[#2C2C2E] tracking-tight">
                   Cuman
                 </h2>
-                <h2 className="text-[70px] font-serif font-bold text-white">
-                  Rp 10k
+                <h2 className="font-oswald font-bold text-[64px] text-[#2C2C2E] tracking-tight">
+                  Rp 10 Ribuan
                 </h2>
               </div>
 
-              <p className="mt-4 text-white text-[20px]">
-                Nggak perlu mahal! Dengan cuma{" "}
-                <strong className="font-bold text-white">10 Ribuan Aja</strong>{" "}
-                kamu udah bisa buka semua Hasil analisa AI, lengkap dan
+              {/* Bagian 3: Teks Deskripsi */}
+              <p className="text-[#4F4F4F] text-lg leading-relaxed">
+                Nggak perlu mahal! Cukup dengan{" "}
+                <strong className="font-bold text-[#2C2C2E]">
+                  10 Ribuan Aja
+                </strong>
+                , kamu udah bisa buka semua hasil analisa AI, lengkap dan
                 rekomendasi.
               </p>
             </div>
@@ -60,7 +56,7 @@ export const SecondSection = () => {
             {/* Dua Kartu Statistik */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-[#FFE5ED] p-4 rounded-md flex flex-col justify-center items-center aspect-square">
-                <p className="font-serif text-3xl lg:text-[48px] font-bold text-[#EF789B]">
+                <p className="font-poppins text-3xl lg:text-[48px] font-bold text-[#EF789B]">
                   {"<"}2m
                 </p>
                 <p className="text-[22px] text-[#EF789B] mt-1 text-center">
@@ -68,7 +64,7 @@ export const SecondSection = () => {
                 </p>
               </div>
               <div className="bg-[#FFE5ED] p-4 rounded-md flex flex-col justify-center items-center aspect-square">
-                <p className="font-serif text-3xl lg:text-[48px] font-bold text-[#EF789B]">
+                <p className="font-poppins text-3xl lg:text-[48px] font-bold text-[#EF789B]">
                   100%
                 </p>
                 <p className="text-[22px] text-[#EF789B] mt-1 text-center">

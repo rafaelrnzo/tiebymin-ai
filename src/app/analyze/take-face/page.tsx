@@ -238,7 +238,7 @@ export default function FaceScanPrepPage() {
             {INSTRUCTION_CARDS.map((card, index) => (
               <div
                 key={index}
-                className="bg-transparent border border-black rounded-2xl p-4 sm:p-6 flex flex-col items-center text-center space-y-3 sm:space-y-4"
+                className="bg-transparent border border-black rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between text-center space-y-3 sm:space-y-4"
               >
                 <h3 className="font-poppins font-bold text-base sm:text-lg text-gray-800">
                   {card.title}

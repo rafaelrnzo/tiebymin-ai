@@ -75,7 +75,7 @@ function PdfPage() {
     setTimeout(() => {
       toast.remove();
       style.remove();
-    }, 4000);
+    }, 2000);
   };
 
   const handleDownloadPDF = async () => {
@@ -190,15 +190,7 @@ function PdfPage() {
   const ActiveComponent = pages[activePage];
 
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col">
-      <div className="flex-grow">
-        <ActiveComponent
-          userData={userData}
-          userPhotoUrl={userPhotoUrl}
-          bodyDetails={bodyDetails}
-        />
-      </div>
-
+    <>
       <div className="sticky bottom-0 bg-white shadow-lg p-4 z-50">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <Button
@@ -236,7 +228,14 @@ function PdfPage() {
           </button>
         </div>
       </div>
-    </div>
+      <div className="max-w-full self-center mx-auto">
+        <ActiveComponent
+          userData={userData}
+          userPhotoUrl={userPhotoUrl}
+          bodyDetails={bodyDetails}
+        />
+      </div>
+    </>
   );
 }
 

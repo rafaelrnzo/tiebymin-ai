@@ -29,36 +29,35 @@ const footerLinks = {
 export default function Footer() {
   return (
     <>
-      {/* === Seksi CTA === */}
-      <section className="bg-[#EEA0B5] py-12 px-4">
-        <div className="container mx-auto bg-[#FAD9E6] rounded-2xl p-8 lg:p-16 text-center">
-          <h2 className="font-serif text-4xl lg:text-5xl font-bold text-[#D44A87] leading-tight">
+      <section className="bg-[#FFC6C6] py-12 px-4">
+        <div className="container mx-auto bg-[#F0F0F0] rounded-2xl p-8 lg:p-16 text-center">
+          <h2 className="font-handlee text-4xl lg:text-5xl font-bold text-[#323232] leading-tight">
             Siap Jadi Yang Paling Stylish
             <br />
             Dibandingkan Yang Lain
           </h2>
-          <p className="max-w-3xl mx-auto mt-4 text-[#AA5770]">
+          <p className="max-w-3xl mx-auto mt-4 text-[#323232] font-poppins">
             Temukan Fashion Yang Sesuai Untukmu Dengan Cara Yang Cerdas. Hanya
             Butuh Satu Foto. Tiebymin AI Memberikan Rekomendasi Instan Tanpa
             Perlu Repot, Serta Hemat Waktu Dan Biaya.
           </p>
           <Button
             size="lg"
-            className="mt-8 bg-white text-pink-600 font-semibold rounded-full px-6 py-3 shadow-sm hover:bg-gray-100 transition-colors"
+            className="mt-8 bg-[#323232] text-white font-semibold rounded-lg px-6 py-3 shadow-sm hover:bg-gray-100 transition-colors"
           >
-            Coba Analisis
             <ArrowRight className="ml-2 h-4 w-4" />
+            Coba Analisis
           </Button>
         </div>
       </section>
 
       {/* === Footer Utama === */}
-      <footer className="bg-[#EEA0B5] text-white pt-16 pb-8">
+      <footer className="bg-[#FFC6C6] text-[#323232] pt-16 pb-8">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
             {/* Kolom Brand */}
             <div className="lg:col-span-2">
-              <h3 className="text-3xl font-serif">tiebymin</h3>
+              <h3 className="text-3xl font-poppins">tiebymin</h3>
               <p className="mt-4 text-sm max-w-xs">
                 Hanya Butuh Satu Foto, Tiebymin AI Memberikan Rekomendasi Akurat
                 Tanpa Perlu Repot.
