@@ -2,7 +2,15 @@ import { BodyShapeData, UserData } from "@/types";
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
 
-// Common Components
+export const Footer = ({ page }: { page: string }) => {
+  return (
+    <div className="flex justify-between items-center text-xs text-gray-700 mt-12">
+      <span>© 2025, Tiebymin AI</span>
+      <span>{page}</span>
+    </div>
+  );
+};
+
 export const PageHeader = ({
   name,
   fill,
@@ -51,34 +59,37 @@ export const TipBox = ({
 );
 
 export const BackCover = () => (
-  <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
-    <Image
-      src="/tie-by-min-logo-light.png"
-      alt="Logo Tie By Min Putih"
-      width={250}
-      height={80}
-      priority
-    />
+  <div className="flex items-center justify-center w-full h-screen">
+    <div className="w-[650px] self-center bg-[#333333] h-full">
+      <Image
+        src="/tie-by-min-logo-light.png"
+        alt="Logo Tie By Min Putih"
+        width={250}
+        height={80}
+        priority
+      />
+    </div>
   </div>
 );
 
 export const Cover = ({ userData }: { userData: UserData }) => (
-  <div className="relative bg-[#F3F4F6] h-screen flex flex-col overflow-hidden">
-    <PageHeader fill name={userData.name} />
-    <main className="flex-grow flex flex-col justify-center px-10">
-      <h1 className="font-oswald text-8xl font-extrabold text-gray-800 leading-tight">
-        HASIL ANALISA
-        <br />
-        LENGKAP
-      </h1>
-    </main>
-    <div className="absolute bottom-0 left-0 right-0 h-1/3">
-      <Image
-        src="/many-flower.png"
-        alt="Pola Bunga Latar Belakang"
-        fill
-        className="object-cover"
-      />
+  <div className="flex items-center justify-center w-full h-screen">
+    <div className="relative bg-[#F3F4F6] w-[650px] min-h-screen flex flex-col self-center overflow-hidden">
+      <PageHeader fill name={userData.name} />
+      <main className="flex flex-col justify-center px-10 mt-[10rem] w-full">
+        <h1 className="font-oswald text-[64px] font-extrabold text-gray-800">
+          HASIL ANALISA LENGKAP
+        </h1>
+      </main>
+      <div className="absolute bottom-0 left-0 right-0 h-1/3">
+        <Image
+          src="/many-flower.png"
+          alt="Pola Bunga Latar Belakang"
+          fill
+          className="object-cover"
+        />
+        <Footer page="01" />
+      </div>
     </div>
   </div>
 );
@@ -89,43 +100,65 @@ export const BodyShape = ({
 }: {
   userData: UserData;
   bodyDetails?: BodyShapeData;
-}) => (
-  <div className="relative bg-white min-h-screen p-8">
-    <PageHeader width={100} name={userData.name} />
-    <main className="mx-auto py-12 max-w-5xl">
-      <div className="grid md:grid-cols-2 gap-12 items-center">
-        <div className="flex justify-center">
-          <Image
-            src={
-              bodyDetails?.link_picture || userData.bodyShapeAnalysis.imageUrl
-            }
-            alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
-            width={100}
-            height={220}
-            className="w-[100px] h-[220px] object-contain"
-            priority
-          />
-        </div>
-        <div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-4 font-oswald">
-            Bentuk tubuh kamu {userData.bodyShape}
-          </h1>
-          <p className="text-gray-600 mb-8 leading-relaxed">
-            {userData.bodyShapeAnalysis.description}
-          </p>
-          <div className="bg-[#323232] text-white p-6 rounded-lg">
-            <h3 className="text-lg font-bold mb-3">Karakteristik</h3>
-            <ul className="list-disc list-inside space-y-2">
-              {userData.bodyShapeAnalysis.characteristics.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
+}) => {
+  const bmiValue = userData.bmi.value;
+  const bmiPercentage = Math.min((bmiValue / 40) * 100, 100);
+
+  return (
+    <div className="flex items-center justify-center w-full min-h-screen">
+      <div className="relative bg-white min-h-screen w-[650px]">
+        <PageHeader width={100} name={userData.name} />
+        <main className="mx-auto py-12 max-w-5xl">
+          <div className="flex gap-10">
+            <div className="flex justify-center">
+              <Image
+                src={
+                  bodyDetails?.link_picture ||
+                  userData.bodyShapeAnalysis.imageUrl
+                }
+                alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
+                width={400}
+                height={300}
+                className="w-[400px] h-[500px] object-contain"
+                priority
+              />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-gray-800 mb-4 font-oswald">
+                Bentuk tubuh kamu {userData.bodyShape}
+              </h1>
+              <p className="text-gray-600 mb-8 leading-relaxed">
+                {userData.bodyShapeAnalysis.description}
+              </p>
+              <div className="bg-[#323232] text-white p-6 rounded-lg">
+                <h3 className="text-lg font-bold mb-3">Karakteristik</h3>
+                <ul className="list-disc list-inside space-y-2">
+                  {userData.bodyShapeAnalysis.characteristics.map(
+                    (item, index) => (
+                      <li key={index}>{item}</li>
+                    )
+                  )}
+                </ul>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <div className="mt-10">
+            <p className="font-bold">
+              BMI INDEX: {bmiValue} ({userData.bmi.category})
+            </p>
+            <p className="text-gray-600 mb-3">{userData.bmi.desc}</p>
+
+            <div className="w-full h-4 rounded-full bg-gray-200 overflow-hidden">
+              <div className="h-full rounded-full bg-gradient-to-r from-pink-400 to-pink-200" />
+            </div>
+          </div>
+        </main>
+        <Footer page="04" />
       </div>
-    </main>
-  </div>
-);
+    </div>
+  );
+};
 
 interface IShape {
   name: string;
@@ -198,17 +231,17 @@ export const FaceShape = ({
     value: number;
     active?: boolean;
   }) => (
-    <div>
+    <div className="space-y-1">
       <span
-        className={`text-lg font-poppins ${
+        className={`text-sm font-poppins ${
           active ? "font-bold text-gray-800" : "text-gray-500"
         }`}
       >
         {label}
       </span>
-      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+      <div className="w-full bg-gray-200 rounded-full h-2">
         <div
-          className="bg-[#EF789B] h-2.5 rounded-full"
+          className="bg-[#EF789B] h-2 rounded-full"
           style={{ width: `${value}%` }}
         ></div>
       </div>
@@ -216,56 +249,69 @@ export const FaceShape = ({
   );
 
   return (
-    <div className="relative bg-white min-h-screen p-8">
-      <PageHeader width={100} name={userData.name} />
-      <main className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 mt-10 items-center">
-        <div className="relative w-full aspect-[4/5] rounded-lg shadow-xl overflow-hidden">
-          <Image
-            src={userPhotoUrl || "/model.png"}
-            alt="Model Wajah"
-            fill
-            className="w-[220px] h-[400px] object-cover"
-          />
-        </div>
-        <div>
-          <h1 className="font-oswald text-4xl font-bold text-gray-800 mb-2">
-            Bentuk wajah kamu {userData.faceShape}
-          </h1>
-          <p className="text-gray-600 my-6 font-poppins leading-relaxed">
-            {userData.faceShapeAnalysis.uniqueFact}
-          </p>
-          <div className="space-y-8 mb-10">
-            {shapeChartData.map((shape) => (
-              <ShapeBar
-                key={shape.name}
-                label={shape.name}
-                value={shape.value}
-                active={
-                  shape.name.toLowerCase() ===
-                  englishMainShapeName.toLowerCase()
-                }
+    <div className="flex items-center justify-center w-full min-h-screen">
+      <div className="relative bg-white w-[650px] p-6 flex flex-col justify-between min-h-screen">
+        <PageHeader name={userData.name} />
+
+        {/* Konten Utama */}
+        <div className="flex flex-col gap-4 flex-grow">
+          {/* Gambar */}
+          <div className="flex w-full gap-8">
+            <div className="relative w-[600px] h-[480px] rounded-lg shadow overflow-hidden">
+              <Image
+                src={userPhotoUrl || "/model.png"}
+                alt="Model Wajah"
+                fill
+                className="object-cover"
+                quality={90}
               />
-            ))}
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full space-y-2">
+              <h1 className="font-oswald text-4xl font-bold text-gray-800 mb-2">
+                Bentuk wajah kamu {userData.faceShape}
+              </h1>
+              <p className="text-gray-600 my-6 font-poppins leading-relaxed">
+                {userData.faceShapeAnalysis.uniqueFact}
+              </p>
+              {shapeChartData.map((shape) => (
+                <ShapeBar
+                  key={shape.name}
+                  label={shape.name}
+                  value={shape.value}
+                  active={
+                    shape.name.toLowerCase() ===
+                    englishMainShapeName.toLowerCase()
+                  }
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Fakta & Karakteristik */}
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="bg-gray-100 p-3 rounded">
+              <h3 className="text-sm font-bold mb-1">Fakta Unik</h3>
+              <p className="text-xs text-gray-600 leading-snug">
+                {userData.faceShapeAnalysis.uniqueFact}
+              </p>
+            </div>
+            <div className="bg-[#323232] text-white p-3 rounded">
+              <h3 className="text-sm font-bold text-[#EF789B] mb-1">
+                Karakteristik
+              </h3>
+              <ul className="list-disc pl-4 text-xs space-y-1">
+                {userData.faceShapeAnalysis.characteristics.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
-      </main>
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 mt-10">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-800 mb-3">Fakta Unik</h3>
-          <p className="text-gray-600 leading-relaxed">
-            {userData.faceShapeAnalysis.uniqueFact}
-          </p>
-        </div>
-        <div className="bg-[#323232] text-white p-6 rounded-lg">
-          <h3 className="font-poppins text-xl font-bold mb-4 text-[#EF789B]">
-            Karakteristik
-          </h3>
-          <ul className="list-disc list-inside space-y-2">
-            {userData.faceShapeAnalysis.characteristics.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
-        </div>
+
+        {/* Footer */}
+        <Footer page="02" />
       </div>
     </div>
   );
@@ -350,127 +396,121 @@ export const ColorTone = ({ userData }: { userData: UserData }) => {
   );
 
   return (
-    <div className="relative bg-white">
-      {/* Header */}
-      <PageHeader width={100} name={userData.name} />
+    <div className="flex items-center justify-center w-full min-h-screen">
+      <div className="relative bg-white w-[650px]">
+        {/* Header */}
+        <PageHeader width={100} name={userData.name} />
 
-      <main className="py-10">
-        <div className="max-w-5xl mx-auto px-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Color tone kamu {userData.colorTone}
-          </h1>
-          <p className="text-gray-600 mb-12">
-            {userData.colorToneAnalysis.description}
-          </p>
+        <main className="py-10">
+          <div className="max-w-5xl mx-auto px-8">
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              Color tone kamu {userData.colorTone}
+            </h1>
+            <p className="text-gray-600 mb-12">
+              {userData.colorToneAnalysis.description}
+            </p>
 
-          {/* Palettes */}
-          <div className="grid grid-cols-2 gap-12">
-            <ColorPalette
-              title="Best Color"
-              colors={userData.colorToneAnalysis.bestColors}
-            />
-            <ColorPalette
-              title="Neutral Color"
-              colors={userData.colorToneAnalysis.neutralColors}
-            />
-            <ColorPalette
-              title="Worst Color"
-              colors={userData.colorToneAnalysis.worstColors}
-            />
-            <ColorPalette
-              title="Combination"
-              colors={userData.colorToneAnalysis.combination}
-              isCombination
-            />
+            {/* Palettes */}
+            <div className="grid grid-cols-2 gap-12">
+              <ColorPalette
+                title="Best Color"
+                colors={userData.colorToneAnalysis.bestColors}
+              />
+              <ColorPalette
+                title="Neutral Color"
+                colors={userData.colorToneAnalysis.neutralColors}
+              />
+              <ColorPalette
+                title="Worst Color"
+                colors={userData.colorToneAnalysis.worstColors}
+              />
+              <ColorPalette
+                title="Combination"
+                colors={userData.colorToneAnalysis.combination}
+                isCombination
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Info Section */}
-        <div className="mt-16 bg-[#323232] py-10">
-          <div className="max-w-5xl mx-auto grid grid-cols-2 gap-10">
-            <InfoSection
-              title="Make Up Tips"
-              items={userData.colorToneAnalysis.tips.makeup}
-            />
-            <InfoSection
-              title="Outfit Tips"
-              items={userData.colorToneAnalysis.tips.outfit}
-            />
-            <InfoSection
-              title="Personality"
-              items={userData.colorToneAnalysis.tips.personality}
-            />
-            <InfoSection
-              title="Karakteristik"
-              items={userData.colorToneAnalysis.tips.characteristics}
-            />
+          {/* Info Section */}
+          <div className="mt-16 bg-[#323232] py-10">
+            <div className="grid grid-cols-2 gap-10">
+              <InfoSection
+                title="Make Up Tips"
+                items={userData.colorToneAnalysis.tips.makeup}
+              />
+              <InfoSection
+                title="Outfit Tips"
+                items={userData.colorToneAnalysis.tips.outfit}
+              />
+              <InfoSection
+                title="Personality"
+                items={userData.colorToneAnalysis.tips.personality}
+              />
+              <InfoSection
+                title="Karakteristik"
+                items={userData.colorToneAnalysis.tips.characteristics}
+              />
+            </div>
+            <Footer page="03" />
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
 
 export const CelebritiesMatch = ({ userData }: { userData: UserData }) => (
-  <div className="relative bg-white min-h-screen p-12 flex flex-col justify-between">
-    {/* Header */}
-    <div className="flex justify-between items-start">
-      <div className="flex flex-col">
-        <Image
-          src="/tie-by-min-logo.png"
-          alt="Tiebymin"
-          width={100}
-          height={200}
-          className="h-8 mb-12"
-        />
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
-          Selebriti yang serupa <br /> dengan kamu
+  <div className="flex items-center justify-center w-full min-h-screen">
+    <div className="relative bg-white w-[650px] p-6 flex flex-col justify-between min-h-screen">
+      <PageHeader name={userData.name} />
+
+      {/* Konten Utama */}
+      <div className="flex flex-col gap-4 flex-grow">
+        {/* Judul */}
+        <h1 className="text-xl font-bold text-gray-900 leading-tight">
+          Selebriti yang serupa dengan kamu
         </h1>
-        <hr className="w-full border-t border-gray-300 mb-10" />
-      </div>
-      <div className="text-right text-sm font-semibold text-gray-900">
-        {userData.name}
-      </div>
-    </div>
+        <hr className="border-gray-300" />
 
-    {/* Main content */}
-    <div className="grid md:grid-cols-2 gap-10 items-start">
-      {/* Foto */}
-      <div className="relative w-full aspect-[4/5] rounded-lg overflow-hidden shadow-lg">
-        <Image
-          src={userData.celebrityMatch.imageUrl}
-          alt={userData.celebrityMatch.name}
-          fill
-          className="object-cover"
-          unoptimized
-        />
-        <div className="absolute bottom-4 left-4 bg-[#FCA4BE] text-white font-bold px-4 py-2 rounded-lg flex items-center shadow-md">
-          <Sparkles className="w-5 h-5 mr-2" />
-          {userData.celebrityMatch.matchPercentage}% Match
+        {/* Foto & Info selebriti */}
+        <div className="flex gap-3">
+          {/* Foto */}
+          <div className="relative w-[45%] h-[250px] rounded-lg overflow-hidden shadow">
+            <Image
+              src={userData.celebrityMatch.imageUrl}
+              alt={userData.celebrityMatch.name}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+            <div className="absolute bottom-2 left-2 bg-[#FCA4BE] text-white text-xs font-bold px-2 py-1 rounded flex items-center shadow">
+              <Sparkles className="w-4 h-4 mr-1" />
+              {userData.celebrityMatch.matchPercentage}% Match
+            </div>
+          </div>
+
+          {/* Info selebriti */}
+          <div className="w-[55%] flex flex-col">
+            <h2 className="text-lg font-bold text-gray-900">
+              {userData.celebrityMatch.name}
+            </h2>
+            <p className="text-xs text-gray-700 leading-snug flex-grow">
+              {userData.celebrityMatch.description}
+            </p>
+            {/* Card alasan cocok */}
+            <div className="bg-[#323232] text-white p-3 rounded">
+              <h3 className="text-sm font-bold mb-1">Kenapa Cocok?</h3>
+              <p className="text-xs leading-snug">
+                {userData.celebrityMatch.reason}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Info selebriti */}
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          {userData.celebrityMatch.name}
-        </h2>
-        <p className="text-gray-700 leading-relaxed mb-6">
-          {userData.celebrityMatch.description}
-        </p>
-        <div className="bg-[#323232] text-white p-6 rounded-lg">
-          <h3 className="text-lg font-bold mb-3">Kenapa Cocok?</h3>
-          <p className="text-sm leading-relaxed">
-            {userData.celebrityMatch.reason}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Footer */}
-    <div className="flex justify-between items-center text-xs text-gray-700 mt-12">
-      <span>© 2025, Tiebymin AI</span>
-      <span>04</span>
+      {/* Footer */}
+      <Footer page="05" />
     </div>
   </div>
 );
@@ -488,33 +528,36 @@ export const Conclusion = ({ userData }: { userData: UserData }) => {
   );
 
   return (
-    <div className="relative bg-white min-h-screen p-8 font-sans">
-      <PageHeader name={userData.name} />
-      <main className="max-w-4xl mx-auto pt-10">
-        <TipBox
-          title="Tips untuk bentuk wajah kamu"
-          items={userData.conclusionTips.face}
-        />
-        <TipBox
-          title="Tips untuk bentuk badan kamu"
-          items={userData.conclusionTips.body}
-        />
-        <TipBox
-          title="Tips untuk tone warna kamu"
-          items={userData.conclusionTips.color}
-        />
-        <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-4 flex items-center">
-            <Sparkles className="mr-3" />
-            Rekap Cepat Tips Kamu
-          </h2>
-          <ul className="list-disc list-inside space-y-2">
-            {userData.conclusionTips.quickRecap.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      </main>
+    <div className="flex items-center justify-center w-full min-h-screen">
+      <div className="relative bg-white min-h-screen font-sans w-[650px]">
+        <PageHeader name={userData.name} />
+        <main className="max-w-4xl mx-auto pt-10">
+          <TipBox
+            title="Tips untuk bentuk wajah kamu"
+            items={userData.conclusionTips.face}
+          />
+          <TipBox
+            title="Tips untuk bentuk badan kamu"
+            items={userData.conclusionTips.body}
+          />
+          <TipBox
+            title="Tips untuk tone warna kamu"
+            items={userData.conclusionTips.color}
+          />
+          <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 flex items-center">
+              <Sparkles className="mr-3" />
+              Rekap Cepat Tips Kamu
+            </h2>
+            <ul className="list-disc list-inside space-y-2">
+              {userData.conclusionTips.quickRecap.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </main>
+        <Footer page="06" />
+      </div>
     </div>
   );
 };

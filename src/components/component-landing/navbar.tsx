@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Sparkle } from "lucide-react";
+import { Menu, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -10,7 +10,6 @@ import { useState } from "react";
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Menggabungkan semua link navigasi ke dalam satu array untuk kemudahan pengelolaan
   const navLinks = [
     { href: "/overview", label: "Overview AI" },
     { href: "/tutorial", label: "Tutorial" },
@@ -59,7 +58,7 @@ export function Navbar() {
                 size="lg"
                 className="rounded-full bg-[#FFC6C6] hover:bg-[#f9bfbf] flex items-center gap-2 px-6 py-3"
               >
-                <Sparkle className="w-4 h-4 text-black fill-black" />
+                <Sparkles className="w-4 h-4 text-black fill-black" />
                 <span className="font-semibold text-black">Coba Sekarang</span>
               </Button>
             </Link>
@@ -101,7 +100,7 @@ export function Navbar() {
                         size="lg"
                         className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2"
                       >
-                        <Sparkle className="w-4 h-4 text-white" />
+                        <Sparkles className="w-4 h-4 text-white" />
                         <span>Coba Sekarang</span>
                       </Button>
                     </Link>
