@@ -2,62 +2,14 @@
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useState } from "react";
 import Image from "next/image";
-import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
-
 import {
-  MainHeader,
-  FaceShapeSection,
-  ColorToneSection,
-  BodyAndBmiSection,
-  ShareAndActionSection,
-  type StoryUserData,
-} from "@/components/story-components";
+  useAnalysisData,
+  useBmiCategoryData,
+  useBodyShapeData,
+  useGenerateStory,
+} from "@/hooks/useAnalysisData";
 
-const generateGimmickChartData = (
-  mainShapeName: string
-): StoryUserData["faceShapeAnalysis"] => {
-  const allShapes = ["Square", "Oblong", "Oval", "Round", "Heart", "Diamond"];
-  const shapeNameMap: { [key: string]: string } = {
-    Hati: "Heart",
-    Oblong: "Oblong",
-    Oval: "Oval",
-    Bulat: "Round",
-    Kotak: "Square",
-    Diamond: "Diamond",
-  };
-  const englishMainShapeName = shapeNameMap[mainShapeName] || mainShapeName;
-  const mainValue = Math.floor(Math.random() * 11) + 85;
-  const remainingValue = 100 - mainValue;
-
-  const otherValues = Array.from({ length: allShapes.length - 1 }, () => {
-    const randomValue = Math.random();
-    return randomValue;
-  });
-  const sumOfRandoms = otherValues.reduce((a, b) => a + b, 0);
-  const normalizedValues = otherValues.map((v) =>
-    Math.round((v / sumOfRandoms) * remainingValue)
-  );
-
-  const currentSum = normalizedValues.reduce((a, b) => a + b, 0);
-  const diff = remainingValue - currentSum;
-  if (normalizedValues.length > 0) normalizedValues[0] += diff;
-
-  const chartData: StoryUserData["faceShapeAnalysis"] = [];
-  let otherIndex = 0;
-  allShapes.forEach((shapeName) => {
-    if (shapeName.toLowerCase() === englishMainShapeName.toLowerCase()) {
-      chartData.push({ label: shapeName, value: mainValue, active: true });
-    } else {
-      chartData.push({
-        label: shapeName,
-        value: normalizedValues[otherIndex++] || 0,
-        active: false,
-      });
-    }
-  });
-
-  return chartData;
-};
+import StoryPoster from "@/components/story-components";
 
 function StoryPage() {
   const searchParams = useSearchParams();
@@ -68,9 +20,14 @@ function StoryPage() {
     userData: null,
     userPhotoUrl: null,
   };
+  const { data: bodyDetails } = useBodyShapeData(
+    data?.rawAnalysisData.body_shape_id
+  );
+  const { data: bmiCategoryDetails } = useBmiCategoryData(
+    data?.rawAnalysisData.bmi_category_id || null
+  );
 
-  const { refetch: generateStory, isLoading: isGenerating } =
-    useGenerateStory();
+  const { refetch: generateStory } = useGenerateStory();
   const [error, setError] = useState<string | null>(null);
 
   const showToast = (message: string, type: "success" | "error") => {
@@ -155,56 +112,18 @@ function StoryPage() {
     return <p>No data found</p>;
   }
 
-  // Siapkan data sekali untuk semua komponen
-  const storyUserData: StoryUserData = {
-    name: userData.name,
-    faceShape: userData.faceShape,
-    faceShapeDesc:
-      userData.faceShapeAnalysis?.uniqueFact || "Bentuk wajah kamu itu unik!",
-    faceShapeAnalysis: generateGimmickChartData(userData.faceShape),
-    colorTone: userData.colorTone,
-    colorToneDesc:
-      userData.colorToneAnalysis?.description ||
-      "Setiap warna memiliki cerita tersendiri untukmu.",
-    colorPalettes: {
-      best: userData.colorToneAnalysis?.bestColors || [],
-      neutral: userData.colorToneAnalysis?.neutralColors || [],
-      worst: userData.colorToneAnalysis?.worstColors || [],
-      combination: userData.colorToneAnalysis?.combination || [],
-    },
-    bodyShape: userData.bodyShape,
-    bodyShapeDesc:
-      userData.bodyShapeAnalysis?.description ||
-      "Proporsi tubuhmu memberikan keunikan dalam bergaya.",
-    bodyCharacteristics: userData.bodyShapeAnalysis?.characteristics || [],
-    bmi: {
-      value: userData.bmi.value,
-      category: userData.bmi.category || "Ideal",
-      desc: userData.bmi.desc || "Jaga selalu kesehatan tubuhmu.",
-    },
-  };
-
   return (
-    <div className="bg-gray-50 min-h-screen p-4">
-      <div
-        id="story-content"
-        className="relative w-full max-w-2xl mx-auto bg-gray-50 p-4 rounded-2xl"
-      >
-        <MainHeader name={userData.name} userPhotoUrl={userPhotoUrl} />
-
-        <main>
-          <FaceShapeSection userData={storyUserData} />
-          <ColorToneSection userData={storyUserData} />
-          <BodyAndBmiSection userData={storyUserData} />
-          <ShareAndActionSection
-            onDownload={handleDownloadStory}
-            onShare={() =>
-              window.open("https://www.instagram.com/tiebymin/", "_blank")
-            }
-            isDownloading={isGenerating}
-          />
-        </main>
-      </div>
+    <div
+      id="story-content"
+      className="bg-gray-100 min-h-screen flex justify-center p-6"
+    >
+      <StoryPoster
+        handleDownloadStory={handleDownloadStory}
+        userData={userData}
+        userPhotoUrl={userPhotoUrl}
+        bodyDetails={bodyDetails}
+        bmiCategoryDetails={bmiCategoryDetails}
+      />
     </div>
   );
 }

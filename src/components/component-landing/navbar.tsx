@@ -14,7 +14,7 @@ export function Navbar() {
   const navLinks = [
     { href: "/overview", label: "Overview AI" },
     { href: "/tutorial", label: "Tutorial" },
-    { href: "/faq", label: "FAQ" },
+    { href: "/faq", label: "Metodologi" },
     { href: "/testimoni", label: "Testimoni" },
   ];
 
@@ -40,7 +40,7 @@ export function Navbar() {
           </div>
 
           {/* Bagian Tengah: Link Navigasi */}
-          <nav className="flex items-center gap-8">
+          <nav className="flex items-center gap-20 justify-end">
             {navLinks.map((link) => (
               <Link
                 key={link.href}

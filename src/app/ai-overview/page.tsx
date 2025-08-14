@@ -5,14 +5,25 @@ import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { useAnalysisData } from "@/hooks/useAnalysisData";
+import {
+  useAnalysisData,
+  useProductBmiCompatibility,
+  useProductColorAnalysisCompatibility,
+  useProductFaceShapeCompatibility,
+} from "@/hooks/useAnalysisData";
 import { useRouter, useSearchParams } from "next/navigation";
 import BodySection from "../../components/sections/BodySection";
 import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
 import ColorToneSection from "../../components/sections/ColorToneSection";
 import ShapeSection from "../../components/sections/ShapeSection";
 import TipsSection from "../../components/sections/TipsSection";
-import { analysisTabs, hijabProducts } from "@/lib/mock-data";
+import { analysisTabs } from "@/lib/mock-data";
+import {
+  ProductBmiCompatibility,
+  ProductColor,
+  ProductColorAnalysisCompatibility,
+  ProductFaceShapeCompatibility,
+} from "@/types";
 
 function BeautyAnalysisPageInner() {
   const router = useRouter();
@@ -49,14 +60,37 @@ function BeautyAnalysisPageInner() {
     rawAnalysisData: null,
   };
 
+  const { data: faceShapeCompatibility } = useProductFaceShapeCompatibility(
+    rawAnalysisData?.face_shape_id
+  );
+  const { data: colorAnalysisCompatibility } =
+    useProductColorAnalysisCompatibility(rawAnalysisData?.color_analysis_id);
+  const { data: bmiCompatibility } = useProductBmiCompatibility(
+    rawAnalysisData?.bmi_category_id
+  );
+
+  type RecommendedProduct =
+    | ProductFaceShapeCompatibility
+    | ProductColorAnalysisCompatibility
+    | ProductBmiCompatibility;
+
   const [recommendedProducts, setRecommendedProducts] = useState<
-    typeof hijabProducts
+    RecommendedProduct[]
   >([]);
 
   useEffect(() => {
-    const shuffled = [...hijabProducts].sort(() => 0.5 - Math.random());
-    setRecommendedProducts(shuffled.slice(0, 3));
-  }, []);
+    const products: RecommendedProduct[] = [];
+    if (faceShapeCompatibility) {
+      products.push(faceShapeCompatibility);
+    }
+    if (colorAnalysisCompatibility) {
+      products.push(colorAnalysisCompatibility);
+    }
+    if (bmiCompatibility) {
+      products.push(bmiCompatibility);
+    }
+    setRecommendedProducts(products);
+  }, [faceShapeCompatibility, colorAnalysisCompatibility, bmiCompatibility]);
 
   // Debug useEffect
   useEffect(() => {
@@ -179,7 +213,7 @@ function BeautyAnalysisPageInner() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col lg:flex-row justify-between w-full gap-6 sm:gap-8 mb-10 sm:mb-16">
-          <div className="bg-[#2D2D2D] h-[670px] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
+          <div className="bg-[#2D2D2D] h-[730px] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               <Image
                 src={userPhotoUrl || "/overview-ai/person.png"}
@@ -274,50 +308,56 @@ function BeautyAnalysisPageInner() {
             Rekomendasi Produk
           </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {recommendedProducts.map((product) => (
+            {recommendedProducts.map((item: RecommendedProduct) => (
               <div
-                key={product.id}
+                key={item.product.id}
                 className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-300"
               >
                 <div className="relative p-2">
                   <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.title}
+                    src={item.product.images[0] || "/placeholder.svg"}
+                    alt={item.product.name}
                     width={400}
                     height={400}
                     className="w-full h-72 object-cover rounded-xl"
                   />
                   <span className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
                     <Image
-                      src={product.matchIcon || "/placeholder.svg"}
+                      src={"/overview-ai/icons/ai-generate.svg"}
                       width={14}
                       height={14}
                       alt="Match"
                       className="object-cover"
                     />
-                    {product.match}
+                    {`${Math.round(item.compatibility_score * 100)}% Match`}
                   </span>
                   <span className="absolute bottom-4 right-4 bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
                     <Image
-                      src={product.starIcon || "/placeholder.svg"}
+                      src={
+                        "/overview-ai/icons/material-symbols_star-rounded.svg"
+                      }
                       width={16}
                       height={16}
                       alt="Star"
                       className="object-cover"
                     />
-                    {product.star}
+                    {item.product.average_rating}
                   </span>
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
                   <h3 className="font-bold text-gray-800 text-lg">
-                    {product.title}
+                    {item.product.name}
                   </h3>
                   <div className="flex items-baseline my-2">
                     <span className="text-gray-800 font-extrabold text-2xl">
-                      {product.price}
+                      {`Rp${item.product.current_price.toLocaleString(
+                        "id-ID"
+                      )}`}
                     </span>
                     <span className="text-gray-400 text-sm ml-2 line-through">
-                      {product.oldPrice}
+                      {`Rp${item.product.original_price.toLocaleString(
+                        "id-ID"
+                      )}`}
                     </span>
                   </div>
                   <div className="mb-4">
@@ -327,14 +367,15 @@ function BeautyAnalysisPageInner() {
                           Rekomendasi Warna:
                         </p>
                         <div className="flex space-x-2 mt-2">
-                          {product.colorRecommendations.map((color, i) => (
-                            <div
-                              key={i}
-                              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full ${
-                                color.color
-                              } ${color.border ? color.border : ""}`}
-                            ></div>
-                          ))}
+                          {item.product.product_colors.map(
+                            (color: ProductColor) => (
+                              <div
+                                key={color.id}
+                                className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full`}
+                                style={{ backgroundColor: color.hex_code }}
+                              ></div>
+                            )
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col items-start">
@@ -342,7 +383,7 @@ function BeautyAnalysisPageInner() {
                           Ukuran:
                         </span>
                         <span className="text-xs sm:text-sm font-medium mt-2">
-                          {product.size}
+                          {item.product.size_range}
                         </span>
                       </div>
                     </div>
@@ -352,7 +393,10 @@ function BeautyAnalysisPageInner() {
                       <span className="text-gray-900 font-bold">
                         Kenapa Cocok:
                       </span>
-                      <span className="text-gray-600"> {product.reason}</span>
+                      <span className="text-gray-600">
+                        {" "}
+                        {item.compatibility_reason}
+                      </span>
                     </p>
                   </div>
                   <Button className="mt-auto bg-[#ED80A7] w-full py-3 px-4 font-bold rounded-lg text-white flex items-center justify-center gap-3 text-base hover:bg-pink-500 transition-colors">

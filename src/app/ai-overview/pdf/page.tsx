@@ -3,7 +3,6 @@ import { useSearchParams } from "next/navigation";
 import React, { Suspense, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-
 import {
   useAnalysisData,
   useBodyShapeData,
@@ -17,10 +16,10 @@ import {
   Conclusion,
   Cover,
   FaceShape,
-  PageFooter,
 } from "@/components/pdf-components";
 import { defaultUserData } from "@/lib/mock-data";
 import { BodyShapeData, UserData } from "@/types";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 function PdfPage() {
   const searchParams = useSearchParams();
@@ -63,7 +62,6 @@ function PdfPage() {
       animation: slideIn 0.3s ease;
     `;
 
-    // Add slide animation
     const style = document.createElement("style");
     style.textContent = `
       @keyframes slideIn {
@@ -85,25 +83,17 @@ function PdfPage() {
 
     try {
       setError(null);
-      // Memanggil downloadPdf tanpa parameter
       const result = await downloadPdf();
 
       if (result.data) {
-        // Create download link
         const url = window.URL.createObjectURL(result.data);
         const link = document.createElement("a");
         link.href = url;
         link.download = `hasil-analisa-lengkap-${Date.now()}.pdf`;
-
-        // Trigger download
         document.body.appendChild(link);
         link.click();
-
-        // Cleanup
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-
-        // Show success message
         showToast("PDF berhasil didownload!", "success");
       }
     } catch (error) {
@@ -118,7 +108,6 @@ function PdfPage() {
   };
 
   const shareToStory = () => {
-    // Redirect ke halaman story dengan parameter result_id
     if (resultId) {
       window.location.href = `/ai-overview/story?result_id=${resultId}`;
     } else {
@@ -126,12 +115,11 @@ function PdfPage() {
     }
   };
 
-  // Define page components
   const pages: {
     [key: string]: React.ComponentType<{
       userData: UserData;
       userPhotoUrl?: string | null;
-      bodyDetails?: BodyShapeData; // Add bodyDetails prop
+      bodyDetails?: BodyShapeData;
     }>;
   } = {
     Cover,
@@ -145,6 +133,19 @@ function PdfPage() {
   const pageOrder = Object.keys(pages) as (keyof typeof pages)[];
 
   const [activePage, setActivePage] = useState<keyof typeof pages>("Cover");
+
+  const activePageIndex = pageOrder.indexOf(activePage);
+
+  const goToNextPage = () => {
+    const nextPageIndex = (activePageIndex + 1) % pageOrder.length;
+    setActivePage(pageOrder[nextPageIndex]);
+  };
+
+  const goToPrevPage = () => {
+    const prevPageIndex =
+      (activePageIndex - 1 + pageOrder.length) % pageOrder.length;
+    setActivePage(pageOrder[prevPageIndex]);
+  };
 
   if (isPrintMode) {
     return (
@@ -160,7 +161,7 @@ function PdfPage() {
               <ComponentToPrint
                 userData={userData}
                 userPhotoUrl={userPhotoUrl}
-                bodyDetails={bodyDetails} // Pass bodyDetails
+                bodyDetails={bodyDetails}
               />
             </section>
           );
@@ -189,47 +190,52 @@ function PdfPage() {
   const ActiveComponent = pages[activePage];
 
   return (
-    <div className="bg-gray-100">
-      <nav className="p-2 sm:p-4 bg-white shadow-md sticky top-0 z-50 flex flex-wrap justify-center gap-1 sm:gap-2 overflow-x-auto">
-        <div className="flex flex-nowrap overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto justify-start sm:justify-center">
-          {pageOrder.map((page) => (
-            <Button
-              key={page}
-              onClick={() => setActivePage(page)}
-              className={`px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-colors whitespace-nowrap mr-1 sm:mr-0 ${
-                activePage === page
-                  ? "bg-gray-800 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {page}
-            </Button>
-          ))}
-        </div>
-        <div className="flex w-full sm:w-auto justify-center mt-2 sm:mt-0">
-          <button
-            onClick={shareToStory}
-            className="bg-purple-500 text-white px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm rounded-md hover:bg-purple-600 transition mr-2"
-          >
-            Bagikan ke Instagram
-          </button>
-          <button
-            onClick={handleDownloadPDF}
-            disabled={isGenerating}
-            className="bg-pink-500 text-white px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm rounded-md hover:bg-pink-600 transition disabled:bg-gray-400"
-          >
-            {isGenerating ? "Downloading..." : "Download PDF"}
-          </button>
-        </div>
-      </nav>
-      <div className="w-full">
+    <div className="bg-gray-100 min-h-screen flex flex-col">
+      <div className="flex-grow">
         <ActiveComponent
           userData={userData}
           userPhotoUrl={userPhotoUrl}
           bodyDetails={bodyDetails}
         />
       </div>
-      <PageFooter pageNumber="" />
+
+      <div className="sticky bottom-0 bg-white shadow-lg p-4 z-50">
+        <div className="flex justify-between items-center max-w-6xl mx-auto">
+          <Button
+            onClick={goToPrevPage}
+            className="bg-gray-800 text-white hover:bg-gray-700"
+          >
+            <ChevronLeft size={24} />
+          </Button>
+          <div className="text-center">
+            <p className="font-bold text-lg">{activePage}</p>
+            <p className="text-sm text-gray-500">
+              Page {activePageIndex + 1} of {pageOrder.length}
+            </p>
+          </div>
+          <Button
+            onClick={goToNextPage}
+            className="bg-gray-800 text-white hover:bg-gray-700"
+          >
+            <ChevronRight size={24} />
+          </Button>
+        </div>
+        <div className="flex justify-center mt-4 gap-4">
+          <button
+            onClick={shareToStory}
+            className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 transition"
+          >
+            Bagikan ke Instagram
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            disabled={isGenerating}
+            className="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 transition disabled:bg-gray-400"
+          >
+            {isGenerating ? "Downloading..." : "Download PDF"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

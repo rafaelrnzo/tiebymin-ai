@@ -39,18 +39,13 @@ const BodySection: React.FC<BodySectionProps> = ({
   const isLoading = isLoadingBody || isLoadingBmi;
   const error = errorBody || errorBmi;
 
-  // Fungsi untuk membersihkan dan memformat nilai BMI
   const formatBmiValue = (value: number | string | undefined): string => {
     if (value === undefined || value === null) {
       return "0.00";
     }
-    // 1. Ubah ke string untuk memastikan .replace() aman digunakan
     const stringValue = String(value);
-    // 2. Ganti koma dengan titik
     const sanitizedValue = stringValue.replace(",", ".");
-    // 3. Konversi ke Angka dan format
     const numberValue = Number(sanitizedValue);
-    // 4. Periksa apakah hasilnya NaN, jika ya, kembalikan 0
     return isNaN(numberValue) ? "0.00" : numberValue.toFixed(2);
   };
 

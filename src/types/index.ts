@@ -21,12 +21,71 @@ export interface BmiCategory {
   tips_fashion: string;
 }
 
+export interface ProductColor {
+  id: string;
+  name: string;
+  hex_code: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  original_price: number;
+  current_price: number;
+  discount_percentage: number;
+  average_rating: number;
+  total_reviews: number;
+  size_range: string;
+  brand: string;
+  category: string;
+  product_link: string;
+  images: string[];
+  is_active: boolean;
+  stock_quantity: number;
+  created_at: string;
+  updated_at: string;
+  product_colors: ProductColor[];
+}
+
 export interface Celebrity {
   id: string;
   name: string;
   similarity_text: string;
   description: string;
   picture_url: string;
+  faceshape_id: string;
+  color_analysis_id: string;
+}
+
+export interface ProductFaceShapeCompatibility {
+  product_id: string;
+  face_shape_id: string;
+  compatibility_score: number;
+  compatibility_reason: string;
+  id: string;
+  created_at: string;
+  product: Product;
+}
+
+export interface ProductColorAnalysisCompatibility {
+  product_color_id: string;
+  color_analysis_id: string;
+  compatibility_score: number;
+  compatibility_reason: string;
+  id: string;
+  created_at: string;
+  product: Product;
+}
+
+export interface ProductBmiCompatibility {
+  product_id: string;
+  bmi_category_id: string;
+  compatibility_score: number;
+  compatibility_reason: string;
+  id: string;
+  created_at: string;
+  product: Product;
 }
 
 export interface ColorAnalysis {
@@ -64,15 +123,16 @@ export interface UserData {
   bodyShape: string;
   colorTone: string;
   bmi: {
-    value:number;
-    category:string;
-    desc:string;
-  }
+    value: number;
+    category: string;
+    desc: string;
+  };
   celebrityMatch: {
     name: string;
     matchPercentage: number;
     imageUrl: string;
     reason: string[];
+    description: string;
   };
   faceShapeAnalysis: {
     uniqueFact: string;

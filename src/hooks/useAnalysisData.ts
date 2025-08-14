@@ -1,16 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import url from '@/lib/url';
-import { BodyType } from '@/types';
-import { defaultUserData } from '@/lib/mock-data';
+import { useQuery } from "@tanstack/react-query";
+import url from "@/lib/url";
+import { BodyType } from "@/types";
+import { defaultUserData } from "@/lib/mock-data";
 
 async function fetchData(endpoint: string) {
   console.log(`🔄 Fetching: ${url}${endpoint}`); // Debug log
-  
+
   try {
     const response = await fetch(`${url}${endpoint}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
     });
 
@@ -18,8 +18,13 @@ async function fetchData(endpoint: string) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ HTTP Error ${response.status} for ${endpoint}:`, errorText);
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      console.error(
+        `❌ HTTP Error ${response.status} for ${endpoint}:`,
+        errorText
+      );
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
     }
 
     const data = await response.json();
@@ -33,53 +38,68 @@ async function fetchData(endpoint: string) {
 
 // Hook untuk fetching analysis data dengan debugging yang lebih baik
 export function useAnalysisData(resultId: string | null) {
-  console.log('🚀 useAnalysisData called with resultId:', resultId); // Debug log
+  console.log("🚀 useAnalysisData called with resultId:", resultId); // Debug log
 
   return useQuery({
-    queryKey: ['analysisData', resultId],
+    queryKey: ["analysisData", resultId],
     queryFn: async () => {
       if (!resultId) {
-        console.warn('⚠️ Result ID is required but not provided');
-        throw new Error('Result ID is required');
+        console.warn("⚠️ Result ID is required but not provided");
+        throw new Error("Result ID is required");
       }
 
-      console.log('📊 Starting analysis data fetch for resultId:', resultId);
+      console.log("📊 Starting analysis data fetch for resultId:", resultId);
 
       try {
         // Fetch analysis data dan photos secara parallel
-        console.log('🔄 Fetching analysis data and photos...');
+        console.log("🔄 Fetching analysis data and photos...");
         const [analysisData, photosData] = await Promise.all([
           fetchData(`/v1/user-analysis-results/${resultId}`),
-          fetchData(`/v1/user-photos/analysis-results/${resultId}/photos`)
+          fetchData(`/v1/user-photos/analysis-results/${resultId}/photos`),
         ]);
 
-        console.log('📋 Analysis data received:', analysisData);
-        console.log('🖼️ Photos data received:', photosData);
+        console.log("📋 Analysis data received:", analysisData);
+        console.log("🖼️ Photos data received:", photosData);
 
         // Validasi data yang diperlukan
         if (!analysisData) {
-          throw new Error('Analysis data is null or undefined');
+          throw new Error("Analysis data is null or undefined");
         }
 
         // Fetch additional data berdasarkan IDs dari analysis result
-        console.log('🔄 Fetching additional data...');
+        console.log("🔄 Fetching additional data...");
         const additionalDataPromises = [
-          analysisData.face_shape_id ? fetchData(`/v1/face-shapes/${analysisData.face_shape_id}`) : Promise.resolve(null),
-          analysisData.color_analysis_id ? fetchData(`/v1/color-analysis/${analysisData.color_analysis_id}`) : Promise.resolve(null),
-          analysisData.body_shape_id ? fetchData(`/v1/body-shapes/${analysisData.body_shape_id}`) : Promise.resolve(null),
-          analysisData.bmi_category_id ? fetchData(`/v1/bmi-categories/${analysisData.bmi_category_id}`) : Promise.resolve(null),
-          analysisData.celebrity_id ? fetchData(`/v1/celebrities/${analysisData.celebrity_id}`) : Promise.resolve(null)
+          analysisData.face_shape_id
+            ? fetchData(`/v1/face-shapes/${analysisData.face_shape_id}`)
+            : Promise.resolve(null),
+          analysisData.color_analysis_id
+            ? fetchData(`/v1/color-analysis/${analysisData.color_analysis_id}`)
+            : Promise.resolve(null),
+          analysisData.body_shape_id
+            ? fetchData(`/v1/body-shapes/${analysisData.body_shape_id}`)
+            : Promise.resolve(null),
+          analysisData.bmi_category_id
+            ? fetchData(`/v1/bmi-categories/${analysisData.bmi_category_id}`)
+            : Promise.resolve(null),
+          analysisData.celebrity_id
+            ? fetchData(`/v1/celebrities/${analysisData.celebrity_id}`)
+            : Promise.resolve(null),
         ];
 
-        const [faceShapeData, colorToneData, bodyShapeData, bmiCategoryData, celebrityData] = 
-          await Promise.all(additionalDataPromises);
-
-        console.log('📊 Additional data received:', {
+        const [
           faceShapeData,
           colorToneData,
           bodyShapeData,
           bmiCategoryData,
-          celebrityData
+          celebrityData,
+        ] = await Promise.all(additionalDataPromises);
+
+        console.log("📊 Additional data received:", {
+          faceShapeData,
+          colorToneData,
+          bodyShapeData,
+          bmiCategoryData,
+          celebrityData,
         });
 
         // Find user photo
@@ -88,12 +108,13 @@ export function useAnalysisData(resultId: string | null) {
           const processedPhoto = photosData.find(
             (photo: { is_processed: boolean }) => photo.is_processed === true
           );
-          
+
           if (processedPhoto) {
             userPhotoUrl = processedPhoto.file_path;
           } else {
             const originalPhoto = photosData.find(
-              (photo: { photo_type: string }) => photo.photo_type === "face_original"
+              (photo: { photo_type: string }) =>
+                photo.photo_type === "face_original"
             );
             if (originalPhoto) userPhotoUrl = originalPhoto.file_path;
           }
@@ -102,9 +123,10 @@ export function useAnalysisData(resultId: string | null) {
         // Calculate BMI value dengan null checking
         let bmiValue = 0;
         if (analysisData.analysis_details?.bmi?.value) {
-          bmiValue = typeof analysisData.analysis_details.bmi.value === "string"
-            ? parseFloat(analysisData.analysis_details.bmi.value)
-            : Number(analysisData.analysis_details.bmi.value);
+          bmiValue =
+            typeof analysisData.analysis_details.bmi.value === "string"
+              ? parseFloat(analysisData.analysis_details.bmi.value)
+              : Number(analysisData.analysis_details.bmi.value);
         }
 
         // Transform data untuk components
@@ -120,54 +142,90 @@ export function useAnalysisData(resultId: string | null) {
           },
           celebrityMatch: {
             name: celebrityData?.name || defaultUserData.celebrityMatch.name,
-            matchPercentage: celebrityData?.match_percentage || defaultUserData.celebrityMatch.matchPercentage,
-            imageUrl: celebrityData?.image_url || defaultUserData.celebrityMatch.imageUrl,
-            reason: celebrityData?.reason ? [celebrityData.reason] : defaultUserData.celebrityMatch.reason,
+            matchPercentage:
+              celebrityData?.match_percentage ||
+              defaultUserData.celebrityMatch.matchPercentage,
+            imageUrl:
+              celebrityData?.image_url ||
+              defaultUserData.celebrityMatch.imageUrl,
+            reason: celebrityData?.reason
+              ? [celebrityData.reason]
+              : defaultUserData.celebrityMatch.reason,
+            description: celebrityData?.description,
           },
           faceShapeAnalysis: {
-            uniqueFact: faceShapeData?.description || defaultUserData.faceShapeAnalysis.uniqueFact,
-            characteristics: faceShapeData?.characteristics || defaultUserData.faceShapeAnalysis.characteristics,
+            uniqueFact:
+              faceShapeData?.description ||
+              defaultUserData.faceShapeAnalysis.uniqueFact,
+            characteristics:
+              faceShapeData?.characteristics ||
+              defaultUserData.faceShapeAnalysis.characteristics,
           },
           bodyShapeAnalysis: {
-            description: bodyShapeData?.description || defaultUserData.bodyShapeAnalysis.description,
-            characteristics: bodyShapeData?.characteristics || defaultUserData.bodyShapeAnalysis.characteristics,
+            description:
+              bodyShapeData?.description ||
+              defaultUserData.bodyShapeAnalysis.description,
+            characteristics:
+              bodyShapeData?.characteristics ||
+              defaultUserData.bodyShapeAnalysis.characteristics,
             imageUrl: defaultUserData.bodyShapeAnalysis.imageUrl,
           },
           colorToneAnalysis: {
-            description: colorToneData?.description || defaultUserData.colorToneAnalysis.description,
-            bestColors: colorToneData?.best_colors || defaultUserData.colorToneAnalysis.bestColors,
-            neutralColors: colorToneData?.neutral_colors || defaultUserData.colorToneAnalysis.neutralColors,
-            worstColors: colorToneData?.worst_colors || defaultUserData.colorToneAnalysis.worstColors,
-            combination: colorToneData?.combination_colors || defaultUserData.colorToneAnalysis.combination,
+            description:
+              colorToneData?.description ||
+              defaultUserData.colorToneAnalysis.description,
+            bestColors:
+              colorToneData?.best_colors ||
+              defaultUserData.colorToneAnalysis.bestColors,
+            neutralColors:
+              colorToneData?.neutral_colors ||
+              defaultUserData.colorToneAnalysis.neutralColors,
+            worstColors:
+              colorToneData?.worst_colors ||
+              defaultUserData.colorToneAnalysis.worstColors,
+            combination:
+              colorToneData?.combination_colors ||
+              defaultUserData.colorToneAnalysis.combination,
             tips: colorToneData?.tips || defaultUserData.colorToneAnalysis.tips,
           },
           conclusionTips: {
-            face: faceShapeData?.characteristics || defaultUserData.conclusionTips.face,
-            body: bodyShapeData?.characteristics || defaultUserData.conclusionTips.body,
-            color: colorToneData?.best_colors?.map((color: string) => `Gunakan warna ${color}`) || defaultUserData.conclusionTips.color,
+            face:
+              faceShapeData?.characteristics ||
+              defaultUserData.conclusionTips.face,
+            body:
+              bodyShapeData?.characteristics ||
+              defaultUserData.conclusionTips.body,
+            color:
+              colorToneData?.best_colors?.map(
+                (color: string) => `Gunakan warna ${color}`
+              ) || defaultUserData.conclusionTips.color,
             quickRecap: [
-              `Bentuk wajah kamu adalah ${faceShapeData?.name || defaultUserData.faceShape}`,
-              `Bentuk tubuh kamu adalah ${bodyShapeData?.name || defaultUserData.bodyShape}`,
-              `Tone warna kamu adalah ${colorToneData?.name || defaultUserData.colorTone}`,
+              `Bentuk wajah kamu adalah ${
+                faceShapeData?.name || defaultUserData.faceShape
+              }`,
+              `Bentuk tubuh kamu adalah ${
+                bodyShapeData?.name || defaultUserData.bodyShape
+              }`,
+              `Tone warna kamu adalah ${
+                colorToneData?.name || defaultUserData.colorTone
+              }`,
             ],
           },
         };
 
-        console.log('✅ Transformed data:', transformedData);
+        console.log("✅ Transformed data:", transformedData);
 
-        // Juga return raw analysisData untuk keperluan lain
-        return { 
-          userData: transformedData, 
+        return {
+          userData: transformedData,
           userPhotoUrl,
-          rawAnalysisData: analysisData // Tambahkan ini
+          rawAnalysisData: analysisData, // Tambahkan ini
         };
       } catch (error) {
-        console.error('💥 Error fetching analysis data:', error);
-        // Return default data instead of throwing
-        return { 
-          userData: defaultUserData, 
+        console.error("💥 Error fetching analysis data:", error);
+        return {
+          userData: defaultUserData,
           userPhotoUrl: null,
-          rawAnalysisData: null
+          rawAnalysisData: null,
         };
       }
     },
@@ -181,10 +239,10 @@ export function useAnalysisData(resultId: string | null) {
 // Individual hooks dengan error handling yang lebih baik
 export function useFaceShapeData(faceShapeId: string | null) {
   return useQuery({
-    queryKey: ['faceShape', faceShapeId],
+    queryKey: ["faceShape", faceShapeId],
     queryFn: async () => {
       if (!faceShapeId) {
-        throw new Error('Face Shape ID is required');
+        throw new Error("Face Shape ID is required");
       }
       return fetchData(`/v1/face-shapes/${faceShapeId}`);
     },
@@ -195,10 +253,10 @@ export function useFaceShapeData(faceShapeId: string | null) {
 
 export function useColorToneData(colorAnalysisId: string | null) {
   return useQuery({
-    queryKey: ['colorTone', colorAnalysisId],
+    queryKey: ["colorTone", colorAnalysisId],
     queryFn: async () => {
       if (!colorAnalysisId) {
-        throw new Error('Color Analysis ID is required');
+        throw new Error("Color Analysis ID is required");
       }
       return fetchData(`/v1/color-analysis/${colorAnalysisId}`);
     },
@@ -209,10 +267,10 @@ export function useColorToneData(colorAnalysisId: string | null) {
 
 export function useBodyShapeData(bodyShapeId: string | null) {
   return useQuery({
-    queryKey: ['bodyShape', bodyShapeId],
+    queryKey: ["bodyShape", bodyShapeId],
     queryFn: async () => {
       if (!bodyShapeId) {
-        throw new Error('Body Shape ID is required');
+        throw new Error("Body Shape ID is required");
       }
       return fetchData(`/v1/body-shapes/${bodyShapeId}`);
     },
@@ -223,10 +281,10 @@ export function useBodyShapeData(bodyShapeId: string | null) {
 
 export function useBmiCategoryData(bmiCategoryId: string | null) {
   return useQuery({
-    queryKey: ['bmiCategory', bmiCategoryId],
+    queryKey: ["bmiCategory", bmiCategoryId],
     queryFn: async () => {
       if (!bmiCategoryId) {
-        throw new Error('BMI Category ID is required');
+        throw new Error("BMI Category ID is required");
       }
       return fetchData(`/v1/bmi-categories/${bmiCategoryId}`);
     },
@@ -235,9 +293,59 @@ export function useBmiCategoryData(bmiCategoryId: string | null) {
   });
 }
 
+export function useProductFaceShapeCompatibility(
+  compatibilityId: string | null
+) {
+  return useQuery({
+    queryKey: ["productFaceShapeCompatibility", compatibilityId],
+    queryFn: async () => {
+      if (!compatibilityId) {
+        throw new Error("Compatibility ID is required");
+      }
+      return fetchData(
+        `/v1/product-face-shape-compatibility/${compatibilityId}`
+      );
+    },
+    enabled: !!compatibilityId,
+    retry: 2,
+  });
+}
+
+export function useProductColorAnalysisCompatibility(
+  compatibilityId: string | null
+) {
+  return useQuery({
+    queryKey: ["productColorAnalysisCompatibility", compatibilityId],
+    queryFn: async () => {
+      if (!compatibilityId) {
+        throw new Error("Compatibility ID is required");
+      }
+      return fetchData(
+        `/v1/product-color-analysis-compatibility/${compatibilityId}`
+      );
+    },
+    enabled: !!compatibilityId,
+    retry: 2,
+  });
+}
+
+export function useProductBmiCompatibility(compatibilityId: string | null) {
+  return useQuery({
+    queryKey: ["productBmiCompatibility", compatibilityId],
+    queryFn: async () => {
+      if (!compatibilityId) {
+        throw new Error("Compatibility ID is required");
+      }
+      return fetchData(`/v1/product-bmi-compatibility/${compatibilityId}`);
+    },
+    enabled: !!compatibilityId,
+    retry: 2,
+  });
+}
+
 export function useCelebrityData(celebrityId: string | null) {
   return useQuery({
-    queryKey: ['celebrity', celebrityId],
+    queryKey: ["celebrity", celebrityId],
     queryFn: async () => {
       if (!celebrityId) {
         return null;
@@ -252,27 +360,30 @@ export function useCelebrityData(celebrityId: string | null) {
 // Hook for downloading PDF
 export function useDownloadPdf() {
   // Using URLSearchParams to get resultId from URL
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
-  const resultId = searchParams.get('result_id');
+  const searchParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : new URLSearchParams();
+  const resultId = searchParams.get("result_id");
 
   return useQuery({
-    queryKey: ['downloadPdf', resultId],
+    queryKey: ["downloadPdf", resultId],
     queryFn: async () => {
       if (!resultId) {
-        throw new Error('Result ID is required');
+        throw new Error("Result ID is required");
       }
 
-      const response = await fetch('/api/generate-pdf', {
-        method: 'POST',
+      const response = await fetch("/api/generate-pdf", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ resultId }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate PDF');
+        throw new Error(errorData.error || "Failed to generate PDF");
       }
 
       return await response.blob();
@@ -281,25 +392,29 @@ export function useDownloadPdf() {
   });
 }
 
-// Hook for generating story image
 export function useGenerateStory() {
-  // Using URLSearchParams to get resultId from URL
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
-  const resultId = searchParams.get('result_id');
+  const searchParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : new URLSearchParams();
+  const resultId = searchParams.get("result_id");
 
   return useQuery({
-    queryKey: ['generateStory', resultId],
+    queryKey: ["generateStory", resultId],
     queryFn: async () => {
       if (!resultId) {
-        throw new Error('Result ID is required');
+        throw new Error("Result ID is required");
       }
 
-      const response = await fetch(`/api/generate-story?result_id=${resultId}`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `/api/generate-story?result_id=${resultId}`,
+        {
+          method: "POST",
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to generate story image');
+        throw new Error("Failed to generate story image");
       }
 
       return await response.blob();
