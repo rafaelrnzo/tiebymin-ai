@@ -1,2 +1,2 @@
-const url = "http://127.0.0.1:8000";
+const url = "https://tiebymin-be.withsummon.com"; // tanpa trailing slash
 export default url;

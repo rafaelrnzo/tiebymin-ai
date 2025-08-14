@@ -85,7 +85,7 @@ export default function StoryPoster({
             HASIL ANALISA {userData.name?.toUpperCase()}
           </h1>
         </div>
-        <hr className="mb-6" />
+        <hr className="mb-10" />
 
         {/* FOTO + QR */}
         <div className="flex gap-5 mb-6">

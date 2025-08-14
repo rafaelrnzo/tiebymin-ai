@@ -16,6 +16,17 @@ export default function LoginPage() {
     last_name: "",
   });
 
+  const generateUUID = () => {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -29,13 +40,15 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const uniqueGoogleId = crypto.randomUUID();
+      const uniqueGoogleId = generateUUID();
 
       const response = await fetch(`${url}/v1/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
+        mode: "cors",
         body: JSON.stringify({
           email: formData.email,
           first_name: formData.first_name,

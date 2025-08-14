@@ -280,30 +280,55 @@ export const ColorTone = ({ userData }: { userData: UserData }) => {
     title?: string;
     colors: string[];
     isCombination?: boolean;
-  }) => (
-    <div>
-      <h3 className="font-semibold text-gray-500 mb-4">{title}</h3>
-      <div
-        className={
-          isCombination
-            ? "flex w-fit overflow-hidden rounded shadow-md"
-            : "grid grid-cols-3 gap-3"
+  }) => {
+    const makePairs = (arr: string[]) => {
+      const pairs: string[][] = [];
+      for (let i = 0; i < arr.length; i += 2) {
+        if (arr[i + 1]) {
+          pairs.push([arr[i], arr[i + 1]]);
         }
-      >
-        {colors.map((color: string, index: number) => (
-          <div
-            key={index}
-            className={
-              isCombination
-                ? "w-[50px] h-[30px]" // ukuran tetap & tanpa gap
-                : "w-full h-[30px] rounded shadow-md"
-            }
-            style={{ backgroundColor: color }}
-          ></div>
-        ))}
+      }
+      return pairs;
+    };
+
+    return (
+      <div>
+        <h3 className="font-semibold text-gray-500 mb-4">{title}</h3>
+        {isCombination ? (
+          <div className="grid grid-cols-2 gap-y-4">
+            {makePairs(colors).map((pair, idx) => (
+              <div
+                key={idx}
+                className="flex overflow-hidden rounded shadow-md"
+                style={{ width: 100, height: 48 }}
+              >
+                {pair.map((color, subIdx) => (
+                  <div
+                    key={subIdx}
+                    style={{
+                      backgroundColor: color,
+                      width: "50%",
+                      height: "100%",
+                    }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {colors.map((color, index) => (
+              <div
+                key={index}
+                className="w-full h-[50px] rounded shadow-md"
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   const InfoSection = ({
     title,
@@ -313,12 +338,14 @@ export const ColorTone = ({ userData }: { userData: UserData }) => {
     items: string[];
   }) => (
     <div>
-      <h3 className="text-lg font-bold text-[#EF789B] mb-3">{title}</h3>
-      <ul className="space-y-1 text-white text-sm">
-        {items.map((item, index) => (
-          <li key={index}>• {item}</li>
-        ))}
-      </ul>
+      <h3 className="text-lg font-bold text-[#EF789B] mb-3 text-center">
+        {title}
+      </h3>
+      {items.map((item, index) => (
+        <p className="text-center text-white" key={index}>
+          {item}
+        </p>
+      ))}
     </div>
   );
 
@@ -360,7 +387,7 @@ export const ColorTone = ({ userData }: { userData: UserData }) => {
 
         {/* Info Section */}
         <div className="mt-16 bg-[#323232] py-10">
-          <div className="max-w-5xl mx-auto grid md:grid-cols-4 gap-10">
+          <div className="max-w-5xl mx-auto grid grid-cols-2 gap-10">
             <InfoSection
               title="Make Up Tips"
               items={userData.colorToneAnalysis.tips.makeup}
@@ -390,10 +417,10 @@ export const CelebritiesMatch = ({ userData }: { userData: UserData }) => (
     <div className="flex justify-between items-start">
       <div className="flex flex-col">
         <Image
-          src="/logo-tiebymin.png"
+          src="/tie-by-min-logo.png"
           alt="Tiebymin"
           width={100}
-          height={100}
+          height={200}
           className="h-8 mb-12"
         />
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
