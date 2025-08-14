@@ -274,26 +274,31 @@ function BeautyAnalysisPageInner() {
           </div>
 
           <div className="w-full lg:w-[70%]">
-            <div className="flex border-b border-gray-300">
+            <div className="flex flex-wrap border-b border-gray-300">
               {analysisTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-poppins transition-all -mb-px ${
+                  className={`flex-1 min-w-[120px] sm:min-w-0 flex items-center justify-center gap-2 py-2 sm:py-3 text-xs sm:text-sm font-poppins transition-all -mb-px ${
                     activeTab === tab.id
-                      ? "text-black font-bold"
+                      ? "text-black font-bold border-b-2 border-[#000000]"
                       : "text-gray-500 hover:text-black"
                   }`}
+                  style={{
+                    borderBottom:
+                      activeTab === tab.id ? "2px solid black" : "none",
+                  }}
                 >
                   <Image
                     src={tab.icon || "/placeholder.svg"}
-                    width={20}
-                    height={20}
+                    width={18}
+                    height={18}
                     alt={tab.text}
-                    className={`${activeTab !== tab.id && "opacity-60"}`}
-                    loading="lazy"
+                    className={`${
+                      activeTab !== tab.id ? "opacity-60" : ""
+                    } w-5 h-5`}
                   />
-                  <span>{tab.text}</span>
+                  <span className="truncate">{tab.text}</span>
                 </button>
               ))}
             </div>

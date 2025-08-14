@@ -1,2 +1,2 @@
-const url = "https://tiebymin-be.withsummon.com"; // tanpa trailing slash
-export default url;
+const url = "https://tiebymin-be.withsummon.com"
+export default url  

@@ -1,82 +1,40 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
+import url from "@/lib/url";
+import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useBodyShapes } from "@/hooks/useAnalysisData";
+import { useEffect, useState } from "react";
 
-// --- Komponen Skeleton Loader untuk Kolom Tengah ---
-const BodyTypeSkeleton = () => (
-  <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 animate-pulse">
-    <div className="flex flex-col justify-between w-full gap-8">
-      <div className="flex flex-row gap-4 justify-center w-full">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div className="mb-2 h-48 sm:h-64 w-24 sm:w-32 bg-gray-300/50 rounded-lg"></div>
-            <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-row gap-4 justify-center w-full">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div className="mb-2 h-48 sm:h-64 w-24 sm:w-32 bg-gray-300/50 rounded-lg"></div>
-            <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
-// --- Modal Overlay Component ---
-const ScanFaceModal = ({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) => {
-  if (!isOpen) return null;
+const BodyTypeSkeleton = ({ count = 6 }) => {
+  const topRowCount = Math.ceil(count / 2);
+  const bottomRowCount = count - topRowCount;
+  const topRow = Array(topRowCount).fill(0);
+  const bottomRow = Array(bottomRowCount).fill(0);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative bg-white/90 rounded-2xl shadow-xl p-8 max-w-md w-full">
-        <div className="flex justify-end">
-          <Button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl font-bold -mt-4 -mr-2"
-            aria-label="Tutup"
-          >
-            ×
-          </Button>
+    <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
+      <div className="flex flex-col justify-between w-full gap-8 animate-pulse">
+        <div className="flex flex-row gap-4 justify-center w-full">
+          {topRow.map((_, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className="relative mb-2 flex h-48 sm:h-64 w-24 sm:w-32 items-center justify-center">
+                <div className="absolute inset-0 bg-gray-300/50 rounded-lg" />
+              </div>
+              <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col items-center">
-          <Image
-            src="/scan-face-illustration.png"
-            alt="Scan Wajah"
-            width={120}
-            height={120}
-            className="mb-4"
-          />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Scan Wajah Kamu
-          </h2>
-          <p className="text-gray-600 text-center mb-4">
-            Fitur scan wajah akan segera tersedia! <br /> Nantikan update dari
-            kami.
-          </p>
-          <Button
-            onClick={onClose}
-            className="bg-pink-400 hover:bg-pink-500 text-white font-semibold rounded-xl px-6 py-2 transition-colors"
-          >
-            Tutup
-          </Button>
+        <div className="flex flex-row gap-4 justify-center w-full">
+          {bottomRow.map((_, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className="relative mb-2 flex h-48 sm:h-64 w-24 sm:w-32 items-center justify-center">
+                <div className="absolute inset-0 bg-gray-300/50 rounded-lg" />
+              </div>
+              <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -84,81 +42,92 @@ const ScanFaceModal = ({
 };
 
 // --- Komponen Utama ---
+interface BodyType {
+  id: string;
+  name: string;
+  link_picture: string;
+  penjelasan_body_shape: string;
+  karakteristik: string;
+}
+
 export default function PrepareFacePage() {
   const { analysisData, setAnalysisData } = useAnalysis();
-  const { data: allBodyTypes, isLoading, error } = useBodyShapes();
+
+  const [allBodyTypes, setAllBodyTypes] = useState<BodyType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showOverlay, setShowOverlay] = useState(false);
+
   const router = useRouter();
 
-  // Set default selection when data is loaded
   useEffect(() => {
-    if (
-      allBodyTypes &&
-      allBodyTypes.length > 0 &&
-      !analysisData.body_shape_id
-    ) {
-      console.log("🔧 Setting default body type:", allBodyTypes[0].id);
-      setAnalysisData((prev) => ({
-        ...prev,
-        body_shape_id: allBodyTypes[0].id,
-      }));
-    }
-  }, [allBodyTypes, analysisData.body_shape_id, setAnalysisData]);
+    const fetchAllBodyShapes = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Simulasi delay untuk melihat skeleton
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const response = await axios.get(`${url}/v1/body-shapes/`);
 
-  // Fungsi untuk mengubah pilihan bentuk tubuh di context
+        if (response.data && response.data.length > 0) {
+          setAllBodyTypes(response.data);
+
+          if (!analysisData.body_shape_id) {
+            setAnalysisData((prev) => ({
+              ...prev,
+              bodyType: response.data[0].id,
+              body_shape_id: response.data[0].id,
+            }));
+          }
+        } else {
+          setError("Tidak ada data bentuk tubuh yang ditemukan.");
+        }
+      } catch (err) {
+        setError("Gagal memuat data bentuk tubuh. Silakan coba lagi nanti.");
+        console.error("Fetch error in PrepareFacePage:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAllBodyShapes();
+  }, []);
+
   const handleSelectBodyType = (typeId: string) => {
-    console.log("👆 Body type selected:", typeId);
     setAnalysisData((prev) => ({
       ...prev,
       body_shape_id: typeId,
     }));
   };
 
-  // Navigasi ke halaman selanjutnya
   const handleNext = () => {
-    console.log(
-      "➡️ Moving to next page with body_shape_id:",
-      analysisData.body_shape_id
-    );
     router.push(`/analyze/take-face`);
   };
 
-  // --- Variabel turunan untuk mempermudah rendering ---
-  const selectedTypeId = analysisData.body_shape_id;
-  const selectedType = allBodyTypes?.find((type) => type.id === selectedTypeId);
+  const handleShowOverlay = () => setShowOverlay(true);
+  const handleCloseOverlay = () => setShowOverlay(false);
 
-  // Membagi data secara dinamis untuk tampilan dua baris
-  const topRow =
-    allBodyTypes?.slice(0, Math.ceil(allBodyTypes.length / 2)) || [];
-  const bottomRow =
-    allBodyTypes?.slice(Math.ceil(allBodyTypes.length / 2)) || [];
+  const selectedTypeId = analysisData.body_shape_id;
+  const selectedType = allBodyTypes.find((type) => type.id === selectedTypeId);
+
+  const topRow = allBodyTypes.slice(0, Math.ceil(allBodyTypes.length / 2));
+  const bottomRow = allBodyTypes.slice(Math.ceil(allBodyTypes.length / 2));
 
   const bodyImageWidth = 100;
   const bodyImageHeight = 220;
   const bodyImageClass =
     "w-[80px] h-[180px] sm:w-[100px] sm:h-[220px] object-contain";
 
-  // --- Tampilan Error ---
-  if (error) {
+  if (error)
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-pink-100 text-red-500 p-4">
-        <p className="text-center mb-4">
-          {error instanceof Error
-            ? error.message
-            : "Gagal memuat data bentuk tubuh"}
-        </p>
-        <Button
-          onClick={() => window.location.reload()}
-          className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600"
-        >
-          Coba Lagi
-        </Button>
+      <div className="min-h-screen flex items-center justify-center bg-pink-100 text-red-500">
+        <p>{error}</p>
       </div>
     );
-  }
 
   // --- Tampilan Utama ---
   return (
-    <div className="min-h-screen w-full px-4 py-8 sm:p-8 flex flex-col items-center justify-center relative bg-[url('/login-bg.png')] bg-cover bg-center">
+    <div className="min-h-screen w-full p-2 sm:p-3 flex flex-col items-center justify-center relative bg-[url('/login-bg.png')] bg-cover bg-center">
       {/* CSS untuk Animasi Bintang */}
       <style jsx global>{`
         @keyframes rotate-sparkle {
@@ -181,6 +150,49 @@ export default function PrepareFacePage() {
         }
       `}</style>
 
+      {/* Overlay Scan Wajah (Modal) */}
+      {showOverlay && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            onClick={handleCloseOverlay}
+          />
+          <div className="relative bg-white/90 rounded-2xl shadow-xl p-8 max-w-md w-full">
+            <div className="flex justify-end">
+              <Button
+                onClick={handleCloseOverlay}
+                className="text-gray-500 hover:text-gray-700 text-2xl font-bold -mt-4 -mr-2"
+                aria-label="Tutup"
+              >
+                ×
+              </Button>
+            </div>
+            <div className="flex flex-col items-center">
+              <Image
+                src="/scan-face-illustration.png"
+                alt="Scan Wajah"
+                width={120}
+                height={120}
+                className="mb-4"
+              />
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Scan Wajah Kamu
+              </h2>
+              <p className="text-gray-600 text-center mb-4">
+                Fitur scan wajah akan segera tersedia! <br /> Nantikan update
+                dari kami.
+              </p>
+              <Button
+                onClick={handleCloseOverlay}
+                className="bg-pink-400 hover:bg-pink-500 text-white font-semibold rounded-xl px-6 py-2 transition-colors"
+              >
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center">
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center justify-center">
           {/* Kolom Kiri - Kontrol */}
@@ -195,14 +207,12 @@ export default function PrepareFacePage() {
                 className="mx-auto"
               />
             </div>
-
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs mx-auto shadow-md">
               <span className="text-gray-700 font-medium font-poppins">
                 Analisa
               </span>
               <span className="text-gray-700 font-bold font-poppins">03</span>
             </div>
-
             <div className="bg-[#EF789B] rounded-2xl p-6 text-white w-full max-w-xs mx-auto shadow-md">
               <div className="flex items-start justify-between mb-4">
                 <h2 className="text-xl font-bold font-poppins">
@@ -223,20 +233,31 @@ export default function PrepareFacePage() {
                 rekomendasi pakaian yang sesuai.
               </p>
             </div>
-
-            <ScanFaceModal
-              isOpen={false} // You can manage this state if needed
-              onClose={() => {}} // Handle close if needed
-            />
+            <Button
+              className="w-full border-gray-600/60 border backdrop-blur-sm rounded-lg px-6 py-5 flex items-center justify-between hover:bg-white/80 transition-colors max-w-xs mx-auto"
+              onClick={handleShowOverlay}
+            >
+              <span className="text-gray-700 font-medium">Scan Wajah Kamu</span>
+              <div className="w-6 h-6 rounded flex items-center justify-center">
+                <Image
+                  src="/stars.png"
+                  alt="stars"
+                  width={20}
+                  height={20}
+                  style={{ filter: "brightness(0) saturate(100%)" }}
+                />
+              </div>
+            </Button>
           </div>
 
-          {/* Kolom Tengah - Pilihan Bentuk Tubuh */}
+          {/* Kolom Tengah - Pilihan Bentuk Tubuh (Dinamis dari API) */}
           {isLoading ? (
-            <BodyTypeSkeleton />
+            <BodyTypeSkeleton
+              count={allBodyTypes.length > 0 ? allBodyTypes.length : 6}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
               <div className="flex flex-col justify-between w-full gap-8">
-                {/* Top Row */}
                 <div className="flex flex-row gap-4 justify-center w-full">
                   {topRow.map((type) => (
                     <Button
@@ -260,15 +281,6 @@ export default function PrepareFacePage() {
                             width={bodyImageWidth}
                             height={bodyImageHeight}
                             className={`${bodyImageClass} relative z-10`}
-                            onError={(_e) => {
-                              console.warn(
-                                "🖼️ Image load error for:",
-                                type.name,
-                                type.link_picture,
-                                _e
-                              );
-                              // You could set a fallback image here
-                            }}
                           />
                         </div>
                         <p
@@ -284,8 +296,6 @@ export default function PrepareFacePage() {
                     </Button>
                   ))}
                 </div>
-
-                {/* Bottom Row */}
                 <div className="flex flex-row gap-4 justify-center w-full">
                   {bottomRow.map((type) => (
                     <Button
@@ -309,14 +319,6 @@ export default function PrepareFacePage() {
                             width={bodyImageWidth}
                             height={bodyImageHeight}
                             className={`${bodyImageClass} relative z-10`}
-                            onError={(_e) => {
-                              console.warn(
-                                "🖼️ Image load error for:",
-                                type.name,
-                                type.link_picture,
-                                _e
-                              );
-                            }}
                           />
                         </div>
                         <p
@@ -336,8 +338,8 @@ export default function PrepareFacePage() {
             </div>
           )}
 
-          {/* Kolom Kanan - Detail Pilihan */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-8 px-4 sm:px-6 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3">
+          {/* Kolom Kanan - Detail Pilihan (Dinamis dari API) */}
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-8 px-4 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3">
             {isLoading || !selectedType ? (
               <div className="w-full animate-pulse">
                 <div className="h-12 w-3/4 bg-gray-300/70 rounded mb-6"></div>
@@ -396,7 +398,6 @@ export default function PrepareFacePage() {
                 <Button
                   className="w-full bg-[#323232] text-center text-white rounded-xl py-3 px-6 font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-4 mt-4"
                   onClick={handleNext}
-                  disabled={!selectedTypeId}
                 >
                   <span>Selanjutnya</span>
                   <span>→</span>
