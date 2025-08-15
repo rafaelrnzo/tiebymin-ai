@@ -85,14 +85,13 @@ export default function LoginPage() {
 
       if (result.id) {
         localStorage.setItem("userId", result.id);
-        localStorage.setItem(
-          "namaUser",
-          `${result.first_name} ${result.last_name}`
-        );
+        localStorage.setItem("firstName", result.first_name);
+        localStorage.setItem("lastName", result.last_name);
         console.log(
           "User ID saved to localStorage:",
           result.id,
-          result.first_name
+          result.first_name,
+          result.last_name
         );
       }
 
@@ -216,7 +215,7 @@ export default function LoginPage() {
               {/* Register Button */}
               <Button
                 type="submit"
-                className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-8 transition-colors text-[20px]"
+                className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-8 transition-colors text-[20px]"
               >
                 {isLoading ? "Sedang Mendaftar..." : "Daftar Sekarang"}
               </Button>

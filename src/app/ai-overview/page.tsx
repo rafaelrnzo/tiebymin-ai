@@ -64,7 +64,7 @@ function BeautyAnalysisPageInner() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem("namaUser");
+      const storedName = localStorage.getItem("firstName");
       if (storedName) {
         setUserName(storedName);
       }
@@ -231,18 +231,30 @@ function BeautyAnalysisPageInner() {
         <div className="flex flex-col lg:flex-row justify-between w-full gap-6 sm:gap-8 mb-10 sm:mb-16">
           <div className="bg-[#2D2D2D] h-[700px] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
-              <Image
-                src={userPhotoUrl || "/overview-ai/person.png"}
-                alt="Analysis Result"
-                width={450}
-                height={280}
-                className="h-[250px] w-[450px] object-cover rounded-xl"
-                onError={(e) => {
-                  console.warn("🖼️ Image load error:", userPhotoUrl);
-                  e.currentTarget.src = "/overview-ai/person.png";
-                }}
-                loading="lazy"
-              />
+              {userPhotoUrl ? (
+                <Image
+                  src={userPhotoUrl}
+                  alt="Analysis Result"
+                  width={450}
+                  height={280}
+                  className="h-[250px] w-[450px] object-cover rounded-xl"
+                  onError={(e) => {
+                    console.warn("🖼️ Image load error:", userPhotoUrl);
+                    e.currentTarget.src = "/overview-ai/person.png";
+                  }}
+                  loading="lazy"
+                />
+              ) : (
+                <div className="h-[250px] bg-gray-200 rounded-xl flex items-center justify-center animate-pulse">
+                  <Image
+                    src="/overview-ai/skeleton.png"
+                    alt="Loading Sk eleton"
+                    width={120}
+                    height={120}
+                    className="opacity-70"
+                  />
+                </div>
+              )}
             </div>
             <h2 className="text-4xl font-bold mb-3 sm:mb-4 font-handlee text-[#F8B4C4] italic">
               Hi {userName}, Ini Dia
