@@ -14,10 +14,16 @@ type AnalysisCardProps = {
   title: string;
   subtitle?: string;
   isAnalytics?: boolean;
-
+  titleClassName?: string;
+  className?: string;
 };
 
-const AnalysisCard = ({ icon, title, subtitle, isAnalytics }: AnalysisCardProps) => {
+const AnalysisCard = ({
+  icon,
+  title,
+  subtitle,
+  isAnalytics,
+}: AnalysisCardProps) => {
   return (
     <div
       className={`flex w-full lg:w-[300px] flex-row items-center gap-4 rounded-xl p-4 shadow-lg ${
@@ -29,8 +35,18 @@ const AnalysisCard = ({ icon, title, subtitle, isAnalytics }: AnalysisCardProps)
 
       {/* Text Content */}
       <div className="flex flex-col">
-        <p className={`text-xl font-bold ${isAnalytics ? "text-white" : "text-gray-800"}`}>{title}</p>
-        <p className={`text-sm ${isAnalytics ? "text-white" : "text-gray-600"}`}>{subtitle}</p>
+        <p
+          className={`text-xl font-bold ${
+            isAnalytics ? "text-white" : "text-gray-800"
+          }`}
+        >
+          {title}
+        </p>
+        <p
+          className={`text-sm ${isAnalytics ? "text-white" : "text-gray-600"}`}
+        >
+          {subtitle}
+        </p>
       </div>
     </div>
   );
@@ -59,13 +75,13 @@ export const HeroSection = () => {
           <div className="mx-10 mt-24 md:mt-8 flex justify-center gap-4 visible lg:invisible">
             <Button
               size="lg"
-              className="rounded-full bg-[#EF789B] text-white text-[20px] py-6 border-0"
+              className="rounded-full bg-[#EF789B] text-white text-xl py-6 border-0"
             >
               <p>Coba Sekarang</p>
             </Button>
             <Button
               size="lg"
-              className="rounded-full border-2 text-[20px] bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
+              className="rounded-full border-2 text-xl bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
             >
               <p className="text-[#EF789B]">Cara Kerja AI</p>
             </Button>
@@ -118,6 +134,8 @@ export const HeroSection = () => {
                 isAnalytics={true}
                 icon={<Sparkles className="h-8 w-8 text-white" />}
                 title="Coba Sekarang"
+                className="bg-gradient-to-r from-pink-500 to-pink-400 shadow-lg"
+                titleClassName="text-white"
               />
             </div>
           </div>

@@ -120,7 +120,7 @@ export default function LoginPage() {
   };
 
   const steps = [
-    { number: "01", title: "Register", active: true },
+    { number: "01", title: "Buat Akun", active: true },
     { number: "02", title: "Lengkapi Data", active: false },
     { number: "03", title: "Analisa", active: false },
   ];
@@ -128,10 +128,14 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center py-4">
       <div className="mx-2 lg:mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
-        <LeftSideSection steps={steps} />
-
-        {/* Right Side - Registration Form */}
-        <div className="w-full lg:flex-1 lg:max-w-[65%] px-4 sm:px-0">
+        <div className="w-full lg:flex-1 lg:max-w-[45%]">
+          <LeftSideSection
+            steps={steps}
+            currentStepNumber={1}
+            showExtendedSteps={false}
+          />
+        </div>
+        <div className="w-full lg:flex-1 lg:max-w-[55%] px-4 sm:px-0">
           <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-center lg:text-left">
               Buat Akun Baru

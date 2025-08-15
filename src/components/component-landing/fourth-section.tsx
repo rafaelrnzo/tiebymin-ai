@@ -49,7 +49,7 @@ const FaqSection = () => {
               <h2 className="font-oswald text-[30px] lg:text-[60px] font-bold text-gray-900">
                 Semua Pecinta Fashion!
               </h2>
-              <p className="mt-4 text-gray-600 text-[16px] lg:text-[20px]">
+              <p className="mt-4 text-gray-600 text-[16px] lg:text-xl">
                 Apakah Kamu Seorang Pemula Atau Antusias Fashion, AI Ini Akan
                 Memberikan Rekomendasi Yang Mudah Dan Cepat.
               </p>
@@ -67,7 +67,7 @@ const FaqSection = () => {
                   value={item.value}
                   className="p-4 my-4 rounded-2xl transition-colors duration-300 data-[state=closed]:bg-transparent data-[state=open]:bg-[#FFC6C6] data-[state=closed]:border"
                 >
-                  <AccordionTrigger className="font-poppins text-[20px] w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-[#323232]">
+                  <AccordionTrigger className="font-poppins text-xl w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-[#323232]">
                     {item.question}
                   </AccordionTrigger>
                   <AccordionContent className="font-poppins text-[15px] px-4 pb-4 text-[#323232]">

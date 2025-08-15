@@ -30,6 +30,7 @@ function StoryPage() {
 
   const { refetch: generateStory } = useGenerateStory();
   const [error, setError] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const showToast = (message: string, type: "success" | "error") => {
     const toast = document.createElement("div");
@@ -66,6 +67,7 @@ function StoryPage() {
 
   const handleDownloadStory = async () => {
     if (!resultId) return;
+    setIsGenerating(true);
     try {
       setError(null);
       const result = await generateStory();
@@ -89,6 +91,8 @@ function StoryPage() {
         error instanceof Error ? error.message : "Gagal mengunduh story";
       setError(errorMessage);
       showToast(errorMessage, "error");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -116,10 +120,11 @@ function StoryPage() {
   return (
     <div
       id="story-content"
-      className="bg-gray-100 min-h-screen flex justify-center p-6"
+      className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 md:p-6"
     >
       <StoryPoster
         handleDownloadStory={handleDownloadStory}
+        isGenerating={isGenerating}
         userData={userData}
         userPhotoUrl={userPhotoUrl}
         bodyDetails={bodyDetails}

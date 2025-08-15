@@ -46,6 +46,7 @@ export interface Product {
   created_at: string;
   updated_at: string;
   product_colors: ProductColor[];
+  total_compatibility_score: number;
 }
 
 export interface Celebrity {
@@ -56,36 +57,6 @@ export interface Celebrity {
   picture_url: string;
   faceshape_id: string;
   color_analysis_id: string;
-}
-
-export interface ProductFaceShapeCompatibility {
-  product_id: string;
-  face_shape_id: string;
-  compatibility_score: number;
-  compatibility_reason: string;
-  id: string;
-  created_at: string;
-  product: Product;
-}
-
-export interface ProductColorAnalysisCompatibility {
-  product_color_id: string;
-  color_analysis_id: string;
-  compatibility_score: number;
-  compatibility_reason: string;
-  id: string;
-  created_at: string;
-  product: Product;
-}
-
-export interface ProductBmiCompatibility {
-  product_id: string;
-  bmi_category_id: string;
-  compatibility_score: number;
-  compatibility_reason: string;
-  id: string;
-  created_at: string;
-  product: Product;
 }
 
 export interface ColorAnalysis {

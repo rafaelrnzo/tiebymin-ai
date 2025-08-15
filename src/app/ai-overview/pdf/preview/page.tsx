@@ -19,10 +19,12 @@ function PreviewPdfPage() {
 
   const { refetch: downloadPdf } = useDownloadPdf();
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadPDF = async () => {
     if (!resultId) return;
 
+    setIsDownloading(true);
     try {
       setError(null);
       const result = await downloadPdf();
@@ -44,6 +46,8 @@ function PreviewPdfPage() {
           ? error.message
           : "Terjadi kesalahan saat mendownload PDF";
       setError(errorMessage);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -52,36 +56,39 @@ function PreviewPdfPage() {
       <Navbar />
       <div className="flex-grow flex flex-col items-center justify-center p-4">
         {/* White card that wraps everything */}
-        <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-6xl">
+        <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-6xl p-4 md:p-6">
           {/* Close button inside the card */}
           <X
             onClick={() => router.back()}
-            className="cursor-pointer absolute top-6 right-6 text-gray-500 hover:text-gray-800 z-10"
+            className="cursor-pointer absolute top-4 right-4 md:top-6 md:right-6 text-gray-500 hover:text-gray-800 z-10"
           />
 
           {/* Cover and FaceShape components side by side */}
-          <div className="flex justify-center items-start gap-6 mb-8 mt-4">
+          <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6 mb-8 mt-4">
             {/* Cover component */}
-            <div className="transform scale-75 origin-center -mx-18 -mt-[5rem]">
+            <div className="transform scale-50 md:scale-75 origin-center -mx-18 -mt-[5rem]">
               <Cover userData={userData} />
             </div>
 
             {/* FaceShape component */}
-            <div className="transform scale-75 origin-center -mx-18 -mt-[5rem]">
+            <div className="transform scale-50 md:scale-75 origin-center -mx-18 -mt-[5rem]">
               <FaceShape userData={userData} userPhotoUrl={userPhotoUrl} />
             </div>
           </div>
 
           {/* Download button */}
-          <div className="flex -mt-[7rem] pb-10 pl-10">
+          <div className="flex justify-center md:justify-start -mt-[7rem] pb-10 md:pl-10">
             <Button
               onClick={handleDownloadPDF}
               className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
+              disabled={isDownloading}
             >
               <span className="text-white font-poppins font-bold">
-                Download PDF
+                {isDownloading ? "Downloading..." : "Download PDF"}
               </span>
-              <ChevronRight className="text-white w-5 h-5" />
+              {!isDownloading && (
+                <ChevronRight className="text-white w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>

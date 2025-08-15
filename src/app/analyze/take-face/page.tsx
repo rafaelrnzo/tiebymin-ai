@@ -7,6 +7,7 @@ import { Camera, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useRef, useState } from "react";
+import LeftSideSection from "@/components/component-login/left-side-section";
 
 const INSTRUCTION_CARDS = [
   {
@@ -72,7 +73,6 @@ export default function FaceScanPrepPage() {
       const file = event.target.files[0];
       setSelectedFile(file);
       setSelectedImage(URL.createObjectURL(file));
-      // Reset value agar bisa memilih file yang sama lagi
       event.target.value = "";
     }
   };
@@ -90,8 +90,13 @@ export default function FaceScanPrepPage() {
     }
 
     const { tinggi, berat, umur, body_shape_id } = analysisData;
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      setApiError("User ID not found. Please log in again.");
+      return;
+    }
     const formData = new FormData();
-    formData.append("user_id", "8a40ef18-1335-479e-8465-b63cdc3ebc88"); // Ganti dengan user ID dinamis jika perlu
+    formData.append("user_id", userId);
     formData.append("tinggi_badan", tinggi);
     formData.append("berat_badan", berat);
     formData.append("umur", umur);
@@ -109,7 +114,6 @@ export default function FaceScanPrepPage() {
       if (response.status >= 200 && response.status < 300) {
         const resultId = response.data.analysis_result_id;
         if (resultId) {
-          // Navigasi ke halaman hasil
           router.push(`/ai-overview?result_id=${resultId}`);
         } else {
           throw new Error("API berhasil tapi tidak mengembalikan result ID.");
@@ -156,66 +160,16 @@ export default function FaceScanPrepPage() {
       `}</style>
 
       <div className="w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-3 gap-12 items-start">
-        {/* Left Column - Progress Steps */}
-        <div className="w-full max-w-md mx-auto lg:mx-0 lg:col-span-1 flex flex-col items-center justify-center space-y-8">
-          <div className="mb-8 w-full flex justify-center">
-            <Image
-              src="/tie-by-min-logo.png"
-              alt="Tiebymin Logo"
-              width={200}
-              height={64}
-              priority
-              className="object-contain"
-              style={{ width: "auto", height: "auto", maxWidth: "100%" }}
-            />
-          </div>
-
-          <div className="bg-[#F0F0F0] rounded-xl px-4 py-3 flex items-center justify-between w-full shadow-md">
-            <span className="text-gray-800 font-poppins font-bold text-base sm:text-lg">
-              Analisa
-            </span>
-            <span className="text-gray-800 font-poppins font-bold text-base sm:text-lg">
-              03
-            </span>
-          </div>
-
-          <div className="bg-[#F0F0F0] rounded-xl px-4 py-3 flex items-center justify-between w-full shadow-md">
-            <span className="text-gray-800 font-bold font-poppins text-base sm:text-lg">
-              Pilih bentuk Tubuh Kamu
-            </span>
-            <Image
-              src="/stars.png"
-              alt="stars"
-              width={24}
-              height={24}
-              style={{ filter: "brightness(0)" }}
-            />
-          </div>
-
-          {/* Step 3: Scan Wajah (Active) */}
-          <div className="bg-[#EF789B] rounded-2xl p-4 sm:p-5 text-white w-full shadow-md">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-poppins text-base sm:text-lg font-bold">
-                Scan Wajah Kamu
-              </h2>
-              <Image
-                src="/stars.png"
-                alt="stars"
-                width={24}
-                height={24}
-                className="sparkle-animation"
-              />
-            </div>
-            <p className="font-poppins text-xs sm:text-sm leading-relaxed text-white">
-              Kami butuh foto selfie-mu biar bisa analisis bentuk wajah dan
-              warna kulit dengan akurat. Dengan begitu, rekomendasi hijab yang
-              kami kasih bisa lebih sesuai.
-            </p>
-          </div>
+        <div className="lg:col-span-1 lg:order-1">
+          <LeftSideSection
+            currentStep={3}
+            title="Scan Wajah Kamu"
+            description="Kami butuh foto selfie-mu biar bisa analisis bentuk wajah dan warna kulit dengan akurat. Dengan begitu, rekomendasi hijab yang kami kasih bisa lebih sesuai."
+          />
         </div>
 
         {/* Right Column - Instructions */}
-        <div className="w-full lg:col-span-2 flex flex-col items-center lg:items-start mt-10 lg:mt-12">
+        <div className="w-full lg:col-span-2 lg:order-2 flex flex-col items-center lg:items-start mt-10 lg:mt-12">
           <div className="w-full flex justify-between items-center mb-8 sm:mb-10">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-oswald font-bold text-[#333333] text-center lg:text-left">
               Siapkan Wajahmu

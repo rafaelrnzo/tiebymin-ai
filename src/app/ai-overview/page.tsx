@@ -7,25 +7,29 @@ import { Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
+import { useRecommendations } from "@/hooks/useRecommendations";
 import { analysisTabs } from "@/lib/mock-data";
-import {
-  ProductBmiCompatibility,
-  ProductColor,
-  ProductColorAnalysisCompatibility,
-  ProductFaceShapeCompatibility,
-} from "@/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import BodySection from "../../components/sections/BodySection";
 import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
 import ColorToneSection from "../../components/sections/ColorToneSection";
 import ShapeSection from "../../components/sections/ShapeSection";
 import TipsSection from "../../components/sections/TipsSection";
+import { Grid2x2, Shirt, UserStar } from "lucide-react";
 
 function BeautyAnalysisPageInner() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("shape");
   const searchParams = useSearchParams();
   const [userName, setUserName] = useState("");
+  const [recommendationPage, setRecommendationPage] = useState(1);
+  const [recommendationFilter, setRecommendationFilter] = useState<
+    "all" | "hijab" | "clothes"
+  >("all");
+
+  const handleFilterChange = (filter: "all" | "hijab" | "clothes") => {
+    setRecommendationFilter(filter);
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -46,6 +50,8 @@ function BeautyAnalysisPageInner() {
     isError,
   } = useAnalysisData(resultId);
 
+  const { data: recommendationsData } = useRecommendations(resultId);
+
   console.log("📊 Analysis result:", analysisResult); // Debug log
   console.log("⏳ Is loading:", isLoading); // Debug log
   console.log("❌ Error:", error); // Debug log
@@ -55,15 +61,6 @@ function BeautyAnalysisPageInner() {
     userPhotoUrl: null,
     rawAnalysisData: null,
   };
-
-  type RecommendedProduct =
-    | ProductFaceShapeCompatibility
-    | ProductColorAnalysisCompatibility
-    | ProductBmiCompatibility;
-
-  const [recommendedProducts, setRecommendedProducts] = useState<
-    RecommendedProduct[]
-  >([]);
 
   useEffect(() => {
     console.log("🔄 Component state updated:", {
@@ -281,115 +278,176 @@ function BeautyAnalysisPageInner() {
           </div>
         </div>
 
-        {/* Product recommendations section tetap sama */}
         <section>
-          <h1 className="text-4xl lg:text-5xl font-oswald font-bold text-[#333333] mb-10">
-            Rekomendasi Produk
-          </h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {recommendedProducts.map((item: RecommendedProduct) => (
-              <div
-                key={item.product.id}
-                className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-300"
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
+            <h1 className="text-4xl lg:text-5xl font-oswald font-bold text-[#333333]">
+              Rekomendasi Produk
+            </h1>
+            <div className="flex items-center gap-2 self-start md:self-center">
+              <button
+                onClick={() => handleFilterChange("all")}
+                className={`flex items-center justify-center gap-2.5 rounded-full px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${
+                  recommendationFilter === "all"
+                    ? "bg-gray-800 text-white shadow-lg"
+                    : "bg-gray-200 text-gray-600"
+                }`}
               >
-                <div className="relative p-2">
-                  <Image
-                    src={item.product.images[0] || "/placeholder.svg"}
-                    alt={item.product.name}
-                    width={400}
-                    height={400}
-                    className="w-full h-72 object-cover rounded-xl"
-                  />
-                  <span className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
-                    <Image
-                      src={"/overview-ai/icons/ai-generate.svg"}
-                      width={14}
-                      height={14}
-                      alt="Match"
-                      className="object-cover"
-                    />
-                    {`${Math.round(item.compatibility_score * 100)}% Match`}
-                  </span>
-                  <span className="absolute bottom-4 right-4 bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
-                    <Image
-                      src={
-                        "/overview-ai/icons/material-symbols_star-rounded.svg"
-                      }
-                      width={16}
-                      height={16}
-                      alt="Star"
-                      className="object-cover"
-                    />
-                    {item.product.average_rating}
-                  </span>
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="font-bold text-gray-800 text-lg">
-                    {item.product.name}
-                  </h3>
-                  <div className="flex items-baseline my-2">
-                    <span className="text-gray-800 font-extrabold text-2xl">
-                      {`Rp${item.product.current_price.toLocaleString(
-                        "id-ID"
-                      )}`}
-                    </span>
-                    <span className="text-gray-400 text-sm ml-2 line-through">
-                      {`Rp${item.product.original_price.toLocaleString(
-                        "id-ID"
-                      )}`}
-                    </span>
-                  </div>
-                  <div className="mb-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-                      <div className="flex flex-col items-start">
-                        <p className="text-xs sm:text-sm text-gray-600 mr-2">
-                          Rekomendasi Warna:
-                        </p>
-                        <div className="flex space-x-2 mt-2">
-                          {item.product.product_colors.map(
-                            (color: ProductColor) => (
-                              <div
-                                key={color.id}
-                                className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full`}
-                                style={{ backgroundColor: color.hex_code }}
-                              ></div>
-                            )
+                <Grid2x2 />
+                Semua
+              </button>
+              <button
+                onClick={() => handleFilterChange("hijab")}
+                className={`flex items-center justify-center gap-2.5 rounded-full px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${
+                  recommendationFilter === "hijab"
+                    ? "bg-gray-800 text-white shadow-lg"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
+                <UserStar />
+                Hijab
+              </button>
+              <button
+                onClick={() => handleFilterChange("clothes")}
+                className={`flex items-center justify-center gap-2.5 rounded-full px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${
+                  recommendationFilter === "clothes"
+                    ? "bg-gray-800 text-white shadow-lg"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
+                <Shirt />
+                Pakaian
+              </button>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {recommendationsData &&
+                [
+                  ...(recommendationFilter === "all" ||
+                  recommendationFilter === "hijab"
+                    ? recommendationsData.hijab
+                    : []),
+                  ...(recommendationFilter === "all" ||
+                  recommendationFilter === "clothes"
+                    ? recommendationsData.clothes
+                    : []),
+                ]
+                  .slice((recommendationPage - 1) * 3, recommendationPage * 3)
+                  .map((product) => (
+                    <div
+                      key={product.id}
+                      className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-300"
+                    >
+                      <div className="relative p-2">
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          width={400}
+                          height={400}
+                          className="w-full h-72 object-cover rounded-xl"
+                        />
+                        <span className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+                          <Image
+                            src={"/overview-ai/icons/ai-generate.svg"}
+                            width={14}
+                            height={14}
+                            alt="Match"
+                            className="object-cover"
+                          />
+                          {`${product.total_compatibility_score * 10}% Match`}
+                        </span>
+                        <span className="absolute bottom-4 right-4 bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+                          <Image
+                            src={
+                              "/overview-ai/icons/material-symbols_star-rounded.svg"
+                            }
+                            width={16}
+                            height={16}
+                            alt="Star"
+                            className="object-cover"
+                          />
+                          {product.average_rating}
+                        </span>
+                      </div>
+                      <div className="p-5 flex flex-col flex-grow">
+                        <h3 className="font-bold text-gray-800 text-lg">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-baseline my-2">
+                          <span className="text-gray-800 font-extrabold text-2xl">
+                            {`Rp${product.current_price.toLocaleString(
+                              "id-ID"
+                            )}`}
+                          </span>
+                          {product.original_price > 0 && (
+                            <span className="text-gray-400 text-sm ml-2 line-through">
+                              {`Rp${product.original_price.toLocaleString(
+                                "id-ID"
+                              )}`}
+                            </span>
                           )}
                         </div>
-                      </div>
-                      <div className="flex flex-col items-start">
-                        <span className="text-xs sm:text-sm text-gray-600 mr-1">
-                          Ukuran:
-                        </span>
-                        <span className="text-xs sm:text-sm font-medium mt-2">
-                          {item.product.size_range}
-                        </span>
+                        <div className="mb-4">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+                            <div className="flex flex-col items-start">
+                              <span className="text-xs sm:text-sm text-gray-600 mr-1">
+                                Ukuran:
+                              </span>
+                              <span className="text-xs sm:text-sm font-medium mt-2">
+                                {product.size_range}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() =>
+                            window.open(product.product_link, "_blank")
+                          }
+                          className="mt-auto bg-[#ED80A7] w-full py-3 px-4 font-bold rounded-lg text-white flex items-center justify-center gap-3 text-base hover:bg-pink-500 transition-colors"
+                        >
+                          Beli Sekarang
+                          <Image
+                            src="/overview-ai/icons/mynaui_cart-solid.svg"
+                            width={20}
+                            height={20}
+                            alt="Shopping Cart"
+                          />
+                        </Button>
                       </div>
                     </div>
-                  </div>
-                  <div className="border border-gray-200 p-3 rounded-lg my-3">
-                    <p className="text-sm">
-                      <span className="text-gray-900 font-bold">
-                        Kenapa Cocok:
-                      </span>
-                      <span className="text-gray-600">
-                        {" "}
-                        {item.compatibility_reason}
-                      </span>
-                    </p>
-                  </div>
-                  <Button className="mt-auto bg-[#ED80A7] w-full py-3 px-4 font-bold rounded-lg text-white flex items-center justify-center gap-3 text-base hover:bg-pink-500 transition-colors">
-                    Beli Sekarang
-                    <Image
-                      src="/overview-ai/icons/mynaui_cart-solid.svg"
-                      width={20}
-                      height={20}
-                      alt="Shopping Cart"
-                    />
-                  </Button>
-                </div>
-              </div>
-            ))}
+                  ))}
+            </div>
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() =>
+                  setRecommendationPage((prev) => Math.max(prev - 1, 1))
+                }
+                disabled={recommendationPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="mx-4 self-center font-medium">
+                Page {recommendationPage}
+              </span>
+              <Button
+                onClick={() => setRecommendationPage((prev) => prev + 1)}
+                disabled={
+                  !recommendationsData ||
+                  recommendationPage * 3 >=
+                    (recommendationFilter === "all" ||
+                    recommendationFilter === "hijab"
+                      ? recommendationsData.hijab.length
+                      : 0) +
+                      (recommendationFilter === "all" ||
+                      recommendationFilter === "clothes"
+                        ? recommendationsData.clothes.length
+                        : 0)
+                }
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </section>
       </main>

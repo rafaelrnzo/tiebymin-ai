@@ -18,7 +18,6 @@ import {
 import { defaultUserData } from "@/lib/mock-data";
 import { BodyShapeData, UserData } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useState } from "react";
 
