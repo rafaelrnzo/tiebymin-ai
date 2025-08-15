@@ -29,7 +29,7 @@ export const Footer = ({
 
 export const PageHeader = ({
   name,
-  fill,
+  fill, 
 }: {
   name?: string;
   width?: number;
@@ -37,7 +37,7 @@ export const PageHeader = ({
 }) => {
   let userName = name;
   if (typeof window !== "undefined") {
-    userName = localStorage.getItem("namaUser") || name;
+    userName = localStorage.getItem("firstName") || name;
   }
 
   return (
@@ -98,7 +98,7 @@ export const Cover = ({ userData }: { userData: UserData }) => (
   <div className="flex items-center justify-center w-full h-screen">
     <div className="relative bg-[#F0F0F0] w-[680px] min-h-screen flex flex-col self-center overflow-hidden">
       <div className="ml-10">
-        <PageHeader fill name={userData.name} />
+        <PageHeader fill name={userData.username} />
       </div>
       <main className="flex flex-col justify-center px-10 mt-[5rem] w-full">
         <h1 className="font-oswald text-[64px] font-extrabold text-gray-800">
@@ -284,7 +284,7 @@ export const FaceShape = ({
   return (
     <div className="flex items-center justify-center w-full h-screen">
       <div className="relative bg-[#F0F0F0] w-[680px] px-10 flex flex-col justify-between min-h-screen">
-        <PageHeader name={userData.name} />
+        <PageHeader name={userData.username} />
 
         {/* Konten Utama */}
         <div className="flex flex-col gap-4 flex-grow">
@@ -451,7 +451,7 @@ export const ColorTone = ({
     <div className="flex justify-center w-full h-screen">
       <div className="relative bg-[#F0F0F0] w-[680px] flex flex-col justify-between h-screen">
         <div className="px-10">
-          <PageHeader width={100} name={userData.name} />
+          <PageHeader width={100} name={userData.username} />
         </div>
 
         <main className="py-10 flex-grow">
@@ -522,7 +522,7 @@ export const CelebritiesMatch = ({
 }) => (
   <div className="flex items-center justify-center w-full min-h-screen">
     <div className="relative bg-[#F0F0F0] w-[680px] px-10 flex flex-col justify-between min-h-screen">
-      <PageHeader name={userData.name} />
+      <PageHeader name={userData.username} />
 
       <div className="flex flex-col gap-4 flex-grow">
         <h1 className="text-[48px] text-gray-900 leading-tight font-oswald">
@@ -537,7 +537,7 @@ export const CelebritiesMatch = ({
               alt={userData.celebrityMatch.name}
               fill
               className="object-cover"
-              unoptimized
+              priority
             />
             <div className="absolute bottom-6 left-6 bg-[#323232] text-white text-xs font-bold px-2 py-1 rounded flex items-center shadow">
               <Sparkles className="w-4 h-4 mr-1" />
@@ -614,7 +614,7 @@ export const Conclusion = ({
   return (
     <div className="flex items-center justify-center w-full h-screen">
       <div className="relative bg-[#F0F0F0] h-screen font-sans w-[680px] px-10 flex flex-col justify-between">
-        <PageHeader name={userData.name} />
+        <PageHeader name={userData.username} />
         <main className="max-w-4xl mx-auto pt-10 flex-grow">
           <TipBox title="Tips untuk bentuk wajah kamu" items={faceTips} />
           <TipBox title="Tips untuk bentuk badan kamu" items={bodyTips} />

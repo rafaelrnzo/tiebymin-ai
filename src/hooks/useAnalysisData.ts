@@ -3,6 +3,7 @@ import { secureUrl } from "@/lib/api";
 import { BodyType } from "@/types";
 import { defaultUserData } from "@/lib/mock-data";
 
+
 async function fetchData(endpoint: string) {
   const fullUrl = secureUrl(endpoint);
   console.log(`🔄 Fetching: ${fullUrl}`); // Debug log
@@ -334,12 +335,15 @@ export function useDownloadPdf() {
         throw new Error("Result ID is required");
       }
 
+      const firstName = localStorage.getItem("firstName") || "User"; 
+
+
       const response = await fetch("/api/generate-pdf", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ resultId }),
+        body: JSON.stringify({ resultId, firstName }), 
       });
 
       if (!response.ok) {

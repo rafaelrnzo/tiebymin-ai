@@ -5,13 +5,16 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { resultId } = body;
+    const { resultId, firstName } = body; 
 
     const pdfUrl = new URL("/ai-overview/pdf", req.nextUrl.origin);
     pdfUrl.searchParams.set("print", "true");
     if (resultId) {
       pdfUrl.searchParams.set("result_id", resultId);
     }
+
+    const userName = firstName || "User";
+    pdfUrl.searchParams.set("userName", userName); 
 
     const isVercel = !!process.env.VERCEL_ENV;
     let puppeteer;
