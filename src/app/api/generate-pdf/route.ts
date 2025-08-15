@@ -42,9 +42,9 @@ export async function POST(req: NextRequest) {
     const page = await browser.newPage();
 
     await page.setViewport({
-      width: 1200,
+      width: 800,
       height: 1600,
-      deviceScaleFactor: 2,
+      deviceScaleFactor: 1,
     });
 
     await page.goto(pdfUrl.toString(), {
@@ -63,12 +63,14 @@ export async function POST(req: NextRequest) {
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: {
-        top: "20px",
-        right: "20px",
-        bottom: "20px",
-        left: "20px",
-      },
+      // margin: {
+      //   top: "20px",
+      //   right: "20px",
+      //   bottom: "20px",
+      //   left: "20px",
+      // },
+      width: '210mm',
+      height: '297mm',
       preferCSSPageSize: true,
     });
 
