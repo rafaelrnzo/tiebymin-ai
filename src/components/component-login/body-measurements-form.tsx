@@ -146,7 +146,7 @@ export default function BodyMeasurementsForm({
       {/* Tombol Submit */}
       <Button
         onClick={onSubmit}
-        className="w-full h-14 bg-gray-800 hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
+        className="w-full h-14 bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
       >
         Selanjutnya
       </Button>

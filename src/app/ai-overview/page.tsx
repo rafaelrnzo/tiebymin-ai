@@ -3,6 +3,9 @@
 import { Navbar } from "@/components/component-landing/navbar";
 import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
+import { FeedbackModal } from "@/components/sections/feedback-modal";
+import { useMutation } from "@tanstack/react-query";
+import { postFeedback } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,9 +29,37 @@ function BeautyAnalysisPageInner() {
   const [recommendationFilter, setRecommendationFilter] = useState<
     "all" | "hijab" | "clothes"
   >("all");
+  const [visitedTabs, setVisitedTabs] = useState(new Set<string>());
+  const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
 
   const handleFilterChange = (filter: "all" | "hijab" | "clothes") => {
     setRecommendationFilter(filter);
+  };
+
+  const feedbackMutation = useMutation({
+    mutationFn: postFeedback,
+    onSuccess: () => {
+      localStorage.setItem("feedbackSubmitted", "true");
+      setFeedbackModalOpen(false);
+    },
+    onError: (error) => {
+      console.error("Failed to submit feedback:", error);
+    },
+  });
+
+  const handleFeedbackSubmit = (
+    rating: number,
+    feedback: string,
+    dontShowAgain: boolean
+  ) => {
+    if (dontShowAgain) {
+      localStorage.setItem("feedbackDismissed", "true");
+      setFeedbackModalOpen(false);
+      return;
+    }
+    if (resultId) {
+      feedbackMutation.mutate({ resultId, rating, feedback });
+    }
   };
 
   useEffect(() => {
@@ -39,6 +70,20 @@ function BeautyAnalysisPageInner() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (activeTab) {
+      setVisitedTabs((prev) => new Set(prev).add(activeTab));
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    const feedbackSubmitted = localStorage.getItem("feedbackSubmitted");
+    const feedbackDismissed = localStorage.getItem("feedbackDismissed");
+    if (visitedTabs.size === analysisTabs.length && !feedbackSubmitted && !feedbackDismissed) {
+      setFeedbackModalOpen(true);
+    }
+  }, [visitedTabs]);
 
   const resultId = searchParams.get("result_id");
   console.log("🔍 Current resultId:", resultId); // Debug log
@@ -451,6 +496,11 @@ function BeautyAnalysisPageInner() {
           </div>
         </section>
       </main>
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
+        onSubmit={handleFeedbackSubmit}
+      />
     </div>
   );
 }
