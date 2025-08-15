@@ -33,66 +33,68 @@ function NumberInputWithControls({
   };
 
   return (
-    <div className="flex items-center gap-x-3 flex-grow basis-0 p-2 rounded-lg hover:bg-gray-50 transition">
+    <div className="flex flex-col flex-grow basis-0 p-2 rounded-lg hover:bg-gray-50 transition">
       <label
         htmlFor={id}
-        className="text-gray-700 font-medium whitespace-nowrap text-xs sm:text-sm md:text-base flex-shrink-0"
+        className="text-gray-700 font-medium text-xs sm:text-sm md:text-base mb-1"
       >
         {label}
       </label>
-      <Input
-        id={id}
-        type="number"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-16 text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-      />
-      {unit && (
-        <span className="text-gray-300 font-medium w-4 sm:w-4 md:w-5 flex-shrink-0">
-          {unit}
-        </span>
-      )}
-      <div className="flex flex-col items-center justify-center flex-shrink-0">
-        <Button
-          onClick={handleIncrement}
-          className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
-        >
-          {/* SVG untuk panah atas */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
-            className="w-3 h-3 sm:w-3.5 sm:h-3.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+      <div className="flex items-center gap-x-2">
+        <Input
+          id={id}
+          type="number"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-16 text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+        {unit && (
+          <span className="text-gray-300 font-medium w-4 sm:w-4 md:w-5">
+            {unit}
+          </span>
+        )}
+        <div className="flex flex-col items-center justify-center">
+          <Button
+            onClick={handleIncrement}
+            className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
           >
-            <path d="m18 15-6-6-6 6" />
-          </svg>
-        </Button>
-        <Button
-          onClick={handleDecrement}
-          className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
-        >
-          {/* SVG untuk panah bawah */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
-            className="w-3 h-3 sm:w-3.5 sm:h-3.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            {/* SVG untuk panah atas */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m18 15-6-6-6 6" />
+            </svg>
+          </Button>
+          <Button
+            onClick={handleDecrement}
+            className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
           >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </Button>
+            {/* SVG untuk panah bawah */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -115,9 +117,8 @@ export default function BodyMeasurementsForm({
   onSubmit,
 }: BodyMeasurementsFormProps) {
   return (
-    // Komponen sekarang hanya me-render elemen form
     <>
-      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-y-4 md:gap-x-4 mb-8 w-full">
+      <div className="flex flex-col lg:flex-row items-stretch md:items-center gap-y-4 md:gap-x-4 mb-8 w-full">
         <NumberInputWithControls
           label="Tinggi Badan"
           id="tinggi-input"
@@ -132,12 +133,14 @@ export default function BodyMeasurementsForm({
           onChange={(value) => onFormDataChange("berat", value)}
           unit="kg"
         />
-        <NumberInputWithControls
-          label="Umur"
-          id="umur-input"
-          value={formData.umur}
-          onChange={(value) => onFormDataChange("umur", value)}
-        />
+        <div className="flex flex-col">
+          <NumberInputWithControls
+            label="Umur"
+            id="umur-input"
+            value={formData.umur}
+            onChange={(value) => onFormDataChange("umur", value)}
+          />
+        </div>
       </div>
 
       {/* Tombol Submit */}

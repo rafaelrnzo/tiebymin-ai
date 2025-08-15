@@ -13,16 +13,28 @@ type AnalysisCardProps = {
   icon: React.ReactNode;
   title: string;
   subtitle?: string;
+  className?: string;
+  titleClassName?: string;
 };
-const AnalysisCard = ({ icon, title, subtitle }: AnalysisCardProps) => {
+const AnalysisCard = ({
+  icon,
+  title,
+  subtitle,
+  className,
+  titleClassName,
+}: AnalysisCardProps) => {
   return (
-    <div className="flex w-[300px] flex-row items-center gap-4 rounded-xl bg-white p-4 shadow-lg">
+    <div
+      className={`flex w-[300px] flex-row items-center gap-4 rounded-xl bg-white p-4 shadow-lg ${className}`}
+    >
       {/* Icon */}
       <div>{icon}</div>
 
       {/* Text Content */}
       <div className="flex flex-col">
-        <p className="text-xl font-bold text-gray-800">{title}</p>
+        <p className={`text-xl font-bold text-gray-800 ${titleClassName}`}>
+          {title}
+        </p>
         <p className="text-sm text-gray-600">{subtitle}</p>
       </div>
     </div>
@@ -52,13 +64,13 @@ export const HeroSection = () => {
           <div className="mx-10 mt-24 md:mt-6 flex justify-center gap-4 visible lg:invisible">
             <Button
               size="lg"
-              className="rounded-full bg-[#EF789B] text-white text-[20px] py-6 border-0"
+              className="rounded-full bg-[#EF789B] text-white text-xl py-6 border-0"
             >
               <p>Coba Sekarang</p>
             </Button>
             <Button
               size="lg"
-              className="rounded-full border-2 text-[20px] bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
+              className="rounded-full border-2 text-xl bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
             >
               <p className="text-[#EF789B]">Cara Kerja AI</p>
             </Button>
@@ -108,8 +120,10 @@ export const HeroSection = () => {
                 subtitle="Saran Produk"
               />
               <AnalysisCard
-                icon={<Sparkles className="h-8 w-8 text-gray-700" />}
+                icon={<Sparkles className="h-8 w-8 text-white" />}
                 title="Coba Sekarang"
+                className="bg-gradient-to-r from-pink-500 to-pink-400 shadow-lg"
+                titleClassName="text-white"
               />
             </div>
           </div>

@@ -58,12 +58,14 @@ export default function StoryPoster({
   handleDownloadStory,
   bodyDetails,
   bmiCategoryDetails,
+  isGenerating,
 }: {
   userData: UserData;
   userPhotoUrl: string | null;
   handleDownloadStory: () => void;
   bodyDetails?: BodyShapeData;
   bmiCategoryDetails?: BmiCategory;
+  isGenerating: boolean;
 }) {
   const faceShapeAnalysisData = generateGimmickChartData(userData.faceShape);
   console.log(userData, userPhotoUrl);
@@ -107,7 +109,7 @@ export default function StoryPoster({
               size={173}
               className="mt-auto"
             />
-            <p className="text-[20px] font-poppins mt-auto mx-10">
+            <p className="text-xl font-poppins mt-auto mx-10">
               Yuk share ke temen kamu untuk coba AI ini dengan scan barcode di
               atas!
             </p>
@@ -119,9 +121,16 @@ export default function StoryPoster({
                 }}
                 rel="noopener noreferrer"
                 className="border w-[230px] flex items-center space-x-1 text-sm"
+                disabled={isGenerating}
               >
-                <Instagram />
-                <span className="font-medium font-poppins">tiebymin</span>
+                {isGenerating ? (
+                  "Generating..."
+                ) : (
+                  <>
+                    <Instagram />
+                    <span className="font-medium font-poppins">tiebymin</span>
+                  </>
+                )}
               </Button>
               <Button className="border w-[230px] flex items-center space-x-1 text-sm">
                 <Music />
@@ -141,13 +150,11 @@ export default function StoryPoster({
                 <span
                   className={`text-sm ${
                     shape.active
-                      ? "font-poppins text-[20px] font-bold text-gray-800"
+                      ? "font-poppins text-xl font-bold text-gray-800"
                       : "text-gray-500"
                   }`}
                 >
-                  <span className="font-poppins text-[20px]">
-                    {shape.label}
-                  </span>
+                  <span className="font-poppins text-xl">{shape.label}</span>
                 </span>
                 <div className="w-full mt-4 bg-gray-200 rounded-full h-1.5">
                   <div
@@ -162,7 +169,7 @@ export default function StoryPoster({
             <h3 className="mb-4 font-oswald text-[36px]">
               Bentuk wajah kamu {userData.faceShape}
             </h3>
-            <p className="text-[20px] font-poppins">
+            <p className="text-xl font-poppins">
               {userData.faceShapeAnalysis.uniqueFact}
             </p>
           </div>
@@ -175,7 +182,7 @@ export default function StoryPoster({
           <h3 className="text-[36px] my-4 font-oswald">
             Color tone kamu {userData.colorTone}
           </h3>
-          <p className="text-[20px] font-poppins mt-6">
+          <p className="text-xl font-poppins mt-6">
             {userData.colorToneAnalysis.description}
           </p>
 
@@ -187,7 +194,7 @@ export default function StoryPoster({
               Combination: userData.colorToneAnalysis.combination,
             }).map(([title, colors]) => (
               <div key={title} className="text-center">
-                <h4 className="text-[20px] font-poppins mb-2">{title}</h4>
+                <h4 className="text-xl font-poppins mb-2">{title}</h4>
 
                 {/* Bedakan tampilan Combination */}
                 {title === "Combination" ? (
@@ -248,20 +255,20 @@ export default function StoryPoster({
             <h3 className="mb-1 font-oswald text-[36px]">
               Bentuk tubuh kamu {userData.bodyShape}
             </h3>
-            <p className="text-[20px] font-poppins mb-3">
+            <p className="text-xl font-poppins mb-3">
               {userData.bodyShapeAnalysis.description}
             </p>
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <div className="border rounded-2xl p-4">
-                <h4 className="font-bold text-[20px] font-poppins text-gray-800 mb-2">
+                <h4 className="font-bold text-xl font-poppins text-gray-800 mb-2">
                   Karakteristik
                 </h4>
-                <p className="text-[20px] font-poppins text-gray-600">
+                <p className="text-xl font-poppins text-gray-600">
                   {bodyDetails?.penjelasan_body_shape}
                 </p>
               </div>
               <div className="border rounded-2xl p-4 relative">
-                <h4 className="font-bold text-[20px] font-poppins text-gray-800 mb-4">
+                <h4 className="font-bold text-xl font-poppins text-gray-800 mb-4">
                   BMI Index
                 </h4>
 
@@ -285,7 +292,7 @@ export default function StoryPoster({
                 </div>
 
                 {/* Tips */}
-                <p className="mt-3 text-neutral-800 text-[20px] font-poppins leading-relaxed">
+                <p className="mt-3 text-neutral-800 text-xl font-poppins leading-relaxed">
                   {bmiCategoryDetails?.tips_fashion}
                 </p>
               </div>

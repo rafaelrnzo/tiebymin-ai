@@ -12,6 +12,13 @@ export function useStepsProgress(currentStep: number) {
         { number: "01", title: "Buat Akun", active: false, completed: false },
         { number: "02", title: "Lengkapi Data", active: false, completed: false },
         { number: "03", title: "Analisa", active: false, completed: false },
+        {
+      number: "04",
+      title: "Pilih Bentuk Tubuh Kamu",
+      active: false,
+      completed: false,
+    },
+    { number: "05", title: "Scan Wajah Kamu", active: false, completed: false },
     ], []);
 
     const [steps, setSteps] = useState<Step[]>(initialSteps);

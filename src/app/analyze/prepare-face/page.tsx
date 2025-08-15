@@ -6,6 +6,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import LeftSideSection from "@/components/component-login/left-side-section";
 
 const BodyTypeSkeleton = ({ count = 6 }) => {
   const topRowCount = Math.ceil(count / 2);
@@ -41,7 +42,6 @@ const BodyTypeSkeleton = ({ count = 6 }) => {
   );
 };
 
-// --- Komponen Utama ---
 interface BodyType {
   id: string;
   name: string;
@@ -65,8 +65,6 @@ export default function PrepareFacePage() {
       setIsLoading(true);
       setError(null);
       try {
-        // Simulasi delay untuk melihat skeleton
-        await new Promise((resolve) => setTimeout(resolve, 1500));
         const response = await axios.get(secureUrl(`/v1/body-shapes/`));
 
         if (response.data && response.data.length > 0) {
@@ -125,10 +123,8 @@ export default function PrepareFacePage() {
       </div>
     );
 
-  // --- Tampilan Utama ---
   return (
     <div className="min-h-screen w-full p-2 sm:p-3 flex flex-col items-center justify-center relative bg-[url('/login-bg.png')] bg-cover bg-center">
-      {/* CSS untuk Animasi Bintang */}
       <style jsx global>{`
         @keyframes rotate-sparkle {
           0%,
@@ -150,7 +146,6 @@ export default function PrepareFacePage() {
         }
       `}</style>
 
-      {/* Overlay Scan Wajah (Modal) */}
       {showOverlay && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4">
           <div
@@ -195,62 +190,14 @@ export default function PrepareFacePage() {
 
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center">
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center justify-center">
-          {/* Kolom Kiri - Kontrol */}
-          <div className="space-y-8 w-full max-w-md mx-auto flex flex-col items-center lg:order-1">
-            <div className="mb-8 flex justify-center w-full">
-              <Image
-                src="/tie-by-min-logo.png"
-                alt="Tiebymin Logo"
-                width={250}
-                height={80}
-                priority
-                className="mx-auto"
-              />
-            </div>
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs mx-auto shadow-md">
-              <span className="text-gray-700 font-medium font-poppins">
-                Analisa
-              </span>
-              <span className="text-gray-700 font-bold font-poppins">03</span>
-            </div>
-            <div className="bg-[#EF789B] rounded-2xl p-6 text-white w-full max-w-xs mx-auto shadow-md">
-              <div className="flex items-start justify-between mb-4">
-                <h2 className="text-xl font-bold font-poppins">
-                  Pilih Bentuk Tubuh Kamu
-                </h2>
-                <div className="w-6 h-6 rounded flex items-center justify-center">
-                  <Image
-                    src="/stars.png"
-                    alt="stars"
-                    width={20}
-                    height={20}
-                    className="sparkle-animation"
-                  />
-                </div>
-              </div>
-              <p className="text-white/90 text-sm leading-relaxed">
-                Dengan mengetahui bentuk tubuhmu, kami bisa memberikan
-                rekomendasi pakaian yang sesuai.
-              </p>
-            </div>
-            <Button
-              className="w-full border-gray-600/60 border backdrop-blur-sm rounded-lg px-6 py-5 flex items-center justify-between hover:bg-white/80 transition-colors max-w-xs mx-auto"
-              onClick={handleShowOverlay}
-            >
-              <span className="text-gray-700 font-medium">Scan Wajah Kamu</span>
-              <div className="w-6 h-6 rounded flex items-center justify-center">
-                <Image
-                  src="/stars.png"
-                  alt="stars"
-                  width={20}
-                  height={20}
-                  style={{ filter: "brightness(0) saturate(100%)" }}
-                />
-              </div>
-            </Button>
+          <div className="flex flex-col gap-8">
+            <LeftSideSection
+              currentStep={3}
+              title="Pilih Bentuk Tubuh Kamu"
+              description="Dengan mengetahui bentuk tubuhmu, kami bisa memberikan rekomendasi pakaian yang sesuai dengan proporsi tubuhmu"
+            />
           </div>
 
-          {/* Kolom Tengah - Pilihan Bentuk Tubuh (Dinamis dari API) */}
           {isLoading ? (
             <BodyTypeSkeleton
               count={allBodyTypes.length > 0 ? allBodyTypes.length : 6}
@@ -338,7 +285,6 @@ export default function PrepareFacePage() {
             </div>
           )}
 
-          {/* Kolom Kanan - Detail Pilihan (Dinamis dari API) */}
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-8 px-4 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3">
             {isLoading || !selectedType ? (
               <div className="w-full animate-pulse">
