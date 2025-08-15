@@ -216,9 +216,9 @@ export default function LoginPage() {
               {/* Register Button */}
               <Button
                 type="submit"
-                className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-8 transition-colors"
+                className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-8 transition-colors text-[20px]"
               >
-                {isLoading ? "Sedang Mendaftar..." : "Daftar"}
+                {isLoading ? "Sedang Mendaftar..." : "Daftar Sekarang"}
               </Button>
             </form>
           </div>
