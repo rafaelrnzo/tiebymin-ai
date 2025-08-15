@@ -1,4 +1,5 @@
 import url from "@/lib/url";
+import axios from "axios";
 
 export function secureUrl(endpoint: string): string {
   let fullUrl = endpoint.startsWith("http") ? endpoint : `${url}${endpoint}`;
@@ -8,27 +9,13 @@ export function secureUrl(endpoint: string): string {
   return fullUrl;
 }
 
-export const postFeedback = async ({
-  resultId,
-  rating,
-  feedback,
-}: {
-  resultId: string;
-  rating: number;
-  feedback: string;
+export const submitFeedback = async (data: {
+  user_id: string;
+  analysis_result_id: string;
+  feedback_type: string;
+  feedback_comment: string;
+  user_rating: number;
 }) => {
-  const response = await fetch(secureUrl("/feedback"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ result_id: resultId, rating, feedback }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Failed to submit feedback");
-  }
-
-  return response.json();
+  const response = await axios.post(secureUrl("/analysis-feedback/"), data);
+  return response.data;
 };

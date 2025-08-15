@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     await browser.close();
 
     // Return PDF as response
-    return new NextResponse(pdf, {
+    return new NextResponse(Buffer.from(pdf), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": "attachment; filename=hasil-analisa-lengkap.pdf",
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(
       JSON.stringify({
         error: "Failed to generate PDF",
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       }),
       {
         status: 500,

@@ -1,6 +1,5 @@
 "use client";
 import {
-  BackCover,
   BodyShape,
   CelebritiesMatch,
   ColorTone,
@@ -10,16 +9,44 @@ import {
 } from "@/components/pdf-components";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAllTips } from "@/hooks/useAllTips";
 import {
   useAnalysisData,
+  useBmiCategoryData,
   useBodyShapeData,
+  useCelebrityData,
+  useColorToneData,
   useDownloadPdf,
+  useFaceShapeData,
 } from "@/hooks/useAnalysisData";
 import { defaultUserData } from "@/lib/mock-data";
-import { BodyShapeData, UserData } from "@/types";
+import {
+  AllTips,
+  BmiCategory,
+  BodyShapeData,
+  Celebrity,
+  ColorAnalysis as ColorToneType,
+  FaceShape as FaceShapeType,
+  UserData,
+} from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import React, { Suspense, useState, useMemo } from "react";
+import React, { Suspense, useMemo, useState } from "react";
+
+interface PageProps {
+  userData: UserData;
+  userPhotoUrl?: string | null;
+  bodyDetails?: BodyShapeData;
+  faceShapeDetails?: FaceShapeType;
+  colorToneDetails?: ColorToneType;
+  celebrityDetails?: Celebrity;
+  bmiCategoryDetails?: BmiCategory;
+  faceTip?: AllTips["faceTip"];
+  bodyTip?: AllTips["bodyTip"];
+  colorTip?: AllTips["colorTip"];
+  isLoading?: boolean;
+  isError?: boolean;
+}
 
 function PdfPage() {
   const searchParams = useSearchParams();
@@ -42,6 +69,31 @@ function PdfPage() {
     analysisData?.body_shape_id?.toString()
   );
 
+  const { data: faceShapeDetails } = useFaceShapeData(
+    analysisData?.face_shape_id?.toString()
+  );
+
+  const { data: colorToneDetails } = useColorToneData(
+    analysisData?.color_analysis_id?.toString()
+  );
+
+  const { data: celebrityDetails } = useCelebrityData(
+    analysisData?.celebrity_id?.toString()
+  );
+
+  const { data: bmiCategoryDetails } = useBmiCategoryData(
+    analysisData?.bmi_category_id?.toString()
+  );
+
+  const {
+    data: tips,
+    isLoading: tipsLoading,
+    isError: tipsError,
+  } = useAllTips({
+    analysisData: analysisData,
+    enabled: !!analysisData,
+  });
+
   const { userData = defaultUserData, userPhotoUrl } = analysisResult || {};
   const finalUserData = useMemo(() => {
     if (!analysisResult?.userData) {
@@ -53,7 +105,8 @@ function PdfPage() {
     if (isPrintMode && userNameFromUrl) {
       displayName = userNameFromUrl;
     } else if (typeof window !== "undefined") {
-      displayName = localStorage.getItem("firstName") || analysisResult.userData.name;
+      displayName =
+        localStorage.getItem("firstName") || analysisResult.userData.name;
     } else {
       displayName = analysisResult.userData.name;
     }
@@ -62,6 +115,7 @@ function PdfPage() {
       ...analysisResult.userData,
       username: displayName,
       name: displayName,
+      firstName: displayName,
     };
   }, [analysisResult, isPrintMode, userNameFromUrl]);
 
@@ -138,25 +192,20 @@ function PdfPage() {
     }
   };
 
-  // useEffect(() => {
-  //   handleDownloadPDF();
-  // }, []);
-
   const pages: {
-    [key: string]: React.ComponentType<{
-      userData: UserData;
-      userPhotoUrl?: string | null;
-      bodyDetails?: BodyShapeData;
-    }>;
+    [key: string]: React.ComponentType<PageProps>;
   } = {
-    Cover,
-    FaceShape,
-    ColorTone,
-    BodyShape,
-    CelebritiesMatch,
-    Conclusion,
-    BackCover,
+    Cover: (props) => <Cover {...props} />,
+    FaceShape: (props) => <FaceShape {...props} />,
+    ColorTone: (props) => <ColorTone {...props} />,
+    BodyShape: (props) => <BodyShape {...props} />,
+    CelebritiesMatch: (props) => <CelebritiesMatch {...props} />,
+    ...(isPrintMode && {
+      Conclusion: (props) => <Conclusion {...props} />,
+    }),
   };
+
+  const pageKeys = Object.keys(pages);
   const pageOrder = Object.keys(pages) as (keyof typeof pages)[];
 
   const [activePage, setActivePage] = useState<keyof typeof pages>("Cover");
@@ -186,11 +235,22 @@ function PdfPage() {
               key={pageKey}
               className="pdf-page"
               style={{ pageBreakAfter: isNotLastPage ? "always" : "auto" }}
-              >
+            >
               <ComponentToPrint
                 userData={finalUserData}
                 userPhotoUrl={userPhotoUrl}
                 bodyDetails={bodyDetails}
+                faceShapeDetails={faceShapeDetails}
+                colorToneDetails={colorToneDetails}
+                celebrityDetails={celebrityDetails}
+                bmiCategoryDetails={bmiCategoryDetails}
+                {...(pageKey === "Conclusion" && {
+                  faceTip: tips?.faceTip,
+                  bodyTip: tips?.bodyTip,
+                  colorTip: tips?.colorTip,
+                  isLoading: tipsLoading,
+                  isError: tipsError,
+                })}
               />
             </section>
           );
@@ -260,7 +320,30 @@ function PdfPage() {
           userData={finalUserData}
           userPhotoUrl={userPhotoUrl}
           bodyDetails={bodyDetails}
+          faceShapeDetails={faceShapeDetails}
+          colorToneDetails={colorToneDetails}
+          celebrityDetails={celebrityDetails}
+          bmiCategoryDetails={bmiCategoryDetails}
+          {...(activePage === "Conclusion" && {
+            faceTip: tips?.faceTip,
+            bodyTip: tips?.bodyTip,
+            colorTip: tips?.colorTip,
+            isLoading: tipsLoading,
+            isError: tipsError,
+          })}
         />
+        <div className="w-full max-w-4xl mx-auto p-4 sm:p-8">
+          <div className="bg-white shadow-2xl rounded-lg overflow-hidden">
+            <Conclusion
+              userData={finalUserData}
+              faceTip={tips?.faceTip}
+              bodyTip={tips?.bodyTip}
+              colorTip={tips?.colorTip}
+              isLoading={tipsLoading}
+              isError={tipsError}
+            />
+          </div>
+        </div>
       </div>
     </>
   );

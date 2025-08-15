@@ -45,7 +45,7 @@ export interface Product {
   stock_quantity: number;
   created_at: string;
   updated_at: string;
-  product_colors: ProductColor[];
+  color_recommendations: string[];
   total_compatibility_score: number;
 }
 
@@ -143,52 +143,6 @@ export interface AnalysisData {
   color_analysis_id: string;
   body_shape_id: string;
   bmi_category_id: string;
-}
-
-export interface UserData { 
-  firstName: string;
-  username: string;
-  faceShape: string;
-  bodyShape: string;
-  colorTone: string;
-  bmi: {
-    value: number;
-    category: string;
-    desc: string;
-  };
-  celebrityMatch: {
-    name: string;
-    matchPercentage: number;
-    imageUrl: string;
-    reason: string[];
-    description: string;
-  };
-  faceShapeAnalysis: {
-    uniqueFact: string;
-    characteristics: string[];
-  };
-  bodyShapeAnalysis: {
-    description: string;
-    characteristics: string[];
-    imageUrl: string;
-  };
-  colorToneAnalysis: {
-    description: string;
-    bestColors: string[];
-    neutralColors: string[];
-    worstColors: string[];
-    combination: string[];
-    tips: {
-      makeup: string[];
-      outfit: string[];
-      personality: string[];
-      characteristics: string[];
-    };
-  };
-  conclusionTips: {
-    face: string[];
-    body: string[];
-    color: string[];
-    quickRecap: string[];
-  };
+  analysis_details?: Record<string, unknown>;
+  celebrity?: Celebrity;
 }

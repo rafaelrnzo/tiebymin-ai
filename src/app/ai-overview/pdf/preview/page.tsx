@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, X } from "lucide-react";
 import { Navbar } from "@/components/component-landing/navbar";
@@ -17,13 +17,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAnalysisData,
   useBodyShapeData,
-  useBmiCategoryData,
   useColorToneData,
   useFaceShapeData,
   useCelebrityData,
   useDownloadPdf,
 } from "@/hooks/useAnalysisData";
+import { useAllTips } from "@/hooks/useAllTips";
 import { defaultUserData } from "@/lib/mock-data";
+
+interface PdfPage {
+  id: string;
+  Component: React.ReactElement;
+}
 
 function PreviewPdfPage() {
   const router = useRouter();
@@ -37,6 +42,28 @@ function PreviewPdfPage() {
     rawAnalysisData,
   } = analysisResult || {};
 
+  const finalUserData = useMemo(() => {
+    if (!analysisResult?.userData) {
+      return defaultUserData;
+    }
+
+    let displayName: string;
+
+    if (typeof window !== "undefined") {
+      displayName =
+        localStorage.getItem("firstName") || analysisResult.userData.name;
+    } else {
+      displayName = analysisResult.userData.name;
+    }
+
+    return {
+      ...analysisResult.userData,
+      username: displayName,
+      name: displayName,
+      firstName: displayName,
+    };
+  }, [analysisResult]);
+
   const { data: bodyDetails } = useBodyShapeData(
     rawAnalysisData?.body_shape_id
   );
@@ -49,9 +76,15 @@ function PreviewPdfPage() {
   const { data: celebrityDetails } = useCelebrityData(
     rawAnalysisData?.celebrity_id
   );
-  const { data: bmiCategoryDetails } = useBmiCategoryData(
-    rawAnalysisData?.bmi_category_id
-  );
+
+  const {
+    data: tips,
+    isLoading: tipsLoading,
+    isError: tipsError,
+  } = useAllTips({
+    analysisData: rawAnalysisData,
+    enabled: !!rawAnalysisData,
+  });
 
   const { refetch: downloadPdf } = useDownloadPdf();
   const [error, setError] = useState<string | null>(null);
@@ -87,13 +120,13 @@ function PreviewPdfPage() {
     }
   };
 
-  const pdfPages = [
-    { id: "cover", Component: <Cover userData={userData} /> },
+  const pdfPages: PdfPage[] = [
+    { id: "cover", Component: <Cover userData={finalUserData} /> },
     {
       id: "faceShape",
       Component: (
         <FaceShape
-          userData={userData}
+          userData={finalUserData}
           userPhotoUrl={userPhotoUrl}
           faceShapeDetails={faceShapeDetails}
         />
@@ -102,18 +135,23 @@ function PreviewPdfPage() {
     {
       id: "colorTone",
       Component: (
-        <ColorTone userData={userData} colorToneDetails={colorToneDetails} />
+        <ColorTone
+          userData={finalUserData}
+          colorToneDetails={colorToneDetails}
+        />
       ),
     },
     {
       id: "bodyShape",
-      Component: <BodyShape userData={userData} bodyDetails={bodyDetails} />,
+      Component: (
+        <BodyShape userData={finalUserData} bodyDetails={bodyDetails} />
+      ),
     },
     {
       id: "celebritiesMatch",
       Component: (
         <CelebritiesMatch
-          userData={userData}
+          userData={finalUserData}
           celebrityDetails={celebrityDetails}
         />
       ),
@@ -122,11 +160,12 @@ function PreviewPdfPage() {
       id: "conclusion",
       Component: (
         <Conclusion
-          userData={userData}
-          faceShapeDetails={faceShapeDetails}
-          bodyDetails={bodyDetails}
-          colorToneDetails={colorToneDetails}
-          bmiCategoryDetails={bmiCategoryDetails}
+          userData={finalUserData}
+          faceTip={tips?.faceTip}
+          bodyTip={tips?.bodyTip}
+          colorTip={tips?.colorTip}
+          isLoading={tipsLoading}
+          isError={tipsError}
         />
       ),
     },

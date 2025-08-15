@@ -29,6 +29,7 @@ export const defaultUserData: UserData = {
       "Dahi dan rahang memiliki lebar yang hampir sama",
       "Panjang dan lebar wajah hampir seimbang",
     ],
+    description: "Cut Syifa memiliki bentuk wajah kotak dan cocok dengan gaya hijab yang menonjolkan fitur wajahnya.",
   },
   bodyShapeAnalysis: {
     imageUrl: "https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh",

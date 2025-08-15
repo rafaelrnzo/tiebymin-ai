@@ -1,14 +1,14 @@
 import {
+  AllTips,
   BodyShapeData,
-  UserData,
-  FaceShape as FaceShapeType,
-  ColorAnalysis as ColorToneType,
   Celebrity,
-  BmiCategory,
+  ColorAnalysis as ColorToneType,
+  FaceShape as FaceShapeType,
+  UserData,
 } from "@/types";
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState, useLayoutEffect } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 export const Footer = ({
   page,
@@ -29,7 +29,7 @@ export const Footer = ({
 
 export const PageHeader = ({
   name,
-  fill, 
+  fill,
 }: {
   name?: string;
   width?: number;
@@ -98,7 +98,7 @@ export const Cover = ({ userData }: { userData: UserData }) => (
   <div className="flex items-center justify-center w-full h-screen">
     <div className="relative bg-[#F0F0F0] w-full min-h-screen flex flex-col self-center overflow-hidden">
       <div className="ml-10">
-        <PageHeader fill name={userData.username} />
+        <PageHeader fill name={userData.name} />
       </div>
       <main className="flex flex-col justify-center px-10 mt-[5rem] w-full">
         <h1 className="font-oswald text-[64px] font-extrabold text-gray-800">
@@ -284,7 +284,7 @@ export const FaceShape = ({
   return (
     <div className="flex items-center justify-center w-full h-screen">
       <div className="relative bg-[#F0F0F0] w-full px-10 flex flex-col justify-between min-h-screen">
-        <PageHeader name={userData.username} />
+        <PageHeader name={userData.name} />
 
         {/* Konten Utama */}
         <div className="flex flex-col gap-4 flex-grow">
@@ -451,7 +451,7 @@ export const ColorTone = ({
     <div className="flex justify-center w-full h-screen">
       <div className="relative bg-[#F0F0F0] w-full flex flex-col justify-between h-screen">
         <div className="px-10">
-          <PageHeader width={100} name={userData.username} />
+          <PageHeader width={100} name={userData.name} />
         </div>
 
         <main className="py-10 flex-grow">
@@ -522,7 +522,7 @@ export const CelebritiesMatch = ({
 }) => (
   <div className="flex items-center justify-center w-full min-h-screen">
     <div className="relative bg-[#F0F0F0] w-full px-10 flex flex-col justify-between min-h-screen">
-      <PageHeader name={userData.username} />
+      <PageHeader name={userData.name} />
 
       <div className="flex flex-col gap-4 flex-grow">
         <h1 className="text-[48px] text-gray-900 leading-tight font-oswald">
@@ -533,7 +533,11 @@ export const CelebritiesMatch = ({
         <div className="flex gap-6">
           <div className="relative w-[55%] h-[400px] rounded-lg overflow-hidden shadow">
             <Image
-              src={celebrityDetails?.picture_url || "/hijab-1.png"}
+              src={
+                celebrityDetails?.picture_url ||
+                userData.celebrityMatch.imageUrl ||
+                "/hijab-1.png"
+              }
               alt={userData.celebrityMatch.name}
               fill
               className="object-cover"
@@ -552,15 +556,17 @@ export const CelebritiesMatch = ({
             </h2>
             <div className="flex flex-col gap-5">
               <p className="font-poppins text-xs text-gray-700 leading-snug flex-grow mt-3">
-                {userData.celebrityMatch.description ||
+                {celebrityDetails?.description ||
+                  userData.celebrityMatch.description ||
                   "Dia adalah artis, pemain film dan content creator terkenal asal indonesia,film paling hits nya berjudul “Ipar adalah maut, 2024”"}
               </p>
               <div className="bg-[#323232] h-[220px] text-white p-8 rounded">
                 <h3 className="text-sm font-bold mb-1">Kenapa Cocok?</h3>
                 <p className="text-xs leading-snug">
-                  {userData.celebrityMatch.reason.map((text, index) => (
-                    <span key={index}>{text}, </span>
-                  ))}
+                  {celebrityDetails?.similarity_text ||
+                    userData.celebrityMatch.reason.map((text, index) => (
+                      <span key={index}>{text}, </span>
+                    ))}
                 </p>
               </div>
             </div>
@@ -576,59 +582,102 @@ export const CelebritiesMatch = ({
 
 export const Conclusion = ({
   userData,
-  faceShapeDetails,
-  colorToneDetails,
-  bmiCategoryDetails,
+  faceTip,
+  bodyTip,
+  colorTip,
+  isLoading = false,
+  isError = false,
 }: {
   userData: UserData;
-  faceShapeDetails?: FaceShapeType;
-  bodyDetails?: BodyShapeData;
-  colorToneDetails?: ColorToneType;
-  bmiCategoryDetails?: BmiCategory;
+  faceTip?: AllTips["faceTip"];
+  bodyTip?: AllTips["bodyTip"];
+  colorTip?: AllTips["colorTip"];
+  isLoading?: boolean;
+  isError?: boolean;
 }) => {
-  const TipBox = ({ title, items }: { title: string; items: string[] }) => (
-    <div className="border border-[#323232] p-6 mb-8">
-      <h2 className="text-xs font-poppins font-bold text-gray-800 mb-4">
-        {title}
-      </h2>
-      {items.map((item: string, index: number) => (
-        <span key={index} className="font-poppins text-xs">
-          {item}
-        </span>
-      ))}
-    </div>
-  );
+  const TipBox = ({
+    title,
+    items,
+    loading,
+    error,
+  }: {
+    title: string;
+    items?: string[];
+    loading: boolean;
+    error: boolean;
+  }) => {
+    if (loading) {
+      return (
+        <div className="bg-gray-100 p-6 rounded-lg shadow-sm animate-pulse">
+          <div className="h-6 bg-gray-300 rounded w-1/3 mb-4"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-300 rounded w-full"></div>
+            <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+            <div className="h-4 bg-gray-300 rounded w-full"></div>
+          </div>
+        </div>
+      );
+    }
 
-  const faceTips = faceShapeDetails?.tips_bentuk_wajah
-    ? [faceShapeDetails.tips_bentuk_wajah]
-    : userData.conclusionTips.face;
-  const bodyTips = bmiCategoryDetails?.tips_fashion
-    ? [bmiCategoryDetails.tips_fashion]
-    : userData.conclusionTips.body;
-  const colorTips = colorToneDetails?.tips_warna_kulit_pakaian
-    ? [colorToneDetails.tips_warna_kulit_pakaian]
-    : userData.conclusionTips.color;
+    if (error) {
+      return (
+        <div className="bg-red-100 p-6 rounded-lg shadow-sm">
+          <h3 className="text-xl font-bold mb-4 text-red-700">{title}</h3>
+          <p className="text-red-600">Gagal memuat tips.</p>
+        </div>
+      );
+    }
 
-  const quickRecap = [...faceTips, ...bodyTips, ...colorTips];
+    return (
+      <div className="bg-gray-100 p-6 rounded-lg shadow-sm">
+        <h3 className="text-xl font-bold mb-4">{title}</h3>
+        {items && items.length > 0 ? (
+          <ul className="list-disc list-inside space-y-2">
+            {items.map((item, index) => (
+              <li key={index} className="text-gray-700">
+                {item}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">Tidak ada tips yang tersedia.</p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
-      <div className="relative bg-[#F0F0F0] h-screen font-sans w-full px-10 flex flex-col justify-between">
-        <PageHeader name={userData.username} />
-        <main className="max-w-4xl mx-auto pt-10 flex-grow">
-          <TipBox title="Tips untuk bentuk wajah kamu" items={faceTips} />
-          <TipBox title="Tips untuk bentuk badan kamu" items={bodyTips} />
-          <TipBox title="Tips untuk tone warna kamu" items={colorTips} />
-          <div className="bg-[#323232] text-white p-6 shadow-lg">
-            <h2 className="text-xs font-bold mb-4 flex items-center font-poppins">
-              <Sparkles className="mr-3 fill-white w-4 h-4" />
-              Rekap Cepat Tips Kamu
-            </h2>
-            {quickRecap.map((item, index) => (
-              <span key={index} className="text-xs font-poppins">
-                {item}
-              </span>
-            ))}
+      <div className="relative bg-[#F0F0F0] w-full px-10 flex flex-col justify-between min-h-screen">
+        <PageHeader name={userData.name} />
+        <main className="py-12 flex-grow">
+          <h1 className="text-4xl font-bold text-center mb-2 font-oswald">
+            KESIMPULAN & REKOMENDASI
+          </h1>
+          <p className="text-center text-gray-500 mb-10">
+            Berikut adalah ringkasan dan beberapa tips yang disesuaikan untuk
+            Anda.
+          </p>
+
+          <div className="space-y-8">
+            <TipBox
+              title="Rekomendasi Bentuk Wajah"
+              items={faceTip ? [faceTip] : []}
+              loading={isLoading}
+              error={isError}
+            />
+            <TipBox
+              title="Rekomendasi Bentuk Tubuh"
+              items={bodyTip ? [bodyTip] : []}
+              loading={isLoading}
+              error={isError}
+            />
+            <TipBox
+              title="Rekomendasi Warna"
+              items={colorTip ? [colorTip] : []}
+              loading={isLoading}
+              error={isError}
+            />
           </div>
         </main>
         <Footer page="06" />

@@ -1,20 +1,32 @@
 // hooks/useAllTips.ts
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { secureUrl } from '@/lib/api';
-import { AllTips, AnalysisData } from '@/types';
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { secureUrl } from "@/lib/api";
+import { AllTips, AnalysisData } from "@/types";
 
 interface UseAllTipsProps {
   analysisData: AnalysisData;
   enabled?: boolean;
 }
 
-export const useAllTips = ({ analysisData, enabled = true }: UseAllTipsProps) => {
-  const { face_shape_id, color_analysis_id, body_shape_id, bmi_category_id } = analysisData;
+export const useAllTips = ({
+  analysisData,
+  enabled = true,
+}: UseAllTipsProps) => {
+  const {
+    face_shape_id,
+    color_analysis_id,
+    body_shape_id,
+    bmi_category_id,
+  } = analysisData || {};
 
   const fetchAllTips = async (): Promise<AllTips> => {
-    // Validasi data ID
-    if (!face_shape_id || !color_analysis_id || !body_shape_id || !bmi_category_id) {
+    if (
+      !face_shape_id ||
+      !color_analysis_id ||
+      !body_shape_id ||
+      !bmi_category_id
+    ) {
       throw new Error("Data ID tidak lengkap untuk merangkum semua tips.");
     }
 
@@ -27,17 +39,30 @@ export const useAllTips = ({ analysisData, enabled = true }: UseAllTipsProps) =>
 
     return {
       faceTip: faceRes.data.tips_bentuk_wajah,
-      bodyTip: bodyRes.data.tips_body_shape,
-      colorTip: colorRes.data.tips_warna_kulit_pakaian,
-      makeupTip: colorRes.data.make_up_tips,
+      bodyTip: bodyRes.data.body_tips_summary,
+      colorTip: colorRes.data.color_tips_summary,
       bmiTip: bmiRes.data.tips_fashion,
+      makeupTip: colorRes.data.make_up_tips,
     };
   };
 
   return useQuery({
-    queryKey: ['allTips', face_shape_id, color_analysis_id, body_shape_id, bmi_category_id],
+    queryKey: [
+      "allTips",
+      face_shape_id,
+      color_analysis_id,
+      body_shape_id,
+      bmi_category_id,
+    ],
     queryFn: fetchAllTips,
-    enabled: enabled && !!(face_shape_id && color_analysis_id && body_shape_id && bmi_category_id),
+    enabled:
+      enabled &&
+      !!(
+        face_shape_id &&
+        color_analysis_id &&
+        body_shape_id &&
+        bmi_category_id
+      ),
     staleTime: 5 * 60 * 1000, // 5 menit
     retry: 2,
     retryDelay: 1000,

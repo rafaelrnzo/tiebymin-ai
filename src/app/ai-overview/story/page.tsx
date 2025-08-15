@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useMemo, useState } from "react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/hooks/useAnalysisData";
 
 import StoryPoster from "@/components/story-components";
+import { defaultUserData } from "@/lib/mock-data";
 
 function StoryPage() {
   const searchParams = useSearchParams();
@@ -23,6 +24,27 @@ function StoryPage() {
     userData: null,
     userPhotoUrl: null,
   };
+
+  const finalUserData = useMemo(() => {
+    if (!userData) {
+      return defaultUserData;
+    }
+
+    let displayName: string;
+
+    if (typeof window !== "undefined") {
+      displayName = localStorage.getItem("firstName") || userData.name;
+    } else {
+      displayName = userData.name;
+    }
+
+    return {
+      ...userData,
+      username: displayName,
+      name: displayName,
+      firstName: displayName,
+    };
+  }, [userData]);
   const { data: bodyDetails } = useBodyShapeData(
     data?.rawAnalysisData.body_shape_id
   );
@@ -121,7 +143,7 @@ function StoryPage() {
     return <p>Error: {fetchError?.message || error}</p>;
   }
 
-  if (!userData) {
+  if (!finalUserData) {
     return <p>No data found</p>;
   }
 
@@ -133,7 +155,7 @@ function StoryPage() {
       <StoryPoster
         handleDownloadStory={handleDownloadStory}
         isGenerating={isGenerating}
-        userData={userData}
+        userData={finalUserData}
         userPhotoUrl={userPhotoUrl}
         bodyDetails={bodyDetails}
         bmiCategoryDetails={bmiCategoryDetails}
