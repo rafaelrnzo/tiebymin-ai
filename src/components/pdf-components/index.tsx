@@ -19,7 +19,7 @@ export const Footer = ({
 }) => {
   return (
     <div
-      className={`flex justify-between items-center text-xs text-gray-700 my-12 font-poppins ${className}`}
+      className={`flex justify-between items-center text-xs text-gray-700 my-12 font-poppins px- ${className}`}
     >
       <span>© 2025, Tiebymin AI</span>
       <span>{page}</span>
@@ -81,7 +81,7 @@ export const TipBox = ({
 
 export const BackCover = () => (
   <div className="flex items-center justify-center w-full h-screen">
-    <div className="w-[680px] px-10 flex justify-center items-center bg-[#333333] h-full">
+    <div className="w-full px-10 flex justify-center items-center bg-[#333333] h-full">
       <Image
         src="/tie-by-min-logo-light.png"
         alt="Logo Tie By Min Putih"
@@ -96,7 +96,7 @@ export const BackCover = () => (
 
 export const Cover = ({ userData }: { userData: UserData }) => (
   <div className="flex items-center justify-center w-full h-screen">
-    <div className="relative bg-[#F0F0F0] w-[680px] min-h-screen flex flex-col self-center overflow-hidden">
+    <div className="relative bg-[#F0F0F0] w-full min-h-screen flex flex-col self-center overflow-hidden">
       <div className="ml-10">
         <PageHeader fill name={userData.username} />
       </div>
@@ -129,7 +129,7 @@ export const BodyShape = ({
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
-      <div className="relative bg-[#F0F0F0] h-screen w-[680px] px-10 flex flex-col justify-between">
+      <div className="relative bg-[#F0F0F0] h-screen w-full px-10 flex flex-col justify-between">
         <PageHeader width={100} name={userData.name} />
         <main className="mx-auto py-12 max-w-5xl flex-grow">
           <div className="flex gap-10">
@@ -283,7 +283,7 @@ export const FaceShape = ({
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
-      <div className="relative bg-[#F0F0F0] w-[680px] px-10 flex flex-col justify-between min-h-screen">
+      <div className="relative bg-[#F0F0F0] w-full px-10 flex flex-col justify-between min-h-screen">
         <PageHeader name={userData.username} />
 
         {/* Konten Utama */}
@@ -449,7 +449,7 @@ export const ColorTone = ({
 
   return (
     <div className="flex justify-center w-full h-screen">
-      <div className="relative bg-[#F0F0F0] w-[680px] flex flex-col justify-between h-screen">
+      <div className="relative bg-[#F0F0F0] w-full flex flex-col justify-between h-screen">
         <div className="px-10">
           <PageHeader width={100} name={userData.username} />
         </div>
@@ -507,7 +507,7 @@ export const ColorTone = ({
             </div>
           </div>
         </main>
-        <Footer page="03" className="text-white" />
+        <Footer page="03" className="text-white px-8" />
       </div>
     </div>
   );
@@ -521,7 +521,7 @@ export const CelebritiesMatch = ({
   celebrityDetails?: Celebrity;
 }) => (
   <div className="flex items-center justify-center w-full min-h-screen">
-    <div className="relative bg-[#F0F0F0] w-[680px] px-10 flex flex-col justify-between min-h-screen">
+    <div className="relative bg-[#F0F0F0] w-full px-10 flex flex-col justify-between min-h-screen">
       <PageHeader name={userData.username} />
 
       <div className="flex flex-col gap-4 flex-grow">
@@ -613,7 +613,7 @@ export const Conclusion = ({
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
-      <div className="relative bg-[#F0F0F0] h-screen font-sans w-[680px] px-10 flex flex-col justify-between">
+      <div className="relative bg-[#F0F0F0] h-screen font-sans w-full px-10 flex flex-col justify-between">
         <PageHeader name={userData.username} />
         <main className="max-w-4xl mx-auto pt-10 flex-grow">
           <TipBox title="Tips untuk bentuk wajah kamu" items={faceTips} />
