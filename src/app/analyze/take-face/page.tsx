@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useRef, useState } from "react";
 import LeftSideSection from "@/components/component-login/left-side-section";
+import { sendEmail } from "@/lib/utils";
 
 const INSTRUCTION_CARDS = [
   {
@@ -114,6 +115,16 @@ export default function FaceScanPrepPage() {
       if (response.status >= 200 && response.status < 300) {
         const resultId = response.data.analysis_result_id;
         if (resultId) {
+          const userEmail = localStorage.getItem("userEmail");
+          if (userEmail) {
+            const emailData = {
+              face_shape_id: response.data.face_shape_id,
+              color_analysis_id: response.data.color_analysis_id,
+              body_shape_id: response.data.body_shape_id,
+              bmi_category_id: response.data.bmi_category_id,
+            };
+            sendEmail(userEmail, emailData);
+          }
           router.push(`/ai-overview?result_id=${resultId}`);
         } else {
           throw new Error("API berhasil tapi tidak mengembalikan result ID.");

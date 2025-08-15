@@ -3,12 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
 import { secureUrl } from "@/lib/api";
-import { useRive, Fit, Alignment, Layout} from "@rive-app/react-canvas";
+import { sendEmail } from "@/lib/utils";
+import { useRive, Fit, Alignment, Layout } from "@rive-app/react-canvas";
 import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
+import { AnalysisData } from "@/types";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -77,12 +79,14 @@ const RiveLoadingAnimation = () => {
     autoplay: true,
     layout: new Layout({
       fit: Fit.Cover,
-      alignment: Alignment.Center  
-      }),    
+      alignment: Alignment.Center,
+    }),
   });
 
   return (
-    <div className={`mx-auto w-64 h-64 lg:w-[35rem] lg:h-[35rem] flex justify-center`}>
+    <div
+      className={`mx-auto w-64 h-64 lg:w-[35rem] lg:h-[35rem] flex justify-center`}
+    >
       <RiveComponent />
     </div>
   );
@@ -104,6 +108,8 @@ function HalamanKameraWajahContent() {
   const [isApiLoading, setIsApiLoading] = useState(false);
   const [completedAnalyses, setCompletedAnalyses] = useState(0);
   const totalAnalyses = 4;
+  const [fullAnalysisDetails, setFullAnalysisDetails] =
+    useState<AnalysisData | null>(null);
 
   const [loadingStep, setLoadingStep] = useState(0);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
@@ -149,12 +155,29 @@ function HalamanKameraWajahContent() {
     };
   }, [appState]);
 
+  const fetchAnalysisDetails = async (resultId: string) => {
+    try {
+      const endpoint = secureUrl(`/v1/analysis/results/${resultId}`); // Ganti dengan endpoint Anda yang sebenarnya
+      const response = await axios.get(endpoint);
+      if (response.status === 200 && response.data) {
+        setFullAnalysisDetails(response.data);
+        console.log("Detail analisis berhasil diambil:", response.data);
+      } else {
+        throw new Error("Gagal mengambil detail analisis.");
+      }
+    } catch (err) {
+      console.error("Error saat mengambil detail analisis:", err);
+      // Anda bisa menambahkan penanganan error di sini jika diperlukan
+    }
+  };
+
   useEffect(() => {
-    if (appState === "ANALYZING") {
+    if (appState === "ANALYZING" && analysisResultId) {
       setLoadingStep(0);
       setProgress(0);
+      fetchAnalysisDetails(analysisResultId);
+
       const stepCount = LOADING_STEPS.length;
-      // 1 minute
       const totalDuration = 60000;
       const stepDuration = Math.floor(totalDuration / stepCount);
 
@@ -169,6 +192,20 @@ function HalamanKameraWajahContent() {
       const finishTimer = setTimeout(() => {
         setProgress(100);
         setAppState("RESULTS");
+        const userEmail = localStorage.getItem("userEmail");
+        if (userEmail && analysisResultId && fullAnalysisDetails) {
+          const userEmail = localStorage.getItem("userEmail");
+          if (userEmail) {
+            const emailData = {
+              userName: localStorage.getItem("firstName") || "User",
+              face_shape_id: fullAnalysisDetails.face_shape_id,
+              color_analysis_id: fullAnalysisDetails.color_analysis_id,
+              body_shape_id: fullAnalysisDetails.body_shape_id,
+              bmi_category_id: fullAnalysisDetails.bmi_category_id,
+            };
+            sendEmail(userEmail, emailData);
+          }
+        }
       }, totalDuration);
 
       return () => {
@@ -177,7 +214,7 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState]);
+  }, [appState, fullAnalysisDetails]);
 
   useEffect(() => {
     if (appState === "RESULTS") {
@@ -282,8 +319,13 @@ function HalamanKameraWajahContent() {
     const beratParse = parseFloat(berat);
     const umurParse = parseInt(umur, 10);
 
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      setApiError("User ID not found. Please log in again.");
+      return;
+    }
     const formData = new FormData();
-    formData.append("user_id", "8a40ef18-1335-479e-8465-b63cdc3ebc88");
+    formData.append("user_id", userId);
     formData.append("tinggi_badan", String(tinggiParse));
     formData.append("berat_badan", String(beratParse));
     formData.append("umur", String(umurParse));
@@ -336,17 +378,16 @@ function HalamanKameraWajahContent() {
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center max-w-lg mx-auto">
-          <RiveLoadingAnimation  /> 
+          <RiveLoadingAnimation />
           <div className="loading-text -mt-0 lg:-mt-28">
-              <p className="text-2xl font-bold mt-4">
-                {progress < 100 ? `${progress}%` : "99%"}
-              </p>
-              <div className="mt-8">
-                <h2 className="text-lg font-semibold mb-2">{step.title}</h2>
-                <p className="text-gray-600 text-base">{step.desc}</p>
+            <p className="text-2xl font-bold mt-4">
+              {progress < 100 ? `${progress}%` : "99%"}
+            </p>
+            <div className="mt-8">
+              <h2 className="text-lg font-semibold mb-2">{step.title}</h2>
+              <p className="text-gray-600 text-base">{step.desc}</p>
             </div>
           </div>
-     
         </div>
       </main>
     );
@@ -362,7 +403,7 @@ function HalamanKameraWajahContent() {
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center ">
-             <RiveLoadingAnimation  />
+          <RiveLoadingAnimation />
           <p className="text-2xl font-bold mt-4">99%</p>
         </div>
         <div className="mt-12 w-full max-w-sm flex flex-col gap-3">

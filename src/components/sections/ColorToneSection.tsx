@@ -20,7 +20,7 @@ interface InfoCardProps {
 
 const ColorCircle: React.FC<ColorCircleProps> = ({ color, className }) => (
   <div
-    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${className}`}
+    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${className} border border-gray-400`}
     style={{ backgroundColor: color }}
   />
 );
@@ -29,7 +29,6 @@ const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
   <div className="text-center">
     <h3 className="font-poppins text-lg font-bold text-gray-700">{title}</h3>
     <div className="mt-2 grid grid-cols-3 grid-rows-2 gap-2 sm:gap-3">
-      {/* Fallback ke array kosong '|| []' untuk mencegah error jika data tidak ada */}
       {(colors || []).map((color, index) => (
         <ColorCircle key={index} color={color} />
       ))}

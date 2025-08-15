@@ -3,6 +3,7 @@
 import LeftSideSection from "@/components/component-login/left-side-section";
 import { Button } from "@/components/ui/button";
 import { secureUrl } from "@/lib/api";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -14,6 +15,7 @@ export default function LoginPage() {
     email: "",
     first_name: "",
     last_name: "",
+    phone_number: 0,
   });
 
   const generateUUID = () => {
@@ -36,9 +38,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
     try {
       const uniqueGoogleId = generateUUID();
 
@@ -60,12 +59,13 @@ export default function LoginPage() {
             last_name: formData.last_name,
             google_id: uniqueGoogleId,
             is_active: true,
+            phone_number: formData.phone_number,
             password: "qweqweasd",
           }),
         });
       } catch (fetchErr) {
         setError(
-          "Tidak dapat terhubung ke server. Silakan coba lagi nanti atau hubungi admin."
+          `Tidak dapat terhubung ke server. Silakan coba lagi nanti atau hubungi admin. ${fetchErr}`
         );
         setIsLoading(false);
         return;
@@ -85,6 +85,7 @@ export default function LoginPage() {
 
       if (result.id) {
         localStorage.setItem("userId", result.id);
+        localStorage.setItem("userEmail", formData.email);
         localStorage.setItem("firstName", result.first_name);
         localStorage.setItem("lastName", result.last_name);
         console.log(
@@ -211,11 +212,30 @@ export default function LoginPage() {
                   disabled={isLoading}
                 />
               </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="phone_number"
+                  className="block text-gray-600 font-medium text-sm"
+                >
+                  Nomor Telepon
+                </label>
+                <input
+                  id="phone_number"
+                  type="tel"
+                  value={formData.phone_number}
+                  onChange={(e) =>
+                    handleInputChange("phone_number", e.target.value)
+                  }
+                  className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                  placeholder="Masukkan nomor telepon"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
 
-              {/* Register Button */}
               <Button
                 type="submit"
-                className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-8 transition-colors text-[20px]"
+                className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-4 transition-colors text-[20px]"
               >
                 {isLoading ? "Sedang Mendaftar..." : "Daftar Sekarang"}
               </Button>

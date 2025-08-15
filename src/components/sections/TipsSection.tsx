@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { AnalysisData } from "@/types";
-import { useAllTips } from "@/hooks/useAllTips"; // Adjust path sesuai struktur project Anda
+import { useAllTips } from "@/hooks/useAllTips";
 
 interface TipCardProps {
   category: string;
@@ -12,7 +12,7 @@ interface TipCardProps {
   type?: boolean;
 }
 
-const TipCard: React.FC<TipCardProps> = ({ category, tip, icon, type }) => (
+const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
   <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6 h-full">
     <div className="mb-3">
       <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
@@ -20,23 +20,9 @@ const TipCard: React.FC<TipCardProps> = ({ category, tip, icon, type }) => (
     <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg sm:text-xl">
       {category}
     </h3>
-    {type ? (
-      <ul className="text-gray-600 text-sm leading-relaxed space-y-2">
-        {tip
-          .split("-")
-          .filter((item) => item.trim() !== "")
-          .map((item, index) => (
-            <li key={index} className="flex items-center">
-              <span className="mr-3 mt-1 text-gray-500 mb-1">•</span>
-              <span>{item.trim()}</span>
-            </li>
-          ))}
-      </ul>
-    ) : (
-      <span className="text-gray-600 text-sm leading-relaxed space-y-2">
-        {tip}
-      </span>
-    )}
+    <span className="text-gray-600 text-sm leading-relaxed space-y-2">
+      {tip}
+    </span>
   </div>
 );
 

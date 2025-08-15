@@ -148,10 +148,10 @@ export function useAnalysisData(resultId: string | null) {
               celebrityData?.match_percentage ||
               defaultUserData.celebrityMatch.matchPercentage,
             imageUrl:
-              celebrityData?.image_url ||
+              celebrityData?.picture_url ||
               defaultUserData.celebrityMatch.imageUrl,
-            reason: celebrityData?.reason
-              ? [celebrityData.reason]
+            reason: celebrityData?.similarity_text
+              ? [celebrityData.similarity_text]
               : defaultUserData.celebrityMatch.reason,
             description: celebrityData?.description,
           },
