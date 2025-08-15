@@ -13,23 +13,24 @@ const BodyTypeSkeleton = ({ count = 6 }) => {
   const topRow = Array(topRowCount).fill(0);
   const bottomRow = Array(bottomRowCount).fill(0);
 
+  // Responsive: stack vertically on mobile, grid on md+
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
-      <div className="flex flex-col justify-between w-full gap-8 animate-pulse">
-        <div className="flex flex-row gap-4 justify-center w-full">
+      <div className="flex flex-col justify-between w-full gap-4 sm:gap-8 animate-pulse">
+        <div className="flex flex-wrap sm:flex-nowrap gap-4 justify-center w-full">
           {topRow.map((_, i) => (
-            <div key={i} className="flex flex-col items-center">
-              <div className="relative mb-2 flex h-48 sm:h-64 w-24 sm:w-32 items-center justify-center">
+            <div key={i} className="flex flex-col items-center flex-1 min-w-[100px]">
+              <div className="relative mb-2 flex h-40 xs:h-48 sm:h-64 w-20 xs:w-24 sm:w-32 items-center justify-center">
                 <div className="absolute inset-0 bg-gray-300/50 rounded-lg" />
               </div>
               <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
             </div>
           ))}
         </div>
-        <div className="flex flex-row gap-4 justify-center w-full">
+        <div className="flex flex-wrap sm:flex-nowrap gap-4 justify-center w-full">
           {bottomRow.map((_, i) => (
-            <div key={i} className="flex flex-col items-center">
-              <div className="relative mb-2 flex h-48 sm:h-64 w-24 sm:w-32 items-center justify-center">
+            <div key={i} className="flex flex-col items-center flex-1 min-w-[100px]">
+              <div className="relative mb-2 flex h-40 xs:h-48 sm:h-64 w-20 xs:w-24 sm:w-32 items-center justify-center">
                 <div className="absolute inset-0 bg-gray-300/50 rounded-lg" />
               </div>
               <div className="h-4 w-20 bg-gray-300/50 rounded"></div>
@@ -91,6 +92,7 @@ export default function PrepareFacePage() {
     };
 
     fetchAllBodyShapes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSelectBodyType = (typeId: string) => {
@@ -113,10 +115,11 @@ export default function PrepareFacePage() {
   const topRow = allBodyTypes.slice(0, Math.ceil(allBodyTypes.length / 2));
   const bottomRow = allBodyTypes.slice(Math.ceil(allBodyTypes.length / 2));
 
+  // Responsive image sizes
   const bodyImageWidth = 100;
   const bodyImageHeight = 220;
   const bodyImageClass =
-    "w-[80px] h-[180px] sm:w-[100px] sm:h-[220px] object-contain";
+    "w-[70px] h-[140px] xs:w-[80px] xs:h-[180px] sm:w-[100px] sm:h-[220px] object-contain";
 
   if (error)
     return (
@@ -152,12 +155,12 @@ export default function PrepareFacePage() {
 
       {/* Overlay Scan Wajah (Modal) */}
       {showOverlay && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-2 sm:p-4">
           <div
             className="absolute inset-0 bg-black/30 backdrop-blur-sm"
             onClick={handleCloseOverlay}
           />
-          <div className="relative bg-white/90 rounded-2xl shadow-xl p-8 max-w-md w-full">
+          <div className="relative bg-white/90 rounded-2xl shadow-xl p-4 sm:p-8 max-w-md w-full">
             <div className="flex justify-end">
               <Button
                 onClick={handleCloseOverlay}
@@ -171,14 +174,14 @@ export default function PrepareFacePage() {
               <Image
                 src="/scan-face-illustration.png"
                 alt="Scan Wajah"
-                width={120}
-                height={120}
+                width={100}
+                height={100}
                 className="mb-4"
               />
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">
                 Scan Wajah Kamu
               </h2>
-              <p className="text-gray-600 text-center mb-4">
+              <p className="text-gray-600 text-center mb-4 text-sm sm:text-base">
                 Fitur scan wajah akan segera tersedia! <br /> Nantikan update
                 dari kami.
               </p>
@@ -194,28 +197,28 @@ export default function PrepareFacePage() {
       )}
 
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center justify-center">
+        <div className="w-full flex flex-col gap-8 md:gap-12 items-stretch justify-center lg:grid lg:grid-cols-3">
           {/* Kolom Kiri - Kontrol */}
           <div className="space-y-8 w-full max-w-md mx-auto flex flex-col items-center lg:order-1">
             <div className="mb-8 flex justify-center w-full">
               <Image
                 src="/tie-by-min-logo.png"
                 alt="Tiebymin Logo"
-                width={250}
-                height={80}
+                width={200}
+                height={60}
                 priority
                 className="mx-auto"
               />
             </div>
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-xs mx-auto shadow-md">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between w-full max-w-xs mx-auto shadow-md">
               <span className="text-gray-700 font-medium font-poppins">
                 Analisa
               </span>
               <span className="text-gray-700 font-bold font-poppins">03</span>
             </div>
-            <div className="bg-[#EF789B] rounded-2xl p-6 text-white w-full max-w-xs mx-auto shadow-md">
+            <div className="bg-[#EF789B] rounded-2xl p-4 sm:p-6 text-white w-full max-w-xs mx-auto shadow-md">
               <div className="flex items-start justify-between mb-4">
-                <h2 className="text-xl font-bold font-poppins">
+                <h2 className="text-lg sm:text-xl font-bold font-poppins">
                   Pilih Bentuk Tubuh Kamu
                 </h2>
                 <div className="w-6 h-6 rounded flex items-center justify-center">
@@ -228,16 +231,16 @@ export default function PrepareFacePage() {
                   />
                 </div>
               </div>
-              <p className="text-white/90 text-sm leading-relaxed">
+              <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
                 Dengan mengetahui bentuk tubuhmu, kami bisa memberikan
                 rekomendasi pakaian yang sesuai.
               </p>
             </div>
             <Button
-              className="w-full border-gray-600/60 border backdrop-blur-sm rounded-lg px-6 py-5 flex items-center justify-between hover:bg-white/80 transition-colors max-w-xs mx-auto"
+              className="w-full border-gray-600/60 border backdrop-blur-sm rounded-lg px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between hover:bg-white/80 transition-colors max-w-xs mx-auto"
               onClick={handleShowOverlay}
             >
-              <span className="text-gray-700 font-medium">Scan Wajah Kamu</span>
+              <span className="text-gray-700 font-medium text-sm sm:text-base">Scan Wajah Kamu</span>
               <div className="w-6 h-6 rounded flex items-center justify-center">
                 <Image
                   src="/stars.png"
@@ -257,17 +260,18 @@ export default function PrepareFacePage() {
             />
           ) : (
             <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
-              <div className="flex flex-col justify-between w-full gap-8">
-                <div className="flex flex-row gap-4 justify-center w-full">
+              <div className="flex flex-col justify-between w-full gap-4 sm:gap-8">
+                {/* Responsive: grid on mobile, flex-row on sm+ */}
+                <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 justify-center w-full">
                   {topRow.map((type) => (
                     <Button
                       key={type.id}
                       type="button"
                       onClick={() => handleSelectBodyType(type.id)}
-                      className="focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto"
+                      className="focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto flex-1 min-w-[90px] max-w-[120px]"
                     >
                       <div className="flex flex-col items-center">
-                        <div className="relative mb-2 flex h-48 sm:h-64 w-24 sm:w-32 items-center justify-center">
+                        <div className="relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center">
                           <div
                             className={`absolute inset-0 transition-opacity duration-300 ${
                               selectedTypeId === type.id
@@ -288,7 +292,7 @@ export default function PrepareFacePage() {
                             selectedTypeId === type.id
                               ? "text-gray-800 font-bold"
                               : "text-gray-500"
-                          } text-sm text-center`}
+                          } text-xs sm:text-sm text-center`}
                         >
                           {type.name}
                         </p>
@@ -296,16 +300,16 @@ export default function PrepareFacePage() {
                     </Button>
                   ))}
                 </div>
-                <div className="flex flex-row gap-4 justify-center w-full">
+                <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 justify-center w-full">
                   {bottomRow.map((type) => (
                     <Button
                       key={type.id}
                       type="button"
                       onClick={() => handleSelectBodyType(type.id)}
-                      className="focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto"
+                      className="focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto flex-1 min-w-[90px] max-w-[120px]"
                     >
                       <div className="flex flex-col items-center">
-                        <div className="relative mb-2 flex h-48 sm:h-64 w-24 sm:w-32 items-center justify-center">
+                        <div className="relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center">
                           <div
                             className={`absolute inset-0 transition-opacity duration-300 ${
                               selectedTypeId === type.id
@@ -326,7 +330,7 @@ export default function PrepareFacePage() {
                             selectedTypeId === type.id
                               ? "text-gray-800 font-bold"
                               : "text-gray-500"
-                          } text-sm text-center`}
+                          } text-xs sm:text-sm text-center`}
                         >
                           {type.name}
                         </p>
@@ -339,56 +343,56 @@ export default function PrepareFacePage() {
           )}
 
           {/* Kolom Kanan - Detail Pilihan (Dinamis dari API) */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-8 px-4 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-6 sm:py-8 px-2 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3 mt-6 lg:mt-0">
             {isLoading || !selectedType ? (
               <div className="w-full animate-pulse">
-                <div className="h-12 w-3/4 bg-gray-300/70 rounded mb-6"></div>
-                <div className="flex justify-center mb-8">
-                  <div className="w-16 h-24 bg-gray-300/70 rounded-md"></div>
+                <div className="h-10 sm:h-12 w-3/4 bg-gray-300/70 rounded mb-4 sm:mb-6"></div>
+                <div className="flex justify-center mb-6 sm:mb-8">
+                  <div className="w-12 sm:w-16 h-20 sm:h-24 bg-gray-300/70 rounded-md"></div>
                 </div>
-                <div className="space-y-3 mb-8">
+                <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                   <div className="h-4 w-full bg-gray-300/70 rounded"></div>
                   <div className="h-4 w-full bg-gray-300/70 rounded"></div>
                   <div className="h-4 w-5/6 bg-gray-300/70 rounded"></div>
                 </div>
-                <div className="mb-8">
-                  <div className="h-6 w-1/2 bg-gray-300/70 rounded mb-4"></div>
-                  <div className="space-y-3">
+                <div className="mb-6 sm:mb-8">
+                  <div className="h-5 sm:h-6 w-1/2 bg-gray-300/70 rounded mb-3 sm:mb-4"></div>
+                  <div className="space-y-2 sm:space-y-3">
                     <div className="h-4 w-full bg-gray-300/70 rounded"></div>
                     <div className="h-4 w-full bg-gray-300/70 rounded"></div>
                   </div>
                 </div>
-                <div className="w-full h-14 bg-gray-400/70 rounded-xl mt-4"></div>
+                <div className="w-full h-12 sm:h-14 bg-gray-400/70 rounded-xl mt-4"></div>
               </div>
             ) : (
               <>
                 <div className="w-full">
-                  <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 sm:mb-6 font-oswald text-left">
                     {selectedType.name}
                   </h2>
-                  <div className="flex justify-center mb-8">
+                  <div className="flex justify-center mb-6 sm:mb-8">
                     <Image
                       src={selectedType.link_picture}
                       alt={`${selectedType.name} body type`}
                       width={60}
                       height={90}
-                      className="w-auto h-24 object-contain"
+                      className="w-auto h-20 sm:h-24 object-contain"
                     />
                   </div>
-                  <p className="text-gray-600 text-sm mb-8 leading-relaxed text-left">
+                  <p className="text-gray-600 text-xs sm:text-sm mb-6 sm:mb-8 leading-relaxed text-left">
                     {selectedType.penjelasan_body_shape}
                   </p>
-                  <div className="mb-8">
-                    <h3 className="font-bold text-gray-800 mb-3 text-left">
+                  <div className="mb-6 sm:mb-8">
+                    <h3 className="font-bold text-gray-800 mb-2 sm:mb-3 text-left">
                       Karakteristik
                     </h3>
-                    <ul className="space-y-2 text-sm text-gray-600 text-left">
+                    <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600 text-left">
                       {selectedType.karakteristik
                         .split("-")
                         .filter((char: string) => char.trim() !== "")
                         .map((char: string, index: number) => (
                           <li key={index} className="flex items-start">
-                            <span className="mr-3 text-gray-500">•</span>
+                            <span className="mr-2 sm:mr-3 text-gray-500">•</span>
                             <span>{char.trim()}</span>
                           </li>
                         ))}
@@ -396,7 +400,7 @@ export default function PrepareFacePage() {
                   </div>
                 </div>
                 <Button
-                  className="w-full bg-[#323232] text-center text-white rounded-xl py-3 px-6 font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-4 mt-4"
+                  className="w-full bg-[#323232] text-center text-white rounded-xl py-2 sm:py-3 px-4 sm:px-6 font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 sm:gap-4 mt-4"
                   onClick={handleNext}
                 >
                   <span>Selanjutnya</span>

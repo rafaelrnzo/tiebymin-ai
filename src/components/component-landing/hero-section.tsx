@@ -13,17 +13,24 @@ type AnalysisCardProps = {
   icon: React.ReactNode;
   title: string;
   subtitle?: string;
+  isAnalytics?: boolean;
+
 };
-const AnalysisCard = ({ icon, title, subtitle }: AnalysisCardProps) => {
+
+const AnalysisCard = ({ icon, title, subtitle, isAnalytics }: AnalysisCardProps) => {
   return (
-    <div className="flex w-[300px] flex-row items-center gap-4 rounded-xl bg-white p-4 shadow-lg">
+    <div
+      className={`flex w-full lg:w-[300px] flex-row items-center gap-4 rounded-xl p-4 shadow-lg ${
+        isAnalytics ? "bg-[#EF789B]" : "bg-white"
+      }`}
+    >
       {/* Icon */}
-      <div>{icon}</div>
+      <div className={isAnalytics ? "fill-white" : ""}>{icon}</div>
 
       {/* Text Content */}
       <div className="flex flex-col">
-        <p className="text-xl font-bold text-gray-800">{title}</p>
-        <p className="text-sm text-gray-600">{subtitle}</p>
+        <p className={`text-xl font-bold ${isAnalytics ? "text-white" : "text-gray-800"}`}>{title}</p>
+        <p className={`text-sm ${isAnalytics ? "text-white" : "text-gray-600"}`}>{subtitle}</p>
       </div>
     </div>
   );
@@ -37,10 +44,10 @@ export const HeroSection = () => {
     >
       <div className="container mx-auto px-4 z-20 relative">
         <div className="text-center pt-12 lg:pt-0">
-          <h1 className="font-oswald text-[64px] translate-y-12 lg:text-[128px] font-bold text-white tracking-tight">
+          <h1 className="font-oswald text-[64px] translate-y-12 lg:text-[128px] font-bold text-black tracking-tight">
             AI Temukan
             <br />
-            <div className="flex text-center gap-64 justify-center lg:justify-center items-center">
+            <div className="flex text-center gap-12 lg:gap-64 justify-center lg:justify-center items-center">
               <span className="block lg:mt-2 lg:mr-[0rem] font-handlee italic">
                 Gaya
               </span>
@@ -49,7 +56,7 @@ export const HeroSection = () => {
               </span>
             </div>
           </h1>
-          <div className="mx-10 mt-24 md:mt-6 flex justify-center gap-4 visible lg:invisible">
+          <div className="mx-10 mt-24 md:mt-8 flex justify-center gap-4 visible lg:invisible">
             <Button
               size="lg"
               className="rounded-full bg-[#EF789B] text-white text-[20px] py-6 border-0"
@@ -77,7 +84,7 @@ export const HeroSection = () => {
         </div>
         <div className="relative z-20 mt-[12rem] lg:mt-2">
           <div className="flex flex-col items-center gap-8">
-            <div className="flex justify-evenly w-full">
+            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly">
               <AnalysisCard
                 icon={<Gem className="h-8 w-8 text-gray-700" />}
                 title="Diamond"
@@ -89,7 +96,7 @@ export const HeroSection = () => {
                 subtitle="Hasil Analisa Kulit"
               />
             </div>
-            <div className="flex justify-around w-full">
+            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-around">
               <AnalysisCard
                 icon={<Hourglass className="h-8 w-8 text-gray-700" />}
                 title="Hourglass"
@@ -101,14 +108,15 @@ export const HeroSection = () => {
                 subtitle="Kecocokan Analisa"
               />
             </div>
-            <div className="flex justify-evenly w-full">
+            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly">
               <AnalysisCard
                 icon={<Package2 className="h-8 w-8 text-gray-700" />}
                 title="Rekomendasi Produk"
                 subtitle="Saran Produk"
               />
               <AnalysisCard
-                icon={<Sparkles className="h-8 w-8 text-gray-700" />}
+                isAnalytics={true}
+                icon={<Sparkles className="h-8 w-8 text-white" />}
                 title="Coba Sekarang"
               />
             </div>

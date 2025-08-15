@@ -144,8 +144,8 @@ export default function LoginPage() {
             )}
 
             <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* First Name */}
-              <div className="flex w-full justify-center gap-4">
+              {/* First Name & Last Name */}
+              <div className="flex flex-col sm:flex-row w-full justify-center gap-4">
                 <div className="space-y-2 w-full">
                   <label
                     htmlFor="first_name"
@@ -167,8 +167,7 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {/* Last Name */}
-                <div className="space-y-2 w-full">
+                <div className="space-y-2 w-full mt-4 sm:mt-0">
                   <label
                     htmlFor="last_name"
                     className="block text-gray-600 font-medium text-sm"
