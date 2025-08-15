@@ -9,8 +9,8 @@ export async function POST(request: Request) {
     port: Number(process.env.SMTP_PORT) || 587,
     secure: false,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: process.env.SMTP_USER || "94d25a003@smtp-brevo.com",
+      pass: process.env.SMTP_PASS || "tFsmTdN0EPLKkaMV",
     },
   });
 

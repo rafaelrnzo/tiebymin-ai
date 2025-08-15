@@ -1,14 +1,16 @@
 "use client";
+import LeftSideSection from "@/components/component-login/left-side-section";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
+import { useAllTips } from "@/hooks/useAllTips";
+import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { secureUrl } from "@/lib/api";
+import { sendEmail } from "@/lib/utils";
 import axios from "axios";
 import { Camera, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useRef, useState } from "react";
-import LeftSideSection from "@/components/component-login/left-side-section";
-import { sendEmail } from "@/lib/utils";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 const INSTRUCTION_CARDS = [
   {
@@ -60,6 +62,25 @@ export default function FaceScanPrepPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isApiLoading, setIsApiLoading] = useState(false);
   const [apiError, setApiError] = useState<string>("");
+  const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
+  const { data: analysisHookData } = useAnalysisData(analysisResultId);
+  const { data: allTipsData } = useAllTips({
+    analysisData: analysisHookData?.rawAnalysisData,
+    enabled: !!analysisHookData?.rawAnalysisData,
+  });
+
+  useEffect(() => {
+    if (analysisResultId && analysisHookData?.userData && allTipsData) {
+      const userEmail = localStorage.getItem("userEmail");
+      if (userEmail) {
+        sendEmail(userEmail, {
+          userData: analysisHookData.userData,
+          tips: allTipsData,
+        });
+      }
+      router.push(`/ai-overview?result_id=${analysisResultId}`);
+    }
+  }, [analysisResultId, analysisHookData, allTipsData, router]);
 
   const handleTakePhoto = () => {
     router.push(`/analyze/open-camera`);
@@ -115,17 +136,7 @@ export default function FaceScanPrepPage() {
       if (response.status >= 200 && response.status < 300) {
         const resultId = response.data.analysis_result_id;
         if (resultId) {
-          const userEmail = localStorage.getItem("userEmail");
-          if (userEmail) {
-            const emailData = {
-              face_shape_id: response.data.face_shape_id,
-              color_analysis_id: response.data.color_analysis_id,
-              body_shape_id: response.data.body_shape_id,
-              bmi_category_id: response.data.bmi_category_id,
-            };
-            sendEmail(userEmail, emailData);
-          }
-          router.push(`/ai-overview?result_id=${resultId}`);
+          setAnalysisResultId(resultId);
         } else {
           throw new Error("API berhasil tapi tidak mengembalikan result ID.");
         }

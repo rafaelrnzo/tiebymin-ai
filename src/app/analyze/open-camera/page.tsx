@@ -2,15 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
+import { useAllTips } from "@/hooks/useAllTips";
+import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { secureUrl } from "@/lib/api";
+import { defaultUserData } from "@/lib/mock-data";
 import { sendEmail } from "@/lib/utils";
-import { useRive, Fit, Alignment, Layout } from "@rive-app/react-canvas";
+import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
 import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { AnalysisData } from "@/types";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -94,7 +96,7 @@ const RiveLoadingAnimation = () => {
 
 function HalamanKameraWajahContent() {
   const router = useRouter();
-  const { analysisData, setAnalysisData } = useAnalysis();
+  const { analysisData: contextAnalysisData, setAnalysisData } = useAnalysis();
   const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -108,8 +110,15 @@ function HalamanKameraWajahContent() {
   const [isApiLoading, setIsApiLoading] = useState(false);
   const [completedAnalyses, setCompletedAnalyses] = useState(0);
   const totalAnalyses = 4;
-  const [fullAnalysisDetails, setFullAnalysisDetails] =
-    useState<AnalysisData | null>(null);
+
+  const { data: analysisResultData } = useAnalysisData(analysisResultId);
+  const { userData = defaultUserData, rawAnalysisData } =
+    analysisResultData || {};
+
+  const { data: allTipsData } = useAllTips({
+    analysisData: rawAnalysisData,
+    enabled: !!rawAnalysisData,
+  });
 
   const [loadingStep, setLoadingStep] = useState(0);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
@@ -155,27 +164,11 @@ function HalamanKameraWajahContent() {
     };
   }, [appState]);
 
-  const fetchAnalysisDetails = async (resultId: string) => {
-    try {
-      const endpoint = secureUrl(`/v1/analysis/results/${resultId}`); // Ganti dengan endpoint Anda yang sebenarnya
-      const response = await axios.get(endpoint);
-      if (response.status === 200 && response.data) {
-        setFullAnalysisDetails(response.data);
-        console.log("Detail analisis berhasil diambil:", response.data);
-      } else {
-        throw new Error("Gagal mengambil detail analisis.");
-      }
-    } catch (err) {
-      console.error("Error saat mengambil detail analisis:", err);
-      // Anda bisa menambahkan penanganan error di sini jika diperlukan
-    }
-  };
-
   useEffect(() => {
     if (appState === "ANALYZING" && analysisResultId) {
       setLoadingStep(0);
       setProgress(0);
-      fetchAnalysisDetails(analysisResultId);
+      // No need to call fetchAnalysisDetails here, useAnalysisData will handle it
 
       const stepCount = LOADING_STEPS.length;
       const totalDuration = 60000;
@@ -192,20 +185,6 @@ function HalamanKameraWajahContent() {
       const finishTimer = setTimeout(() => {
         setProgress(100);
         setAppState("RESULTS");
-        const userEmail = localStorage.getItem("userEmail");
-        if (userEmail && analysisResultId && fullAnalysisDetails) {
-          const userEmail = localStorage.getItem("userEmail");
-          if (userEmail) {
-            const emailData = {
-              userName: localStorage.getItem("firstName") || "User",
-              face_shape_id: fullAnalysisDetails.face_shape_id,
-              color_analysis_id: fullAnalysisDetails.color_analysis_id,
-              body_shape_id: fullAnalysisDetails.body_shape_id,
-              bmi_category_id: fullAnalysisDetails.bmi_category_id,
-            };
-            sendEmail(userEmail, emailData);
-          }
-        }
       }, totalDuration);
 
       return () => {
@@ -214,7 +193,7 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState, fullAnalysisDetails]);
+  }, [appState, analysisResultId, userData, allTipsData]);
 
   useEffect(() => {
     if (appState === "RESULTS") {
@@ -232,6 +211,11 @@ function HalamanKameraWajahContent() {
       if (typeof window !== "undefined") {
         localStorage.removeItem("tiebymin-analysis-data");
         setAnalysisData({ tinggi: "", berat: "", umur: "", body_shape_id: "" });
+      }
+
+      const userEmail = localStorage.getItem("userEmail");
+      if (userEmail && userData && allTipsData) {
+        sendEmail(userEmail, { userData, tips: allTipsData });
       }
 
       const redirectTimer = setTimeout(() => {
@@ -290,7 +274,7 @@ function HalamanKameraWajahContent() {
   };
 
   const handleFullAnalysis = async () => {
-    const { tinggi, berat, umur, body_shape_id } = analysisData;
+    const { tinggi, berat, umur, body_shape_id } = contextAnalysisData;
 
     console.log("MENGIRIM PAYLOAD KE API:", {
       tinggi,

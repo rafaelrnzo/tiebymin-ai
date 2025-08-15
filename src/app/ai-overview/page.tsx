@@ -1,23 +1,21 @@
 "use client";
 
 import { Navbar } from "@/components/component-landing/navbar";
+import { FeedbackModal } from "@/components/sections/feedback-modal";
 import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
-import { FeedbackModal } from "@/components/sections/feedback-modal";
-import { useMutation } from "@tanstack/react-query";
-import { submitFeedback } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { analysisTabs } from "@/lib/mock-data";
-import { useRouter, useSearchParams } from "next/navigation";
-import BodySection from "../../components/sections/BodySection";
-import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
-import ColorToneSection from "../../components/sections/ColorToneSection";
-import ShapeSection from "../../components/sections/ShapeSection";
-import TipsSection from "../../components/sections/TipsSection";
 import {
   Grid2x2,
   Shirt,
@@ -26,12 +24,12 @@ import {
   ThumbsUp,
   UserStar,
 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useRouter, useSearchParams } from "next/navigation";
+import BodySection from "../../components/sections/BodySection";
+import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
+import ColorToneSection from "../../components/sections/ColorToneSection";
+import ShapeSection from "../../components/sections/ShapeSection";
+import TipsSection from "../../components/sections/TipsSection";
 
 function BeautyAnalysisPageInner() {
   const router = useRouter();
@@ -48,38 +46,6 @@ function BeautyAnalysisPageInner() {
 
   const handleFilterChange = (filter: "all" | "hijab" | "clothes") => {
     setRecommendationFilter(filter);
-  };
-
-  const feedbackMutation = useMutation({
-    mutationFn: submitFeedback,
-    onSuccess: () => {
-      localStorage.setItem("feedbackSubmitted", "true");
-      setFeedbackModalOpen(false);
-    },
-    onError: (error) => {
-      console.error("Failed to submit feedback:", error);
-    },
-  });
-
-  const handleFeedbackSubmit = (
-    rating: number,
-    feedback: string,
-    dontShowAgain: boolean
-  ) => {
-    if (dontShowAgain) {
-      localStorage.setItem("feedbackDismissed", "true");
-      setFeedbackModalOpen(false);
-      return;
-    }
-    if (resultId) {
-      feedbackMutation.mutate({
-        user_id: userId,
-        analysis_result_id: resultId,
-        feedback_type: "accurate",
-        feedback_comment: feedback,
-        user_rating: rating,
-      });
-    }
   };
 
   useEffect(() => {
@@ -461,7 +427,7 @@ function BeautyAnalysisPageInner() {
                           </TooltipProvider>
                           {sortedProducts.findIndex(
                             (p) => p.id === product.id
-                          ) === 0 && (
+                          ) < 3 && (
                             <div className="flex items-center gap-1 text-pink-500 flex-shrink-0">
                               <ThumbsUp className="w-4 h-4" />
                               <span className="font-semibold text-xs">
@@ -492,14 +458,16 @@ function BeautyAnalysisPageInner() {
                               Rekomendasi Warna
                             </span>
                             <div className="flex flex-wrap gap-2">
-                              {product.product_colors?.map((color, index) => (
-                                <div
-                                  key={index}
-                                  className="w-6 h-6 rounded-full border border-gray-200"
-                                  style={{ backgroundColor: color.hex_code }}
-                                  title={color.name}
-                                />
-                              ))}
+                              {product.color_recommendations?.map(
+                                (color, index) => (
+                                  <div
+                                    key={index}
+                                    className="w-6 h-6 rounded-full border border-gray-200"
+                                    style={{ backgroundColor: color }}
+                                    title={color}
+                                  />
+                                )
+                              )}
                             </div>
                           </div>
                           <div className="flex flex-col items-end gap-2">

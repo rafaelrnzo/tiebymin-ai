@@ -1,15 +1,14 @@
 import {
-  BodyShapeData,
-  UserData,
-  FaceShape as FaceShapeType,
-  ColorAnalysis as ColorToneType,
-  Celebrity,
-  BmiCategory,
   AllTips,
+  BodyShapeData,
+  Celebrity,
+  ColorAnalysis as ColorToneType,
+  FaceShape as FaceShapeType,
+  UserData,
 } from "@/types";
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState, useLayoutEffect } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 export const Footer = ({
   page,

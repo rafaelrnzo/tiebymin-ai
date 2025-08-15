@@ -1,6 +1,5 @@
 "use client";
 import {
-  BackCover,
   BodyShape,
   CelebritiesMatch,
   ColorTone,
@@ -10,29 +9,29 @@ import {
 } from "@/components/pdf-components";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAllTips } from "@/hooks/useAllTips";
 import {
   useAnalysisData,
-  useBodyShapeData,
-  useDownloadPdf,
-  useCelebrityData,
-  useFaceShapeData,
-  useColorToneData,
   useBmiCategoryData,
+  useBodyShapeData,
+  useCelebrityData,
+  useColorToneData,
+  useDownloadPdf,
+  useFaceShapeData,
 } from "@/hooks/useAnalysisData";
-import { useAllTips } from "@/hooks/useAllTips";
 import { defaultUserData } from "@/lib/mock-data";
+import {
+  AllTips,
+  BmiCategory,
+  BodyShapeData,
+  Celebrity,
+  ColorAnalysis as ColorToneType,
+  FaceShape as FaceShapeType,
+  UserData,
+} from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useMemo, useState } from "react";
-import {
-  BodyShapeData,
-  UserData,
-  FaceShape as FaceShapeType,
-  ColorAnalysis as ColorToneType,
-  Celebrity,
-  BmiCategory,
-  AllTips,
-} from "@/types";
 
 interface PageProps {
   userData: UserData;

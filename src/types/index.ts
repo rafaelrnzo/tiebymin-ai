@@ -45,7 +45,7 @@ export interface Product {
   stock_quantity: number;
   created_at: string;
   updated_at: string;
-  product_colors: ProductColor[];
+  color_recommendations: string[];
   total_compatibility_score: number;
 }
 
