@@ -154,8 +154,8 @@ function HalamanKameraWajahContent() {
       setLoadingStep(0);
       setProgress(0);
       const stepCount = LOADING_STEPS.length;
-      // 1 minute 40 seconds
-      const totalDuration = 100000;
+      // 1 minute
+      const totalDuration = 60000;
       const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
