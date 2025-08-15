@@ -19,12 +19,14 @@ import { defaultUserData } from "@/lib/mock-data";
 import { BodyShapeData, UserData } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useMemo } from "react";
 
 function PdfPage() {
   const searchParams = useSearchParams();
   const resultId = searchParams.get("result_id");
   const isPrintMode = searchParams.get("print") === "true";
+
+  const userNameFromUrl = searchParams.get("userName");
 
   const {
     data: analysisResult,
@@ -41,6 +43,27 @@ function PdfPage() {
   );
 
   const { userData = defaultUserData, userPhotoUrl } = analysisResult || {};
+  const finalUserData = useMemo(() => {
+    if (!analysisResult?.userData) {
+      return defaultUserData;
+    }
+
+    let displayName: string;
+
+    if (isPrintMode && userNameFromUrl) {
+      displayName = userNameFromUrl;
+    } else if (typeof window !== "undefined") {
+      displayName = localStorage.getItem("firstName") || analysisResult.userData.name;
+    } else {
+      displayName = analysisResult.userData.name;
+    }
+
+    return {
+      ...analysisResult.userData,
+      username: displayName,
+      name: displayName,
+    };
+  }, [analysisResult, isPrintMode, userNameFromUrl]);
 
   const { refetch: downloadPdf, isLoading: isGenerating } = useDownloadPdf();
 
@@ -154,16 +177,18 @@ function PdfPage() {
   if (isPrintMode) {
     return (
       <main id="pdf-content">
-        {pageOrder.map((pageKey) => {
+        {pageOrder.map((pageKey, index) => {
           const ComponentToPrint = pages[pageKey];
+          const isNotLastPage = index < pageOrder.length - 1;
+
           return (
             <section
               key={pageKey}
               className="pdf-page"
-              style={{ pageBreakAfter: "always" }}
-            >
+              style={{ pageBreakAfter: isNotLastPage ? "always" : "auto" }}
+              >
               <ComponentToPrint
-                userData={userData}
+                userData={finalUserData}
                 userPhotoUrl={userPhotoUrl}
                 bodyDetails={bodyDetails}
               />
@@ -232,7 +257,7 @@ function PdfPage() {
       </div>
       <div className="max-w-full self-center mx-auto">
         <ActiveComponent
-          userData={userData}
+          userData={finalUserData}
           userPhotoUrl={userPhotoUrl}
           bodyDetails={bodyDetails}
         />

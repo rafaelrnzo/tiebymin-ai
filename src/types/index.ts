@@ -145,8 +145,9 @@ export interface AnalysisData {
   bmi_category_id: string;
 }
 
-export interface UserData {
-  name: string;
+export interface UserData { 
+  firstName: string;
+  username: string;
   faceShape: string;
   bodyShape: string;
   colorTone: string;
