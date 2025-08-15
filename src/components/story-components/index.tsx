@@ -3,7 +3,13 @@ import React from "react";
 import Image from "next/image";
 import QRCode from "react-qr-code";
 import { Button } from "../ui/button";
-import { BodyShapeData, UserData, BmiCategory } from "@/types";
+import {
+  BodyShapeData,
+  UserData,
+  BmiCategory,
+  ColorAnalysis as ColorTone,
+  FaceShape,
+} from "@/types";
 import { Instagram, Music } from "lucide-react";
 
 const generateGimmickChartData = (
@@ -59,6 +65,8 @@ export default function StoryPoster({
   bodyDetails,
   bmiCategoryDetails,
   isGenerating,
+  colorToneDetails,
+  faceShapeDetails,
 }: {
   userData: UserData;
   userPhotoUrl: string | null;
@@ -66,9 +74,15 @@ export default function StoryPoster({
   bodyDetails?: BodyShapeData;
   bmiCategoryDetails?: BmiCategory;
   isGenerating: boolean;
+  colorToneDetails?: ColorTone;
+  faceShapeDetails?: FaceShape;
 }) {
   const faceShapeAnalysisData = generateGimmickChartData(userData.faceShape);
   console.log(userData, userPhotoUrl);
+  const penjelasanLengkap = faceShapeDetails?.penjelasan_face_shape || "";
+
+  // Pisahkan teks berdasarkan tanda "-" dan ambil bagian pertama saja
+  const kalimatUtama = penjelasanLengkap.split("-")[0].trim();
   return (
     <div
       className="bg-white text-gray-800 w-[1080px] mx-auto p-8 font-sans"
@@ -169,9 +183,7 @@ export default function StoryPoster({
             <h3 className="mb-4 font-oswald text-[36px]">
               Bentuk wajah kamu {userData.faceShape}
             </h3>
-            <p className="text-xl font-poppins">
-              {userData.faceShapeAnalysis.uniqueFact}
-            </p>
+            <p className="text-xl font-poppins">{kalimatUtama}</p>
           </div>
         </div>
 
@@ -183,7 +195,7 @@ export default function StoryPoster({
             Color tone kamu {userData.colorTone}
           </h3>
           <p className="text-xl font-poppins mt-6">
-            {userData.colorToneAnalysis.description}
+            {colorToneDetails?.penjelasan_color_analysis}
           </p>
 
           <div className="grid grid-cols-4 gap-4 mt-[2rem] mb-[3rem]">

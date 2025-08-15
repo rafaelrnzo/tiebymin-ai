@@ -7,6 +7,8 @@ import {
   useAnalysisData,
   useBmiCategoryData,
   useBodyShapeData,
+  useColorToneData,
+  useFaceShapeData,
   useGenerateStory,
 } from "@/hooks/useAnalysisData";
 
@@ -26,6 +28,12 @@ function StoryPage() {
   );
   const { data: bmiCategoryDetails } = useBmiCategoryData(
     data?.rawAnalysisData.bmi_category_id || null
+  );
+  const { data: colorToneDetails } = useColorToneData(
+    data?.rawAnalysisData.color_analysis_id
+  );
+  const { data: faceShapeDetails } = useFaceShapeData(
+    data?.rawAnalysisData.face_shape_id
   );
 
   const { refetch: generateStory } = useGenerateStory();
@@ -129,6 +137,8 @@ function StoryPage() {
         userPhotoUrl={userPhotoUrl}
         bodyDetails={bodyDetails}
         bmiCategoryDetails={bmiCategoryDetails}
+        colorToneDetails={colorToneDetails}
+        faceShapeDetails={faceShapeDetails}
       />
     </div>
   );
