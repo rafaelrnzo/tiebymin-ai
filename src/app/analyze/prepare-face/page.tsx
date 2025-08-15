@@ -14,7 +14,6 @@ const BodyTypeSkeleton = ({ count = 6 }) => {
   const topRow = Array(topRowCount).fill(0);
   const bottomRow = Array(bottomRowCount).fill(0);
 
-  // Responsive: stack vertically on mobile, grid on md+
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
       <div className="flex flex-col justify-between w-full gap-4 sm:gap-8 animate-pulse">

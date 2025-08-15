@@ -88,7 +88,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     );
 
   return (
-    <div className="flex flex-col gap-y-8">
+    <div className="flex flex-col gap-y-8 h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="border rounded-2xl p-4 sm:p-6">
           <h3 className="font-bold text-5xl font-oswald">

@@ -62,15 +62,72 @@ export interface Celebrity {
 export interface ColorAnalysis {
   id: string;
   name: string;
-  penjelasan_color_analysis: string;
+  description: string;
+  best_colors: string[];
+  neutral_colors: string[];
+  worst_colors: string[];
+  combination_colors: string[];
   make_up_tips: string;
   tips_warna_kulit_pakaian: string;
   personality: string;
   karakteristik: string;
-  best_colour: string[];
-  worst_colour: string[];
-  neutral_colour: string[];
-  best_colour_combination: string[][];
+  penjelasan_color_analysis: string;
+}
+
+export interface FaceShape {
+  id: string;
+  name: string;
+  description: string;
+  characteristics: string[];
+  tips_bentuk_wajah: string;
+  penjelasan_face_shape: string;
+}
+
+export interface UserData {
+  name: string;
+  faceShape: string;
+  bodyShape: string;
+  colorTone: string;
+  bmi: {
+    value: number;
+    category: string;
+    desc: string;
+  };
+  celebrityMatch: {
+    name: string;
+    matchPercentage: number;
+    imageUrl: string;
+    reason: string[];
+    description: string;
+  };
+  faceShapeAnalysis: {
+    uniqueFact: string;
+    characteristics: string[];
+  };
+  bodyShapeAnalysis: {
+    description: string;
+    characteristics: string[];
+    imageUrl: string;
+  };
+  colorToneAnalysis: {
+    description: string;
+    bestColors: string[];
+    neutralColors: string[];
+    worstColors: string[];
+    combination: string[];
+    tips: {
+      makeup: string[];
+      outfit: string[];
+      personality: string[];
+      characteristics: string[];
+    };
+  };
+  conclusionTips: {
+    face: string[];
+    body: string[];
+    color: string[];
+    quickRecap: string[];
+  };
 }
 
 export interface AllTips {

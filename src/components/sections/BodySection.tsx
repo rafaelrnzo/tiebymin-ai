@@ -61,7 +61,7 @@ const BodySection: React.FC<BodySectionProps> = ({
     return <div className="text-center p-8">Data tubuh tidak ditemukan.</div>;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
       <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6">
         <h3 className="font-bold text-5xl font-oswald">{bodyDetails.name}</h3>
         <div className="flex justify-center my-6">

@@ -1,13 +1,29 @@
 "use client";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronRight, X } from "lucide-react";
 import { Navbar } from "@/components/component-landing/navbar";
-import { Cover, FaceShape } from "@/components/pdf-components";
+import {
+  BackCover,
+  BodyShape,
+  CelebritiesMatch,
+  ColorTone,
+  Conclusion,
+  Cover,
+  FaceShape,
+} from "@/components/pdf-components";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAnalysisData, useDownloadPdf } from "@/hooks/useAnalysisData";
+import {
+  useAnalysisData,
+  useBodyShapeData,
+  useBmiCategoryData,
+  useColorToneData,
+  useFaceShapeData,
+  useCelebrityData,
+  useDownloadPdf,
+} from "@/hooks/useAnalysisData";
 import { defaultUserData } from "@/lib/mock-data";
-import { ChevronRight, X } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
 
 function PreviewPdfPage() {
   const router = useRouter();
@@ -15,7 +31,27 @@ function PreviewPdfPage() {
   const resultId = searchParams.get("result_id");
 
   const { data: analysisResult } = useAnalysisData(resultId);
-  const { userData = defaultUserData, userPhotoUrl } = analysisResult || {};
+  const {
+    userData = defaultUserData,
+    userPhotoUrl,
+    rawAnalysisData,
+  } = analysisResult || {};
+
+  const { data: bodyDetails } = useBodyShapeData(
+    rawAnalysisData?.body_shape_id
+  );
+  const { data: colorToneDetails } = useColorToneData(
+    rawAnalysisData?.color_analysis_id
+  );
+  const { data: faceShapeDetails } = useFaceShapeData(
+    rawAnalysisData?.face_shape_id
+  );
+  const { data: celebrityDetails } = useCelebrityData(
+    rawAnalysisData?.celebrity_id
+  );
+  const { data: bmiCategoryDetails } = useBmiCategoryData(
+    rawAnalysisData?.bmi_category_id
+  );
 
   const { refetch: downloadPdf } = useDownloadPdf();
   const [error, setError] = useState<string | null>(null);
@@ -51,33 +87,78 @@ function PreviewPdfPage() {
     }
   };
 
+  const pdfPages = [
+    { id: "cover", Component: <Cover userData={userData} /> },
+    {
+      id: "faceShape",
+      Component: (
+        <FaceShape
+          userData={userData}
+          userPhotoUrl={userPhotoUrl}
+          faceShapeDetails={faceShapeDetails}
+        />
+      ),
+    },
+    {
+      id: "colorTone",
+      Component: (
+        <ColorTone userData={userData} colorToneDetails={colorToneDetails} />
+      ),
+    },
+    {
+      id: "bodyShape",
+      Component: <BodyShape userData={userData} bodyDetails={bodyDetails} />,
+    },
+    {
+      id: "celebritiesMatch",
+      Component: (
+        <CelebritiesMatch
+          userData={userData}
+          celebrityDetails={celebrityDetails}
+        />
+      ),
+    },
+    {
+      id: "conclusion",
+      Component: (
+        <Conclusion
+          userData={userData}
+          faceShapeDetails={faceShapeDetails}
+          bodyDetails={bodyDetails}
+          colorToneDetails={colorToneDetails}
+          bmiCategoryDetails={bmiCategoryDetails}
+        />
+      ),
+    },
+    { id: "backCover", Component: <BackCover /> },
+  ];
+
   return (
     <div className="bg-[#F0F0F0] min-h-screen flex flex-col">
       <Navbar />
-      <div className="flex-grow flex flex-col items-center justify-center p-4">
-        {/* White card that wraps everything */}
-        <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-6xl p-4 md:p-6">
-          {/* Close button inside the card */}
+      <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-6">
+        <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-6xl flex flex-col overflow-hidden h-[85vh]">
           <X
             onClick={() => router.back()}
-            className="cursor-pointer absolute top-4 right-4 md:top-6 md:right-6 text-gray-500 hover:text-gray-800 z-10"
+            className="cursor-pointer absolute top-4 right-4 text-gray-500 hover:text-gray-800 z-20"
           />
 
-          {/* Cover and FaceShape components side by side */}
-          <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6 mb-8 mt-4">
-            {/* Cover component */}
-            <div className="transform scale-50 md:scale-75 origin-center -mx-18 -mt-[5rem]">
-              <Cover userData={userData} />
-            </div>
-
-            {/* FaceShape component */}
-            <div className="transform scale-50 md:scale-75 origin-center -mx-18 -mt-[5rem]">
-              <FaceShape userData={userData} userPhotoUrl={userPhotoUrl} />
+          <div className="flex-grow overflow-x-auto overflow-y-hidden">
+            <div className="flex h-full w-max items-center">
+              {pdfPages.map(({ id, Component }) => (
+                <div key={id} className="flex-shrink-0">
+                  <div className="transform origin-center scale-[0.4] -mx-28 sm:scale-50 sm:-mx-24 md:scale-75 md:-mx-14">
+                    <div className="w-[680px] h-screen shadow-lg rounded-lg overflow-hidden bg-white">
+                      {Component}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Download button */}
-          <div className="flex justify-center md:justify-start -mt-[7rem] pb-10 md:pl-10">
+          {/* --- DOWNLOAD BUTTON --- */}
+          <div className="bg-white p-4 flex justify-start border-t border-gray-200">
             <Button
               onClick={handleDownloadPDF}
               className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
@@ -95,7 +176,7 @@ function PreviewPdfPage() {
 
         {/* Error message outside the card */}
         {error && (
-          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg max-w-6xl w-full">
             {error}
           </div>
         )}
@@ -111,7 +192,7 @@ export default function PreviewPdf() {
         <div className="bg-[#F0F0F0] min-h-screen flex flex-col">
           <Skeleton className="h-16 w-full" />
           <div className="flex-grow flex items-center justify-center p-4">
-            <Skeleton className="h-[600px] w-full max-w-4xl" />
+            <Skeleton className="h-[85vh] w-full max-w-6xl rounded-2xl" />
           </div>
         </div>
       }

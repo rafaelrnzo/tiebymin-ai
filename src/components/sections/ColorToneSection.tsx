@@ -146,7 +146,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
       </div>
 
       {/* Bagian Bawah: Tips & Info Tambahan */}
-      <div className="bg-[#FADADD] p-6 rounded-2xl">
+      <div className="bg-[#FFC6C6] p-6 rounded-2xl">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
           {infoData.map(
             (info) => info.text && <InfoCard key={info.title} {...info} />
