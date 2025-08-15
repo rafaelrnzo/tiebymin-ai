@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
 import { secureUrl } from "@/lib/api";
-import { useRive } from "@rive-app/react-canvas";
+import { useRive, Fit, Alignment, Layout} from "@rive-app/react-canvas";
 import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
 import Image from "next/image";
@@ -75,10 +75,14 @@ const RiveLoadingAnimation = () => {
     src: "/animations/Loading.riv",
     stateMachines: "State Machine 1",
     autoplay: true,
+    layout: new Layout({
+      fit: Fit.Cover,
+      alignment: Alignment.Center  
+      }),    
   });
 
   return (
-    <div className="w-48 h-48 mx-auto">
+    <div className={`mx-auto w-64 h-64 lg:w-[35rem] lg:h-[35rem] flex justify-center`}>
       <RiveComponent />
     </div>
   );
@@ -332,14 +336,17 @@ function HalamanKameraWajahContent() {
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
         <div className="text-center max-w-lg mx-auto">
-          <RiveLoadingAnimation />
-          <p className="text-2xl font-bold mt-4">
-            {progress < 100 ? `${progress}%` : "99%"}
-          </p>
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold mb-2">{step.title}</h2>
-            <p className="text-gray-600 text-base">{step.desc}</p>
+          <RiveLoadingAnimation  /> 
+          <div className="loading-text -mt-0 lg:-mt-28">
+              <p className="text-2xl font-bold mt-4">
+                {progress < 100 ? `${progress}%` : "99%"}
+              </p>
+              <div className="mt-8">
+                <h2 className="text-lg font-semibold mb-2">{step.title}</h2>
+                <p className="text-gray-600 text-base">{step.desc}</p>
+            </div>
           </div>
+     
         </div>
       </main>
     );
@@ -354,8 +361,8 @@ function HalamanKameraWajahContent() {
     ];
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
-        <div className="text-center">
-          <RiveLoadingAnimation />
+        <div className="text-center ">
+             <RiveLoadingAnimation  />
           <p className="text-2xl font-bold mt-4">99%</p>
         </div>
         <div className="mt-12 w-full max-w-sm flex flex-col gap-3">
