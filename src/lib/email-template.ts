@@ -8,7 +8,7 @@ interface EmailTemplateData {
 export const createAnalysisEmailTemplate = ({
   userData,
   tips,
-}: EmailTemplateData) => {
+}: EmailTemplateData, pdfUrl?: string, storyUrl?: string) => {
   const userName =
     typeof window !== "undefined"
       ? localStorage.getItem("firstName") || userData.name
@@ -79,7 +79,16 @@ export const createAnalysisEmailTemplate = ({
             <li>${tips.bmiTip}</li>
           </ul>
 
-          <p>For a complete and detailed report, please download your personalized PDF from our website.</p>
+          <p>For a complete and detailed report, you can download your personalized analysis documents below:</p>
+          
+          ${pdfUrl ? `<div style="margin: 20px 0; text-align: center;">
+            <a href="${pdfUrl}" style="display: inline-block; background-color: #EF789B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Download Complete PDF Analysis</a>
+          </div>` : ''}
+          
+          ${storyUrl ? `<div style="margin: 20px 0; text-align: center;">
+            <a href="${storyUrl}" style="display: inline-block; background-color: #FFC6C6; color: #333; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Download Story Image</a>
+          </div>` : ''}
+          
           <p>Thank you for choosing Tiebymin AI to discover your unique style!</p>
         </div>
         <div class="footer">

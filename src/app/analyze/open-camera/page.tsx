@@ -215,7 +215,7 @@ function HalamanKameraWajahContent() {
 
       const userEmail = localStorage.getItem("userEmail");
       if (userEmail && userData && allTipsData) {
-        sendEmail(userEmail, { userData, tips: allTipsData });
+        sendEmail(userEmail, { userData, tips: allTipsData }, analysisResultId);
       }
 
       const redirectTimer = setTimeout(() => {

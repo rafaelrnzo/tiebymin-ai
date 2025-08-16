@@ -3,9 +3,37 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  return await generatePdf(req);
+}
+
+export async function GET(req: NextRequest) {
+  return await generatePdf(req);
+}
+
+async function generatePdf(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { resultId, firstName } = body; 
+    let resultId, firstName;
+    
+    // Cek metode request
+    if (req.method === 'POST') {
+      // Untuk POST, ambil data dari body
+      try {
+        const body = await req.json();
+        resultId = body.resultId;
+        firstName = body.firstName;
+      } catch (e) {
+        console.error('Error parsing JSON body:', e);
+      }
+    }
+    
+    // Jika tidak ada data dari body atau metode GET, coba ambil dari URL query
+    if (!resultId) {
+      resultId = req.nextUrl.searchParams.get('resultId');
+    }
+    
+    if (!firstName) {
+      firstName = req.nextUrl.searchParams.get('firstName');
+    }
 
     const pdfUrl = new URL("/ai-overview/pdf", req.nextUrl.origin);
     pdfUrl.searchParams.set("print", "true");
