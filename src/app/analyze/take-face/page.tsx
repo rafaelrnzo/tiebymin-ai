@@ -97,23 +97,90 @@ export default function FaceScanPrepPage() {
     handleUploadFromGallery(); // Langsung buka galeri lagi
   };
 
+  // Helper function to convert File to Blob
+  const fileToBlob = (file: File): Promise<Blob> => {
+    return new Promise((resolve) => {
+      resolve(new Blob([file], { type: file.type }));
+    });
+  };
+
   const handleAnalyzeFromGallery = async () => {
     if (!selectedFile) {
       setApiError("Tidak ada file yang dipilih.");
       return;
     }
 
-    // Store the selected file in localStorage before navigating
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "uploadedFaceImage",
-        URL.createObjectURL(selectedFile)
-      );
-      localStorage.setItem("uploadedFaceImageName", selectedFile.name);
-    }
+    setIsApiLoading(true);
+    setApiError("");
 
-    router.push("/analyze/open-camera?fromGallery=true");
-    return;
+    try {
+      // Convert file to blob untuk API
+      const imageBlob = await fileToBlob(selectedFile);
+
+      // Get analysis data from context
+      const { tinggi, berat, umur, body_shape_id } = analysisData;
+
+      // Validate required data
+      if (!tinggi || !berat || !umur || !body_shape_id) {
+        setApiError("Data analisis tidak lengkap. Silakan ulangi proses.");
+        setIsApiLoading(false);
+        return;
+      }
+
+      // Get user ID
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        setApiError("User ID not found. Please log in again.");
+        setIsApiLoading(false);
+        return;
+      }
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("user_id", userId);
+      formData.append("tinggi_badan", tinggi);
+      formData.append("berat_badan", berat);
+      formData.append("umur", umur);
+      formData.append("body_shape_id", body_shape_id);
+      formData.append("foto_wajah", imageBlob, selectedFile.name);
+
+      // Call API
+      const endpoint = secureUrl(`/v1/analysis/full-analysis`);
+      console.log("Calling API endpoint:", endpoint);
+
+      const response = await axios.post(endpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        const resultId = response.data.analysis_result_id;
+        if (resultId) {
+          // Store analysis result ID and navigate to open-camera with gallery flag
+          localStorage.setItem("analysisResultId", resultId);
+          localStorage.setItem("skipCameraForGallery", "true");
+
+          // Navigate to open-camera page which will skip camera and go directly to loading
+          router.push("/analyze/open-camera?fromGallery=true&skipCamera=true");
+        } else {
+          throw new Error("API berhasil tapi tidak mengembalikan result ID.");
+        }
+      } else {
+        throw new Error(
+          response.data?.message || `HTTP error! status: ${response.status}`
+        );
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      const err = error as Error;
+      setApiError(
+        err.message ||
+          "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
+      );
+    } finally {
+      setIsApiLoading(false);
+    }
   };
 
   return (
@@ -218,6 +285,7 @@ export default function FaceScanPrepPage() {
             <Button
               className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
               onClick={handleUploadFromGallery}
+              disabled={isApiLoading}
             >
               <ImageIcon className="transition-colors group-hover:text-white size-[26px]" />
               <span className="text-[16px] font-poppins">
