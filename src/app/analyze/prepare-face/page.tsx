@@ -212,21 +212,19 @@ export default function PrepareFacePage() {
           ) : (
             <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
               <div className="flex flex-col justify-between w-full gap-4 sm:gap-8">
-                {/* Responsive: grid on mobile, flex-row on sm+ */}
                 <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 justify-center w-full">
                   {topRow.map((type) => (
-                    <Button
+                    <div
                       key={type.id}
-                      type="button"
                       onClick={() => handleSelectBodyType(type.id)}
-                      className="focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto flex-1 min-w-[90px] max-w-[120px]"
+                      className="focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto flex-1 min-w-[90px] max-w-[120px] border-0"
                     >
-                      <div className="flex flex-col items-center">
-                        <div className="relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center">
+                      <div className="flex flex-col items-center border-0">
+                        <div className="relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center border-0">
                           <div
                             className={`absolute inset-0 transition-opacity duration-300 ${
                               selectedTypeId === type.id
-                                ? "rounded-lg opacity-100 bg-gradient-to-b from-white/90 to-transparent"
+                                ? "rounded-lg opacity-100 bg-gradient-to-b from-white/90 to-transparent border-0"
                                 : "opacity-0"
                             }`}
                           />
@@ -248,21 +246,20 @@ export default function PrepareFacePage() {
                           {type.name}
                         </p>
                       </div>
-                    </Button>
+                    </div>
                   ))}
                 </div>
-                <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 justify-center w-full">
+                <div className="border-0 flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 justify-center w-full">
                   {bottomRow.map((type) => (
-                    <Button
+                    <div
                       key={type.id}
-                      type="button"
                       onClick={() => handleSelectBodyType(type.id)}
-                      className="focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto flex-1 min-w-[90px] max-w-[120px]"
+                      className="border-0 focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto flex-1 min-w-[90px] max-w-[120px]"
                     >
-                      <div className="flex flex-col items-center">
-                        <div className="relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center">
+                      <div className="border-0 flex flex-col items-center">
+                        <div className="border-0 relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center">
                           <div
-                            className={`absolute inset-0 transition-opacity duration-300 ${
+                            className={`border-0 absolute inset-0 transition-opacity duration-300 ${
                               selectedTypeId === type.id
                                 ? "rounded-lg opacity-100 bg-gradient-to-b from-white/90 to-transparent"
                                 : "opacity-0"
@@ -286,14 +283,13 @@ export default function PrepareFacePage() {
                           {type.name}
                         </p>
                       </div>
-                    </Button>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Kolom Kanan - Detail Pilihan (Dinamis dari API) */}
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-6 sm:py-8 px-2 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3 mt-6 lg:mt-0">
             {isLoading || !selectedType ? (
               <div className="w-full animate-pulse">
