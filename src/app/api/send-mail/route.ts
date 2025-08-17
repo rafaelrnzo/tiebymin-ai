@@ -17,13 +17,18 @@ export async function POST(request: Request) {
   }
 
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
+    host: "smtp-relay.brevo.com",
+    port: 587,
     secure: false,
     auth: {
-      user: process.env.SMTP_USER || "94d25a003@smtp-brevo.com",
-      pass: process.env.SMTP_PASS || "tFsmTdN0EPLKkaMV",
+      user: "94d25a003@smtp-brevo.com",
+      pass: "tFsmTdN0EPLKkaMV",
     },
+     connectionTimeout: 60000,
+      greetingTimeout: 60000,
+      socketTimeout: 60000,
+      ignoreTLS: false,
+      requireTLS: true,
   });
 
   try {
@@ -32,6 +37,7 @@ export async function POST(request: Request) {
       to: to,
       subject: subject,
       html: html,
+      secure:false,
       attachments: [
         {
           filename: "analysis-result.pdf",
