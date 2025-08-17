@@ -308,7 +308,7 @@ function PdfPage() {
           <button
             onClick={handleDownloadPDF}
             disabled={isGenerating}
-            className="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 transition disabled:bg-gray-400"
+            className="bg-[#EF789B] text-white px-4 py-2 rounded-md hover:bg-[#E5679A] transition disabled:bg-gray-400"
           >
             {isGenerating ? "Downloading..." : "Download PDF"}
           </button>

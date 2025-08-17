@@ -56,7 +56,7 @@ export const HeroSection = () => {
   return (
     <main
       className="relative w-full -mt-24 pt-28 pb-16 overflow-hidden 
-             bg-cover bg-center bg-[url('/hero-bg.png')]"
+             bg-cover bg-center  bg-[url('/hero-bg.png')]"
     >
       <div className="container mx-auto px-4 z-20 relative">
         <div className="text-center pt-12 lg:pt-0">

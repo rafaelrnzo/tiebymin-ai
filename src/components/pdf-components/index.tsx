@@ -71,7 +71,7 @@ export const TipBox = ({
     <h3 className="text-xl font-bold mb-4">{title}</h3>
     <ul className="list-disc list-inside space-y-2">
       {items.map((item, index) => (
-        <li key={index} className="text-gray-700">
+        <li key={index} className="text-gray-700 break-words">
           {item}
         </li>
       ))}
@@ -151,14 +151,19 @@ export const BodyShape = ({
                 Bentuk tubuh kamu {userData.bodyShape}
               </h1>
               <p className="text-gray-600 mb-8 leading-relaxed">
-                {userData.bodyShapeAnalysis.description}
+                {userData.bodyShapeAnalysis.description
+                  .charAt(0)
+                  .toUpperCase() +
+                  userData.bodyShapeAnalysis.description.slice(1).toLowerCase()}
               </p>
               <div className="bg-[#323232] text-white p-6 rounded-lg">
                 <h3 className="text-lg font-bold mb-3">Karakteristik</h3>
                 <ul className="list-disc list-inside space-y-2">
                   {userData.bodyShapeAnalysis.characteristics.map(
                     (item, index) => (
-                      <li key={index}>{item}</li>
+                      <li key={index}>
+                        {item.endsWith(".") ? item : `${item}.`}
+                      </li>
                     )
                   )}
                 </ul>
@@ -349,7 +354,7 @@ export const FaceShape = ({
               </h3>
               <ul className="list-disc pl-4 text-xs space-y-1">
                 {userData.faceShapeAnalysis.characteristics.map((item, idx) => (
-                  <li key={idx}>{item}</li>
+                  <li key={idx}>{item.endsWith(".") ? item : `${item}.`}</li>
                 ))}
               </ul>
             </div>
@@ -376,25 +381,15 @@ export const ColorTone = ({
     isCombination = false,
   }: {
     title?: string;
-    colors: string[];
+    colors: string[] | string[][];
     isCombination?: boolean;
   }) => {
-    const makePairs = (arr: string[]) => {
-      const pairs: string[][] = [];
-      for (let i = 0; i < arr.length; i += 2) {
-        if (arr[i + 1]) {
-          pairs.push([arr[i], arr[i + 1]]);
-        }
-      }
-      return pairs;
-    };
-
     return (
       <div>
         <h3 className="font-semibold text-gray-500 mb-4">{title}</h3>
         {isCombination ? (
           <div className="grid grid-cols-2 gap-y-4">
-            {makePairs(colors).map((pair, idx) => (
+            {(colors as string[][]).map((pair, idx) => (
               <div
                 key={idx}
                 className="flex overflow-hidden shadow-md"
@@ -415,7 +410,7 @@ export const ColorTone = ({
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-3">
-            {colors.map((color, index) => (
+            {(colors as string[]).map((color, index) => (
               <div
                 key={index}
                 className="w-full h-[30px] shadow-md"
@@ -447,6 +442,14 @@ export const ColorTone = ({
     </div>
   );
 
+  const analysisRef = useRef<HTMLDivElement>(null);
+  const [analysisHeight, setAnalysisHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (analysisRef.current) {
+      setAnalysisHeight(analysisRef.current.offsetHeight);
+    }
+  }, [colorToneDetails]);
   return (
     <div className="flex justify-center w-full h-screen">
       <div className="relative bg-[#F0F0F0] w-full flex flex-col justify-between h-screen">
@@ -455,7 +458,7 @@ export const ColorTone = ({
         </div>
 
         <main className="py-10 flex-grow">
-          <div className="max-w-5xl px-10">
+          <div className="max-w-5xl px-10" ref={analysisRef}>
             <h1 className="text-2xl mb-2 font-oswald">
               Color tone kamu {userData.colorTone}
             </h1>
@@ -467,42 +470,63 @@ export const ColorTone = ({
             <div className="grid grid-cols-2 gap-12">
               <ColorPalette
                 title="Best Color"
-                colors={userData.colorToneAnalysis.bestColors}
+                colors={colorToneDetails?.best_colour || []}
               />
               <ColorPalette
                 title="Neutral Color"
-                colors={userData.colorToneAnalysis.neutralColors}
+                colors={colorToneDetails?.neutral_colour || []}
               />
               <ColorPalette
                 title="Worst Color"
-                colors={userData.colorToneAnalysis.worstColors}
+                colors={colorToneDetails?.worst_colour || []}
               />
               <ColorPalette
                 title="Combination"
-                colors={userData.colorToneAnalysis.combination}
+                colors={colorToneDetails?.best_colour_combination || []}
                 isCombination
               />
             </div>
           </div>
 
           {/* Info Section */}
-          <div className="mt-16 bg-[#323232] p-10 flex-grow h-full">
+          <div
+            className="mt-16 bg-[#323232] p-10"
+            style={{
+              height: analysisHeight > 0 ? `${analysisHeight}px` : "auto",
+            }}
+          >
             <div className="grid grid-cols-2 gap-10">
               <InfoSection
                 title="Make Up Tips"
-                items={userData.colorToneAnalysis.tips.makeup}
+                items={
+                  colorToneDetails?.make_up_tips
+                    ? [colorToneDetails.make_up_tips]
+                    : []
+                }
               />
               <InfoSection
                 title="Outfit Tips"
-                items={userData.colorToneAnalysis.tips.outfit}
+                items={
+                  colorToneDetails?.tips_warna_kulit_pakaian
+                    ? [colorToneDetails.tips_warna_kulit_pakaian]
+                    : []
+                }
               />
               <InfoSection
                 title="Personality"
-                items={userData.colorToneAnalysis.tips.personality}
+                items={
+                  colorToneDetails?.personality
+                    ? [colorToneDetails.personality]
+                    : []
+                }
               />
               <InfoSection
                 title="Karakteristik"
-                items={userData.colorToneAnalysis.tips.characteristics}
+                items={
+                  colorToneDetails?.karakteristik
+                    ? [colorToneDetails.karakteristik]
+                    : []
+                }
               />
             </div>
           </div>

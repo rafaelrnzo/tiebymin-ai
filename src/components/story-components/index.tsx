@@ -80,14 +80,12 @@ export default function StoryPoster({
   console.log(userData, userPhotoUrl);
   const penjelasanLengkap = faceShapeDetails?.penjelasan_face_shape || "";
 
-  // Pisahkan teks berdasarkan tanda "-" dan ambil bagian pertama saja
   const kalimatUtama = penjelasanLengkap.split("-")[0].trim();
   return (
     <div
       className="bg-white text-gray-800 w-[1080px] mx-auto p-8 font-sans"
       style={{ lineHeight: 1.4 }}
     >
-      {/* HEADER */}
       <div className="m-[100px]">
         <div className="flex justify-between items-center mb-4">
           <Image
@@ -102,9 +100,7 @@ export default function StoryPoster({
         </div>
         <hr className="mb-10" />
 
-        {/* FOTO + QR */}
         <div className="flex gap-5 mb-6">
-          {/* Foto user */}
           <div className="w-[322px] rounded-lg">
             <Image
               src={userPhotoUrl || "/model.png"}
@@ -115,10 +111,9 @@ export default function StoryPoster({
             />
           </div>
 
-          {/* QR + text */}
           <div className="w-full flex flex-col justify-center items-center border rounded-xl py-4">
             <QRCode
-              value="https://tiebymin.com"
+              value="https://tiebymin-welcome.vercel.app/"
               size={173}
               className="mt-auto"
             />
@@ -208,27 +203,27 @@ export default function StoryPoster({
 
           <div className="grid grid-cols-4 gap-4 mt-[2rem] mb-[3rem]">
             {Object.entries({
-              "Best Color": userData.colorToneAnalysis.bestColors,
-              "Neutral Color": userData.colorToneAnalysis.neutralColors,
-              "Worst Color": userData.colorToneAnalysis.worstColors,
-              Combination: userData.colorToneAnalysis.combination,
-            }).map(([title, colors]) => (
-              <div key={title} className="text-center">
-                <h4 className="text-xl font-poppins mb-2">{title}</h4>
+              "Best Color": colorToneDetails?.best_colour,
+              "Neutral Color": colorToneDetails?.neutral_colour,
+              "Worst Color": colorToneDetails?.worst_colour,
+              Combination: colorToneDetails?.best_colour_combination,
+            }).map(([title, colors]: [string, unknown]) => {
+              if (!colors) return null; // Handle undefined colors
 
-                {/* Bedakan tampilan Combination */}
-                {title === "Combination" ? (
-                  <div className="grid grid-cols-2 gap-4">
-                    {Array.from(
-                      { length: Math.ceil(colors.length / 2) },
-                      (_, i) => {
-                        const pair = colors.slice(i * 2, i * 2 + 2);
-                        return (
+              return (
+                <div key={title} className="text-center">
+                  <h4 className="text-xl font-poppins mb-2">{title}</h4>
+
+                  {/* Bedakan tampilan Combination */}
+                  {title === "Combination" ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      {(colors as string[][]).map(
+                        (pair: string[], i: number) => (
                           <div
                             key={i}
                             className="flex w-full h-[47px] rounded-lg overflow-hidden shadow-lg"
                           >
-                            {pair.map((c, j) => (
+                            {pair.map((c: string, j: number) => (
                               <div
                                 key={j}
                                 className="flex-1 h-full"
@@ -236,23 +231,23 @@ export default function StoryPoster({
                               ></div>
                             ))}
                           </div>
-                        );
-                      }
-                    )}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-3 gap-2 justify-center">
-                    {colors.map((c, idx) => (
-                      <div
-                        key={idx}
-                        className="w-[50px] h-[50px] rounded-md shadow-md"
-                        style={{ backgroundColor: c }}
-                      ></div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                        )
+                      )}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 justify-center">
+                      {(colors as string[]).map((c: string, idx: number) => (
+                        <div
+                          key={idx}
+                          className="w-[50px] h-[50px] rounded-md shadow-md"
+                          style={{ backgroundColor: c }}
+                        ></div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -20,6 +20,7 @@ export const defaultUserData: UserData = {
       "Dahi dan rahang memiliki lebar yang hampir sama",
       "Panjang dan lebar wajah hampir seimbang",
     ],
+    description: "Cut Syifa adalah seorang aktris dan model Indonesia.",
   },
   faceShapeAnalysis: {
     uniqueFact:
@@ -29,7 +30,6 @@ export const defaultUserData: UserData = {
       "Dahi dan rahang memiliki lebar yang hampir sama",
       "Panjang dan lebar wajah hampir seimbang",
     ],
-    description: "Cut Syifa memiliki bentuk wajah kotak dan cocok dengan gaya hijab yang menonjolkan fitur wajahnya.",
   },
   bodyShapeAnalysis: {
     imageUrl: "https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh",
@@ -69,34 +69,15 @@ export const defaultUserData: UserData = {
       "#BFDBFE",
     ],
     combination: [
-      "#F472B6",
-      "#60A5FA",
-      "#3B82F6",
-      "#1E3A8A",
-      "#C7D2FE",
-      "#BFDBFE",
+      ["#F472B6", "#60A5FA"],
+      ["#3B82F6", "#1E3A8A"],
+      ["#C7D2FE", "#BFDBFE"],
     ],
     tips: {
-      makeup: [
-        "Kamu punya Rahang tegas dan kuat",
-        "Dahi dan rahang memiliki lebar yang hampir sama",
-        "Panjang dan lebar wajah hampir seimbang",
-      ],
-      outfit: [
-        "Kamu punya Rahang tegas dan kuat",
-        "Dahi dan rahang memiliki lebar yang hampir sama",
-        "Panjang dan lebar wajah hampir seimbang",
-      ],
-      personality: [
-        "Kamu punya Rahang tegas dan kuat",
-        "Dahi dan rahang memiliki lebar yang hampir sama",
-        "Panjang dan lebar wajah hampir seimbang",
-      ],
-      characteristics: [
-        "Kamu punya Rahang tegas dan kuat",
-        "Dahi dan rahang memiliki lebar yang hampir sama",
-        "Panjang dan lebar wajah hampir seimbang",
-      ],
+      makeup: ["Kamu punya Rahang tegas dan kuat"],
+      outfit: ["Kamu punya Rahang tegas dan kuat"],
+      personality: ["Kamu punya Rahang tegas dan kuat"],
+      characteristics: ["Kamu punya Rahang tegas dan kuat"],
     },
   },
   conclusionTips: {

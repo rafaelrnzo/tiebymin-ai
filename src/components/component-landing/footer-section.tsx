@@ -29,7 +29,7 @@ const footerLinks = {
 export default function Footer() {
   return (
     <>
-      <section className="bg-[#FFC6C6] py-12 px-4">
+      <section className="bg-[#FFC6C6] py-12 lg:px-[200px]">
         <div className="container mx-auto bg-[#F0F0F0] rounded-2xl p-8 lg:p-16 text-center">
           <h2 className="font-handlee text-4xl lg:text-5xl font-bold text-[#323232] leading-tight">
             Siap Jadi Yang Paling Stylish
@@ -52,8 +52,8 @@ export default function Footer() {
       </section>
 
       {/* === Footer Utama === */}
-      <footer className="bg-[#FFC6C6] text-[#323232] pt-16 pb-8">
-        <div className="container mx-auto px-4">
+      <footer className="bg-[#FFC6C6] text-[#323232] pt-16 pb-8 lg:px-[200px]">
+        <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
             {/* Kolom Brand */}
             <div className="lg:col-span-2">
