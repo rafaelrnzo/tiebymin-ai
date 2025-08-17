@@ -170,7 +170,6 @@ function BeautyAnalysisPageInner() {
       );
     }
 
-    // Gunakan rawAnalysisData untuk renderContent karena itu yang berisi ID asli
     const analysisData = rawAnalysisData;
 
     switch (activeTab) {

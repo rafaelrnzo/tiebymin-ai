@@ -62,19 +62,19 @@ const BodySection: React.FC<BodySectionProps> = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
-      <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6">
+      <div className="rounded-2xl p-4 sm:p-6 border">
         <h3 className="font-bold text-5xl font-oswald">{bodyDetails.name}</h3>
-        <div className="flex justify-center my-6">
+        <div className="flex justify-center my-6 w-[150px] h-[250px] mx-auto">
           <Image
             src={bodyDetails.link_picture || "/body-select/pear.png"}
             alt={`${bodyDetails.name} body type`}
-            width={100}
-            height={220}
-            className="w-[100px] h-[220px] object-contain"
+            width={150}
+            height={250}
+            className="w-full h-full object-contain"
             priority
           />
         </div>
-        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mt-4">
+        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mt-4 px-4">
           {bodyDetails.penjelasan_body_shape}
         </p>
         <div className="flex gap-2 justify-center mt-6">

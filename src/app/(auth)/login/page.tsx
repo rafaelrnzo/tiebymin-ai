@@ -110,11 +110,18 @@ export default function LoginPage() {
           "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau hubungi admin jika masalah berlanjut."
         );
       } else {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Terjadi kesalahan saat mendaftar"
-        );
+        if (
+          err instanceof Error &&
+          err.message.includes("user with this email already exists")
+        ) {
+          setError("Email Anda sudah terdaftar");
+        } else {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Terjadi kesalahan saat mendaftar"
+          );
+        }
       }
     } finally {
       setIsLoading(false);

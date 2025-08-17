@@ -63,10 +63,10 @@ export interface ColorAnalysis {
   id: string;
   name: string;
   description: string;
-  best_colors: string[];
-  neutral_colors: string[];
-  worst_colors: string[];
-  combination_colors: string[];
+  best_colour: string[];
+  neutral_colour: string[];
+  worst_colour: string[];
+  best_colour_combination: string[];
   make_up_tips: string;
   tips_warna_kulit_pakaian: string;
   personality: string;
@@ -114,7 +114,7 @@ export interface UserData {
     bestColors: string[];
     neutralColors: string[];
     worstColors: string[];
-    combination: string[];
+    combination: string[][];
     tips: {
       makeup: string[];
       outfit: string[];

@@ -20,7 +20,7 @@ export function Navbar() {
   const closeSheet = () => setIsOpen(false);
 
   return (
-    <div className="mx-auto sticky top-4 z-50 w-full px-4 lg:px-8">
+    <div className="mx-auto sticky top-4 z-50 w-full px-4 lg:px-[200px]">
       <header className="relative rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
         {/* === Tampilan Desktop === */}
         <div className="hidden lg:flex items-center justify-between py-3 px-8">

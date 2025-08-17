@@ -3,8 +3,8 @@ import Image from "next/image";
 
 export const SecondSection = () => {
   return (
-    <section className="bg-white py-16 sm:py-24">
-      <div className="container mx-auto px-4">
+    <section className="bg-white sm:py-24 lg:px-[200px]">
+      <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
           <div className="lg:col-span-5 relative w-full rounded-xl overflow-hidden shadow-xl cursor-pointer group">
             <Image
@@ -34,10 +34,10 @@ export const SecondSection = () => {
               </div>
 
               <div className="flex flex-col -space-y-4">
-                <h2 className="font-oswald text-[56px] text-[#2C2C2E] tracking-tight">
+                <h2 className="font-oswald text-[48px] text-[#2C2C2E] tracking-tight">
                   Cuman
                 </h2>
-                <h2 className="font-oswald font-bold text-[64px] text-[#2C2C2E] tracking-tight">
+                <h2 className="font-oswald font-bold text-[48px] text-[#2C2C2E] tracking-tight">
                   Rp 10 Ribuan
                 </h2>
               </div>
@@ -57,7 +57,7 @@ export const SecondSection = () => {
                 <p className="font-poppins text-3xl lg:text-[48px] font-bold text-[#FFC6C6]">
                   {"<"}2m
                 </p>
-                <p className="text-[22px] text-white mt-1 text-cente font-poppins">
+                <p className="text-[20px] text-white mt-1 text-cente font-poppins">
                   Hasil Selesai
                 </p>
               </div>
@@ -65,7 +65,7 @@ export const SecondSection = () => {
                 <p className="font-poppins text-3xl lg:text-[48px] font-bold text-[#FFC6C6]">
                   100%
                 </p>
-                <p className="text-[22px] text-white mt-1 text-center font-poppin">
+                <p className="text-[20px] text-white mt-1 text-center font-poppin">
                   Buatan Lokal
                 </p>
               </div>

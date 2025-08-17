@@ -131,7 +131,6 @@ export function useAnalysisData(resultId: string | null) {
               : Number(analysisData.analysis_details.bmi.value);
         }
 
-        // Transform data untuk components
         const transformedData = {
           name: analysisData.user_name || "User",
           faceShape: faceShapeData?.name || defaultUserData.faceShape,
@@ -174,20 +173,15 @@ export function useAnalysisData(resultId: string | null) {
           },
           colorToneAnalysis: {
             description:
-              colorToneData?.description ||
-              defaultUserData.colorToneAnalysis.description,
+              colorToneData?.description,
             bestColors:
-              colorToneData?.best_colors ||
-              defaultUserData.colorToneAnalysis.bestColors,
+              colorToneData?.best_colors,
             neutralColors:
-              colorToneData?.neutral_colors ||
-              defaultUserData.colorToneAnalysis.neutralColors,
+              colorToneData?.neutral_colors,
             worstColors:
-              colorToneData?.worst_colors ||
-              defaultUserData.colorToneAnalysis.worstColors,
+              colorToneData?.worst_colors,
             combination:
-              colorToneData?.combination_colors ||
-              defaultUserData.colorToneAnalysis.combination,
+              colorToneData?.combination_colors,
             tips: {
               makeup: colorToneData?.make_up_tips
                 ? [colorToneData.make_up_tips]

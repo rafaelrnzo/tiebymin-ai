@@ -225,7 +225,7 @@ const RecommendationContainer = () => {
 
 const AnalysisDashboard: React.FC = () => {
   return (
-    <div className="mt-10 p-4 sm:p-6 lg:p-8">
+    <div className="mt-10 p-4 sm:p-6 lg:p-8 lg:px-[200px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <FaceShapeCard />
