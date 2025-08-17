@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Sparkles } from "lucide-react";
+import { Menu, Sparkles, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -13,7 +13,7 @@ export function Navbar() {
   const navLinks = [
     { href: "/overview", label: "Overview AI" },
     { href: "/tutorial", label: "Tutorial" },
-    { href: "/faq", label: "Metodologi" },
+    { href: "/metodologi", label: "Metodologi" },
     { href: "/testimoni", label: "Testimoni" },
   ];
 
@@ -52,7 +52,7 @@ export function Navbar() {
           </nav>
 
           {/* Bagian Kanan: Tombol Aksi */}
-          <div>
+          <div className="flex gap-2">
             <Link href="/login">
               <Button
                 size="lg"
@@ -60,6 +60,15 @@ export function Navbar() {
               >
                 <Sparkles className="w-4 h-4 text-black fill-black" />
                 <span className="font-semibold text-black">Coba Sekarang</span>
+              </Button>
+            </Link>
+            <Link href="/profile">
+              <Button
+                size="lg"
+                className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
+              >
+                <User className="w-4 h-4 text-black fill-black" />
+                <span className="font-semibold text-black">Profile</span>
               </Button>
             </Link>
           </div>
