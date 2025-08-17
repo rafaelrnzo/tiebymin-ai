@@ -12,6 +12,7 @@ import {
   Cover,
   FaceShape,
 } from "@/components/pdf-components";
+import { EmailModal } from "@/components/sections/email-modal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -89,6 +90,7 @@ function PreviewPdfPage() {
   const { refetch: downloadPdf } = useDownloadPdf();
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const handleDownloadPDF = async () => {
     if (!resultId) return;
@@ -196,8 +198,8 @@ function PreviewPdfPage() {
             </div>
           </div>
 
-          {/* --- DOWNLOAD BUTTON --- */}
-          <div className="bg-white p-4 flex justify-start border-t border-gray-200">
+          {/* --- DOWNLOAD  --- */}
+          <div className="bg-white p-4 flex gap-4 justify-start border-t border-gray-200">
             <Button
               onClick={handleDownloadPDF}
               className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
@@ -210,8 +212,18 @@ function PreviewPdfPage() {
                 <ChevronRight className="text-white w-5 h-5" />
               )}
             </Button>
+            <Button
+              onClick={() => setIsEmailModalOpen(true)}
+              className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
+            >
+              <span className="text-white font-poppins font-bold">Share</span>
+            </Button>
           </div>
         </div>
+        <EmailModal
+          isOpen={isEmailModalOpen}
+          onClose={() => setIsEmailModalOpen(false)}
+        />
 
         {/* Error message outside the card */}
         {error && (

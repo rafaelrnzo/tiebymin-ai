@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { secureUrl } from "@/lib/api";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { secureUrl, sendEmail } from "@/lib/api";
 import { BodyType } from "@/types";
 import { defaultUserData } from "@/lib/mock-data";
 
@@ -412,3 +412,10 @@ export const useBodyShapes = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
+
+export function useSendEmail() {
+  return useMutation({
+    mutationFn: (data: { email: string; pdf: Blob; png: Blob }) =>
+      sendEmail(data),
+  });
+}
