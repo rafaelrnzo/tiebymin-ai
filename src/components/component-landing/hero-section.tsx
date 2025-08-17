@@ -73,12 +73,14 @@ export const HeroSection = () => {
             </div>
           </h1>
           <div className="mx-10 mt-24 md:mt-8 flex justify-center gap-4 visible lg:invisible">
-            <Button
-              size="lg"
-              className="rounded-full bg-[#EF789B] text-white text-xl py-6 border-0"
-            >
-              <p>Coba Sekarang</p>
-            </Button>
+            <a href="/login">
+              <Button
+                size="lg"
+                className="rounded-full bg-[#EF789B] text-white text-xl py-6 border-0"
+              >
+                <p>Coba Sekarang</p>
+              </Button>
+            </a>
             <Button
               size="lg"
               className="rounded-full border-2 text-xl bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
