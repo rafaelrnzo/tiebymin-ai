@@ -1,3 +1,4 @@
+// File: open-camera page.tsx (Updated)
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -97,13 +98,26 @@ function HalamanKameraWajahContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromGallery = searchParams.get("fromGallery") === "true";
+  const skipCamera = searchParams.get("skipCamera") === "true";
   const { analysisData: contextAnalysisData, setAnalysisData } = useAnalysis();
   const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [appState, setAppState] = useState<AppState>("CAMERA");
+  // Initialize state based on URL parameters
+  const getInitialState = (): AppState => {
+    if (fromGallery && skipCamera) {
+      const storedResultId = localStorage.getItem("analysisResultId");
+      const skipCameraFlag = localStorage.getItem("skipCameraForGallery");
+      if (storedResultId && skipCameraFlag === "true") {
+        return "ANALYZING";
+      }
+    }
+    return "CAMERA";
+  };
+
+  const [appState, setAppState] = useState<AppState>(getInitialState());
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string>("");
@@ -128,15 +142,56 @@ function HalamanKameraWajahContent() {
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
   };
 
+  // Initialize state based on URL parameters BEFORE any effects
+  // Add separate useEffect for initial state setup
   useEffect(() => {
-    if (fromGallery) {
+    // Set initial data if coming from gallery with skip camera
+    if (fromGallery && skipCamera && appState === "ANALYZING") {
+      const storedResultId = localStorage.getItem("analysisResultId");
+      if (storedResultId) {
+        setAnalysisResultId(storedResultId);
+        localStorage.removeItem("analysisResultId");
+        localStorage.removeItem("skipCameraForGallery");
+      }
+    }
+  }, []); // Run only once on mount
+
+  useEffect(() => {
+    // Skip all camera setup if we should go directly to analyzing
+    if (appState === "ANALYZING") return;
+
+    // Check if this is from gallery upload and should skip camera
+    if (fromGallery && skipCamera) {
+      console.log("Gallery upload detected, skipping camera...");
+
+      // Get stored analysis result ID
+      const storedResultId = localStorage.getItem("analysisResultId");
+      const skipCameraFlag = localStorage.getItem("skipCameraForGallery");
+
+      if (storedResultId && skipCameraFlag === "true") {
+        console.log("Found stored analysis result ID:", storedResultId);
+        setAnalysisResultId(storedResultId);
+        setAppState("ANALYZING");
+
+        // Clean up localStorage
+        localStorage.removeItem("analysisResultId");
+        localStorage.removeItem("skipCameraForGallery");
+        return; // Exit early, don't continue to camera setup
+      } else {
+        // Fallback to normal camera flow if no stored data
+        console.log("No stored analysis data found, falling back to camera");
+        setAppState("CAMERA");
+      }
+    }
+
+    // Original gallery logic (for old flow compatibility)
+    if (fromGallery && !skipCamera) {
       const uploadedImage = localStorage.getItem("uploadedFaceImage");
       const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
 
       if (uploadedImage && uploadedImageName) {
         setCapturedImage(uploadedImage);
         setAppState("ANALYZING");
-        // Convert data URL to Blob and pass to handleFullAnalysis
         const imageBlob = dataURLtoBlob(uploadedImage);
         if (imageBlob) {
           handleFullAnalysis(imageBlob, uploadedImageName);
@@ -147,56 +202,65 @@ function HalamanKameraWajahContent() {
         localStorage.removeItem("uploadedFaceImage");
         localStorage.removeItem("uploadedFaceImageName");
       } else {
-        // If fromGallery is true but no image found, go to camera state
         setAppState("CAMERA");
       }
-    } else {
-      // Normal camera flow
-      if (appState !== "CAMERA" && appState !== "CONFIRM") return;
-      let currentStream: MediaStream | null = null;
-
-      const startCamera = async () => {
-        try {
-          if (videoRef.current && videoRef.current.srcObject) {
-            (videoRef.current.srcObject as MediaStream)
-              .getTracks()
-              .forEach((track) => track.stop());
-          }
-
-          const mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: facingMode,
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
-            },
-          });
-
-          currentStream = mediaStream;
-          if (videoRef.current) {
-            videoRef.current.srcObject = mediaStream;
-          }
-        } catch {
-          setError(
-            "Kamera tidak dapat diakses. Mohon izinkan akses kamera di browser Anda."
-          );
-        }
-      };
-      startCamera();
-      return () => {
-        if (currentStream)
-          currentStream.getTracks().forEach((track) => track.stop());
-      };
+      return;
     }
-  }, [fromGallery, appState]); // Add fromGallery to dependency array
+
+    // Normal camera setup for regular camera flow
+    if (appState !== "CAMERA" && appState !== "CONFIRM") return;
+
+    let currentStream: MediaStream | null = null;
+
+    const startCamera = async () => {
+      try {
+        if (videoRef.current && videoRef.current.srcObject) {
+          (videoRef.current.srcObject as MediaStream)
+            .getTracks()
+            .forEach((track) => track.stop());
+        }
+
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: facingMode,
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        });
+
+        currentStream = mediaStream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+      } catch {
+        setError(
+          "Kamera tidak dapat diakses. Mohon izinkan akses kamera di browser Anda."
+        );
+      }
+    };
+
+    // Only start camera if not skipping camera
+    if (!skipCamera) {
+      startCamera();
+    }
+
+    return () => {
+      if (currentStream)
+        currentStream.getTracks().forEach((track) => track.stop());
+    };
+  }, [fromGallery, skipCamera, appState, facingMode]);
 
   useEffect(() => {
     if (appState === "ANALYZING" && analysisResultId) {
+      console.log(
+        "Starting analysis animation for result ID:",
+        analysisResultId
+      );
       setLoadingStep(0);
       setProgress(0);
-      // No need to call fetchAnalysisDetails here, useAnalysisData will handle it
 
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 45000;
+      const totalDuration = 45000; // 45 detik
       const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
@@ -208,8 +272,27 @@ function HalamanKameraWajahContent() {
       }, Math.max(20, totalDuration / 100));
 
       const finishTimer = setTimeout(() => {
+        console.log(
+          "Analysis animation completed, cleaning up and redirecting..."
+        );
+
         setProgress(100);
-        setAppState("RESULTS");
+
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("tiebymin-analysis-data");
+          setAnalysisData({
+            tinggi: "",
+            berat: "",
+            umur: "",
+            body_shape_id: "",
+          });
+        }
+
+        console.log(
+          "Redirecting to:",
+          `/ai-overview?result_id=${analysisResultId}`
+        );
+        router.replace(`/ai-overview?result_id=${analysisResultId}`);
       }, totalDuration);
 
       return () => {
@@ -218,7 +301,7 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState, analysisResultId, userData, allTipsData]);
+  }, [appState, analysisResultId, router, setAnalysisData]);
 
   useEffect(() => {
     if (appState === "RESULTS") {
