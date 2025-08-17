@@ -205,7 +205,6 @@ function PdfPage() {
     }),
   };
 
-  const pageKeys = Object.keys(pages);
   const pageOrder = Object.keys(pages) as (keyof typeof pages)[];
 
   const [activePage, setActivePage] = useState<keyof typeof pages>("Cover");

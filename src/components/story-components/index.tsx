@@ -1,16 +1,15 @@
 "use client";
-import React from "react";
+import {
+  BmiCategory,
+  BodyShapeData,
+  ColorAnalysis as ColorTone,
+  FaceShape,
+  UserData,
+} from "@/types";
+import { Instagram } from "lucide-react";
 import Image from "next/image";
 import QRCode from "react-qr-code";
 import { Button } from "../ui/button";
-import {
-  BodyShapeData,
-  UserData,
-  BmiCategory,
-  ColorAnalysis as ColorTone,
-  FaceShape,
-} from "@/types";
-import { Instagram, Music } from "lucide-react";
 
 const generateGimmickChartData = (
   mainShapeName: string

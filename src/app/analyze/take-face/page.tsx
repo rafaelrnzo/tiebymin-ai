@@ -5,7 +5,6 @@ import { useAnalysis } from "@/context/AnalysisContext";
 import { useAllTips } from "@/hooks/useAllTips";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { secureUrl } from "@/lib/api";
-import { sendEmail } from "@/lib/utils";
 import axios from "axios";
 import { Camera, ImageIcon } from "lucide-react";
 import Image from "next/image";

@@ -109,7 +109,6 @@ export default function PrepareFacePage() {
     router.push(`/analyze/take-face`);
   };
 
-  const handleShowOverlay = () => setShowOverlay(true);
   const handleCloseOverlay = () => setShowOverlay(false);
 
   const selectedTypeId = analysisData.body_shape_id;
