@@ -6,7 +6,6 @@ import { useAllTips } from "@/hooks/useAllTips";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { secureUrl } from "@/lib/api";
 import { defaultUserData } from "@/lib/mock-data";
-import { sendEmail } from "@/lib/utils";
 import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
 import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
@@ -171,7 +170,7 @@ function HalamanKameraWajahContent() {
       // No need to call fetchAnalysisDetails here, useAnalysisData will handle it
 
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 60000;
+      const totalDuration = 45000;
       const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
@@ -211,11 +210,6 @@ function HalamanKameraWajahContent() {
       if (typeof window !== "undefined") {
         localStorage.removeItem("tiebymin-analysis-data");
         setAnalysisData({ tinggi: "", berat: "", umur: "", body_shape_id: "" });
-      }
-
-      const userEmail = localStorage.getItem("userEmail");
-      if (userEmail && userData && allTipsData) {
-        sendEmail(userEmail, { userData, tips: allTipsData }, analysisResultId);
       }
 
       const redirectTimer = setTimeout(() => {

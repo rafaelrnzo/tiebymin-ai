@@ -19,3 +19,26 @@ export const submitFeedback = async (data: {
   const response = await axios.post(secureUrl("/analysis-feedback/"), data);
   return response.data;
 };
+
+export const sendEmail = async (data: {
+  email: string;
+  pdf: Blob;
+  png: Blob;
+}) => {
+  const formData = new FormData();
+  formData.append("to", data.email);
+  formData.append("subject", "Your Tiebymin Analysis Result");
+  formData.append(
+    "html",
+    "<p>Here are your analysis results, attached as a PDF and PNG.</p>"
+  );
+  formData.append("pdf", data.pdf, "analysis-result.pdf");
+  formData.append("png", data.png, "story-result.png");
+
+  const response = await axios.post("/api/send-mail", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};

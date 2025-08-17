@@ -71,13 +71,6 @@ export default function FaceScanPrepPage() {
 
   useEffect(() => {
     if (analysisResultId && analysisHookData?.userData && allTipsData) {
-      const userEmail = localStorage.getItem("userEmail");
-      if (userEmail) {
-        sendEmail(userEmail, {
-          userData: analysisHookData.userData,
-          tips: allTipsData,
-        });
-      }
       router.push(`/ai-overview?result_id=${analysisResultId}`);
     }
   }, [analysisResultId, analysisHookData, allTipsData, router]);
