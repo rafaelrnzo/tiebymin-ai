@@ -29,7 +29,7 @@ const footerLinks = {
 export default function Footer() {
   return (
     <>
-      <section className="bg-[#FFC6C6] py-12 lg:px-[200px]">
+      <section className="bg-[#FFC6C6] px-10 py-12 lg:px-[200px]">
         <div className="container mx-auto bg-[#F0F0F0] rounded-2xl p-8 lg:p-16 text-center">
           <h2 className="font-handlee text-4xl lg:text-5xl font-bold text-[#323232] leading-tight">
             Siap Jadi Yang Paling Stylish
@@ -56,7 +56,7 @@ export default function Footer() {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
             {/* Kolom Brand */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 px-10">
               <h3 className="text-3xl font-poppins">tiebymin</h3>
               <p className="mt-4 text-sm max-w-xs">
                 Hanya Butuh Satu Foto, Tiebymin AI Memberikan Rekomendasi Akurat
@@ -83,7 +83,7 @@ export default function Footer() {
             </div>
 
             {/* Kolom Navigasi */}
-            <div>
+            <div className="px-10">
               <h4 className="font-bold">Navigasi</h4>
               <ul className="mt-4 space-y-3 text-sm">
                 {footerLinks.navigasi.map((link) => (
@@ -97,7 +97,7 @@ export default function Footer() {
             </div>
 
             {/* Kolom Market Place */}
-            <div>
+            <div className="px-10">
               <h4 className="font-bold">Market Place</h4>
               <ul className="mt-4 space-y-3 text-sm">
                 {footerLinks.marketPlace.map((link) => (
@@ -111,7 +111,7 @@ export default function Footer() {
             </div>
 
             {/* Kolom Sumber Daya */}
-            <div>
+            <div className="px-10">
               <h4 className="font-bold">Sumber Daya</h4>
               <ul className="mt-4 space-y-3 text-sm">
                 {footerLinks.sumberDaya.map((link) => (
@@ -126,7 +126,7 @@ export default function Footer() {
           </div>
 
           {/* Garis pemisah dan Hak Cipta */}
-          <div className="border-t border-white/20 mt-12 pt-6 text-sm">
+          <div className="border-t border-white/20 mt-12 pt-6 text-sm px-10">
             <p>© 2025, Tiebymin AI</p>
           </div>
         </div>

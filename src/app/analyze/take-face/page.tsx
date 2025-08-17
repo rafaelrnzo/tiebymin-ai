@@ -103,50 +103,17 @@ export default function FaceScanPrepPage() {
       return;
     }
 
-    const { tinggi, berat, umur, body_shape_id } = analysisData;
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      setApiError("User ID not found. Please log in again.");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("user_id", userId);
-    formData.append("tinggi_badan", tinggi);
-    formData.append("berat_badan", berat);
-    formData.append("umur", umur);
-    formData.append("body_shape_id", body_shape_id);
-    formData.append("foto_wajah", selectedFile, selectedFile.name);
-
-    setIsApiLoading(true);
-    setApiError("");
-
-    try {
-      const response = await axios.post(
-        secureUrl(`/v1/analysis/full-analysis`),
-        formData
+    // Store the selected file in localStorage before navigating
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "uploadedFaceImage",
+        URL.createObjectURL(selectedFile)
       );
-      if (response.status >= 200 && response.status < 300) {
-        const resultId = response.data.analysis_result_id;
-        if (resultId) {
-          setAnalysisResultId(resultId);
-        } else {
-          throw new Error("API berhasil tapi tidak mengembalikan result ID.");
-        }
-      } else {
-        throw new Error(
-          response.data?.message || `HTTP error! status: ${response.status}`
-        );
-      }
-    } catch (error) {
-      const err = error as Error;
-
-      console.error("API Error:", err);
-      setApiError(err.message || "Terjadi kesalahan saat menghubungi server.");
-    } finally {
-      setIsApiLoading(false);
-      setSelectedImage(null); // Tutup modal setelah selesai
-      setSelectedFile(null);
+      localStorage.setItem("uploadedFaceImageName", selectedFile.name);
     }
+
+    router.push("/analyze/open-camera?fromGallery=true");
+    return;
   };
 
   return (

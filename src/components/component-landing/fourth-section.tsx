@@ -39,7 +39,7 @@ const faqItems = [
 
 const FaqSection = () => {
   return (
-    <section className="bg-white lg:px-[200px]">
+    <section className="bg-white px-10 lg:px-[200px]">
       <div className="container mx-auto">
         <hr className="mt-8 mb-[7rem]" />
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-24 gap-6 items-center">

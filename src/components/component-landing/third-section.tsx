@@ -93,7 +93,7 @@ export const ThirdSection = () => {
 
   return (
     <section>
-      <div className="container mx-auto lg:px-[130px] relative">
+      <div className="container mx-auto px-10 lg:px-[130px] relative">
         <hr className="my-[5rem]" />
         <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-10">
           <div>

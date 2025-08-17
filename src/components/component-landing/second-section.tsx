@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export const SecondSection = () => {
   return (
-    <section className="bg-white sm:py-24 lg:px-[200px]">
+    <section className="bg-white sm:py-24 px-10 lg:px-[200px]">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
           <div className="lg:col-span-5 relative w-full rounded-xl overflow-hidden shadow-xl cursor-pointer group">

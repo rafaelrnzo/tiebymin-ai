@@ -100,7 +100,7 @@ export const HeroSection = () => {
             className="hidden lg:block w-[700px] h-[700px] lg:mb-0 lg:w-[600px] lg:h-[900px] object-cover"
           />
         </div>
-        <div className="relative z-20 mt-[12rem] lg:mt-2">
+        <div className="relative z-20 mt-10 lg:mt-2">
           <div className="flex flex-col items-center gap-8">
             <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly">
               <AnalysisCard

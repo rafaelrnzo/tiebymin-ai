@@ -10,7 +10,7 @@ import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
 import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -95,6 +95,8 @@ const RiveLoadingAnimation = () => {
 
 function HalamanKameraWajahContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromGallery = searchParams.get("fromGallery") === "true";
   const { analysisData: contextAnalysisData, setAnalysisData } = useAnalysis();
   const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
 
@@ -127,41 +129,65 @@ function HalamanKameraWajahContent() {
   };
 
   useEffect(() => {
-    if (appState !== "CAMERA" && appState !== "CONFIRM") return;
-    let currentStream: MediaStream | null = null;
+    if (fromGallery) {
+      const uploadedImage = localStorage.getItem("uploadedFaceImage");
+      const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
 
-    const startCamera = async () => {
-      try {
-        if (videoRef.current && videoRef.current.srcObject) {
-          (videoRef.current.srcObject as MediaStream)
-            .getTracks()
-            .forEach((track) => track.stop());
+      if (uploadedImage && uploadedImageName) {
+        setCapturedImage(uploadedImage);
+        setAppState("ANALYZING");
+        // Convert data URL to Blob and pass to handleFullAnalysis
+        const imageBlob = dataURLtoBlob(uploadedImage);
+        if (imageBlob) {
+          handleFullAnalysis(imageBlob, uploadedImageName);
+        } else {
+          setApiError("Gagal memproses gambar yang diunggah.");
+          setAppState("API_ERROR");
         }
-
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: facingMode,
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
-        });
-
-        currentStream = mediaStream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-      } catch {
-        setError(
-          "Kamera tidak dapat diakses. Mohon izinkan akses kamera di browser Anda."
-        );
+        localStorage.removeItem("uploadedFaceImage");
+        localStorage.removeItem("uploadedFaceImageName");
+      } else {
+        // If fromGallery is true but no image found, go to camera state
+        setAppState("CAMERA");
       }
-    };
-    startCamera();
-    return () => {
-      if (currentStream)
-        currentStream.getTracks().forEach((track) => track.stop());
-    };
-  }, [appState]);
+    } else {
+      // Normal camera flow
+      if (appState !== "CAMERA" && appState !== "CONFIRM") return;
+      let currentStream: MediaStream | null = null;
+
+      const startCamera = async () => {
+        try {
+          if (videoRef.current && videoRef.current.srcObject) {
+            (videoRef.current.srcObject as MediaStream)
+              .getTracks()
+              .forEach((track) => track.stop());
+          }
+
+          const mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: facingMode,
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            },
+          });
+
+          currentStream = mediaStream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = mediaStream;
+          }
+        } catch {
+          setError(
+            "Kamera tidak dapat diakses. Mohon izinkan akses kamera di browser Anda."
+          );
+        }
+      };
+      startCamera();
+      return () => {
+        if (currentStream)
+          currentStream.getTracks().forEach((track) => track.stop());
+      };
+    }
+  }, [fromGallery, appState]); // Add fromGallery to dependency array
 
   useEffect(() => {
     if (appState === "ANALYZING" && analysisResultId) {
@@ -267,7 +293,10 @@ function HalamanKameraWajahContent() {
     setApiError("");
   };
 
-  const handleFullAnalysis = async () => {
+  const handleFullAnalysis = async (
+    imageBlobFromGallery: Blob | null = null,
+    imageNameFromGallery: string | null = null
+  ) => {
     const { tinggi, berat, umur, body_shape_id } = contextAnalysisData;
 
     console.log("MENGIRIM PAYLOAD KE API:", {
@@ -275,20 +304,23 @@ function HalamanKameraWajahContent() {
       berat,
       umur,
       body_shape_id,
-      foto_wajah: "ada",
+      foto_wajah: imageBlobFromGallery ? "ada dari galeri" : "ada dari kamera",
     });
 
-    if (!capturedImage) {
+    let imageToUpload: Blob | null = null;
+    let imageFileName: string = "face-photo.png";
+
+    if (imageBlobFromGallery && imageNameFromGallery) {
+      imageToUpload = imageBlobFromGallery;
+      imageFileName = imageNameFromGallery;
+    } else if (capturedImage) {
+      imageToUpload = dataURLtoBlob(capturedImage);
+    }
+
+    if (!imageToUpload) {
       setApiError(
         "Informasi tidak lengkap. Foto atau tipe tubuh tidak ditemukan."
       );
-      setAppState("API_ERROR");
-      return;
-    }
-
-    const imageBlob = dataURLtoBlob(capturedImage);
-    if (!imageBlob) {
-      setApiError("Gagal memproses gambar.");
       setAppState("API_ERROR");
       return;
     }
@@ -308,7 +340,7 @@ function HalamanKameraWajahContent() {
     formData.append("berat_badan", String(beratParse));
     formData.append("umur", String(umurParse));
     formData.append("body_shape_id", body_shape_id);
-    formData.append("foto_wajah", imageBlob, "face-photo.png");
+    formData.append("foto_wajah", imageToUpload, imageFileName);
 
     setIsApiLoading(true);
     setApiError("");
