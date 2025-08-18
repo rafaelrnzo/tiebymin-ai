@@ -290,7 +290,7 @@ export default function PrepareFacePage() {
             </div>
           )}
 
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl py-6 sm:py-8 px-2 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3 mt-6 lg:mt-0">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl h-[620px] py-6 sm:py-8 px-2 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3 mt-6 lg:mt-0">
             {isLoading || !selectedType ? (
               <div className="w-full animate-pulse">
                 <div className="h-10 sm:h-12 w-3/4 bg-gray-300/70 rounded mb-4 sm:mb-6"></div>

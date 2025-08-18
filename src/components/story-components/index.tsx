@@ -262,7 +262,7 @@ export default function StoryPoster({
               alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
               width={120}
               height={300}
-              className="w-[120px] h-[300px] object-contain mt-12"
+              className="w-[120px] h-[300px] object-contain ml-[11px] mt-[5rem]"
               priority
             />
           </div>
