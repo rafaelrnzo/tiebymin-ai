@@ -271,36 +271,42 @@ export default function StoryPoster({
               Bentuk tubuh kamu {userData.bodyShape}
             </h3>
             <p className="text-xl font-poppins mb-3">
-              {userData.bodyShapeAnalysis.description}
+              {bodyDetails?.penjelasan_body_shape}
             </p>
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <div className="border rounded-2xl p-4">
                 <h4 className="font-bold text-xl font-poppins text-gray-800 mb-2">
                   Karakteristik
                 </h4>
-                <p className="text-xl font-poppins text-gray-600">
-                  {bodyDetails?.penjelasan_body_shape}
-                </p>
+                <ul className="list-disc list-inside space-y-2">
+                  {bodyDetails?.karakteristik
+                    ?.split("-") // Memecah string berdasarkan tanda '-'
+                    .filter((point) => point.trim() !== "") // Menghapus item kosong
+                    .map((point, index) => (
+                      <li
+                        key={index}
+                        className="text-xl font-poppins text-gray-600"
+                      >
+                        {point.trim()}
+                      </li>
+                    ))}
+                </ul>
               </div>
               <div className="border rounded-2xl p-4 relative">
                 <h4 className="font-bold text-xl font-poppins text-gray-800 mb-4">
                   BMI Index
                 </h4>
 
-                {/* Wrapper bar */}
                 <div className="relative w-full h-6 rounded-lg bg-gradient-to-r from-pink-400 to-pink-300">
-                  {/* Indicator line */}
                   <div
-                    className="absolute top-0 bottom-0 w-[2px] bg-black"
+                    className="absolute top-0 bottom-0 w-[2px] bg-[#323232]"
                     style={{
                       left: `${Math.min(
                         100,
                         Math.max(0, (userData.bmi.value / 40) * 100)
                       )}%`,
                     }}
-                  >
-                    {/* Tooltip */}
-                  </div>
+                  ></div>
                 </div>
                 <div className="w-fit self-center text-center mt-4 bg-neutral-800 text-white text-sm px-3 py-1 rounded-md whitespace-nowrap">
                   {userData.bmi.value.toFixed(2)} {bmiCategoryDetails?.kategori}

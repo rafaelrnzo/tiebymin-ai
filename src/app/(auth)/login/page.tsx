@@ -250,7 +250,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-4 transition-colors text-[20px] flex items-center justify-center"
+                className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-4 transition-colors text-xl flex items-center justify-center"
                 disabled={isLoading}
               >
                 {isLoading ? (

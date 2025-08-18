@@ -1,4 +1,3 @@
-// File: open-camera page.tsx (Updated)
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -547,7 +546,7 @@ function HalamanKameraWajahContent() {
   }
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-black">
+    <main className="relative h-screen w-screen overflow-hidden bg-[#323232]">
       <video
         ref={videoRef}
         autoPlay
@@ -559,7 +558,7 @@ function HalamanKameraWajahContent() {
 
       {appState === "CAMERA" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between p-6">
-          <div className="relative z-20 text-center flex items-center gap-3 text-black bg-[#FFC6C6] mt-18 py-4 px-6 rounded-2xl">
+          <div className="relative z-20 text-center flex items-center gap-3 text-[#323232] bg-[#FFC6C6] mt-18 py-4 px-6 rounded-2xl">
             <Image
               src="/si_warning-fill.svg"
               alt="si-warning"
@@ -590,14 +589,14 @@ function HalamanKameraWajahContent() {
               onClick={handleCapture}
               className="w-20 h-20 -ml-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
             >
-              <Camera className="text-white size-12 fill-black" />
+              <Camera className="text-white size-12 fill-[#323232]" />
             </Button>
           </div>
         </div>
       )}
 
       {appState === "CONFIRM" && capturedImage && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-lg">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#323232]/50 backdrop-blur-lg">
           <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
             <h2 className="font-oswald text-2xl font-bold text-gray-800">
               Gunakan Gambar Ini
@@ -621,7 +620,7 @@ function HalamanKameraWajahContent() {
               </Button>
               <Button
                 onClick={handleAnalyze}
-                className="w-full py-3 px-4 bg-[#FFC6C6] text-black font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
                 disabled={isApiLoading}
               >
                 {isApiLoading ? (
@@ -629,7 +628,7 @@ function HalamanKameraWajahContent() {
                 ) : (
                   <>
                     <span className="font-poppins">Mulai Analisa</span>{" "}
-                    <AnalysisIcon className="stroke-black" />
+                    <AnalysisIcon className="stroke-[#323232]" />
                   </>
                 )}
               </Button>
@@ -651,7 +650,7 @@ export default function HalamanKameraWajah() {
   return (
     <Suspense
       fallback={
-        <div className="h-screen w-screen flex items-center justify-center bg-black text-white">
+        <div className="h-screen w-screen flex items-center justify-center bg-[#323232] text-white">
           <div className="animate-pulse rounded-full h-16 w-16 bg-gray-700"></div>
         </div>
       }

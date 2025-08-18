@@ -48,7 +48,7 @@ const SectionTitle = ({
     </h2>
     <div className="flex items-center gap-4">
       <Info className="w-6 h-6 text-white" />
-      <p className="font-poppins font-bold text-[20px] text-white">{info}</p>
+      <p className="font-poppins font-bold text-xl text-white">{info}</p>
     </div>
   </div>
 );

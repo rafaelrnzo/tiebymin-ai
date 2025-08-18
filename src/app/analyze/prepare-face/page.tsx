@@ -156,7 +156,7 @@ export default function PrepareFacePage() {
       {showOverlay && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-2 sm:p-4">
           <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#323232]/30 backdrop-blur-sm"
             onClick={handleCloseOverlay}
           />
           <div className="relative bg-white/90 rounded-2xl shadow-xl p-4 sm:p-8 max-w-md w-full">

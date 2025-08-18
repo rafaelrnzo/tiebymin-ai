@@ -14,7 +14,7 @@ export const SecondSection = () => {
               objectFit="cover"
               className="group-hover:scale-105 transition-transform duration-300"
             />
-            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="absolute inset-0 bg-[#323232]/10"></div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
               <div className="h-20 w-20 lg:h-24 lg:w-24 bg-[#FFC6C6] rounded-full flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110">
                 <Play className="h-10 w-10 lg:h-12 lg:w-12 fill-white ml-2" />
@@ -57,7 +57,7 @@ export const SecondSection = () => {
                 <p className="font-poppins text-3xl lg:text-[48px] font-bold text-[#FFC6C6]">
                   {"<"}2m
                 </p>
-                <p className="text-[20px] text-white mt-1 text-cente font-poppins">
+                <p className="text-xl text-white mt-1 text-cente font-poppins">
                   Hasil Selesai
                 </p>
               </div>
@@ -65,7 +65,7 @@ export const SecondSection = () => {
                 <p className="font-poppins text-3xl lg:text-[48px] font-bold text-[#FFC6C6]">
                   100%
                 </p>
-                <p className="text-[20px] text-white mt-1 text-center font-poppin">
+                <p className="text-xl text-white mt-1 text-center font-poppin">
                   Buatan Lokal
                 </p>
               </div>

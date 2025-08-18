@@ -47,7 +47,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     />
     <div className="flex items-center gap-2">
       <h4 className="font-semibold text-gray-800">{title}</h4>
-      <ShoppingCart className="h-4 w-4 fill-black" />
+      <ShoppingCart className="h-4 w-4 fill-[#323232]" />
     </div>
     <p className="text-sm text-gray-500">{description}</p>
   </div>
@@ -147,7 +147,7 @@ const BodyShapeCard = () => (
 const CelebrityCard = () => (
   <div className="bg-white rounded-xl p-6 flex flex-col gap-4 border">
     <div className="flex items-center gap-2 font-semibold text-gray-700">
-      <Crown className="h-5 w-5 fill-black" />
+      <Crown className="h-5 w-5 fill-[#323232]" />
       <h3 className="font-handlee italic mt-2">Selebriti serupa</h3>
     </div>
     <hr />
@@ -212,7 +212,7 @@ const RecommendationContainer = () => {
               Merekomendasikan produk berdasarkan hasil analisa yang telah di
               lakukan AI dengan mencocokan warna dan bentuk wajah.
             </p>
-            <Sparkles className="text-center self-center mt-10 fill-black" />
+            <Sparkles className="text-center self-center mt-10 fill-[#323232]" />
           </div>
         </div>
         {products.map((product) => (

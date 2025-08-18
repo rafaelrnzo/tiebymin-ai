@@ -99,7 +99,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
               Apa saran anda untuk kami?
             </p>
             <Textarea
-              className="bg-[#F0F0F0] text-black placeholder-gray-400 resize-none h-[150px]"
+              className="bg-[#F0F0F0] text-[#323232] placeholder-gray-400 resize-none h-[150px]"
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Tuliskan masukan anda disini..."

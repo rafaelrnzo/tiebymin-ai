@@ -58,8 +58,10 @@ export function Navbar() {
                 size="lg"
                 className="rounded-full bg-[#FFC6C6] hover:bg-[#f9bfbf] flex items-center gap-2 px-6 py-3"
               >
-                <Sparkles className="w-4 h-4 text-black fill-black" />
-                <span className="font-semibold text-black">Coba Sekarang</span>
+                <Sparkles className="w-4 h-4 text-[#323232] fill-[#323232]" />
+                <span className="font-semibold text-[#323232]">
+                  Coba Sekarang
+                </span>
               </Button>
             </Link>
             <Link href="/profile">
@@ -67,8 +69,8 @@ export function Navbar() {
                 size="lg"
                 className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
               >
-                <User className="w-4 h-4 text-black fill-black" />
-                <span className="font-semibold text-black">Profile</span>
+                <User className="w-4 h-4 text-[#323232] fill-[#323232]" />
+                <span className="font-semibold text-[#323232]">Profile</span>
               </Button>
             </Link>
           </div>
@@ -118,7 +120,7 @@ export function Navbar() {
                         size="lg"
                         className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
                       >
-                        <User className="w-4 h-4 text-black fill-black" />
+                        <User className="w-4 h-4 text-[#323232] fill-[#323232]" />
                       </Button>
                     </Link>
                   </div>

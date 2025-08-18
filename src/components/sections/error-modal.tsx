@@ -29,7 +29,7 @@ export function ErrorModal({ isOpen, onClose, errorMessage }: ErrorModalProps) {
         <div className="flex justify-center">
           <Button
             onClick={onClose}
-            className="bg-white text-black px-6 py-2 rounded-full hover:bg-gray-200"
+            className="bg-white text-[#323232] px-6 py-2 rounded-full hover:bg-gray-200"
           >
             Close
           </Button>

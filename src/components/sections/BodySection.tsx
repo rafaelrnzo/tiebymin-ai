@@ -62,7 +62,7 @@ const BodySection: React.FC<BodySectionProps> = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
-      <div className="rounded-2xl p-4 sm:p-6 border">
+      <div className="rounded-2xl px-4 py-6 border">
         <h3 className="font-bold text-5xl font-oswald">{bodyDetails.name}</h3>
         <div className="flex justify-center my-6 w-[150px] h-[250px] mx-auto">
           <Image
@@ -74,14 +74,13 @@ const BodySection: React.FC<BodySectionProps> = ({
             priority
           />
         </div>
-        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mt-4 px-4">
+        <p className="text-xl leading-relaxed mt-4">
           {bodyDetails.penjelasan_body_shape}
         </p>
         <div className="flex gap-2 justify-center mt-6">
           {ALL_BODY_TYPES_PREVIEW.map((bt) => (
-            <Button
+            <div
               key={bt.id}
-              type="button"
               className={`rounded-lg p-1 border transition-all ${
                 bt.name === bodyDetails.name
                   ? "border-[#EF789B] bg-[#FCE9EC]"
@@ -98,20 +97,18 @@ const BodySection: React.FC<BodySectionProps> = ({
                 className="w-9 h-16 object-contain"
                 style={{ opacity: bt.name === bodyDetails.name ? 1 : 0.5 }}
               />
-            </Button>
+            </div>
           ))}
         </div>
       </div>
       <div className="flex flex-col gap-6">
-        <div className="border border-neutral-600 rounded-2xl p-6 sm:p-8 text-black">
-          {/* Judul */}
+        <div className="border border-neutral-600 rounded-2xl p-6 sm:p-8 text-[#323232]">
           <h3 className="font-bold text-4xl sm:text-5xl font-oswald">
             BMI Analyst
           </h3>
           <hr className="my-4 border-neutral-300" />
 
           <div className="flex items-center gap-4">
-            {/* Lingkaran BMI */}
             <div className="flex items-center justify-center">
               <div className="rounded-full border-2 border-[#EC7498] p-1">
                 <div className="rounded-full border border-neutral-600 w-24 h-24 flex items-center justify-center">
@@ -121,32 +118,31 @@ const BodySection: React.FC<BodySectionProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* Teks Keterangan */}
             <div className="flex flex-col">
               <span className="font-bold text-base sm:text-lg">
                 {bmiCategoryDetails.kategori}
               </span>
-              <p className="text-neutral-600 text-sm sm:text-base leading-relaxed font-poppins">
-                {bmiCategoryDetails.tips_fashion
-                  .split(" ")
-                  .slice(0, 12)
-                  .join(" ") +
-                  (bmiCategoryDetails.tips_fashion.split(" ").length > 12
-                    ? "..."
-                    : "")}
+              <p className="text-[#323232] text-sm sm:text-base leading-relaxed font-poppins">
+                {bmiCategoryDetails.tips_fashion}
               </p>
             </div>
           </div>
         </div>
 
         <div className="bg-[#FFC6C6] rounded-2xl px-4 py-14 sm:p-6">
-          <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg text-left">
+          <h3 className="font-bold italic font-handlee mb-3 text-lg text-left">
             Karakteristik
           </h3>
-          <span className="font-poppins text-sm">
-            {bodyDetails.penjelasan_body_shape}
-          </span>
+          <ul className="list-disc list-inside space-y-2">
+            {bodyDetails?.karakteristik
+              ?.split("-") // Memecah string berdasarkan tanda '-'
+              .filter((point: string) => point.trim() !== "") // Menghapus item kosong
+              .map((point: string, index: string) => (
+                <li key={index} className="text-xl text-[#323232] font-poppins">
+                  {point.trim()}
+                </li>
+              ))}
+          </ul>
         </div>
       </div>
     </div>
