@@ -2,6 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ErrorModal } from "@/components/sections/error-modal";
 import { useAnalysis } from "@/context/AnalysisContext";
 import { useAllTips } from "@/hooks/useAllTips";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
@@ -120,8 +121,8 @@ function HalamanKameraWajahContent() {
   const [appState, setAppState] = useState<AppState>(getInitialState());
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string>("");
-  const [apiError, setApiError] = useState<string>("");
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
   const [isApiLoading, setIsApiLoading] = useState(false);
   const [completedAnalyses, setCompletedAnalyses] = useState(0);
   const totalAnalyses = 4;
@@ -196,8 +197,8 @@ function HalamanKameraWajahContent() {
         if (imageBlob) {
           handleFullAnalysis(imageBlob, uploadedImageName);
         } else {
-          setApiError("Gagal memproses gambar yang diunggah.");
-          setAppState("API_ERROR");
+          setErrorModalMessage("Gagal memproses gambar yang diunggah.");
+          setIsErrorModalOpen(true);
         }
         localStorage.removeItem("uploadedFaceImage");
         localStorage.removeItem("uploadedFaceImageName");
@@ -233,9 +234,10 @@ function HalamanKameraWajahContent() {
           videoRef.current.srcObject = mediaStream;
         }
       } catch {
-        setError(
+        setErrorModalMessage(
           "Kamera tidak dapat diakses. Mohon izinkan akses kamera di browser Anda."
         );
+        setIsErrorModalOpen(true);
       }
     };
 
@@ -373,7 +375,8 @@ function HalamanKameraWajahContent() {
     setProgress(0);
     setCompletedAnalyses(0);
     setAppState("CAMERA");
-    setApiError("");
+    setErrorModalMessage("");
+    setIsErrorModalOpen(false);
   };
 
   const handleFullAnalysis = async (
@@ -401,10 +404,10 @@ function HalamanKameraWajahContent() {
     }
 
     if (!imageToUpload) {
-      setApiError(
+      setErrorModalMessage(
         "Informasi tidak lengkap. Foto atau tipe tubuh tidak ditemukan."
       );
-      setAppState("API_ERROR");
+      setIsErrorModalOpen(true);
       return;
     }
 
@@ -414,7 +417,8 @@ function HalamanKameraWajahContent() {
 
     const userId = localStorage.getItem("userId");
     if (!userId) {
-      setApiError("User ID not found. Please log in again.");
+      setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
+      setIsErrorModalOpen(true);
       return;
     }
     const formData = new FormData();
@@ -426,7 +430,8 @@ function HalamanKameraWajahContent() {
     formData.append("foto_wajah", imageToUpload, imageFileName);
 
     setIsApiLoading(true);
-    setApiError("");
+    setErrorModalMessage("");
+    setIsErrorModalOpen(false);
     const endpoint = secureUrl(`/v1/analysis/full-analysis`);
     console.log("fetch endpoint:", endpoint);
 
@@ -439,23 +444,25 @@ function HalamanKameraWajahContent() {
           setAnalysisResultId(resultId);
           setAppState("ANALYZING");
         } else {
-          throw new Error("API berhasil tapi tidak mengembalikan result ID.");
+          setErrorModalMessage("Proses analisis gagal. Silakan coba lagi.");
+          setIsErrorModalOpen(true);
         }
       } else {
         throw new Error(
-          response.data?.message || `HTTP error! status: ${response.status}`
+          response.data?.message ||
+            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
         );
       }
 
       setAppState("ANALYZING");
-    } catch (error) {
-      const err = error as Error;
-      console.error("API Error:", err);
-      setApiError(
-        err.message ||
-          "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
+    } catch (error: unknown) {
+      console.error("API Error:", error);
+      setErrorModalMessage(
+        error instanceof Error
+          ? error.message
+          : "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
       );
-      setAppState("API_ERROR");
+      setIsErrorModalOpen(true);
     } finally {
       setIsApiLoading(false);
     }
@@ -531,18 +538,11 @@ function HalamanKameraWajahContent() {
 
   if (appState === "API_ERROR") {
     return (
-      <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 p-4">
-        <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
-          <h2 className="text-2xl font-bold text-red-600">Analisa Gagal</h2>
-          <p className="text-gray-600 mt-2 mb-6">{apiError}</p>
-          <Button
-            onClick={handleRetake}
-            className="w-full py-3 px-4 bg-gray-700 text-white font-semibold rounded-xl hover:bg-gray-800"
-          >
-            Coba Lagi
-          </Button>
-        </div>
-      </div>
+      <ErrorModal
+        isOpen={isErrorModalOpen}
+        onClose={handleRetake}
+        errorMessage={errorModalMessage}
+      />
     );
   }
 
@@ -638,11 +638,11 @@ function HalamanKameraWajahContent() {
         </div>
       )}
 
-      {error && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 p-4">
-          <p className="text-center text-red-400">{error}</p>
-        </div>
-      )}
+      <ErrorModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        errorMessage={errorModalMessage}
+      />
     </main>
   );
 }

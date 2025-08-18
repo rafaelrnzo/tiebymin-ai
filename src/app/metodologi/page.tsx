@@ -84,7 +84,7 @@ export default function MethodologyPage() {
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
-                  className="bg-[#FFC6C6] rounded-2xl border border-gray-200 p-6 flex flex-col items-center text-start justify-center shadow-sm"
+                  className="bg-[#FFC6C6] h-[210px] rounded-2xl border border-gray-200 p-6 flex flex-col items-center text-start justify-center shadow-sm"
                 >
                   <p className="font-poppins font-bold">{item.title}</p>
                   <p className="font-poppins">{item.description}</p>
@@ -99,11 +99,11 @@ export default function MethodologyPage() {
             Jumlah Analisis
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
-            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6">
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
-                  className="rounded-2xl w-[200px] h-[210px] border border-gray-200 p-6 flex flex-col items-center justify-center text-center shadow-sm"
+                  className="rounded-2xl h-[210px] border border-gray-200 p-6 flex flex-col items-center justify-center text-center shadow-sm"
                 >
                   {item.icon}
                   <h3 className="font-poppins font-bold text-lg mt-4">

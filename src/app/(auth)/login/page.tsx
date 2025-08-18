@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button";
 import { secureUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ErrorModal } from "@/components/sections/error-modal";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     first_name: "",
@@ -66,15 +69,17 @@ export default function LoginPage() {
           }),
         });
       } catch (fetchErr) {
-        setError(
-          `Tidak dapat terhubung ke server. Silakan coba lagi nanti atau hubungi admin. ${fetchErr}`
+        setErrorModalMessage(
+          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti."
         );
+        setIsErrorModalOpen(true);
         setIsLoading(false);
         return;
       }
 
       if (!response.ok) {
-        let errorMsg = `HTTP error! status: ${response.status}`;
+        let errorMsg =
+          "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
         try {
           const errorData = await response.json();
           errorMsg = errorData.message || errorMsg;
@@ -106,21 +111,22 @@ export default function LoginPage() {
         err.message &&
         err.message.toLowerCase().includes("failed to fetch")
       ) {
-        setError(
+        setErrorModalMessage(
           "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau hubungi admin jika masalah berlanjut."
         );
+        setIsErrorModalOpen(true);
       } else {
         if (
           err instanceof Error &&
           err.message.includes("user with this email already exists")
         ) {
-          setError("Email Anda sudah terdaftar");
+          setErrorModalMessage("Email Anda sudah terdaftar");
+          setIsErrorModalOpen(true);
         } else {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Terjadi kesalahan saat mendaftar"
+          setErrorModalMessage(
+            "Terjadi kesalahan saat mendaftar. Silakan coba lagi."
           );
+          setIsErrorModalOpen(true);
         }
       }
     } finally {
@@ -150,11 +156,11 @@ export default function LoginPage() {
               Buat Akun Baru
             </h2>
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                {error}
-              </div>
-            )}
+            <ErrorModal
+              isOpen={isErrorModalOpen}
+              onClose={() => setIsErrorModalOpen(false)}
+              errorMessage={errorModalMessage}
+            />
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               {/* First Name & Last Name */}

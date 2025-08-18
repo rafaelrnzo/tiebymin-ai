@@ -2,6 +2,7 @@
 import LeftSideSection from "@/components/component-login/left-side-section";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
+import { ErrorModal } from "@/components/sections/error-modal";
 import { useAllTips } from "@/hooks/useAllTips";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { secureUrl } from "@/lib/api";
@@ -61,6 +62,8 @@ export default function FaceScanPrepPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isApiLoading, setIsApiLoading] = useState(false);
   const [apiError, setApiError] = useState<string>("");
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
   const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
   const { data: analysisHookData } = useAnalysisData(analysisResultId);
   const { data: allTipsData } = useAllTips({
@@ -106,7 +109,8 @@ export default function FaceScanPrepPage() {
 
   const handleAnalyzeFromGallery = async () => {
     if (!selectedFile) {
-      setApiError("Tidak ada file yang dipilih.");
+      setErrorModalMessage("Tidak ada file yang dipilih.");
+      setIsErrorModalOpen(true);
       return;
     }
 
@@ -122,7 +126,10 @@ export default function FaceScanPrepPage() {
 
       // Validate required data
       if (!tinggi || !berat || !umur || !body_shape_id) {
-        setApiError("Data analisis tidak lengkap. Silakan ulangi proses.");
+        setErrorModalMessage(
+          "Data analisis tidak lengkap. Silakan ulangi proses."
+        );
+        setIsErrorModalOpen(true);
         setIsApiLoading(false);
         return;
       }
@@ -130,7 +137,8 @@ export default function FaceScanPrepPage() {
       // Get user ID
       const userId = localStorage.getItem("userId");
       if (!userId) {
-        setApiError("User ID not found. Please log in again.");
+        setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
+        setIsErrorModalOpen(true);
         setIsApiLoading(false);
         return;
       }
@@ -157,27 +165,26 @@ export default function FaceScanPrepPage() {
       if (response.status >= 200 && response.status < 300) {
         const resultId = response.data.analysis_result_id;
         if (resultId) {
-          // Store analysis result ID and navigate to open-camera with gallery flag
           localStorage.setItem("analysisResultId", resultId);
           localStorage.setItem("skipCameraForGallery", "true");
 
-          // Navigate to open-camera page which will skip camera and go directly to loading
           router.push("/analyze/open-camera?fromGallery=true&skipCamera=true");
         } else {
-          throw new Error("API berhasil tapi tidak mengembalikan result ID.");
+          throw new Error("Proses analisis gagal. Silakan coba lagi.");
         }
       } else {
         throw new Error(
-          response.data?.message || `HTTP error! status: ${response.status}`
+          response.data?.message ||
+            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
         );
       }
     } catch (error) {
       console.error("API Error:", error);
       const err = error as Error;
-      setApiError(
-        err.message ||
-          "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
+      setErrorModalMessage(
+        "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
       );
+      setIsErrorModalOpen(true);
     } finally {
       setIsApiLoading(false);
     }
@@ -313,9 +320,11 @@ export default function FaceScanPrepPage() {
               height={400}
               className="rounded-lg w-full h-auto object-cover mb-6"
             />
-            {apiError && (
-              <p className="text-red-500 text-sm mb-4">{apiError}</p>
-            )}
+            <ErrorModal
+              isOpen={isErrorModalOpen}
+              onClose={() => setIsErrorModalOpen(false)}
+              errorMessage={errorModalMessage}
+            />
             <div className="w-full flex flex-col gap-3">
               <Button
                 onClick={handleReselect}
