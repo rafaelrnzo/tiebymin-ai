@@ -190,7 +190,7 @@ export default function StoryPoster({
           </div>
         </div>
 
-        <hr className="mb-6" />
+        <hr className="mb-8" />
 
         {/* COLOR TONE */}
         <div className="mb-6">
@@ -251,7 +251,7 @@ export default function StoryPoster({
           </div>
         </div>
 
-        <hr className="my-6" />
+        <hr className="mb-14" />
 
         <div className="flex gap-[40px]">
           <div className="border p-4 rounded-2xl w-[400px]">

@@ -43,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       height={100}
       src={imageUrl}
       alt={title}
-      className="w-full h-[100px] object-cover rounded-lg"
+      className="w-full h-[60px] object-cover rounded-lg"
     />
     <div className="flex items-center gap-2">
       <h4 className="font-semibold text-gray-800">{title}</h4>
@@ -121,7 +121,7 @@ const BodyShapeCard = () => (
         height={100}
         src="/body-select/hourglass.png"
         alt="Hourglass shape"
-        className="h-[100px] object-contain"
+        className="h-[60px] object-contain"
       />
       <div>
         <h3 className="text-lg font-bold font-poppins">Hour Glass</h3>
@@ -225,7 +225,7 @@ const RecommendationContainer = () => {
 
 const AnalysisDashboard: React.FC = () => {
   return (
-    <div className="mt-10 p-4 sm:p-6 lg:p-8 lg:px-[200px]">
+    <div className="mt-[60px] p-4 sm:p-6 lg:p-8 lg:px-[200px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <FaceShapeCard />
@@ -237,7 +237,7 @@ const AnalysisDashboard: React.FC = () => {
           <CelebrityCard />
           <RecommendationContainer />
         </div>
-        <hr className="mt-10" />
+        <hr className="my-[60px]" />
       </div>
     </div>
   );

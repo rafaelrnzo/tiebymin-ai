@@ -93,11 +93,11 @@ export const ThirdSection = () => {
 
   return (
     <section>
-      <div className="container mx-auto px-10 lg:px-[130px] relative">
-        <hr className="my-[5rem]" />
+      <div className="container mx-auto px-10 lg:px-[130px] relative mb-[100px]">
+        <hr className="mt-[100px] mb-[80px]" />
         <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-10">
           <div>
-            <h2 className="font-handlee italic text-[30px] lg:text-[46px] text-gray-900 mt-2">
+            <h2 className="font-handlee italic text-[30px] lg:text-[46px] text-gray-900">
               Dengar testimoni pengguna tercinta kita{" "}
             </h2>
           </div>

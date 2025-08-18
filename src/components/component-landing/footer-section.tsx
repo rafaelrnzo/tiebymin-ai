@@ -41,13 +41,15 @@ export default function Footer() {
             Butuh Satu Foto. Tiebymin AI Memberikan Rekomendasi Instan Tanpa
             Perlu Repot, Serta Hemat Waktu Dan Biaya.
           </p>
-          <Button
-            size="lg"
-            className="mt-8 bg-[#323232] text-white font-semibold rounded-lg px-6 py-3 shadow-sm hover:bg-gray-100 transition-colors"
-          >
-            <ArrowRight className="ml-2 h-4 w-4" />
-            Coba Analisis
-          </Button>
+          <a href="/login">
+            <Button
+              size="lg"
+              className="mt-8 bg-[#323232] text-white font-semibold rounded-lg px-6 py-3 shadow-sm hover:bg-gray-100 transition-colors"
+            >
+              <ArrowRight className="ml-2 h-4 w-4" />
+              Coba Analisis
+            </Button>
+          </a>
         </div>
       </section>
 
