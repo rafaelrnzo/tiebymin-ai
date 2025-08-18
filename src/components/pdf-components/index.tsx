@@ -151,21 +151,19 @@ export const BodyShape = ({
                 Bentuk tubuh kamu {userData.bodyShape}
               </h1>
               <p className="text-gray-600 mb-8 leading-relaxed">
-                {userData.bodyShapeAnalysis.description
-                  .charAt(0)
-                  .toUpperCase() +
-                  userData.bodyShapeAnalysis.description.slice(1).toLowerCase()}
+                {bodyDetails?.penjelasan_body_shape}
               </p>
               <div className="bg-[#323232] text-white p-6 rounded-lg">
                 <h3 className="text-lg font-bold mb-3">Karakteristik</h3>
                 <ul className="list-disc list-inside space-y-2">
-                  {userData.bodyShapeAnalysis.characteristics.map(
-                    (item, index) => (
-                      <li key={index}>
-                        {item.endsWith(".") ? item : `${item}.`}
+                  {bodyDetails?.karakteristik
+                    ?.split("-")
+                    .filter((point) => point.trim() !== "")
+                    .map((point, index) => (
+                      <li key={index} className="text-lg font-poppins">
+                        {point.trim()}
                       </li>
-                    )
-                  )}
+                    ))}
                 </ul>
               </div>
             </div>

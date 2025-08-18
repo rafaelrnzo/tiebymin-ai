@@ -247,7 +247,7 @@ export default function FaceScanPrepPage() {
             {INSTRUCTION_CARDS.map((card, index) => (
               <div
                 key={index}
-                className="bg-transparent border border-black rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between text-center space-y-3 sm:space-y-4"
+                className="bg-transparent border border-[#323232] rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between text-center space-y-3 sm:space-y-4"
               >
                 <h3 className="font-poppins font-bold text-base sm:text-lg text-gray-800">
                   {card.title}
@@ -305,7 +305,7 @@ export default function FaceScanPrepPage() {
 
       {/* Modal Konfirmasi Upload */}
       {selectedImage && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-lg">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#323232]/50 backdrop-blur-lg">
           <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
             <h2 className="font-oswald text-2xl font-bold text-gray-800">
               Gunakan Gambar Ini
@@ -335,14 +335,14 @@ export default function FaceScanPrepPage() {
               </Button>
               <Button
                 onClick={handleAnalyzeFromGallery}
-                className="w-full py-3 px-4 bg-[#FFC6C6] text-black font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
                 disabled={isApiLoading}
               >
                 {isApiLoading ? (
                   <Spinner />
                 ) : (
                   <>
-                    Mulai Analisa <AnalysisIcon className="stroke-black" />
+                    Mulai Analisa <AnalysisIcon className="stroke-[#323232]" />
                   </>
                 )}
               </Button>

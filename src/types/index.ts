@@ -4,6 +4,7 @@ export interface BodyShapeData {
   penjelasan_body_shape: string;
   tips_body_shape: string;
   link_picture: string;
+  karakteristik:string;
 }
 
 export interface BodyType {

@@ -44,7 +44,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
   // Tampilan jika ada kecocokan
   return (
     <div className="flex flex-col md:flex-row gap-6">
-      <div className="flex flex-col gap-6 w-full md:w-2/5">
+      <div className="flex flex-col gap-6 w-full">
         <div className="border-[1px] border-neutral-600 rounded-2xl p-6">
           <p className="font-handlee text-[#ED80A7] text-lg mb-1">
             Artis yang mirip kamu
@@ -52,7 +52,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
           <h3 className="text-3xl font-bold text-gray-800 font-oswald">
             {matchData.name}
           </h3>
-          <p className="text-gray-600 text-sm mt-3 leading-relaxed">
+          <p className="text-gray-600 text-xl mt-3 leading-relaxed">
             {matchData.description}
           </p>
         </div>
@@ -60,12 +60,12 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
           <h4 className="font-bold font-handlee text-gray-800 text-md mb-2">
             Kenapa Cocok?
           </h4>
-          <p className="text-gray-600 text-sm leading-relaxed">
+          <p className="text-gray-600 text-xl leading-relaxed">
             {matchData.similarity_text}
           </p>
         </div>
       </div>
-      <div className="relative w-full md:w-3/5 min-h-[400px]">
+      <div className="relative w-full min-h-[400px]">
         <Image
           src={matchData.picture_url || "/hijab-3.png"}
           alt={matchData.name}
@@ -73,7 +73,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
           style={{ objectFit: "cover" }}
           className="rounded-2xl"
         />
-        <span className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
+        <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
           <Image
             src="/overview-ai/icons/ai-generate.svg"
             width={16}

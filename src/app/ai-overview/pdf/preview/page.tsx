@@ -198,7 +198,6 @@ function PreviewPdfPage() {
             </div>
           </div>
 
-          {/* --- DOWNLOAD  --- */}
           <div className="bg-white p-4 flex gap-4 justify-start border-t border-gray-200">
             <Button
               onClick={handleDownloadPDF}

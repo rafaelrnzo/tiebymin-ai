@@ -60,7 +60,7 @@ export const HeroSection = () => {
     >
       <div className="container mx-auto px-4 z-20 relative">
         <div className="text-center pt-12 lg:pt-0">
-          <h1 className="font-oswald text-[64px] translate-y-12 lg:text-[128px] font-bold text-black tracking-tight">
+          <h1 className="font-oswald text-[64px] translate-y-12 lg:text-[128px] font-bold text-[#323232] tracking-tight">
             AI Temukan
             <br />
             <div className="flex text-center gap-12 lg:gap-64 justify-center lg:justify-center items-center">

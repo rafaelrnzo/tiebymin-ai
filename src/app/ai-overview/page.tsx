@@ -311,7 +311,7 @@ function BeautyAnalysisPageInner() {
                   router.push(`/ai-overview/pdf/preview?result_id=${resultId}`)
                 }
                 disabled={!resultId}
-                className="bg-[#FFC6C6] text-black px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"
+                className="bg-[#FFC6C6] text-[#323232] px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"
               >
                 <Image
                   src="/overview-ai/icons/ic_round-download.svg"
@@ -333,8 +333,8 @@ function BeautyAnalysisPageInner() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 min-w-[120px] sm:min-w-0 flex items-center justify-center gap-2 py-2 sm:py-3 text-xs sm:text-sm font-poppins transition-all -mb-px ${
                     activeTab === tab.id
-                      ? "text-black font-bold border-b-2 border-[#000000]"
-                      : "text-gray-500 hover:text-black"
+                      ? "text-[#323232] font-bold border-b-2 border-[#000000]"
+                      : "text-gray-500 hover:text-[#323232]"
                   }`}
                   style={{
                     borderBottom:
@@ -422,14 +422,14 @@ function BeautyAnalysisPageInner() {
                           height={400}
                           className="w-full h-72 object-cover rounded-xl"
                         />
-                        <span className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+                        <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
                           {topProductScores.has(product.id)
                             ? `${topProductScores.get(product.id)}% Match`
                             : `${
                                 product.total_compatibility_score * 10
                               }% Match`}
                         </span>
-                        <span className="absolute bottom-4 right-4 bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+                        <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
                           <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
                           {product.average_rating}
                         </span>

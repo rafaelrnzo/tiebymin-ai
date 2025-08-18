@@ -17,10 +17,10 @@ const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
     <div className="mb-3">
       <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
     </div>
-    <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg sm:text-xl">
+    <h3 className="font-bold font-handlee text-gray-800 mb-3 text-xl">
       {category}
     </h3>
-    <span className="text-gray-600 text-sm leading-relaxed space-y-2">
+    <span className="text-gray-600 text-xl leading-relaxed space-y-2">
       {tip}
     </span>
   </div>
@@ -90,10 +90,10 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
             alt="Tips & Trick Icon"
           />
         </div>
-        <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg sm:text-xl">
+        <h3 className="font-bold font-handlee text-gray-800 mb-3 text-xl">
           Tips Makeup & BMI
         </h3>
-        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+        <p className="text-gray-600 text-xl leading-relaxed">
           <strong>Makeup:</strong> {allTips.makeupTip}
           <br />
           <br />

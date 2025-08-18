@@ -135,13 +135,13 @@ export default function DashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-[#FFC6C6] hover:bg-[#FFC6C6]/90 rounded">
-                  <TableHead className="text-black font-bold text-base w-[30%]">
+                  <TableHead className="text-[#323232] font-bold text-base w-[30%]">
                     Date
                   </TableHead>
-                  <TableHead className="text-black font-bold text-base w-[40%]">
+                  <TableHead className="text-[#323232] font-bold text-base w-[40%]">
                     Preview
                   </TableHead>
-                  <TableHead className="text-black font-bold text-base text-left w-[30%]">
+                  <TableHead className="text-[#323232] font-bold text-base text-left w-[30%]">
                     Actions
                   </TableHead>
                 </TableRow>
