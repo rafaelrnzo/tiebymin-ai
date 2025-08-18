@@ -4,7 +4,8 @@ import { Navbar } from "@/components/component-landing/navbar";
 import { FeedbackModal } from "@/components/sections/feedback-modal";
 import { ErrorModal } from "@/components/sections/error-modal";
 import Image from "next/image";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,7 +35,7 @@ import TipsSection from "../../components/sections/TipsSection";
 
 function BeautyAnalysisPageInner() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("shape");
+  const [activeTab, setActiveTab] = useState(0);
   const searchParams = useSearchParams();
   const [userName, setUserName] = useState("");
   const [recommendationPage, setRecommendationPage] = useState(1);
@@ -67,8 +68,11 @@ function BeautyAnalysisPageInner() {
   }, []);
 
   useEffect(() => {
-    if (activeTab) {
-      setVisitedTabs((prev) => new Set(prev).add(activeTab));
+    if (activeTab !== null) {
+      const currentTabId = analysisTabs[activeTab]?.id;
+      if (currentTabId) {
+        setVisitedTabs((prev) => new Set(prev).add(currentTabId));
+      }
     }
   }, [activeTab]);
 
@@ -163,93 +167,60 @@ function BeautyAnalysisPageInner() {
     recommendationPage * 3
   );
 
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-1/4" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-        </div>
-      );
-    }
-
-    if (isError || error) {
-      return null; // Render nothing here, the modal will handle the error display
-    }
-
-    if (!userData && !rawAnalysisData) {
-      return (
-        <div className="text-center p-8">
-          <p>No analysis data found.</p>
-          <button
-            onClick={() => router.push("/ai-overview")}
-            className="text-blue-500 underline mt-2"
-          >
-            Go back
-          </button>
-        </div>
-      );
-    }
-
+  const renderContent = (tabId: string) => {
     const analysisData = rawAnalysisData;
+    if (!analysisData) return null;
 
-    switch (activeTab) {
+    switch (tabId) {
       case "shape":
         return (
           <ShapeSection
-            shapeId={analysisData?.face_shape_id?.toString() || "1"}
+            shapeId={analysisData.face_shape_id?.toString() || "1"}
           />
         );
-
       case "color":
         return (
           <ColorToneSection
-            colorAnalysisId={analysisData?.color_analysis_id?.toString() || "1"}
+            colorAnalysisId={analysisData.color_analysis_id?.toString() || "1"}
           />
         );
-
       case "body":
         return (
           <BodySection
-            bodyShapeId={analysisData?.body_shape_id?.toString() || "1"}
-            bmiCategoryId={analysisData?.bmi_category_id?.toString() || "1"}
+            bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
+            bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
             bmiResult={{
-              value: analysisData?.analysis_details?.bmi?.value || 0,
+              value: analysisData.analysis_details?.bmi?.value || 0,
             }}
           />
         );
-
       case "celebrity":
         return (
           <CelebrityMatchSection
             celebrityId={
-              analysisData?.celebrity_id
+              analysisData.celebrity_id
                 ? analysisData.celebrity_id.toString()
                 : null
             }
           />
         );
-
       case "tips":
         return (
           <TipsSection
             analysisData={{
               ...analysisData,
-              face_shape_id: analysisData?.face_shape_id?.toString() || "1",
+              face_shape_id: analysisData.face_shape_id?.toString() || "1",
               color_analysis_id:
-                analysisData?.color_analysis_id?.toString() || "1",
-              body_shape_id: analysisData?.body_shape_id?.toString() || "1",
-              bmi_category_id: analysisData?.bmi_category_id?.toString() || "1",
+                analysisData.color_analysis_id?.toString() || "1",
+              body_shape_id: analysisData.body_shape_id?.toString() || "1",
+              bmi_category_id: analysisData.bmi_category_id?.toString() || "1",
             }}
           />
         );
-
       default:
         return (
           <ShapeSection
-            shapeId={analysisData?.face_shape_id?.toString() || "1"}
+            shapeId={analysisData.face_shape_id?.toString() || "1"}
           />
         );
     }
@@ -327,18 +298,18 @@ function BeautyAnalysisPageInner() {
 
           <div className="w-full lg:w-[70%]">
             <div className="flex flex-wrap border-b border-gray-300">
-              {analysisTabs.map((tab) => (
+              {analysisTabs.map((tab, index) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => setActiveTab(index)}
                   className={`flex-1 min-w-[120px] sm:min-w-0 flex items-center justify-center gap-2 py-2 sm:py-3 text-xs sm:text-sm font-poppins transition-all -mb-px ${
-                    activeTab === tab.id
+                    activeTab === index
                       ? "text-[#323232] font-bold border-b-2 border-[#000000]"
                       : "text-gray-500 hover:text-[#323232]"
                   }`}
                   style={{
                     borderBottom:
-                      activeTab === tab.id ? "2px solid black" : "none",
+                      activeTab === index ? "2px solid black" : "none",
                   }}
                 >
                   <Image
@@ -347,7 +318,7 @@ function BeautyAnalysisPageInner() {
                     height={18}
                     alt={tab.text}
                     className={`${
-                      activeTab !== tab.id ? "opacity-60" : ""
+                      activeTab !== index ? "opacity-60" : ""
                     } w-5 h-5`}
                   />
                   <span className="truncate">{tab.text}</span>
@@ -355,7 +326,19 @@ function BeautyAnalysisPageInner() {
               ))}
             </div>
 
-            <div className="mt-6">{renderContent()}</div>
+            <div className="mt-6 relative overflow-hidden">
+              <motion.div
+                className="flex"
+                animate={{ x: `-${activeTab * 100}%` }}
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.4 }}
+              >
+                {analysisTabs.map((tab) => (
+                  <div key={tab.id} className="w-full flex-shrink-0">
+                    {renderContent(tab.id)}
+                  </div>
+                ))}
+              </motion.div>
+            </div>
           </div>
         </div>
 

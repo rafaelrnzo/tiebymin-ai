@@ -15,7 +15,7 @@ interface ShapeBarProps {
 
 const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
   <div>
-    <p className="text-base text-gray-800">{name}</p>
+    <p className="text-xl font-poppins text-gray-800">{name}</p>
     <div className="mt-2 w-full bg-gray-200 rounded-full h-3.5">
       <div
         className={`h-3.5 rounded-full bg-gradient-to-l from-[#FFA2BD] to-[#FF7EA4]`}

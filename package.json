@@ -21,6 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.534.0",
+    "framer-motion": "^11.3.19",
     "next": "15.4.5",
     "nodemailer": "^7.0.5",
     "puppeteer-core": "^24.16.1",
