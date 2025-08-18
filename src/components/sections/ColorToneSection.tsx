@@ -38,7 +38,9 @@ const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
 
 const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
   <div>
-    <h4 className="font-poppins text-xl font-bold text-gray-800">{title}</h4>
+    <h4 className="font-handlee font-bold text-xl italic text-gray-800">
+      {title}
+    </h4>
     <p className="mt-1 text-sm text-gray-700">{text}</p>
   </div>
 );
@@ -73,7 +75,6 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
       <div className="text-center p-8">Data analisa warna tidak ditemukan.</div>
     );
 
-  // Membuat array untuk kartu info secara dinamis dari data API
   const infoData: InfoCardProps[] = [
     { title: "Make up Tips", text: colorData.make_up_tips },
     { title: "Outfit Tips", text: colorData.tips_warna_kulit_pakaian },
@@ -84,7 +85,6 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   return (
     <div className="font-sans max-w-6xl w-full mx-auto space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Kartu Kiri: Nama & Penjelasan Season */}
         <div className="lg:col-span-1 p-6 rounded-2xl border-[1px] border-neutral-600">
           <h2 className="text-5xl font-bold font-oswald leading-tight">
             {colorData.name}
@@ -94,13 +94,11 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           </p>
         </div>
 
-        {/* Kartu Kanan: Color Guide Line */}
         <div className="lg:col-span-2 p-6 rounded-2xl border-[1px] border-neutral-600">
           <h2 className="text-center font-script font-handlee text-xl font-bold text-gray-800">
             Color Guide Line
           </h2>
 
-          {/* Menampilkan kelompok warna menggunakan ColorGroup */}
           <div className="mt-4 grid grid-cols-3 gap-4 sm:gap-8">
             <ColorGroup title="Best Color" colors={colorData.best_colour} />
             <ColorGroup title="Worst Color" colors={colorData.worst_colour} />
@@ -110,7 +108,6 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
             />
           </div>
 
-          {/* Menampilkan kombinasi warna sebagai teks */}
           <div className="mt-6 flex items-center space-x-4 border border-gray-300 rounded-2xl p-2">
             <span className="font-bold text-sm text-gray-700 pl-4">
               Combination
@@ -144,8 +141,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
         </p>
       </div>
 
-      {/* Bagian Bawah: Tips & Info Tambahan */}
-      <div className="bg-[#FFC6C6] p-6 rounded-2xl">
+      <div className="bg-[#FFC6C6] p-6 rounded-2xl shadow-md">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
           {infoData.map(
             (info) => info.text && <InfoCard key={info.title} {...info} />

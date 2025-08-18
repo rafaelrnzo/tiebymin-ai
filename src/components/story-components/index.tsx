@@ -280,8 +280,8 @@ export default function StoryPoster({
                 </h4>
                 <ul className="list-disc list-inside space-y-2">
                   {bodyDetails?.karakteristik
-                    ?.split("-") // Memecah string berdasarkan tanda '-'
-                    .filter((point) => point.trim() !== "") // Menghapus item kosong
+                    ?.split("-")
+                    .filter((point) => point.trim() !== "")
                     .map((point, index) => (
                       <li
                         key={index}

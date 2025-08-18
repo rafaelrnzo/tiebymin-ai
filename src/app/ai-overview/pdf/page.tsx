@@ -1,5 +1,6 @@
 "use client";
 import {
+  BackCover,
   BodyShape,
   CelebritiesMatch,
   ColorTone,
@@ -9,7 +10,6 @@ import {
 } from "@/components/pdf-components";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAllTips } from "@/hooks/useAllTips";
 import {
   useAnalysisData,
   useBmiCategoryData,
@@ -19,6 +19,7 @@ import {
   useDownloadPdf,
   useFaceShapeData,
 } from "@/hooks/useAnalysisData";
+import { useAllTips } from "@/hooks/useAllTips";
 import { defaultUserData } from "@/lib/mock-data";
 import {
   AllTips,
@@ -90,8 +91,8 @@ function PdfPage() {
     isLoading: tipsLoading,
     isError: tipsError,
   } = useAllTips({
-    analysisData: analysisData,
-    enabled: !!analysisData,
+    analysisData: rawAnalysisData,
+    enabled: !!rawAnalysisData,
   });
 
   const { userData = defaultUserData, userPhotoUrl } = analysisResult || {};
@@ -200,9 +201,8 @@ function PdfPage() {
     ColorTone: (props) => <ColorTone {...props} />,
     BodyShape: (props) => <BodyShape {...props} />,
     CelebritiesMatch: (props) => <CelebritiesMatch {...props} />,
-    ...(isPrintMode && {
-      Conclusion: (props) => <Conclusion {...props} />,
-    }),
+    Conclusion: (props) => <Conclusion {...props} />,
+    BackCover: () => <BackCover />,
   };
 
   const pageOrder = Object.keys(pages) as (keyof typeof pages)[];
@@ -243,13 +243,11 @@ function PdfPage() {
                 colorToneDetails={colorToneDetails}
                 celebrityDetails={celebrityDetails}
                 bmiCategoryDetails={bmiCategoryDetails}
-                {...(pageKey === "Conclusion" && {
-                  faceTip: tips?.faceTip,
-                  bodyTip: tips?.bodyTip,
-                  colorTip: tips?.colorTip,
-                  isLoading: tipsLoading,
-                  isError: tipsError,
-                })}
+                faceTip={tips?.faceTip}
+                bodyTip={tips?.bodyTip}
+                colorTip={tips?.colorTip}
+                isLoading={tipsLoading}
+                isError={tipsError}
               />
             </section>
           );
@@ -323,26 +321,12 @@ function PdfPage() {
           colorToneDetails={colorToneDetails}
           celebrityDetails={celebrityDetails}
           bmiCategoryDetails={bmiCategoryDetails}
-          {...(activePage === "Conclusion" && {
-            faceTip: tips?.faceTip,
-            bodyTip: tips?.bodyTip,
-            colorTip: tips?.colorTip,
-            isLoading: tipsLoading,
-            isError: tipsError,
-          })}
+          faceTip={tips?.faceTip}
+          bodyTip={tips?.bodyTip}
+          colorTip={tips?.colorTip}
+          isLoading={tipsLoading}
+          isError={tipsError}
         />
-        <div className="w-full max-w-4xl mx-auto p-4 sm:p-8">
-          <div className="bg-white shadow-2xl rounded-lg overflow-hidden">
-            <Conclusion
-              userData={finalUserData}
-              faceTip={tips?.faceTip}
-              bodyTip={tips?.bodyTip}
-              colorTip={tips?.colorTip}
-              isLoading={tipsLoading}
-              isError={tipsError}
-            />
-          </div>
-        </div>
       </div>
     </>
   );

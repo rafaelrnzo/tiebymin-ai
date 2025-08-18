@@ -1,7 +1,4 @@
 "use client";
-import { Suspense, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, X } from "lucide-react";
 import { Navbar } from "@/components/component-landing/navbar";
 import {
   BackCover,
@@ -15,16 +12,19 @@ import {
 import { EmailModal } from "@/components/sections/email-modal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAllTips } from "@/hooks/useAllTips";
 import {
   useAnalysisData,
   useBodyShapeData,
-  useColorToneData,
-  useFaceShapeData,
   useCelebrityData,
+  useColorToneData,
   useDownloadPdf,
+  useFaceShapeData,
 } from "@/hooks/useAnalysisData";
-import { useAllTips } from "@/hooks/useAllTips";
 import { defaultUserData } from "@/lib/mock-data";
+import { ChevronRight, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 
 interface PdfPage {
   id: string;

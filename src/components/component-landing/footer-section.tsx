@@ -51,11 +51,9 @@ export default function Footer() {
         </div>
       </section>
 
-      {/* === Footer Utama === */}
       <footer className="bg-[#FFC6C6] text-[#323232] pt-16 pb-8 lg:px-[200px]">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-            {/* Kolom Brand */}
             <div className="lg:col-span-2 px-10">
               <h3 className="text-3xl font-poppins">tiebymin</h3>
               <p className="mt-4 text-sm max-w-xs">

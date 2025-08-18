@@ -261,7 +261,7 @@ function BeautyAnalysisPageInner() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col lg:flex-row justify-between w-full gap-6 sm:gap-8 mb-10 sm:mb-16">
-          <div className="bg-[#2D2D2D] h-[700px] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
+          <div className="bg-[#2D2D2D] h-[700px] w-full lg:w-[35%] rounded-3xl p-5 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               {userPhotoUrl ? (
                 <Image
@@ -280,12 +280,12 @@ function BeautyAnalysisPageInner() {
                 <div className="h-[250px] bg-gray-200 rounded-xl flex items-center justify-center animate-pulse"></div>
               )}
             </div>
-            <h2 className="text-4xl font-bold mb-3 sm:mb-4 font-handlee text-[#F8B4C4] italic">
+            <h2 className="text-4xl font-bold mb-3 sm:mb-4 font-handlee text-[#FFC6C6] italic">
               Hi {userName}, Ini Dia
               <br />
               Hasil Analisa Kamu
             </h2>
-            <p className="text-gray-300 text-lg mb-6 sm:mb-8 leading-relaxed font-poppins">
+            <p className="text-[#f0f0f0] text-lg mb-6 sm:mb-8 leading-relaxed font-poppins">
               Dapatkan insight mendalam tentang fashion terbaik untuk kamu
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
@@ -320,7 +320,7 @@ function BeautyAnalysisPageInner() {
                   alt="Unduh Hasil"
                   loading="lazy"
                 />
-                <span>Unduh Hasil</span>
+                <span>Download Analisa</span>
               </Button>
             </div>
           </div>
