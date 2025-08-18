@@ -24,8 +24,13 @@ async function fetchData(endpoint: string) {
         `❌ HTTP Error ${response.status} for ${endpoint}:`,
         errorText
       );
+      if (response.status === 404) {
+        throw new Error(
+          "Kami tidak dapat menemukan data yang Anda cari. Mohon periksa ID dan coba lagi."
+        );
+      }
       throw new Error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
+        "Kami mengalami masalah saat mengambil data. Mohon coba lagi dalam beberapa saat."
       );
     }
 
@@ -39,7 +44,10 @@ async function fetchData(endpoint: string) {
 }
 
 // Hook untuk fetching analysis data dengan debugging yang lebih baik
-export function useAnalysisData(resultId: string | null) {
+export function useAnalysisData(
+  resultId: string | null,
+  options?: { onError?: (error: Error) => void }
+) {
   console.log("🚀 useAnalysisData called with resultId:", resultId); // Debug log
 
   return useQuery({
@@ -47,7 +55,7 @@ export function useAnalysisData(resultId: string | null) {
     queryFn: async () => {
       if (!resultId) {
         console.warn("⚠️ Result ID is required but not provided");
-        throw new Error("Result ID is required");
+        throw new Error("ID Hasil diperlukan");
       }
 
       console.log("📊 Starting analysis data fetch for resultId:", resultId);
@@ -65,7 +73,7 @@ export function useAnalysisData(resultId: string | null) {
 
         // Validasi data yang diperlukan
         if (!analysisData) {
-          throw new Error("Analysis data is null or undefined");
+          throw new Error("Data analisis kosong atau tidak terdefinisi");
         }
 
         // Fetch additional data berdasarkan IDs dari analysis result
@@ -229,13 +237,16 @@ export function useAnalysisData(resultId: string | null) {
           userPhotoUrl,
           rawAnalysisData: analysisData, // Tambahkan ini
         };
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("💥 Error fetching analysis data:", error);
-        return {
-          userData: defaultUserData,
-          userPhotoUrl: null,
-          rawAnalysisData: null,
-        };
+        if (options?.onError) {
+          options.onError(error instanceof Error ? error : new Error(String(error)));
+        }
+        throw new Error(
+          error instanceof Error
+            ? error.message
+            : "Terjadi kesalahan saat mengambil data analisis. Mohon coba lagi."
+        );
       }
     },
     enabled: !!resultId,
@@ -250,7 +261,7 @@ export function useFaceShapeData(faceShapeId: string | null) {
     queryKey: ["faceShape", faceShapeId],
     queryFn: async () => {
       if (!faceShapeId) {
-        throw new Error("Face Shape ID is required");
+        throw new Error("ID Bentuk Wajah diperlukan");
       }
       return fetchData(`/v1/face-shapes/${faceShapeId}`);
     },
@@ -264,7 +275,7 @@ export function useColorToneData(colorAnalysisId: string | null) {
     queryKey: ["colorTone", colorAnalysisId],
     queryFn: async () => {
       if (!colorAnalysisId) {
-        throw new Error("Color Analysis ID is required");
+        throw new Error("ID Analisis Warna diperlukan");
       }
       return fetchData(`/v1/color-analysis/${colorAnalysisId}`);
     },
@@ -278,7 +289,7 @@ export function useBodyShapeData(bodyShapeId: string | null) {
     queryKey: ["bodyShape", bodyShapeId],
     queryFn: async () => {
       if (!bodyShapeId) {
-        throw new Error("Body Shape ID is required");
+        throw new Error("ID Bentuk Tubuh diperlukan");
       }
       return fetchData(`/v1/body-shapes/${bodyShapeId}`);
     },
@@ -292,7 +303,7 @@ export function useBmiCategoryData(bmiCategoryId: string | null) {
     queryKey: ["bmiCategory", bmiCategoryId],
     queryFn: async () => {
       if (!bmiCategoryId) {
-        throw new Error("BMI Category ID is required");
+        throw new Error("ID Kategori BMI diperlukan");
       }
       return fetchData(`/v1/bmi-categories/${bmiCategoryId}`);
     },
@@ -326,7 +337,7 @@ export function useDownloadPdf() {
     queryKey: ["downloadPdf", resultId],
     queryFn: async () => {
       if (!resultId) {
-        throw new Error("Result ID is required");
+        throw new Error("ID Hasil diperlukan");
       }
 
       const firstName = localStorage.getItem("firstName") || "User"; 
@@ -342,7 +353,7 @@ export function useDownloadPdf() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate PDF");
+        throw new Error(errorData.error || "Gagal membuat PDF");
       }
 
       return await response.blob();
@@ -362,7 +373,7 @@ export function useGenerateStory() {
     queryKey: ["generateStory", resultId],
     queryFn: async () => {
       if (!resultId) {
-        throw new Error("Result ID is required");
+        throw new Error("ID Hasil diperlukan");
       }
 
       const response = await fetch(
@@ -373,7 +384,7 @@ export function useGenerateStory() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to generate story image");
+        throw new Error("Gagal membuat gambar cerita");
       }
 
       return await response.blob();
@@ -390,14 +401,14 @@ export const useBodyShapes = () => {
       const response = await fetch(secureUrl(`/v1/body-shapes/`));
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Kesalahan HTTP! status: ${response.status}`);
       }
 
       const data = await response.json();
       console.log("✅ Body shapes fetched:", data);
 
       if (!data || !Array.isArray(data) || data.length === 0) {
-        throw new Error("No body shapes data found");
+        throw new Error("Tidak ada data bentuk tubuh ditemukan");
       }
 
       return data;

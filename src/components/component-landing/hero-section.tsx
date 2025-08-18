@@ -81,12 +81,14 @@ export const HeroSection = () => {
                 <p>Coba Sekarang</p>
               </Button>
             </a>
-            <Button
-              size="lg"
-              className="rounded-full border-2 text-xl bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
-            >
-              <p className="text-[#EF789B]">Cara Kerja AI</p>
-            </Button>
+            <a href="/metodologi">
+              <Button
+                size="lg"
+                className="rounded-full border-2 text-xl bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
+              >
+                <p className="text-[#EF789B]">Cara Kerja AI</p>
+              </Button>
+            </a>
           </div>
         </div>
 

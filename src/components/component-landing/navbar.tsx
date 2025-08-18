@@ -103,7 +103,7 @@ export function Navbar() {
                       {link.label}
                     </Link>
                   ))}
-                  <div className="pt-4">
+                  <div className="flex gap-2 pt-4">
                     <Link href="/login" onClick={closeSheet}>
                       <Button
                         size="lg"
@@ -111,6 +111,14 @@ export function Navbar() {
                       >
                         <Sparkles className="w-4 h-4 text-white" />
                         <span>Coba Sekarang</span>
+                      </Button>
+                    </Link>
+                    <Link href="/profile">
+                      <Button
+                        size="lg"
+                        className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
+                      >
+                        <User className="w-4 h-4 text-black fill-black" />
                       </Button>
                     </Link>
                   </div>
