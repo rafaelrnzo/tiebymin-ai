@@ -1,22 +1,20 @@
+import Footer from "@/components/component-landing/footer-section";
+import { Navbar } from "@/components/component-landing/navbar";
 import { Card } from "@/components/ui/card";
 import {
+  Camera,
+  Database,
+  Heart,
   Info,
-  Users,
   Palette,
   Shapes,
-  Bot,
-  CheckCircle,
+  ShieldAlert,
+  SquareSquare,
   Star,
   Target,
   TriangleAlert,
-  ShieldAlert,
-  Heart,
-  Database,
-  Camera,
-  SquareSquare,
+  Users,
 } from "lucide-react";
-import { Navbar } from "@/components/component-landing/navbar";
-import Footer from "@/components/component-landing/footer-section";
 
 const jenisAnalisaData = [
   {
@@ -59,10 +57,10 @@ const SectionTitle = ({
 
 export default function MethodologyPage() {
   return (
-    <div className="bg-white min-h-screen w-full font-poppins text-[#333]">
+    <div className="bg-white min-h-screen w-full font-poppins text-[#323232]">
       <Navbar />
-      <main className="lg:px-[200px] py-8 sm:py-12 md:py-16">
-        <section className="mb-12 md:mb-16">
+      <main className="lg:px-[200px]">
+        <section className="mb-[50px] mt-[100px]">
           <Card className="bg-[url('/card-bg.png')] bg-[#323232] h-[500px] text-white rounded-2xl shadow-xl p-8 md:p-12 text-center justify-center items-center">
             <h1 className="font-handlee italic text-4xl md:text-5xl text-[#FF7EA4]">
               Mengapa Analisa Kami Akurat dan Personal?
@@ -70,7 +68,7 @@ export default function MethodologyPage() {
           </Card>
         </section>
 
-        <section className="mb-12 md:mb-16">
+        <section className="mb-[50px]">
           <SectionTitle info="Dasar Ilmiah di balik rekomendasi Hijab">
             Konsep Analisis
           </SectionTitle>
@@ -84,7 +82,7 @@ export default function MethodologyPage() {
                 menggabungkan prinsip-prinsip dari:
               </p>
             </div>
-            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-[50px]">
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
@@ -98,12 +96,12 @@ export default function MethodologyPage() {
           </div>
         </section>
 
-        <section className="mb-12 md:mb-16">
+        <section>
           <SectionTitle info="Mengapa Kami Memilih 3 Fokus Utama?">
             Jumlah Analisis
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
-            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-[50px]">
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
@@ -136,7 +134,7 @@ export default function MethodologyPage() {
           <SectionTitle info="Bagaimana Kami Menggabungkan Data untuk Rekomendasi?">
             Bentuk Analisis
           </SectionTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[50px]">
             <Card className="rounded-2xl border border-[#323232] p-6 shadow-sm">
               <div className="flex flex-col items-start gap-4">
                 <div className="flex gap-4 items-center">
@@ -170,9 +168,9 @@ export default function MethodologyPage() {
           </div>
         </section>
 
-        <section className="mb-12 md:mb-16">
-          <Card className="bg-[#EF789B] text-white rounded-2xl shadow-xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8">
+        <section>
+          <Card className="bg-[#EF789B] text-white rounded-2xl shadow-xl p-6 md:p-8 mt-[50px] border-0">
+            <div className="flex flex-col md:flex-row items-start gap-[50px]">
               {/* Bagian Kiri */}
               <div className="flex items-center gap-4 w-full md:w-1/4 shrink-0 justify-center mt-5">
                 <Star className="w-10 h-10 text-white fill-white" />
@@ -200,15 +198,15 @@ export default function MethodologyPage() {
           </Card>
         </section>
 
-        <section className="mb-12 md:mb-16">
+        <section className="mb-[50px]">
           <SectionTitle info="Mengapa Kami Menggunakan Foto Selfie + Pilihan Manual?">
             Kombinasi Karakteristik
           </SectionTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[50px]">
             <Card className=" border rounded-2xl p-4">
               <div className="flex items-center gap-4">
                 <Heart fill="#323232" />
-                <h3 className="font-poppins font-semibold text-lg">
+                <h3 className="font-poppins font-semibold text-xl">
                   Setiap rekomendasi hijab dihasilkan dari kombinasi:
                 </h3>
               </div>
@@ -224,7 +222,7 @@ export default function MethodologyPage() {
             <Card className=" border rounded-2xl p-4">
               <div className="flex items-center gap-4">
                 <Database className="text-[#323232]" />
-                <h3 className="font-poppins font-semibold text-lg">
+                <h3 className="font-poppins font-semibold text-xl">
                   Database yang Kami Gunakan:
                 </h3>
               </div>
@@ -241,15 +239,15 @@ export default function MethodologyPage() {
         </section>
 
         {/* Disclaimer Section */}
-        <section className="mb-12 md:mb-16">
+        <section className="mb-[50px]">
           <SectionTitle info="Penting untuk Diperhatikan">
             Disclaimer
           </SectionTitle>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[50px] mb-6">
             <Card className="bg-[#FFC6C6] border-0 rounded-2xl p-4 text-center">
               <TriangleAlert className="self-center" />
               <h3 className="font-oswald font-semibold text-lg">
-                Bukan Alat Diagnostik
+                Hasil Analisis Bukanlah Label Permanen:
               </h3>
               <p>
                 Rekomendasi hijab bisa berubah seiring tren atau perubahan
@@ -259,7 +257,7 @@ export default function MethodologyPage() {
             <Card className="bg-[#FFC6C6] border-0 rounded-2xl p-4 text-center">
               <ShieldAlert className="self-center" />
               <h3 className="font-oswald font-semibold text-lg">
-                Subjektivitas Gaya
+                Privacy First:
               </h3>
               <p>
                 Foto dan data yang kamu unggah tidak disimpan setelah analisis
@@ -288,7 +286,7 @@ export default function MethodologyPage() {
         </section>
 
         {/* Referensi Jurnal Section */}
-        <section>
+        <section className="mb-[200px]">
           <Card className="bg-[#323232] text-white rounded-2xl shadow-xl p-8 md:p-10">
             <h2 className="font-oswald text-3xl font-bold mb-6 text-center">
               Referensi Jurnal Ilmiah
