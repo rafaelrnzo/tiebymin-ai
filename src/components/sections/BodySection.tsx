@@ -51,32 +51,32 @@ const BodySection: React.FC<BodySectionProps> = ({
     return <div className="text-center p-8">Data tubuh tidak ditemukan.</div>;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 h-full">
-      <div className="rounded-2xl h-[630px] border">
-        <h3 className="font-bold text-5xl font-oswald mx-3 mt-3">
-          {bodyDetails.name}
-        </h3>
-        <div className="flex justify-center my-6 w-[150px] h-[360px] mx-auto">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-[50px]">
+      <div className="rounded-2xl border p-6 flex flex-col col-span-2">
+        <h3 className="font-bold text-5xl font-oswald">{bodyDetails.name}</h3>
+        <div className="flex justify-center my-6 flex-shrink-0">
           <Image
             src={bodyDetails.link_picture}
             alt={`${bodyDetails.name} body type`}
             width={150}
-            height={250}
-            className="w-full h-full object-contain"
+            height={310} // Menyesuaikan tinggi agar lebih proporsional
+            className="object-contain h-[300px]"
             priority
           />
         </div>
-        <p className="text-xl mt-6 mx-3">{bodyDetails.penjelasan_body_shape}</p>
+        <p className="text-xl mt-6">{bodyDetails.penjelasan_body_shape}</p>
       </div>
-      <div className="flex flex-col gap-6">
+
+      {/* Kolom ini tidak perlu banyak diubah, hanya memastikan konsistensi */}
+      <div className="flex flex-col gap-[50px] lg:col-span-2">
         <div className="border border-neutral-600 rounded-2xl p-6 sm:p-8 text-[#323232]">
           <h3 className="font-bold text-4xl sm:text-5xl font-oswald">
             BMI Analyst
           </h3>
           <hr className="my-4 border-neutral-300" />
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="flex-shrink-0">
               <div className="rounded-full border-2 border-[#EC7498] p-1">
                 <div className="rounded-full border border-neutral-600 w-24 h-24 flex items-center justify-center">
                   <p className="text-lg font-bold">
@@ -85,7 +85,7 @@ const BodySection: React.FC<BodySectionProps> = ({
                 </div>
               </div>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col text-center sm:text-left">
               <span className="font-bold text-base sm:text-lg">
                 {bmiCategoryDetails.kategori}
               </span>
@@ -96,20 +96,23 @@ const BodySection: React.FC<BodySectionProps> = ({
           </div>
         </div>
 
-        <div className="bg-[#FFC6C6] shadow-md rounded-2xl px-4 py-14 sm:p-6">
+        <div className="bg-[#FFC6C6] shadow-md rounded-2xl p-6">
           <h3 className="font-bold italic font-handlee mb-3 text-xl text-left">
             Karakteristik
           </h3>
-          <ul className="list-disc list-inside space-y-2">
-            {bodyDetails?.karakteristik
-              ?.split("-") // Memecah string berdasarkan tanda '-'
-              .filter((point: string) => point.trim() !== "") // Menghapus item kosong
-              .map((point: string, index: string) => (
-                <li key={index} className="text-xl text-[#323232] font-poppins">
-                  {point.trim()}
-                </li>
-              ))}
-          </ul>
+          {bodyDetails?.karakteristik
+            ?.split("-")
+            .filter((point: string) => point.trim() !== "")
+            .map(
+              (
+                point: string,
+                index: number // index harusnya number
+              ) => (
+                <p key={index} className="text-xl text-[#323232] font-poppins">
+                  • {point.trim()}
+                </p>
+              )
+            )}
         </div>
       </div>
     </div>

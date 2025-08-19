@@ -38,10 +38,10 @@ const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
 
 const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
   <div>
-    <h4 className="font-handlee font-bold text-xl italic text-gray-800">
+    <h4 className="font-handlee font-bold text-xl italic text-[#323232] font-poppins">
       {title}
     </h4>
-    <p className="mt-1 text-sm text-gray-700">{text}</p>
+    <p className="mt-1 text-xl text-[#323232] font-poppins">{text}</p>
   </div>
 );
 
@@ -84,17 +84,17 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
 
   return (
     <div className="font-sans max-w-6xl w-full mx-auto space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 p-6 rounded-2xl border-[1px] border-neutral-600">
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-[50px]">
+        <div className="lg:col-span-2 p-6 rounded-2xl border-[1px] border-neutral-600">
           <h2 className="text-5xl font-bold font-oswald leading-tight">
             {colorData.name}
           </h2>
-          <p className="mt-4 text-gray-500">
+          <p className="mt-4 text-[#323232] font-poppins text-xl">
             {colorData.penjelasan_color_analysis}
           </p>
         </div>
 
-        <div className="lg:col-span-2 p-6 rounded-2xl border-[1px] border-neutral-600">
+        <div className="lg:col-span-4 p-6 rounded-2xl border-[1px] border-neutral-600">
           <h2 className="text-center font-script font-handlee text-xl font-bold text-gray-800">
             Color Guide Line
           </h2>
@@ -127,21 +127,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           </div>
         </div>
       </div>
-
-      <div className="flex gap-x-1 my-9 items-center justify-center">
-        <p className="font-script font-handlee italic text-center font-bold text-6xl -ml-4">
-          {' " '}
-        </p>
-        <span className="font-script font-handlee italic text-center font-bold text-2xl mx-1">
-          Setiap manusia memiliki warna kulit yang unik oleh karena itu gunakan
-          panduan ini untuk menonjolkan kecantikan alamimu yang sudah ada.
-        </span>
-        <p className="font-script font-handlee italic text-center font-bold text-6xl mr-4">
-          {' " '}
-        </p>
-      </div>
-
-      <div className="bg-[#FFC6C6] p-6 rounded-2xl shadow-md">
+      <div className="bg-[#FFC6C6] p-6 rounded-2xl shadow-md mt-[50px]">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
           {infoData.map(
             (info) => info.text && <InfoCard key={info.title} {...info} />

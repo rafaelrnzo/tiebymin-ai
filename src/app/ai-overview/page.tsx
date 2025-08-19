@@ -227,11 +227,11 @@ function BeautyAnalysisPageInner() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 bg-[url('/bg-pattern.png')] bg-repeat">
+    <div className="min-h-screen bg-gray-50 bg-repeat">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="flex flex-col lg:flex-row justify-between w-full gap-6 sm:gap-8 mb-10 sm:mb-16">
+      <main className="max-w-7xl mx-auto px-4 sm:py-12">
+        <div className="flex flex-col lg:flex-row justify-between w-full mb-10 gap-[50px] mt-[50px]">
           <div className="bg-[#2D2D2D] h-[700px] w-full lg:w-[35%] rounded-3xl p-5 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               {userPhotoUrl ? (
@@ -326,7 +326,7 @@ function BeautyAnalysisPageInner() {
               ))}
             </div>
 
-            <div className="mt-6 relative overflow-hidden">
+            <div className="mt-[50px] relative overflow-hidden">
               <motion.div
                 className="flex"
                 animate={{ x: `-${activeTab * 100}%` }}
@@ -344,7 +344,7 @@ function BeautyAnalysisPageInner() {
 
         <section>
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
-            <h1 className="text-4xl lg:text-5xl font-oswald font-bold text-[#333333]">
+            <h1 className="text-4xl lg:text-5xl font-oswald font-bold text-[#333333] mb-[25px]">
               Rekomendasi Produk
             </h1>
             <div className="flex items-center gap-2 self-start md:self-center">
