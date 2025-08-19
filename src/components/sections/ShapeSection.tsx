@@ -26,7 +26,7 @@ const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
 );
 
 const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
-  <div className="w-full">
+  <div className="w-full mt-[50px]">
     <h3 className="font-bold text-2xl font-oswald mb-4">
       Face Shape Distribution
     </h3>
@@ -88,13 +88,13 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     );
 
   return (
-    <div className="flex flex-col gap-6 h-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div className="flex flex-col h-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[50px]">
         <div className="border rounded-2xl p-4 sm:p-6">
           <h3 className="font-bold text-5xl font-oswald">
             {shapeDetails.name}
           </h3>
-          <p className="text-gray-600 leading-relaxed mt-4">
+          <p className="text-[#323232] leading-relaxed mt-4 font-poppins">
             {shapeDetails.penjelasan_face_shape
               .split("-")
               .filter((item: string) => item.trim() !== "")
@@ -115,10 +115,10 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
           </p>
         </div>
         <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6 shadow-md">
-          <h3 className="font-bold font-handlee text-gray-800 mb-3 text-xl text-left italic">
+          <h3 className="font-bold font-handlee text-[#323232] mb-5 mt-4 text-xl text-center italic">
             Karakteristik
           </h3>
-          <ul className="text-gray-600 leading-relaxed space-y-2">
+          <ul className="text-[#323232] font-poppins leading-relaxed space-y-2">
             {shapeDetails.karakteristik
               .split("-")
               .filter((item: string) => item.trim() !== "")

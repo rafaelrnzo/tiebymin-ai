@@ -1,12 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { ErrorModal } from "@/components/sections/error-modal";
+import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
-import { useAllTips } from "@/hooks/useAllTips";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { secureUrl } from "@/lib/api";
-import { defaultUserData } from "@/lib/mock-data";
 import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
 import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
@@ -105,7 +103,6 @@ function HalamanKameraWajahContent() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Initialize state based on URL parameters
   const getInitialState = (): AppState => {
     if (fromGallery && skipCamera) {
       const storedResultId = localStorage.getItem("analysisResultId");
@@ -126,15 +123,6 @@ function HalamanKameraWajahContent() {
   const [completedAnalyses, setCompletedAnalyses] = useState(0);
   const totalAnalyses = 4;
 
-  const { data: analysisResultData } = useAnalysisData(analysisResultId);
-  const { userData = defaultUserData, rawAnalysisData } =
-    analysisResultData || {};
-
-  const { data: allTipsData } = useAllTips({
-    analysisData: rawAnalysisData,
-    enabled: !!rawAnalysisData,
-  });
-
   const [loadingStep, setLoadingStep] = useState(0);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
 
@@ -142,10 +130,7 @@ function HalamanKameraWajahContent() {
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
   };
 
-  // Initialize state based on URL parameters BEFORE any effects
-  // Add separate useEffect for initial state setup
   useEffect(() => {
-    // Set initial data if coming from gallery with skip camera
     if (fromGallery && skipCamera && appState === "ANALYZING") {
       const storedResultId = localStorage.getItem("analysisResultId");
       if (storedResultId) {
@@ -157,14 +142,11 @@ function HalamanKameraWajahContent() {
   }, []); // Run only once on mount
 
   useEffect(() => {
-    // Skip all camera setup if we should go directly to analyzing
     if (appState === "ANALYZING") return;
 
-    // Check if this is from gallery upload and should skip camera
     if (fromGallery && skipCamera) {
       console.log("Gallery upload detected, skipping camera...");
 
-      // Get stored analysis result ID
       const storedResultId = localStorage.getItem("analysisResultId");
       const skipCameraFlag = localStorage.getItem("skipCameraForGallery");
 
@@ -173,12 +155,10 @@ function HalamanKameraWajahContent() {
         setAnalysisResultId(storedResultId);
         setAppState("ANALYZING");
 
-        // Clean up localStorage
         localStorage.removeItem("analysisResultId");
         localStorage.removeItem("skipCameraForGallery");
         return; // Exit early, don't continue to camera setup
       } else {
-        // Fallback to normal camera flow if no stored data
         console.log("No stored analysis data found, falling back to camera");
         setAppState("CAMERA");
       }
