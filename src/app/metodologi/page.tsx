@@ -42,7 +42,7 @@ const SectionTitle = ({
   children: React.ReactNode;
   info: string;
 }) => (
-  <div className="flex items-center justify-between bg-[#323232] gap-3 mb-6 py-8 px-6 rounded-2xl">
+  <div className="flex items-center justify-between bg-[#323232] gap-3 py-8 px-6 rounded-2xl mb-[50px] mt-[100px]">
     <h2 className="font-oswald text-3xl md:text-4xl font-bold text-white">
       {children}
     </h2>
@@ -67,12 +67,12 @@ export default function MethodologyPage() {
         </section>
 
         <section className="mb-12 md:mb-16">
-          <SectionTitle info="Mengapa Kami Memilih 3 Fokus Utama?">
+          <SectionTitle info="Dasar Ilmiah di balik rekomendasi Hijab">
             Konsep Analisis
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-            <div className="md:col-span-1 bg-gray-50 rounded-2xl p-6">
-              <p className="text-gray-700">
+            <div className="md:col-span-1 p-6">
+              <p className="text-[#323232]">
                 Analisis Tiebymin AI telah dirancang berdasarkan studi
                 dermatologi, psikologi fashion, dan database visual untuk
                 memberikan rekomendasi hijab yang sesuai dengan kepribadian,
@@ -84,7 +84,7 @@ export default function MethodologyPage() {
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
-                  className="bg-[#FFC6C6] h-[210px] rounded-2xl border border-gray-200 p-6 flex flex-col items-center text-start justify-center shadow-sm"
+                  className="bg-[#FFC6C6] h-[210px] rounded-2xl border-0 shadow-md p-6 flex flex-col text-start"
                 >
                   <p className="font-poppins font-bold">{item.title}</p>
                   <p className="font-poppins">{item.description}</p>
@@ -103,7 +103,7 @@ export default function MethodologyPage() {
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
-                  className="rounded-2xl h-[210px] border border-gray-200 p-6 flex flex-col items-center justify-center text-center shadow-sm"
+                  className="rounded-2xl h-[210px] border border-[#323232] p-6 flex flex-col items-center justify-center text-center shadow-sm"
                 >
                   {item.icon}
                   <h3 className="font-poppins font-bold text-lg mt-4">
@@ -112,8 +112,8 @@ export default function MethodologyPage() {
                 </Card>
               ))}
             </div>
-            <div className="md:col-span-2 bg-gray-50 rounded-2xl p-6">
-              <p className="text-gray-700">
+            <div className="md:col-span-2 p-6">
+              <p className="text-[#323232]">
                 Kami memilih 3 fokus utama untuk menjaga keseimbangan antara
                 akurasi dan kenyamanan pengguna. Studi dari {'"'}Efficient User
                 Experience in Fashion Tech{'"'} menunjukkan bahwa analisis
@@ -133,35 +133,36 @@ export default function MethodologyPage() {
             Bentuk Analisis
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <Bot className="w-8 h-8 text-[#EF789B] shrink-0" />
-                <div>
-                  <h3 className="font-oswald font-bold text-xl mb-2">
-                    Rekomendasi Berbasis AI
-                  </h3>
-                  <p className="text-gray-600">
-                    Kamu akan mendapatkan rekomendasi gaya hijab, warna, dan
-                    aksesoris yang paling cocok berdasarkan data analisismu.
-                  </p>
+            <Card className="rounded-2xl border border-[#323232] p-6 shadow-sm">
+              <div className="flex flex-col items-start gap-4">
+                <div className="flex gap-4 items-center">
+                  <Bot className="w-8 h-8 text-[#EF789B] shrink-0" />
+                  <h3 className="font-oswald font-bold text-xl">Foto Selfie</h3>
                 </div>
+                <p className="text-[#323232]">
+                  Analisis bentuk wajah dan warna kulit menggunakan AI yang
+                  terlatih dengan dataset 10.000+ foto dari berbagai etnis dan
+                  kondisi pencahayaan. Teknologi ini dirancang untuk menghindari
+                  bias dengan memproses foto tanpa filter atau makeup
+                  berlebihan.
+                </p>
               </div>
             </Card>
-            <Card className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <CheckCircle className="w-8 h-8 text-[#EF789B] shrink-0" />
-                <div>
-                  <h3 className="font-oswald font-bold text-xl mb-2">
-                    Do{"'"}s and Don{"'"}ts Praktis
+            <div className="rounded-2xl border border-[#323232] p-6 shadow-sm">
+              <div className="flex flex-col items-start gap-4">
+                <div className="flex gap-4 items-center">
+                  <CheckCircle className="w-8 h-8 text-[#EF789B] shrink-0" />
+                  <h3 className="font-oswald font-bold text-xl">
+                    Pilih Manual (Bentuk tubuh)
                   </h3>
-                  <p className="text-gray-600">
-                    Kami juga memberikan panduan praktis tentang apa yang perlu
-                    dihindari dan apa yang bisa kamu tonjolkan agar penampilan
-                    selalu maksimal.
-                  </p>
                 </div>
+                <p className="text-[#323232]">
+                  Pengguna memilih bentuk tubuh dari ilustrasi visual yang
+                  jelas. Metode ini mengurangi kesalahan analisis karena bentuk
+                  tubuh sulit dideteksi hanya melalui foto.
+                </p>
               </div>
-            </Card>
+            </div>
           </div>
         </section>
 
@@ -169,9 +170,9 @@ export default function MethodologyPage() {
           <Card className="bg-[#EF789B] text-white rounded-2xl shadow-xl p-6 md:p-8">
             <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8">
               {/* Bagian Kiri */}
-              <div className="flex items-center gap-4 w-full md:w-1/4 shrink-0">
+              <div className="flex items-center gap-4 w-full md:w-1/4 shrink-0 justify-center mt-5">
                 <Star className="w-10 h-10 text-white fill-white" />
-                <h3 className="font-oswald font-bold text-xl leading-tight">
+                <h3 className="font-oswald font-bold text-xl mt-auto">
                   Kelebihan Pendekatan Hybrid (AI + Manual)
                 </h3>
               </div>
@@ -200,34 +201,31 @@ export default function MethodologyPage() {
             Kombinasi Karakteristik
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <Bot className="w-8 h-8 text-[#EF789B] shrink-0" />
-                <div>
-                  <h3 className="font-oswald font-bold text-xl mb-2">
-                    Rekomendasi Berbasis AI
-                  </h3>
-                  <p className="text-gray-600">
-                    Kamu akan mendapatkan rekomendasi gaya hijab, warna, dan
-                    aksesoris yang paling cocok berdasarkan data analisismu.
-                  </p>
-                </div>
+            <Card className=" border rounded-2xl p-4">
+              <div className="flex items-center gap-4">
+                <Target />
+                <h3 className="font-oswald font-semibold text-lg">
+                  Kontekstual
+                </h3>
               </div>
+              <p>
+                Hasil disesuaikan dengan data yang kamu berikan. Jika ada
+                perubahan berat badan atau gaya hidup, rekomendasi mungkin
+                berbeda.
+              </p>
             </Card>
-            <Card className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <CheckCircle className="w-8 h-8 text-[#EF789B] shrink-0" />
-                <div>
-                  <h3 className="font-oswald font-bold text-xl mb-2">
-                    Do{"'"}s and Don{"'"}ts Praktis
-                  </h3>
-                  <p className="text-gray-600">
-                    Kami juga memberikan panduan praktis tentang apa yang perlu
-                    dihindari dan apa yang bisa kamu tonjolkan agar penampilan
-                    selalu maksimal.
-                  </p>
-                </div>
+            <Card className=" border rounded-2xl p-4">
+              <div className="flex items-center gap-4">
+                <Target />
+                <h3 className="font-oswald font-semibold text-lg">
+                  Kontekstual
+                </h3>
               </div>
+              <p>
+                Hasil disesuaikan dengan data yang kamu berikan. Jika ada
+                perubahan berat badan atau gaya hidup, rekomendasi mungkin
+                berbeda.
+              </p>
             </Card>
           </div>
         </section>
@@ -238,7 +236,7 @@ export default function MethodologyPage() {
             Disclaimer
           </SectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            <Card className="bg-[#FFC6C6]/40 border-2 border-[#FFC6C6] rounded-2xl p-4 text-center">
+            <Card className="bg-[#FFC6C6] border-0 rounded-2xl p-4 text-center">
               <TriangleAlert className="self-center" />
               <h3 className="font-oswald font-semibold text-lg">
                 Bukan Alat Diagnostik
@@ -248,7 +246,7 @@ export default function MethodologyPage() {
                 preferensi pribadi.
               </p>
             </Card>
-            <Card className="bg-[#FFC6C6]/40 border-2 border-[#FFC6C6] rounded-2xl p-4 text-center">
+            <Card className="bg-[#FFC6C6] border-0 rounded-2xl p-4 text-center">
               <ShieldAlert className="self-center" />
               <h3 className="font-oswald font-semibold text-lg">
                 Subjektivitas Gaya
@@ -272,7 +270,7 @@ export default function MethodologyPage() {
               </p>
             </Card>
           </div>
-          <p className="text-center text-gray-600 max-w-7xl mx-auto font-handlee text-[36px] italic">
+          <p className="text-center text-[#323232] max-w-7xl mx-auto font-handlee text-[36px] italic my-[100px]">
             {'"'}Gunakan hasil tes ini sebagai panduan untuk mengeksplorasi gaya
             baru, bukan sebagai aturan baku. Kepercayaan diri adalah kunci utama
             dari penampilan yang memukau. Kami hanya membantu mengarahkan.{'"'}

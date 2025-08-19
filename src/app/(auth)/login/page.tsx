@@ -234,18 +234,23 @@ export default function LoginPage() {
                 >
                   Nomor Telepon
                 </label>
-                <input
-                  id="phone_number"
-                  type="tel"
-                  value={formData.phone_number}
-                  onChange={(e) =>
-                    handleInputChange("phone_number", e.target.value)
-                  }
-                  className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                  placeholder="Masukkan nomor telepon"
-                  required
-                  disabled={isLoading}
-                />
+
+                <div className="flex items-center border-gray-300 focus-within:border-gray-600 transition-colors">
+                  <span className="text-gray-700 pl-1">+62</span>
+
+                  <input
+                    id="phone_number"
+                    type="tel"
+                    value={formData.phone_number}
+                    onChange={(e) =>
+                      handleInputChange("phone_number", e.target.value)
+                    }
+                    className="w-full border-b-gray-300 border-b-2 bg-transparent px-2 py-2 focus:outline-none focus:ring-0"
+                    placeholder="81234567890" // Placeholder diubah untuk contoh
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
 
               <Button

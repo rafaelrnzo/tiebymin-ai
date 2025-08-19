@@ -63,7 +63,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <TipCard
         category="Tips Bentuk Wajah"
         tip={allTips.faceTip}
@@ -81,7 +81,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
         tip={allTips.colorTip}
         icon="/overview-ai/icons/mdi_color.svg"
       />
-      <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6">
+      <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6 shadow-md">
         <div className="mb-3">
           <Image
             src="/overview-ai/icons/ic_baseline-tips-and-updates.svg"

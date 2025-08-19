@@ -190,7 +190,7 @@ export default function StoryPoster({
           </div>
         </div>
 
-        <hr className="mb-6" />
+        <hr className="mb-8" />
 
         {/* COLOR TONE */}
         <div className="mb-6">
@@ -251,7 +251,7 @@ export default function StoryPoster({
           </div>
         </div>
 
-        <hr className="my-6" />
+        <hr className="mb-14" />
 
         <div className="flex gap-[40px]">
           <div className="border p-4 rounded-2xl w-[400px]">
@@ -262,7 +262,7 @@ export default function StoryPoster({
               alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
               width={120}
               height={300}
-              className="w-[120px] h-[300px] object-contain mt-12"
+              className="w-[120px] h-[300px] object-contain ml-[11px] mt-[5rem]"
               priority
             />
           </div>
@@ -280,8 +280,8 @@ export default function StoryPoster({
                 </h4>
                 <ul className="list-disc list-inside space-y-2">
                   {bodyDetails?.karakteristik
-                    ?.split("-") // Memecah string berdasarkan tanda '-'
-                    .filter((point) => point.trim() !== "") // Menghapus item kosong
+                    ?.split("-")
+                    .filter((point) => point.trim() !== "")
                     .map((point, index) => (
                       <li
                         key={index}

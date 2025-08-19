@@ -22,9 +22,7 @@ export function Navbar() {
   return (
     <div className="mx-auto sticky top-[30px] z-50 w-full px-4 lg:px-[200px]">
       <header className="relative rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
-        {/* === Tampilan Desktop === */}
         <div className="hidden lg:flex items-center justify-between py-3 px-8">
-          {/* Bagian Kiri: Logo */}
           <div className="flex-shrink-0">
             <Link href="/">
               <Image
@@ -52,7 +50,7 @@ export function Navbar() {
           </nav>
 
           {/* Bagian Kanan: Tombol Aksi */}
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Link href="/login">
               <Button
                 size="lg"
@@ -76,9 +74,7 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* === Tampilan Seluler === */}
         <div className="lg:hidden flex items-center justify-between py-3 px-4">
-          {/* Kiri: Hamburger Menu */}
           <div>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>

@@ -15,7 +15,7 @@ interface ShapeBarProps {
 
 const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
   <div>
-    <p className="text-base text-gray-800">{name}</p>
+    <p className="text-xl font-poppins text-gray-800">{name}</p>
     <div className="mt-2 w-full bg-gray-200 rounded-full h-3.5">
       <div
         className={`h-3.5 rounded-full bg-gradient-to-l from-[#FFA2BD] to-[#FF7EA4]`}
@@ -88,8 +88,8 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     );
 
   return (
-    <div className="flex flex-col gap-y-8 h-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="flex flex-col gap-6 h-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="border rounded-2xl p-4 sm:p-6">
           <h3 className="font-bold text-5xl font-oswald">
             {shapeDetails.name}
@@ -101,21 +101,21 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .map((item: string, index: number) =>
                 index === 0 ? (
                   <span key={index}>
-                    <span className="block text-[14px]">{item.trim()}</span>
-                    <span className="block text-lg my-3 font-bold font-handlee text-black">
+                    <span className="block text-xl">{item.trim()}</span>
+                    <span className="hidden text-lg my-3 font-bold font-handlee text-black">
                       Fakta Unik
                     </span>
                   </span>
                 ) : (
-                  <span key={index} className="block text-[14px]">
-                    • <span className="text-[14px] ml-2">{item.trim()}</span>
+                  <span key={index} className="hidden text-xl">
+                    • <span className="text-xl ml-2">{item.trim()}</span>
                   </span>
                 )
               )}
           </p>
         </div>
-        <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6">
-          <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg text-left">
+        <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6 shadow-md">
+          <h3 className="font-bold font-handlee text-gray-800 mb-3 text-xl text-left italic">
             Karakteristik
           </h3>
           <ul className="text-gray-600 leading-relaxed space-y-2">
@@ -125,16 +125,10 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .map((item: string, index: number) => (
                 <li key={index} className="flex items-center">
                   <span className="mr-2 text-gray-500 mb-1">•</span>
-                  <span className="text-[14px]">{item.trim()}</span>
+                  <span className="text-xl">{item.trim()}</span>
                 </li>
               ))}
           </ul>
-          <h3 className="font-bold font-handlee text-gray-800 mt-4 mb-3 text-lg text-left">
-            Tips
-          </h3>
-          <span className="text-gray-600 leading-relaxed space-y-2 text-[14px]">
-            {shapeDetails.tips_bentuk_wajah}
-          </span>
         </div>
       </div>
       {gimmickChartData.length > 0 && (

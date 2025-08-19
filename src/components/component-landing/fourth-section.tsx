@@ -41,7 +41,7 @@ const FaqSection = () => {
   return (
     <section className="bg-white px-10 lg:px-[200px]">
       <div className="container mx-auto">
-        <hr className="mt-8 mb-[7rem]" />
+        <hr className="my-[100px]" />
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-24 gap-6 items-center">
           <div className="flex flex-col">
             <p className="text-[32px] font-handlee italic">Sempurna Untuk</p>
@@ -49,7 +49,7 @@ const FaqSection = () => {
               <h2 className="font-oswald text-[30px] lg:text-[60px] font-bold text-gray-900">
                 Semua Pecinta Fashion!
               </h2>
-              <p className="mt-4 text-gray-600 text-[16px] lg:text-xl">
+              <p className="mt-4 text-gray-600 text-[16px] lg:text-xl mb-3">
                 Apakah Kamu Seorang Pemula Atau Antusias Fashion, AI Ini Akan
                 Memberikan Rekomendasi Yang Mudah Dan Cepat.
               </p>
@@ -65,7 +65,7 @@ const FaqSection = () => {
                 <AccordionItem
                   key={item.value}
                   value={item.value}
-                  className="p-4 my-4 rounded-2xl transition-colors duration-300 data-[state=closed]:bg-transparent data-[state=open]:bg-[#FFC6C6] data-[state=closed]:border"
+                  className="px-4 my-4 rounded-2xl transition-colors duration-300 data-[state=closed]:bg-transparent data-[state=open]:bg-[#FFC6C6] data-[state=closed]:border"
                 >
                   <AccordionTrigger className="font-poppins text-xl w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-[#323232]">
                     {item.question}

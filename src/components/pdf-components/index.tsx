@@ -19,7 +19,7 @@ export const Footer = ({
 }) => {
   return (
     <div
-      className={`flex justify-between items-center text-xs text-gray-700 my-12 font-poppins px- ${className}`}
+      className={`flex justify-between items-center text-xs text-gray-700 my-12 font-poppins font-bold ${className}`}
     >
       <span>© 2025, Tiebymin AI</span>
       <span>{page}</span>
@@ -41,7 +41,7 @@ export const PageHeader = ({
   }
 
   return (
-    <header className="flex justify-between items-center my-6">
+    <header className="flex justify-between items-center mt-[50px] mb-[25px]">
       <Image
         src="/tie-by-min-logo.png"
         alt="Logo Tie By Min"
@@ -50,7 +50,7 @@ export const PageHeader = ({
         className="w-[120px] sm:w-auto"
       />
       {fill ? (
-        <div className="font-poppins bg-gray-800 text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] truncate">
+        <div className="font-poppins bg-[#323232] text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] truncate">
           {userName}
         </div>
       ) : (
@@ -98,21 +98,34 @@ export const Cover = ({ userData }: { userData: UserData }) => (
   <div className="flex items-center justify-center w-full h-screen">
     <div className="relative bg-[#F0F0F0] w-full min-h-screen flex flex-col self-center overflow-hidden">
       <div className="ml-10">
-        <PageHeader fill name={userData.name} />
+        <header className="flex justify-between items-center my-4">
+          <Image
+            src="/tie-by-min-logo.png"
+            alt="Logo Tie By Min"
+            width={60}
+            height={50}
+            className="w-[140px]"
+          />
+          <div className="font-poppins bg-[#323232] text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] truncate">
+            {userData.name}
+          </div>
+        </header>
       </div>
-      <main className="flex flex-col justify-center px-10 mt-[5rem] w-full">
+      <main className="flex flex-col justify-center px-10 w-full">
         <h1 className="font-oswald text-[64px] font-extrabold text-gray-800">
           HASIL ANALISA LENGKAP
         </h1>
       </main>
-      <div className="absolute bottom-0 left-0 right-0 h-[50%]">
+      <div className="absolute bottom-0 left-0 right-0 h-[60%]">
         <Image
           src="/many-flower.png"
           alt="Pola Bunga Latar Belakang"
           fill
           className="object-cover"
         />
-        <Footer page="01" />
+      </div>
+      <div className="absolute -bottom-12 left-0 right-0">
+        <Footer page="01" className="bg-[#F0F0F0] w-full py-[3rem] px-10" />
       </div>
     </div>
   </div>
@@ -131,7 +144,7 @@ export const BodyShape = ({
     <div className="flex items-center justify-center w-full h-screen">
       <div className="relative bg-[#F0F0F0] h-screen w-full px-10 flex flex-col justify-between">
         <PageHeader width={100} name={userData.name} />
-        <main className="mx-auto py-12 max-w-5xl flex-grow">
+        <main className="mx-auto py-6 max-w-5xl flex-grow">
           <div className="flex gap-10">
             <div className="flex justify-center">
               <Image
@@ -289,29 +302,23 @@ export const FaceShape = ({
       <div className="relative bg-[#F0F0F0] w-full px-10 flex flex-col justify-between min-h-screen">
         <PageHeader name={userData.name} />
 
-        {/* Konten Utama */}
-        <div className="flex flex-col gap-4 flex-grow">
-          {/* Gambar */}
-          <div className="flex w-full gap-8">
-            <div
-              className="relative w-[600px] rounded-lg shadow overflow-hidden"
-              style={{ height: infoHeight > 0 ? `${infoHeight}px` : "auto" }}
-            >
+        {/* Main content with consistent spacing */}
+        <main className="flex-grow py-6">
+          <div className="flex w-full gap-8 mb-4">
+            <div className="relative w-[600px] rounded-lg shadow overflow-hidden">
               <Image
                 src={userPhotoUrl || "/model.png"}
                 alt="Model Wajah"
                 fill
                 className="object-cover"
-                quality={90}
+                quality={100}
               />
             </div>
-
-            {/* Progress Bar */}
-            <div ref={infoRef} className="w-full space-y-2">
+            <div ref={infoRef} className="w-full space-y-2 mb-4">
               <h1 className="font-oswald text-2xl mb-2">
                 Bentuk wajah kamu {userData.faceShape}
               </h1>
-              <p className="text-gray-600 my-6 font-poppins leading-relaxed">
+              <p className="font-poppins text-base text-[#323232] my-4">
                 {faceShapeDetails?.penjelasan_face_shape.split("-")[0]}
               </p>
               {shapeChartData.map((shape) => (
@@ -328,8 +335,7 @@ export const FaceShape = ({
             </div>
           </div>
 
-          {/* Fakta & Karakteristik */}
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="grid grid-cols-2 gap-3">
             <div className="p-6">
               <h3 className="text-sm font-bold mb-1">Fakta Unik</h3>
               <p className="text-xs text-gray-600 leading-snug">
@@ -357,9 +363,8 @@ export const FaceShape = ({
               </ul>
             </div>
           </div>
-        </div>
+        </main>
 
-        {/* Footer */}
         <Footer page="02" />
       </div>
     </div>
@@ -440,96 +445,81 @@ export const ColorTone = ({
     </div>
   );
 
-  const analysisRef = useRef<HTMLDivElement>(null);
-  const [analysisHeight, setAnalysisHeight] = useState(0);
-
-  useLayoutEffect(() => {
-    if (analysisRef.current) {
-      setAnalysisHeight(analysisRef.current.offsetHeight);
-    }
-  }, [colorToneDetails]);
   return (
     <div className="flex justify-center w-full h-screen">
-      <div className="relative bg-[#F0F0F0] w-full flex flex-col justify-between h-screen">
+      <div className="relative bg-[#F0F0F0] w-full flex flex-col h-screen">
         <div className="px-10">
           <PageHeader width={100} name={userData.name} />
         </div>
 
-        <main className="py-10 flex-grow">
-          <div className="max-w-5xl px-10" ref={analysisRef}>
-            <h1 className="text-2xl mb-2 font-oswald">
-              Color tone kamu {userData.colorTone}
-            </h1>
-            <p className="text-gray-600 mb-12">
-              {colorToneDetails?.penjelasan_color_analysis ||
-                userData.colorToneAnalysis.description}
-            </p>
+        <div className="px-10 py-6 mb-10">
+          <h1 className="text-2xl mb-2 font-oswald">
+            Color tone kamu {userData.colorTone}
+          </h1>
+          <p className="text-[#323232] mb-12 text-base">
+            {colorToneDetails?.penjelasan_color_analysis ||
+              userData.colorToneAnalysis.description}
+          </p>
 
-            <div className="grid grid-cols-2 gap-12">
-              <ColorPalette
-                title="Best Color"
-                colors={colorToneDetails?.best_colour || []}
-              />
-              <ColorPalette
-                title="Neutral Color"
-                colors={colorToneDetails?.neutral_colour || []}
-              />
-              <ColorPalette
-                title="Worst Color"
-                colors={colorToneDetails?.worst_colour || []}
-              />
-              <ColorPalette
-                title="Combination"
-                colors={colorToneDetails?.best_colour_combination || []}
-                isCombination
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-12">
+            <ColorPalette
+              title="Best Color"
+              colors={colorToneDetails?.best_colour || []}
+            />
+            <ColorPalette
+              title="Neutral Color"
+              colors={colorToneDetails?.neutral_colour || []}
+            />
+            <ColorPalette
+              title="Worst Color"
+              colors={colorToneDetails?.worst_colour || []}
+            />
+            <ColorPalette
+              title="Combination"
+              colors={colorToneDetails?.best_colour_combination || []}
+              isCombination
+            />
           </div>
+        </div>
 
-          {/* Info Section */}
-          <div
-            className="mt-16 bg-[#323232] p-10"
-            style={{
-              height: analysisHeight > 0 ? `${analysisHeight}px` : "auto",
-            }}
-          >
-            <div className="grid grid-cols-2 gap-10">
-              <InfoSection
-                title="Make Up Tips"
-                items={
-                  colorToneDetails?.make_up_tips
-                    ? [colorToneDetails.make_up_tips]
-                    : []
-                }
-              />
-              <InfoSection
-                title="Outfit Tips"
-                items={
-                  colorToneDetails?.tips_warna_kulit_pakaian
-                    ? [colorToneDetails.tips_warna_kulit_pakaian]
-                    : []
-                }
-              />
-              <InfoSection
-                title="Personality"
-                items={
-                  colorToneDetails?.personality
-                    ? [colorToneDetails.personality]
-                    : []
-                }
-              />
-              <InfoSection
-                title="Karakteristik"
-                items={
-                  colorToneDetails?.karakteristik
-                    ? [colorToneDetails.karakteristik]
-                    : []
-                }
-              />
-            </div>
+        {/* Dark section - bagian bawah yang memenuhi sisa ruang */}
+        <div className="bg-[#323232] p-10 flex-grow flex flex-col justify-between">
+          <div className="grid grid-cols-2 gap-10">
+            <InfoSection
+              title="Make Up Tips"
+              items={
+                colorToneDetails?.make_up_tips
+                  ? [colorToneDetails.make_up_tips]
+                  : []
+              }
+            />
+            <InfoSection
+              title="Outfit Tips"
+              items={
+                colorToneDetails?.tips_warna_kulit_pakaian
+                  ? [colorToneDetails.tips_warna_kulit_pakaian]
+                  : []
+              }
+            />
+            <InfoSection
+              title="Personality"
+              items={
+                colorToneDetails?.personality
+                  ? [colorToneDetails.personality]
+                  : []
+              }
+            />
+            <InfoSection
+              title="Karakteristik"
+              items={
+                colorToneDetails?.karakteristik
+                  ? [colorToneDetails.karakteristik]
+                  : []
+              }
+            />
           </div>
-        </main>
-        <Footer page="03" className="text-white px-8" />
+          <Footer page="03" className="bg-[#323232] text-white" />
+        </div>
       </div>
     </div>
   );
@@ -553,13 +543,9 @@ export const CelebritiesMatch = ({
         <hr className="my-4" />
 
         <div className="flex gap-6">
-          <div className="relative w-[55%] h-[400px] rounded-lg overflow-hidden shadow">
+          <div className="relative w-[55%] rounded-lg overflow-hidden shadow">
             <Image
-              src={
-                celebrityDetails?.picture_url ||
-                userData.celebrityMatch.imageUrl ||
-                "/hijab-1.png"
-              }
+              src={celebrityDetails?.picture_url as string}
               alt={userData.celebrityMatch.name}
               fill
               className="object-cover"
@@ -570,21 +556,17 @@ export const CelebritiesMatch = ({
               {userData.celebrityMatch.matchPercentage}% Match
             </div>
           </div>
-
-          {/* Info selebriti */}
           <div className="w-[45%] flex flex-col">
-            <h2 className="text-2xl font-oswald">
+            <h2 className="text-3xl font-oswald">
               {userData.celebrityMatch.name}
             </h2>
             <div className="flex flex-col gap-5">
-              <p className="font-poppins text-xs text-gray-700 leading-snug flex-grow mt-3">
-                {celebrityDetails?.description ||
-                  userData.celebrityMatch.description ||
-                  "Dia adalah artis, pemain film dan content creator terkenal asal indonesia,film paling hits nya berjudul “Ipar adalah maut, 2024”"}
+              <p className="font-poppins text-base text-gray-700 leading-snug flex-grow mt-3">
+                {celebrityDetails?.description}
               </p>
               <div className="bg-[#323232] h-[220px] text-white p-8 rounded">
-                <h3 className="text-sm font-bold mb-1">Kenapa Cocok?</h3>
-                <p className="text-xs leading-snug">
+                <h3 className="text-lg font-bold mb-1">Kenapa Cocok?</h3>
+                <p className="text-base leading-snug">
                   {celebrityDetails?.similarity_text ||
                     userData.celebrityMatch.reason.map((text, index) => (
                       <span key={index}>{text}, </span>
@@ -595,8 +577,6 @@ export const CelebritiesMatch = ({
           </div>
         </div>
       </div>
-
-      {/* Footer */}
       <Footer page="05" />
     </div>
   </div>
@@ -651,16 +631,16 @@ export const Conclusion = ({
     }
 
     return (
-      <div className="bg-gray-100 p-6 rounded-lg shadow-sm">
+      <div className="border p-6">
         <h3 className="text-xl font-bold mb-4">{title}</h3>
         {items && items.length > 0 ? (
-          <ul className="list-disc list-inside space-y-2">
+          <div className="list-disc list-inside space-y-2">
             {items.map((item, index) => (
-              <li key={index} className="text-gray-700">
+              <span key={index} className="text-gray-700 font-poppins">
                 {item}
-              </li>
+              </span>
             ))}
-          </ul>
+          </div>
         ) : (
           <p className="text-gray-500">Tidak ada tips yang tersedia.</p>
         )}
@@ -672,34 +652,37 @@ export const Conclusion = ({
     <div className="flex items-center justify-center w-full h-screen">
       <div className="relative bg-[#F0F0F0] w-full px-10 flex flex-col justify-between min-h-screen">
         <PageHeader name={userData.name} />
-        <main className="py-12 flex-grow">
-          <h1 className="text-4xl font-bold text-center mb-2 font-oswald">
-            KESIMPULAN & REKOMENDASI
-          </h1>
-          <p className="text-center text-gray-500 mb-10">
-            Berikut adalah ringkasan dan beberapa tips yang disesuaikan untuk
-            Anda.
-          </p>
-
-          <div className="space-y-8">
+        <main className="flex-grow mt-4">
+          <div className="flex flex-col gap-6">
             <TipBox
-              title="Rekomendasi Bentuk Wajah"
+              title="Tips untuk bentuk wajah kamu"
               items={faceTip ? [faceTip] : []}
               loading={isLoading}
               error={isError}
             />
             <TipBox
-              title="Rekomendasi Bentuk Tubuh"
+              title="Tips untuk bentuk badan kamu"
               items={bodyTip ? [bodyTip] : []}
               loading={isLoading}
               error={isError}
             />
             <TipBox
-              title="Rekomendasi Warna"
+              title="Tips untuk tone warna kamu"
               items={colorTip ? [colorTip] : []}
               loading={isLoading}
               error={isError}
             />
+            <div className="bg-[#323232] font-poppins text-white p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <Sparkles fill="white" size={20} />
+                <p>Rekap Cepat Tips Kamu</p>
+              </div>
+              <p className="text-sm leading-relaxed">
+                {faceTip && `${faceTip.split(".")[0]}. `}
+                {bodyTip && `${bodyTip.split(".")[0]}. `}
+                {colorTip && `${colorTip.split(".")[0]}.`}
+              </p>
+            </div>
           </div>
         </main>
         <Footer page="06" />

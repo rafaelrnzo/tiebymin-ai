@@ -134,13 +134,15 @@ export const HeroSection = () => {
                 title="Rekomendasi Produk"
                 subtitle="Saran Produk"
               />
-              <AnalysisCard
-                isAnalytics={true}
-                icon={<Sparkles className="h-8 w-8 text-white" />}
-                title="Coba Sekarang"
-                className="bg-gradient-to-r from-pink-500 to-pink-400 shadow-lg"
-                titleClassName="text-white"
-              />
+              <a href="/login">
+                <AnalysisCard
+                  isAnalytics={true}
+                  icon={<Sparkles className="h-8 w-8 text-white" />}
+                  title="Coba Sekarang"
+                  className="bg-gradient-to-r from-pink-500 to-pink-400 shadow-lg"
+                  titleClassName="text-white"
+                />
+              </a>
             </div>
           </div>
         </div>
