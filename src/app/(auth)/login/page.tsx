@@ -84,7 +84,10 @@ export default function LoginPage() {
           const errorData = await response.json();
           errorMsg = errorData.message || errorMsg;
         } catch {}
-        throw new Error(errorMsg);
+        setErrorModalMessage(
+          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti."
+        );
+        setIsErrorModalOpen(true);
       }
 
       const result = await response.json();
@@ -124,7 +127,7 @@ export default function LoginPage() {
           setIsErrorModalOpen(true);
         } else {
           setErrorModalMessage(
-            "Terjadi kesalahan saat mendaftar. Silakan coba lagi."
+            "Maaf, Alamat email yang kamu masukan sudah di gunakan"
           );
           setIsErrorModalOpen(true);
         }

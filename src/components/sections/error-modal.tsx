@@ -1,13 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { TriangleAlert } from "lucide-react";
 
+// Mendefinisikan tipe props untuk komponen ErrorModal
 interface ErrorModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,22 +14,27 @@ interface ErrorModalProps {
 export function ErrorModal({ isOpen, onClose, errorMessage }: ErrorModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-[#F8B4C4]">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold text-white">
-            Oops! Something went wrong.
-          </DialogTitle>
-        </DialogHeader>
-        <div className="py-4 text-center text-white">
-          <p>{errorMessage}</p>
-        </div>
-        <div className="flex justify-center">
-          <Button
-            onClick={onClose}
-            className="bg-white text-[#323232] px-6 py-2 rounded-full hover:bg-gray-200"
-          >
-            Close
-          </Button>
+      <DialogContent className="sm:max-w-[650px] bg-[#f0f0f0] rounded-2xl p-8">
+        <div className="flex flex-col items-center justify-center space-y-6">
+          <div className="flex justify-center">
+            <TriangleAlert
+              className="w-16 h-16 text-[#f0f0f0] fill-[#EF789B]"
+              strokeWidth={1.5}
+            />
+          </div>
+
+          <div className="text-center font-poppins">
+            <p className="text-lg font-medium text-gray-800">{errorMessage}</p>
+          </div>
+
+          <div className="w-full pt-4">
+            <Button
+              onClick={onClose}
+              className="w-full bg-[#323232] text-white py-6 rounded-xl text-md font-semibold hover:bg-gray-700 transition-colors"
+            >
+              Tutup
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

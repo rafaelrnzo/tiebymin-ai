@@ -52,9 +52,11 @@ const BodySection: React.FC<BodySectionProps> = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 h-full">
-      <div className="rounded-2xl px-4 py-6 border">
-        <h3 className="font-bold text-5xl font-oswald">{bodyDetails.name}</h3>
-        <div className="flex justify-center my-6 w-[150px] h-[370px] mx-auto">
+      <div className="rounded-2xl h-[630px] border">
+        <h3 className="font-bold text-5xl font-oswald mx-3 mt-3">
+          {bodyDetails.name}
+        </h3>
+        <div className="flex justify-center my-6 w-[150px] h-[360px] mx-auto">
           <Image
             src={bodyDetails.link_picture}
             alt={`${bodyDetails.name} body type`}
@@ -64,7 +66,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             priority
           />
         </div>
-        <p className="text-xl mt-auto">{bodyDetails.penjelasan_body_shape}</p>
+        <p className="text-xl mt-6 mx-3">{bodyDetails.penjelasan_body_shape}</p>
       </div>
       <div className="flex flex-col gap-6">
         <div className="border border-neutral-600 rounded-2xl p-6 sm:p-8 text-[#323232]">
