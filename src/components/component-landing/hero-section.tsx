@@ -53,21 +53,21 @@ const AnalysisCard = ({
 
 export const HeroSection = () => {
   return (
-    <main className="relative w-full -mt-24 pt-28 overflow-hidden bg-cover bg-center bg-[url('/hero-bg.png')] min-h-screen flex items-center">
+    <main className="relative w-full -mt-24 overflow-hidden bg-cover bg-center bg-[url('/hero-bg.png')] min-h-screen flex items-center">
       <div className="container mx-auto px-4 z-20 relative">
         {/* Teks Hero */}
-        <div className="text-center pt-12 relative z-10">
-          <h1 className="font-oswald text-5xl sm:text-6xl md:text-8xl lg:text-[156px] font-medium text-[#323232] tracking-tight">
+        <div className="text-center relative z-10">
+          <h1 className="font-oswald mt-20 text-5xl sm:text-6xl md:text-8xl lg:text-[156px] font-medium text-[#323232] tracking-tight">
             AI Temukan
             <br />
-            <div className="flex flex-col sm:flex-row text-center gap-4 sm:gap-12 lg:gap-64 justify-center items-center">
+            <div className="flex mt-10 text-center gap-4 sm:gap-12 lg:gap-64 justify-center items-center">
               <span className="block font-handlee italic">Gaya</span>
               <span className="block font-handlee italic">Kamu</span>
             </div>
           </h1>
         </div>
 
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 hidden md:flex justify-center z-20">
+        <div className="absolute lg:-bottom-[4rem] inset-x-0 top-1/2 -translate-y-1/2 hidden md:flex justify-center z-20">
           <div className="relative w-full h-screen">
             <Image
               src="/new-model-hero.png"
@@ -96,14 +96,14 @@ export const HeroSection = () => {
             </div>
 
             <div className="flex w-full flex-col items-center gap-6 sm:flex-row sm:justify-around relative">
-              <div className="relative z-10">
+              <div className="relative z-10 w-[410px] lg:w-auto">
                 <AnalysisCard
                   icon={<Hourglass className="h-5 w-5 text-gray-700" />}
                   title="Hourglass"
                   subtitle="Hasil Analisa Tubuh"
                 />
               </div>
-              <div className="relative z-30">
+              <div className="relative z-30 w-[410px] lg:w-auto">
                 <AnalysisCard
                   icon={<UserRoundSearch className="h-5 w-5 text-gray-700" />}
                   title="Selebriti Yang Serupa"
@@ -118,7 +118,7 @@ export const HeroSection = () => {
                 title="Rekomendasi Produk"
                 subtitle="Saran Produk"
               />
-              <a href="/login">
+              <a href="/login" className="w-[410px] lg:w-auto">
                 <AnalysisCard
                   isAnalytics={true}
                   icon={<Sparkles className="h-5 w-5 fill-white text-white" />}

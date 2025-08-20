@@ -38,7 +38,7 @@ export const SecondSection = () => {
                 </div>
               </a>
 
-              <div className="flex flex-col -space-y-4">
+              <div className="flex flex-col lg:-space-y-4">
                 <h2 className="font-oswald text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
                   Cuman
                 </h2>
