@@ -91,7 +91,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     <div className="flex flex-col h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[50px]">
         <div className="border rounded-2xl p-4 sm:p-6">
-          <h3 className="font-bold text-5xl font-oswald">
+          <h3 className="font-bold text-[48px] font-oswald">
             {shapeDetails.name}
           </h3>
           <p className="text-[#323232] leading-relaxed mt-4 font-poppins">
@@ -101,7 +101,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .map((item: string, index: number) =>
                 index === 0 ? (
                   <span key={index}>
-                    <span className="block text-xl">{item.trim()}</span>
+                    <span className="block text-[18px]">{item.trim()}</span>
                     <span className="hidden text-lg my-3 font-bold font-handlee text-black">
                       Fakta Unik
                     </span>
@@ -125,7 +125,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .map((item: string, index: number) => (
                 <li key={index} className="flex items-center">
                   <span className="mr-2 text-gray-500 mb-1">•</span>
-                  <span className="text-xl">{item.trim()}</span>
+                  <span className="text-[18px]">{item.trim()}</span>
                 </li>
               ))}
           </ul>

@@ -52,15 +52,15 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
           <h3 className="text-3xl font-bold text-gray-800 font-oswald">
             {matchData.name}
           </h3>
-          <p className="text-[#323232] font-poppins text-xl mt-3 leading-relaxed">
+          <p className="text-[#323232] font-poppins text-[18px] mt-3 leading-relaxed">
             {matchData.description}
           </p>
         </div>
         <div className="bg-[#FFC6C6] rounded-2xl p-6">
-          <h4 className="font-bold font-handlee text-gray-800 text-xl mb-2 italic">
+          <h4 className="font-bold font-handlee text-gray-800 text-[18px] mb-2 italic">
             Kenapa Cocok?
           </h4>
-          <p className="text-[#323232] font-poppins text-xl leading-relaxed">
+          <p className="text-[#323232] font-poppins text-[18px] leading-relaxed">
             {matchData.similarity_text}
           </p>
         </div>

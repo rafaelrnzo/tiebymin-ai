@@ -41,7 +41,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
     <h4 className="font-handlee font-bold text-xl italic text-[#323232] font-poppins">
       {title}
     </h4>
-    <p className="mt-1 text-xl text-[#323232] font-poppins">{text}</p>
+    <p className="mt-1 text-[18px] text-[#323232] font-poppins">{text}</p>
   </div>
 );
 
@@ -86,15 +86,15 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
     <div className="font-sans max-w-6xl w-full mx-auto space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-[50px]">
         <div className="lg:col-span-2 p-6 rounded-2xl border-[1px] border-neutral-600">
-          <h2 className="text-5xl font-bold font-oswald leading-tight">
+          <h2 className="text-[40px] font-bold font-oswald leading-tight">
             {colorData.name}
           </h2>
-          <p className="mt-4 text-[#323232] font-poppins text-xl">
+          <p className="mt-4 text-[#323232] font-poppins text-[18px]">
             {colorData.penjelasan_color_analysis}
           </p>
         </div>
 
-        <div className="lg:col-span-4 p-6 rounded-2xl border-[1px] border-neutral-600">
+        <div className="lg:col-span-4 p-6 rounded-2xl border-[1px] border-neutral-600 h-full">
           <h2 className="text-center font-script font-handlee text-xl font-bold text-gray-800">
             Color Guide Line
           </h2>
