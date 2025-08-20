@@ -179,14 +179,20 @@ const BodyShapeCard = () => (
         </p>
       </div>
     </div>
-    <h4 className="font-bold font-poppins text-[#323232] mb-2 text-xl">
+    <h4 className="font-bold text-xl font-poppins text-gray-800 mb-4">
       BMI Index
     </h4>
-    <div className="w-full bg-gray-200 rounded-full h-5">
+
+    <div className="relative w-full h-8 rounded-md bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD]">
       <div
-        className="bg-pink-400 h-5 rounded-lg"
-        style={{ width: "45%" }}
+        className="absolute top-0 bottom-0 w-[2px] bg-[#323232]"
+        style={{
+          left: `${Math.min(100, Math.max(0, (10 / 40) * 100))}%`,
+        }}
       ></div>
+      <div className="absolute left-12 top-8 w-fit self-center text-center bg-[#323232] text-white text-sm px-3 py-1 rounded-md whitespace-nowrap">
+        {45} {"Ideal"}
+      </div>
     </div>
   </div>
 );

@@ -43,7 +43,7 @@ export const PageHeader = ({
   return (
     <header className="flex justify-between items-center mt-[50px] mb-[25px]">
       <Image
-        src="/tie-by-min-logo.png"
+        src="/vector/tie-by-min-logo.svg"
         alt="Logo Tie By Min"
         width={58}
         height={37}
@@ -100,11 +100,13 @@ export const Cover = ({ userData }: { userData: UserData }) => (
       <div className="ml-10">
         <header className="flex justify-between items-center my-4">
           <Image
-            src="/tie-by-min-logo.png"
+            src="/vector/tie-by-min-logo.svg"
             alt="Logo Tie By Min"
             width={60}
             height={50}
-            className="w-[140px]"
+            quality={100}
+            priority
+            className="w-[140px] h-auto"
           />
           <div className="font-poppins bg-[#323232] text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] truncate">
             {userData.name}

@@ -89,7 +89,7 @@ export default function StoryPoster({
       <div className="m-[100px]">
         <div className="flex justify-between items-center mb-4">
           <Image
-            src="/tie-by-min-logo.png"
+            src="/vector/tie-by-min-logo.svg"
             alt="Logo Tie By Min"
             width={120}
             height={40}

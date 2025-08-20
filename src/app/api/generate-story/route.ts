@@ -21,10 +21,8 @@ async function generateStory(req: NextRequest) {
     }
     storyUrl.searchParams.set("print", "true");
     
-    // Determine if running on Vercel
     const isVercel = !!process.env.VERCEL_ENV;
     let puppeteer;
-    // Define launch options with proper typing
     let launchOptions: { 
       headless: boolean; 
       args?: string[];
@@ -33,7 +31,6 @@ async function generateStory(req: NextRequest) {
       headless: true,
     };
     
-    // Use different puppeteer setup based on environment
     if (isVercel) {
       const chromium = (await import("@sparticuz/chromium")).default;
       puppeteer = await import("puppeteer-core");
