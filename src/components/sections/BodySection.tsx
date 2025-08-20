@@ -59,8 +59,8 @@ const BodySection: React.FC<BodySectionProps> = ({
             src={bodyDetails.link_picture}
             alt={`${bodyDetails.name} body type`}
             width={150}
-            height={310} // Menyesuaikan tinggi agar lebih proporsional
-            className="object-contain h-[300px]"
+            height={280} // Menyesuaikan tinggi agar lebih proporsional
+            className="object-contain h-[280px]"
             priority
           />
         </div>

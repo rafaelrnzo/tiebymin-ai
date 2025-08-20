@@ -1,12 +1,4 @@
-import {
-  Crown,
-  Handbag,
-  Palette,
-  PersonStanding,
-  ShoppingCart,
-  Sparkles,
-  Square,
-} from "lucide-react";
+import { Crown, Handbag, ShoppingCart, Sparkles } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
@@ -25,9 +17,32 @@ const ColorSwatches: React.FC<ColorSwatchProps> = ({ colors }) => (
     {colors.map((color, index) => (
       <div
         key={index}
-        className="h-[50px] w-[50px] rounded-full border border-gray-200"
+        className="h-[48px] w-[48px] rounded-full border border-gray-200"
         style={{ backgroundColor: color }}
       />
+    ))}
+  </div>
+);
+
+const ColorCombinationDisplay = ({
+  combinations,
+}: {
+  combinations: string[][];
+}) => (
+  <div className="flex items-center gap-4">
+    {combinations.map((group, groupIndex) => (
+      <div key={groupIndex} className="flex items-center">
+        {group.map((color, colorIndex) => (
+          <div
+            key={colorIndex}
+            className="h-[48px] w-[48px] rounded-full"
+            style={{
+              backgroundColor: color,
+              marginLeft: colorIndex === 0 ? 0 : -20,
+            }}
+          />
+        ))}
+      </div>
     ))}
   </div>
 );
@@ -66,9 +81,9 @@ const FaceShapeCard = () => (
         <path
           d="M2 7V4.5C2 3.83696 2.26339 3.20107 2.73223 2.73223C3.20107 2.26339 3.83696 2 4.5 2H7M2 17V19.5C2 20.163 2.26339 20.7989 2.73223 21.2678C3.20107 21.7366 3.83696 22 4.5 22H7M17 2H19.5C20.163 2 20.7989 2.26339 21.2678 2.73223C21.7366 3.20107 22 3.83696 22 4.5V7M17 22H19.5C20.163 22 20.7989 21.7366 21.2678 21.2678C21.7366 20.7989 22 20.163 22 19.5V17M8.25 9.5H8.2625M15.75 9.5H15.7625M8.875 15.75C9.28235 16.1657 9.76856 16.496 10.3052 16.7215C10.8418 16.947 11.418 17.0631 12 17.0631C12.582 17.0631 13.1582 16.947 13.6948 16.7215C14.2314 16.496 14.7177 16.1657 15.125 15.75"
           stroke="black"
-          stroke-width="3.33333"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="3.33333"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
       <h3 className="font-handlee italic mt-1.5 text-xl">Bentuk Wajah</h3>
@@ -91,13 +106,12 @@ const FaceShapeCard = () => (
 );
 
 const ColorToneCard = () => {
-  const bestColors = ["#A1B3D1", "#334D6E", "#8E3B46", "#4A444B", "#21295C"];
+  const bestColors = ["#000000", "#191970", "#2F4F4F", "#4A444B", "#800000"];
   const combinationColors = [
-    "#FADCD9",
-    "#F9F1F0",
-    "#F6E4E3",
-    "#F8E6E2",
-    "#F7EDE1",
+    ["#000000", "#483D8B"],
+    ["#2F4F4F", "#800000"],
+    ["#4B0082", "#808080"],
+    ["#8B0000", "#2A2A4F"],
   ];
 
   return (
@@ -115,7 +129,7 @@ const ColorToneCard = () => {
             fill="black"
           />
         </svg>
-        <h3 className="font-handlee italic mt-1.5 text-xl">Tona Warna</h3>
+        <h3 className="font-handlee italic mt-1.5 text-xl">Tone Warna</h3>
       </div>
       <hr />
       <h2 className="text-3xl font-bold text-[#323232] font-oswald">
@@ -124,7 +138,7 @@ const ColorToneCard = () => {
       <h4 className="text-[#323232] mb-2 text-xl">Best Color</h4>
       <ColorSwatches colors={bestColors} />
       <h4 className="text-[#323232] mb-2 text-xl">Color Combination</h4>
-      <ColorSwatches colors={combinationColors} />
+      <ColorCombinationDisplay combinations={combinationColors} />
     </div>
   );
 };
@@ -239,8 +253,8 @@ const RecommendationContainer = () => {
         </p>
       </div>
       <hr className="text-white" />
-      <div className="flex gap-6 ">
-        <div className="bg-[#FFC6C6] w-[900px] rounded-xl p-6 flex flex-col font-poppins">
+      <div className="flex flex-col lg:flex-row gap-6 ">
+        <div className="bg-[#FFC6C6] lg:w-[900px] rounded-xl p-6 flex flex-col font-poppins">
           <h3 className="text-xl font-bold text-start">Rekomendasi Produk</h3>
           <p className="text-xl">
             Merekomendasikan produk berdasarkan hasil analisa yang telah di
@@ -266,11 +280,11 @@ const AnalysisDashboard: React.FC = () => {
           <BodyShapeCard />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-4">
           <CelebrityCard />
           <RecommendationContainer />
         </div>
-        <hr className="my-[60px]" />
+        <hr className="mt-[60px] mb-[50px]" />
       </div>
     </div>
   );

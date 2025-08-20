@@ -7,7 +7,6 @@ import {
   UserRoundSearch,
 } from "lucide-react";
 import Image from "next/image";
-import { Button } from "../ui/button";
 
 type AnalysisCardProps = {
   icon: React.ReactNode;
@@ -26,24 +25,22 @@ const AnalysisCard = ({
 }: AnalysisCardProps) => {
   return (
     <div
-      className={`flex w-full lg:w-[300px] flex-row items-center gap-4 rounded-xl p-4 shadow-lg ${
+      className={`flex w-full lg:w-[300px] flex-row gap-4 rounded-xl px-4 py-2 shadow-lg ${
         isAnalytics ? "bg-[#EF789B]" : "bg-white"
       }`}
     >
-      {/* Icon */}
-      <div className={isAnalytics ? "fill-white" : ""}>{icon}</div>
+      <div className={isAnalytics ? "fill-white py-3" : "mt-2"}>{icon}</div>
 
-      {/* Text Content */}
       <div className="flex flex-col">
         <p
           className={`text-xl font-bold ${
-            isAnalytics ? "text-white" : "text-gray-800"
+            isAnalytics ? "text-white mt-2" : "text-[#323232]"
           }`}
         >
           {title}
         </p>
         <p
-          className={`text-sm ${isAnalytics ? "text-white" : "text-gray-600"}`}
+          className={`text-xl ${isAnalytics ? "text-white" : "text-[#323232]"}`}
         >
           {subtitle}
         </p>
@@ -54,13 +51,11 @@ const AnalysisCard = ({
 
 export const HeroSection = () => {
   return (
-    <main
-      className="relative w-full -mt-24 pt-28 pb-16 overflow-hidden 
-             bg-cover bg-center  bg-[url('/hero-bg.png')]"
-    >
+    <main className="relative w-full -mt-24 pt-28  overflow-hidden bg-cover bg-center bg-[url('/hero-bg.png')] min-h-screen">
       <div className="container mx-auto px-4 z-20 relative">
-        <div className="text-center pt-12 lg:pt-0">
-          <h1 className="font-oswald text-[64px] translate-y-12 lg:text-[128px] font-bold text-[#323232] tracking-tight">
+        {/* Teks Hero */}
+        <div className="text-center pt-12 relative z-10">
+          <h1 className="font-oswald text-[64px] lg:text-[156px] font-medium text-[#323232] tracking-tight">
             AI Temukan
             <br />
             <div className="flex text-center gap-12 lg:gap-64 justify-center lg:justify-center items-center">
@@ -72,72 +67,70 @@ export const HeroSection = () => {
               </span>
             </div>
           </h1>
-          <div className="mx-10 mt-24 md:mt-8 flex justify-center gap-4 visible lg:invisible">
-            <a href="/login">
-              <Button
-                size="lg"
-                className="rounded-full bg-[#EF789B] text-white text-xl py-6 border-0"
-              >
-                <p>Coba Sekarang</p>
-              </Button>
-            </a>
-            <a href="/metodologi">
-              <Button
-                size="lg"
-                className="rounded-full border-2 text-xl bg-[#EF789B]/10 py-[1.4rem] border-[#EF789B]"
-              >
-                <p className="text-[#EF789B]">Cara Kerja AI</p>
-              </Button>
-            </a>
+        </div>
+
+        {/* Image Model - z-20 untuk menimpa teks hero dan card hourglass tapi tertimpa card lainnya */}
+        <div className="absolute inset-x-0 top-[10rem] hidden lg:flex justify-center z-20">
+          <div className="relative w-[900px] h-[1100px]">
+            <Image
+              src="/new-model-hero.png"
+              alt="AI Fashion Model"
+              fill
+              priority
+              quality={100}
+              className="object-contain"
+            />
           </div>
         </div>
 
-        <div className="absolute inset-x-0 -bottom-24 lg:-bottom-[7rem] hidden lg:flex justify-center z-10">
-          <Image
-            src="/hero-model.png"
-            alt="AI Fashion Model"
-            width={560}
-            height={560}
-            priority
-            className="hidden lg:block w-[700px] h-[700px] lg:mb-0 lg:w-[600px] lg:h-[900px] object-cover"
-          />
-        </div>
-        <div className="relative z-20 mt-10 lg:mt-2">
+        {/* Cards */}
+        <div className="relative">
           <div className="flex flex-col items-center gap-8">
-            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly">
+            {/* Card row pertama - z-30 untuk menimpa image model */}
+            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly relative z-30">
               <AnalysisCard
-                icon={<Gem className="h-8 w-8 text-gray-700" />}
+                icon={<Gem className="h-5 w-5 text-gray-700" />}
                 title="Diamond"
                 subtitle="Hasil Analisa Wajah"
               />
               <AnalysisCard
-                icon={<Snowflake className="h-8 w-8 text-gray-700" />}
+                icon={<Snowflake className="h-5 w-5 text-gray-700" />}
                 title="Cool Winter"
                 subtitle="Hasil Analisa Kulit"
               />
             </div>
-            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-around">
-              <AnalysisCard
-                icon={<Hourglass className="h-8 w-8 text-gray-700" />}
-                title="Hourglass"
-                subtitle="Hasil Analisa Tubuh"
-              />
-              <AnalysisCard
-                icon={<UserRoundSearch className="h-8 w-8 text-gray-700" />}
-                title="Selebriti Yang Serupa"
-                subtitle="Kecocokan Analisa"
-              />
+
+            {/* Hourglass row - card hourglass dengan z-10 agar tertimpa image model */}
+            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-around relative">
+              {/* Card Hourglass - z-10 agar tertimpa oleh image model */}
+              <div className="relative z-10">
+                <AnalysisCard
+                  icon={<Hourglass className="h-5 w-5 text-gray-700" />}
+                  title="Hourglass"
+                  subtitle="Hasil Analisa Tubuh"
+                />
+              </div>
+              {/* Card UserRoundSearch - z-30 agar menimpa image model */}
+              <div className="relative z-30">
+                <AnalysisCard
+                  icon={<UserRoundSearch className="h-5 w-5 text-gray-700" />}
+                  title="Selebriti Yang Serupa"
+                  subtitle="Kecocokan Analisa"
+                />
+              </div>
             </div>
-            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly">
+
+            {/* Card row terakhir - z-30 untuk menimpa image model */}
+            <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly relative z-30">
               <AnalysisCard
-                icon={<Package2 className="h-8 w-8 text-gray-700" />}
+                icon={<Package2 className="h-5 w-5 text-gray-700" />}
                 title="Rekomendasi Produk"
                 subtitle="Saran Produk"
               />
               <a href="/login">
                 <AnalysisCard
                   isAnalytics={true}
-                  icon={<Sparkles className="h-8 w-8 text-white" />}
+                  icon={<Sparkles className="h-5 w-5 fill-white text-white" />}
                   title="Coba Sekarang"
                   className="bg-gradient-to-r from-pink-500 to-pink-400 shadow-lg"
                   titleClassName="text-white"

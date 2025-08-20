@@ -3,13 +3,12 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"; // Pastikan Anda mengimpor ini dari shadcn/ui
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Clipboard } from "lucide-react";
 import Image from "next/image";
 import { ThirdSection } from "./third-section";
 
-// Data untuk FAQ
 const faqItems = [
   {
     value: "item-1",
@@ -41,7 +40,7 @@ const FaqSection = () => {
   return (
     <section className="bg-white px-10 lg:px-[200px]">
       <div className="container mx-auto">
-        <hr className="my-[100px]" />
+        <hr className="mt-[100px] mb-[90px]" />
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-24 gap-6 items-center">
           <div className="flex flex-col">
             <p className="text-[32px] font-handlee italic">Sempurna Untuk</p>
@@ -76,13 +75,15 @@ const FaqSection = () => {
                 </AccordionItem>
               ))}
             </Accordion>
-            <Button
-              size="lg"
-              className="bg-[#323232] w-full text-white font-semibold rounded-xl py-7 self-start text-[16px]"
-            >
-              <Clipboard className="h-8 w-8 text-white" />
-              Lihat Metodologi
-            </Button>
+            <a href="/metodologi">
+              <Button
+                size="lg"
+                className="bg-[#323232] w-full text-white font-semibold rounded-xl py-7 self-start text-[16px]"
+              >
+                <Clipboard className="h-8 w-8 text-white" />
+                Lihat Metodologi
+              </Button>
+            </a>
           </div>
 
           <div>

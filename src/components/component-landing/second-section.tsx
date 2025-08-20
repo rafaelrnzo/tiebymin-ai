@@ -24,14 +24,16 @@ export const SecondSection = () => {
 
           <div className="lg:col-span-2 flex flex-col gap-4 w-full">
             <div className="bg-[#FFC6C6] p-6 rounded-2xl flex flex-col gap-6 w-full">
-              <div className="bg-[#2C2C2E] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
-                <span className="text-[#FFC6C6] font-semibold text-lg">
-                  Coba Sekarang Juga
-                </span>
-                <div className="bg-white/20 p-2 rounded-full border-2 border-[#FFC6C6]">
-                  <ArrowUpRight className="h-6 w-6 text-[#FFC6C6]" />
+              <a href="/login">
+                <div className="bg-[#2C2C2E] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
+                  <span className="text-[#FFC6C6] font-semibold text-lg">
+                    Coba Sekarang Juga
+                  </span>
+                  <div className="bg-white/20 p-2 rounded-full border-2 border-[#FFC6C6]">
+                    <ArrowUpRight className="h-6 w-6 text-[#FFC6C6]" />
+                  </div>
                 </div>
-              </div>
+              </a>
 
               <div className="flex flex-col -space-y-4">
                 <h2 className="font-oswald text-[48px] text-[#2C2C2E] tracking-tight">

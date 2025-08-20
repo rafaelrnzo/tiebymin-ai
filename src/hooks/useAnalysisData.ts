@@ -166,17 +166,17 @@ export function useAnalysisData(
             uniqueFact:
               faceShapeData?.description ||
               defaultUserData.faceShapeAnalysis.uniqueFact,
-            characteristics:
-              faceShapeData?.characteristics ||
-              defaultUserData.faceShapeAnalysis.characteristics,
+            karakteristik:
+              faceShapeData?.karakteristik ||
+              defaultUserData.faceShapeAnalysis.karakteristik,
           },
           bodyShapeAnalysis: {
             description:
               bodyShapeData?.description ||
               defaultUserData.bodyShapeAnalysis.description,
-            characteristics:
-              bodyShapeData?.characteristics ||
-              defaultUserData.bodyShapeAnalysis.characteristics,
+            karakteristik:
+              bodyShapeData?.karakteristik ||
+              defaultUserData.bodyShapeAnalysis.karakteristik,
             imageUrl: defaultUserData.bodyShapeAnalysis.imageUrl,
           },
           colorToneAnalysis: {
@@ -200,17 +200,17 @@ export function useAnalysisData(
               personality: colorToneData?.personality
                 ? [colorToneData.personality]
                 : defaultUserData.colorToneAnalysis.tips.personality,
-              characteristics: colorToneData?.karakteristik
+              karakteristik: colorToneData?.karakteristik
                 ? [colorToneData.karakteristik]
-                : defaultUserData.colorToneAnalysis.tips.characteristics,
+                : defaultUserData.colorToneAnalysis.tips.karakteristik,
             },
           },
           conclusionTips: {
             face:
-              faceShapeData?.characteristics ||
+              faceShapeData?.karakteristik ||
               defaultUserData.conclusionTips.face,
             body:
-              bodyShapeData?.characteristics ||
+              bodyShapeData?.karakteristik ||
               defaultUserData.conclusionTips.body,
             color:
               colorToneData?.best_colors?.map(

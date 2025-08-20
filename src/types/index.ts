@@ -79,7 +79,7 @@ export interface FaceShape {
   id: string;
   name: string;
   description: string;
-  characteristics: string[];
+  karakteristik: string;
   tips_bentuk_wajah: string;
   penjelasan_face_shape: string;
 }
@@ -103,11 +103,11 @@ export interface UserData {
   };
   faceShapeAnalysis: {
     uniqueFact: string;
-    characteristics: string[];
+    karakteristik: string;
   };
   bodyShapeAnalysis: {
     description: string;
-    characteristics: string[];
+    karakteristik: string;
     imageUrl: string;
   };
   colorToneAnalysis: {
@@ -120,7 +120,7 @@ export interface UserData {
       makeup: string[];
       outfit: string[];
       personality: string[];
-      characteristics: string[];
+      karakteristik: string[];
     };
   };
   conclusionTips: {

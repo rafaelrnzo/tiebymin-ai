@@ -1,22 +1,20 @@
+import Footer from "@/components/component-landing/footer-section";
+import { Navbar } from "@/components/component-landing/navbar";
 import { Card } from "@/components/ui/card";
 import {
+  Camera,
+  Database,
+  Heart,
   Info,
-  Users,
   Palette,
   Shapes,
-  Bot,
-  CheckCircle,
+  ShieldAlert,
+  SquareSquare,
   Star,
   Target,
   TriangleAlert,
-  ShieldAlert,
-  Heart,
-  Database,
-  Camera,
-  SquareSquare,
+  Users,
 } from "lucide-react";
-import { Navbar } from "@/components/component-landing/navbar";
-import Footer from "@/components/component-landing/footer-section";
 
 const jenisAnalisaData = [
   {
@@ -59,24 +57,24 @@ const SectionTitle = ({
 
 export default function MethodologyPage() {
   return (
-    <div className="bg-white min-h-screen w-full font-poppins text-[#333]">
+    <div className="bg-white min-h-screen w-full font-poppins text-[#323232]">
       <Navbar />
-      <main className="lg:px-[200px] py-8 sm:py-12 md:py-16">
-        <section className="mb-12 md:mb-16">
+      <main className="lg:px-[200px]">
+        <section className="mb-[50px] mt-[100px]">
           <Card className="bg-[url('/card-bg.png')] bg-[#323232] h-[500px] text-white rounded-2xl shadow-xl p-8 md:p-12 text-center justify-center items-center">
             <h1 className="font-handlee italic text-4xl md:text-5xl text-[#FF7EA4]">
-              Mengapa Analisa Kami Akurat dan Personal?
+              Kenapa Analisis kami akurat dan personal?
             </h1>
           </Card>
         </section>
 
-        <section className="mb-12 md:mb-16">
+        <section className="mb-[50px]">
           <SectionTitle info="Dasar Ilmiah di balik rekomendasi Hijab">
             Konsep Analisis
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-1 p-6">
-              <p className="text-[#323232]">
+              <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                 Analisis Tiebymin AI telah dirancang berdasarkan studi
                 dermatologi, psikologi fashion, dan database visual untuk
                 memberikan rekomendasi hijab yang sesuai dengan kepribadian,
@@ -84,26 +82,28 @@ export default function MethodologyPage() {
                 menggabungkan prinsip-prinsip dari:
               </p>
             </div>
-            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-[50px]">
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
                   className="bg-[#FFC6C6] h-[210px] rounded-2xl border-0 shadow-md p-6 flex flex-col text-start"
                 >
                   <p className="font-poppins font-bold">{item.title}</p>
-                  <p className="font-poppins">{item.description}</p>
+                  <p className="font-poppins text-justify leading-relaxed hyphens-auto">
+                    {item.description}
+                  </p>
                 </Card>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="mb-12 md:mb-16">
+        <section>
           <SectionTitle info="Mengapa Kami Memilih 3 Fokus Utama?">
             Jumlah Analisis
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
-            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-[50px]">
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
@@ -117,7 +117,7 @@ export default function MethodologyPage() {
               ))}
             </div>
             <div className="md:col-span-2 p-6">
-              <p className="text-[#323232]">
+              <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                 Kami memilih 3 fokus utama untuk menjaga keseimbangan antara
                 akurasi dan kenyamanan pengguna. Studi dari {'"'}Efficient User
                 Experience in Fashion Tech{'"'} menunjukkan bahwa analisis
@@ -136,14 +136,14 @@ export default function MethodologyPage() {
           <SectionTitle info="Bagaimana Kami Menggabungkan Data untuk Rekomendasi?">
             Bentuk Analisis
           </SectionTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[50px]">
             <Card className="rounded-2xl border border-[#323232] p-6 shadow-sm">
               <div className="flex flex-col items-start gap-4">
                 <div className="flex gap-4 items-center">
                   <Camera className="w-8 h-8 text-[#323232] shrink-0" />
                   <h3 className="font-oswald font-bold text-xl">Foto Selfie</h3>
                 </div>
-                <p className="text-[#323232]">
+                <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                   Analisis bentuk wajah dan warna kulit menggunakan AI yang
                   terlatih dengan dataset 10.000+ foto dari berbagai etnis dan
                   kondisi pencahayaan. Teknologi ini dirancang untuk menghindari
@@ -160,7 +160,7 @@ export default function MethodologyPage() {
                     Pilih Manual (Bentuk tubuh)
                   </h3>
                 </div>
-                <p className="text-[#323232]">
+                <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                   Pengguna memilih bentuk tubuh dari ilustrasi visual yang
                   jelas. Metode ini mengurangi kesalahan analisis karena bentuk
                   tubuh sulit dideteksi hanya melalui foto.
@@ -170,9 +170,9 @@ export default function MethodologyPage() {
           </div>
         </section>
 
-        <section className="mb-12 md:mb-16">
-          <Card className="bg-[#EF789B] text-white rounded-2xl shadow-xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8">
+        <section>
+          <Card className="bg-[#EF789B] text-white rounded-2xl shadow-xl p-6 md:p-8 mt-[50px] border-0">
+            <div className="flex flex-col md:flex-row items-start gap-[50px]">
               {/* Bagian Kiri */}
               <div className="flex items-center gap-4 w-full md:w-1/4 shrink-0 justify-center mt-5">
                 <Star className="w-10 h-10 text-white fill-white" />
@@ -183,14 +183,14 @@ export default function MethodologyPage() {
               {/* Bagian Kanan */}
               <div className="w-full md:w-3/4 md:pl-4">
                 <ul className="list-disc list-inside space-y-3">
-                  <li>
+                  <li className="text-justify leading-relaxed hyphens-auto">
                     Menggabungkan akurasi AI untuk analisis visual dengan
                     kejelasan input manual untuk data subjektif.
                   </li>
-                  <li>
+                  <li className="text-justify leading-relaxed hyphens-auto">
                     Mengurangi bias teknologi dalam interpretasi bentuk tubuh.
                   </li>
-                  <li>
+                  <li className="text-justify leading-relaxed hyphens-auto">
                     Memberikan kontrol lebih kepada pengguna atas data pribadi
                     mereka.
                   </li>
@@ -200,23 +200,23 @@ export default function MethodologyPage() {
           </Card>
         </section>
 
-        <section className="mb-12 md:mb-16">
+        <section className="mb-[50px]">
           <SectionTitle info="Mengapa Kami Menggunakan Foto Selfie + Pilihan Manual?">
             Kombinasi Karakteristik
           </SectionTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[50px]">
             <Card className=" border rounded-2xl p-4">
               <div className="flex items-center gap-4">
                 <Heart fill="#323232" />
-                <h3 className="font-poppins font-semibold text-lg">
+                <h3 className="font-poppins font-semibold text-xl">
                   Setiap rekomendasi hijab dihasilkan dari kombinasi:
                 </h3>
               </div>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Bentuk Wajah</b> (oval) + <b>Warna Kulit</b> (cool winter)
                 →Rekomendasi hijab dengan layer panjang dan warna bold.
               </p>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Bentuk Tubuh</b> (hourglass) → Paduan hijab dan pakaian yang
                 menonjolkan pinggang ramping.
               </p>
@@ -224,15 +224,15 @@ export default function MethodologyPage() {
             <Card className=" border rounded-2xl p-4">
               <div className="flex items-center gap-4">
                 <Database className="text-[#323232]" />
-                <h3 className="font-poppins font-semibold text-lg">
+                <h3 className="font-poppins font-semibold text-xl">
                   Database yang Kami Gunakan:
                 </h3>
               </div>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Fashion Psychology:</b> Studi tentang bagaimana bentuk tubuh
                 memengaruhi kepercayaan diri.
               </p>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Color Theory:</b> Penelitian tentang harmonisasi warna hijab
                 dengan undertone kulit.
               </p>
@@ -241,17 +241,17 @@ export default function MethodologyPage() {
         </section>
 
         {/* Disclaimer Section */}
-        <section className="mb-12 md:mb-16">
+        <section className="mb-[50px]">
           <SectionTitle info="Penting untuk Diperhatikan">
             Disclaimer
           </SectionTitle>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[50px] mb-6">
             <Card className="bg-[#FFC6C6] border-0 rounded-2xl p-4 text-center">
               <TriangleAlert className="self-center" />
               <h3 className="font-oswald font-semibold text-lg">
-                Bukan Alat Diagnostik
+                Hasil Analisis Bukanlah Label Permanen:
               </h3>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 Rekomendasi hijab bisa berubah seiring tren atau perubahan
                 preferensi pribadi.
               </p>
@@ -259,9 +259,9 @@ export default function MethodologyPage() {
             <Card className="bg-[#FFC6C6] border-0 rounded-2xl p-4 text-center">
               <ShieldAlert className="self-center" />
               <h3 className="font-oswald font-semibold text-lg">
-                Subjektivitas Gaya
+                Privacy First:
               </h3>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 Foto dan data yang kamu unggah tidak disimpan setelah analisis
                 selesai.
               </p>
@@ -273,14 +273,14 @@ export default function MethodologyPage() {
                   Kontekstual
                 </h3>
               </div>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 Hasil disesuaikan dengan data yang kamu berikan. Jika ada
                 perubahan berat badan atau gaya hidup, rekomendasi mungkin
                 berbeda.
               </p>
             </Card>
           </div>
-          <p className="text-center text-[#323232] max-w-7xl mx-auto font-handlee text-[36px] italic my-[100px]">
+          <p className="text-center text-[#323232] max-w-7xl mx-auto font-handlee text-[36px] italic my-[100px] leading-relaxed hyphens-auto">
             {'"'}Gunakan hasil tes ini sebagai panduan untuk mengeksplorasi gaya
             baru, bukan sebagai aturan baku. Kepercayaan diri adalah kunci utama
             dari penampilan yang memukau. Kami hanya membantu mengarahkan.{'"'}
@@ -288,14 +288,14 @@ export default function MethodologyPage() {
         </section>
 
         {/* Referensi Jurnal Section */}
-        <section>
+        <section className="mb-[200px]">
           <Card className="bg-[#323232] text-white rounded-2xl shadow-xl p-8 md:p-10">
             <h2 className="font-oswald text-3xl font-bold mb-6 text-center">
               Referensi Jurnal Ilmiah
             </h2>
             <hr className="text-[#f0f0f0]" />
             <div className="prose prose-invert prose-sm max-w-none text-[#f0f0f0] space-y-6 mt-5">
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>Facial Landmark Detection & Face Shape Analysis</b> <br />{" "}
                 Wu, Y., & Ji, Q. (2019). {'"'}Facial landmark detection: A
                 literature survey.
@@ -308,7 +308,7 @@ export default function MethodologyPage() {
                 European Conference on Computer Vision, Springer. (232
                 citations)
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>Skin Tone Classification & Color Matching</b> <br /> Ly,
                 B.C.K., et al. (2020). {'"'}Cutaneous Colorimetry: A Reliable
                 Technique for Objective Skin Color Evaluation.{'"'} Journal of
@@ -322,7 +322,7 @@ export default function MethodologyPage() {
                 investigation of skin tone measures for artificial intelligence.
                 {'"'} ACM Journal on Responsible Computing. (42 citations)
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>Body Shape Analysis & Modest Fashion</b> <br /> Hidayati,
                 S.C., Hsu, C.C., et al. (2018). {'"'}What dress fits me best?
                 Fashion recommendation on the clothing style for personal body
@@ -336,7 +336,7 @@ export default function MethodologyPage() {
                 e-commerce best-selling products.{'"'} Journal of Islamic
                 Marketing, Emerald
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>AI Fashion Recommendation Systems</b> <br />
                 Shirkhani, S., Mokayed, H., et al. (2023). {'"'}Study of
                 AI-driven fashion recommender systems.
@@ -347,7 +347,7 @@ export default function MethodologyPage() {
                 Intelligence Applications and Innovations, Springer. (35
                 citations)
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>Color Theory & Fashion Psychology</b>
                 <br />
                 Kodžoman, D. (2019). {'"'}The psychology of clothing: Meaning of
@@ -358,7 +358,7 @@ export default function MethodologyPage() {
                 of body image, body cathexis and body size.{'"'} Clothing and
                 Textiles Research Journal, Sage Publications. (202 citations)
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>User Experience in Fashion Technology</b>
                 <br /> Xue, L., Parker, C.J., & Hart, C.A. (2023). {'"'}How
                 augmented reality can enhance fashion retail: a UX design

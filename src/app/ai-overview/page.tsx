@@ -241,10 +241,6 @@ function BeautyAnalysisPageInner() {
                   width={450}
                   height={280}
                   className="h-[250px] w-[450px] object-cover rounded-xl"
-                  onError={(e) => {
-                    console.warn("🖼️ Image load error:", userPhotoUrl);
-                    e.currentTarget.src = "/overview-ai/person.png";
-                  }}
                   loading="lazy"
                 />
               ) : (
