@@ -74,7 +74,7 @@ export default function MethodologyPage() {
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-1 p-6">
-              <p className="text-[#323232]">
+              <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                 Analisis Tiebymin AI telah dirancang berdasarkan studi
                 dermatologi, psikologi fashion, dan database visual untuk
                 memberikan rekomendasi hijab yang sesuai dengan kepribadian,
@@ -89,7 +89,9 @@ export default function MethodologyPage() {
                   className="bg-[#FFC6C6] h-[210px] rounded-2xl border-0 shadow-md p-6 flex flex-col text-start"
                 >
                   <p className="font-poppins font-bold">{item.title}</p>
-                  <p className="font-poppins">{item.description}</p>
+                  <p className="font-poppins text-justify leading-relaxed hyphens-auto">
+                    {item.description}
+                  </p>
                 </Card>
               ))}
             </div>
@@ -115,7 +117,7 @@ export default function MethodologyPage() {
               ))}
             </div>
             <div className="md:col-span-2 p-6">
-              <p className="text-[#323232]">
+              <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                 Kami memilih 3 fokus utama untuk menjaga keseimbangan antara
                 akurasi dan kenyamanan pengguna. Studi dari {'"'}Efficient User
                 Experience in Fashion Tech{'"'} menunjukkan bahwa analisis
@@ -141,7 +143,7 @@ export default function MethodologyPage() {
                   <Camera className="w-8 h-8 text-[#323232] shrink-0" />
                   <h3 className="font-oswald font-bold text-xl">Foto Selfie</h3>
                 </div>
-                <p className="text-[#323232]">
+                <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                   Analisis bentuk wajah dan warna kulit menggunakan AI yang
                   terlatih dengan dataset 10.000+ foto dari berbagai etnis dan
                   kondisi pencahayaan. Teknologi ini dirancang untuk menghindari
@@ -158,7 +160,7 @@ export default function MethodologyPage() {
                     Pilih Manual (Bentuk tubuh)
                   </h3>
                 </div>
-                <p className="text-[#323232]">
+                <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                   Pengguna memilih bentuk tubuh dari ilustrasi visual yang
                   jelas. Metode ini mengurangi kesalahan analisis karena bentuk
                   tubuh sulit dideteksi hanya melalui foto.
@@ -181,14 +183,14 @@ export default function MethodologyPage() {
               {/* Bagian Kanan */}
               <div className="w-full md:w-3/4 md:pl-4">
                 <ul className="list-disc list-inside space-y-3">
-                  <li>
+                  <li className="text-justify leading-relaxed hyphens-auto">
                     Menggabungkan akurasi AI untuk analisis visual dengan
                     kejelasan input manual untuk data subjektif.
                   </li>
-                  <li>
+                  <li className="text-justify leading-relaxed hyphens-auto">
                     Mengurangi bias teknologi dalam interpretasi bentuk tubuh.
                   </li>
-                  <li>
+                  <li className="text-justify leading-relaxed hyphens-auto">
                     Memberikan kontrol lebih kepada pengguna atas data pribadi
                     mereka.
                   </li>
@@ -210,11 +212,11 @@ export default function MethodologyPage() {
                   Setiap rekomendasi hijab dihasilkan dari kombinasi:
                 </h3>
               </div>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Bentuk Wajah</b> (oval) + <b>Warna Kulit</b> (cool winter)
                 →Rekomendasi hijab dengan layer panjang dan warna bold.
               </p>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Bentuk Tubuh</b> (hourglass) → Paduan hijab dan pakaian yang
                 menonjolkan pinggang ramping.
               </p>
@@ -226,11 +228,11 @@ export default function MethodologyPage() {
                   Database yang Kami Gunakan:
                 </h3>
               </div>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Fashion Psychology:</b> Studi tentang bagaimana bentuk tubuh
                 memengaruhi kepercayaan diri.
               </p>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Color Theory:</b> Penelitian tentang harmonisasi warna hijab
                 dengan undertone kulit.
               </p>
@@ -249,7 +251,7 @@ export default function MethodologyPage() {
               <h3 className="font-oswald font-semibold text-lg">
                 Hasil Analisis Bukanlah Label Permanen:
               </h3>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 Rekomendasi hijab bisa berubah seiring tren atau perubahan
                 preferensi pribadi.
               </p>
@@ -259,7 +261,7 @@ export default function MethodologyPage() {
               <h3 className="font-oswald font-semibold text-lg">
                 Privacy First:
               </h3>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 Foto dan data yang kamu unggah tidak disimpan setelah analisis
                 selesai.
               </p>
@@ -271,14 +273,14 @@ export default function MethodologyPage() {
                   Kontekstual
                 </h3>
               </div>
-              <p>
+              <p className="text-justify leading-relaxed hyphens-auto">
                 Hasil disesuaikan dengan data yang kamu berikan. Jika ada
                 perubahan berat badan atau gaya hidup, rekomendasi mungkin
                 berbeda.
               </p>
             </Card>
           </div>
-          <p className="text-center text-[#323232] max-w-7xl mx-auto font-handlee text-[36px] italic my-[100px]">
+          <p className="text-center text-[#323232] max-w-7xl mx-auto font-handlee text-[36px] italic my-[100px] leading-relaxed hyphens-auto">
             {'"'}Gunakan hasil tes ini sebagai panduan untuk mengeksplorasi gaya
             baru, bukan sebagai aturan baku. Kepercayaan diri adalah kunci utama
             dari penampilan yang memukau. Kami hanya membantu mengarahkan.{'"'}
@@ -293,7 +295,7 @@ export default function MethodologyPage() {
             </h2>
             <hr className="text-[#f0f0f0]" />
             <div className="prose prose-invert prose-sm max-w-none text-[#f0f0f0] space-y-6 mt-5">
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>Facial Landmark Detection & Face Shape Analysis</b> <br />{" "}
                 Wu, Y., & Ji, Q. (2019). {'"'}Facial landmark detection: A
                 literature survey.
@@ -306,7 +308,7 @@ export default function MethodologyPage() {
                 European Conference on Computer Vision, Springer. (232
                 citations)
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>Skin Tone Classification & Color Matching</b> <br /> Ly,
                 B.C.K., et al. (2020). {'"'}Cutaneous Colorimetry: A Reliable
                 Technique for Objective Skin Color Evaluation.{'"'} Journal of
@@ -320,7 +322,7 @@ export default function MethodologyPage() {
                 investigation of skin tone measures for artificial intelligence.
                 {'"'} ACM Journal on Responsible Computing. (42 citations)
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>Body Shape Analysis & Modest Fashion</b> <br /> Hidayati,
                 S.C., Hsu, C.C., et al. (2018). {'"'}What dress fits me best?
                 Fashion recommendation on the clothing style for personal body
@@ -334,7 +336,7 @@ export default function MethodologyPage() {
                 e-commerce best-selling products.{'"'} Journal of Islamic
                 Marketing, Emerald
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>AI Fashion Recommendation Systems</b> <br />
                 Shirkhani, S., Mokayed, H., et al. (2023). {'"'}Study of
                 AI-driven fashion recommender systems.
@@ -345,7 +347,7 @@ export default function MethodologyPage() {
                 Intelligence Applications and Innovations, Springer. (35
                 citations)
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>Color Theory & Fashion Psychology</b>
                 <br />
                 Kodžoman, D. (2019). {'"'}The psychology of clothing: Meaning of
@@ -356,7 +358,7 @@ export default function MethodologyPage() {
                 of body image, body cathexis and body size.{'"'} Clothing and
                 Textiles Research Journal, Sage Publications. (202 citations)
               </p>
-              <p className="flex flex-col gap-2">
+              <p className="flex flex-col gap-2 text-justify leading-relaxed hyphens-auto">
                 <b>User Experience in Fashion Technology</b>
                 <br /> Xue, L., Parker, C.J., & Hart, C.A. (2023). {'"'}How
                 augmented reality can enhance fashion retail: a UX design
