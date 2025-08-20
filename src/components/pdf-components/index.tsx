@@ -356,10 +356,16 @@ export const FaceShape = ({
               <h3 className="text-sm font-bold text-[#EF789B] mb-1">
                 Karakteristik
               </h3>
-              <ul className="list-disc pl-4 text-xs space-y-1">
-                {userData.faceShapeAnalysis.characteristics.map((item, idx) => (
-                  <li key={idx}>{item.endsWith(".") ? item : `${item}.`}</li>
-                ))}
+              <ul className="text-[#323232] font-poppins leading-relaxed space-y-2 text-xs">
+                {faceShapeDetails?.karakteristik
+                  .split("-")
+                  .filter((item: string) => item.trim() !== "")
+                  .map((item: string, index: number) => (
+                    <li key={index} className="flex items-center">
+                      <span className="mr-2 text-white mb-1">•</span>
+                      <span className="text-xs text-white">{item.trim()}</span>
+                    </li>
+                  ))}
               </ul>
             </div>
           </div>

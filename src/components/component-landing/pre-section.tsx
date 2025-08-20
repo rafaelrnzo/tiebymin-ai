@@ -81,9 +81,9 @@ const FaceShapeCard = () => (
         <path
           d="M2 7V4.5C2 3.83696 2.26339 3.20107 2.73223 2.73223C3.20107 2.26339 3.83696 2 4.5 2H7M2 17V19.5C2 20.163 2.26339 20.7989 2.73223 21.2678C3.20107 21.7366 3.83696 22 4.5 22H7M17 2H19.5C20.163 2 20.7989 2.26339 21.2678 2.73223C21.7366 3.20107 22 3.83696 22 4.5V7M17 22H19.5C20.163 22 20.7989 21.7366 21.2678 21.2678C21.7366 20.7989 22 20.163 22 19.5V17M8.25 9.5H8.2625M15.75 9.5H15.7625M8.875 15.75C9.28235 16.1657 9.76856 16.496 10.3052 16.7215C10.8418 16.947 11.418 17.0631 12 17.0631C12.582 17.0631 13.1582 16.947 13.6948 16.7215C14.2314 16.496 14.7177 16.1657 15.125 15.75"
           stroke="black"
-          stroke-width="3.33333"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="3.33333"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
       <h3 className="font-handlee italic mt-1.5 text-xl">Bentuk Wajah</h3>
@@ -129,7 +129,7 @@ const ColorToneCard = () => {
             fill="black"
           />
         </svg>
-        <h3 className="font-handlee italic mt-1.5 text-xl">Tona Warna</h3>
+        <h3 className="font-handlee italic mt-1.5 text-xl">Tone Warna</h3>
       </div>
       <hr />
       <h2 className="text-3xl font-bold text-[#323232] font-oswald">

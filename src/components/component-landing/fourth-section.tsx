@@ -75,13 +75,15 @@ const FaqSection = () => {
                 </AccordionItem>
               ))}
             </Accordion>
-            <Button
-              size="lg"
-              className="bg-[#323232] w-full text-white font-semibold rounded-xl py-7 self-start text-[16px]"
-            >
-              <Clipboard className="h-8 w-8 text-white" />
-              Lihat Metodologi
-            </Button>
+            <a href="/metodologi">
+              <Button
+                size="lg"
+                className="bg-[#323232] w-full text-white font-semibold rounded-xl py-7 self-start text-[16px]"
+              >
+                <Clipboard className="h-8 w-8 text-white" />
+                Lihat Metodologi
+              </Button>
+            </a>
           </div>
 
           <div>

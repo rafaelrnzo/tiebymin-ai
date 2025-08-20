@@ -3,16 +3,14 @@ import { Check, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-// Tipe data diperbarui dengan `hoverContent` untuk teks saat hover
 type Testimonial = {
   type: "image" | "text";
   content: string;
-  hoverContent?: string; // Teks yang muncul saat hover pada gambar
+  hoverContent?: string;
   author: string;
   badgeType: "success" | "highlight";
 };
 
-// Konten testimoni diperbarui agar lebih realistis
 const testimonials: Testimonial[] = [
   {
     type: "image",
@@ -31,7 +29,7 @@ const testimonials: Testimonial[] = [
     badgeType: "success",
   },
   {
-    type: "text", // Kartu ini akan selalu menampilkan teks
+    type: "text",
     content:
       '"Sebagai orang yang buta fashion, aplikasi ini penyelamat. Cuma butuh satu foto dan semua rekomendasi langsung muncul. Super praktis!"',
     author: "Aisha Kamilia",
@@ -68,14 +66,12 @@ const AuthorBadge: React.FC<{
   );
 };
 
-// --- PERUBAHAN UTAMA ADA DI KOMPONEN INI ---
 const TestimonialCard: React.FC<{ data: Testimonial }> = ({ data }) => {
-  // Jika tipe kartu adalah 'text', tampilkan seperti biasa tanpa efek hover
   if (data.type === "text") {
     return (
       <div className="relative h-[480px] w-80 flex-shrink-0 overflow-hidden rounded-3xl shadow-lg">
-        <div className="bg-[#323232] h-full w-full p-8 flex items-center">
-          <p className="text-white font-medium text-lg italic leading-relaxed">
+        <div className="bg-[#323232] h-full w-full p-8 flex">
+          <p className="text-[#FFC6C6] font-medium text-lg italic leading-relaxed">
             {data.content}
           </p>
         </div>
@@ -95,8 +91,8 @@ const TestimonialCard: React.FC<{ data: Testimonial }> = ({ data }) => {
         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
 
-      <div className="absolute inset-0 flex h-full w-full items-center bg-[#323232] bg-opacity-80 p-8 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        <p className="text-white font-medium text-lg italic leading-relaxed">
+      <div className="absolute inset-0 flex h-full w-full bg-[#323232] bg-opacity-80 p-8 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <p className="text-[#FFC6C6] font-medium text-lg italic leading-relaxed">
           {data.hoverContent}
         </p>
       </div>
@@ -111,7 +107,6 @@ export const ThirdSection = () => {
 
   const scrollNext = () => {
     if (scrollRef.current) {
-      // Scroll sejauh lebar satu kartu ditambah jaraknya
       scrollRef.current.scrollBy({ left: 320 + 24, behavior: "smooth" });
     }
   };
@@ -129,7 +124,6 @@ export const ThirdSection = () => {
           </div>
         </div>
 
-        {/* Wrapper untuk slider dan tombol navigasi */}
         <div className="relative">
           <div
             ref={scrollRef}

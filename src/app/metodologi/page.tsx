@@ -63,7 +63,7 @@ export default function MethodologyPage() {
         <section className="mb-[50px] mt-[100px]">
           <Card className="bg-[url('/card-bg.png')] bg-[#323232] h-[500px] text-white rounded-2xl shadow-xl p-8 md:p-12 text-center justify-center items-center">
             <h1 className="font-handlee italic text-4xl md:text-5xl text-[#FF7EA4]">
-              Mengapa Analisa Kami Akurat dan Personal?
+              Kenapa Analisis kami akurat dan personal?
             </h1>
           </Card>
         </section>

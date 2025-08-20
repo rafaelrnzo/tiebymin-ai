@@ -25,21 +25,15 @@ export const defaultUserData: UserData = {
   faceShapeAnalysis: {
     uniqueFact:
       "Bentuk wajah kamu itu kotak! Kamu punya garis rahang yang tegas dan dahi nggak terlalu lebar atau sempit.",
-    characteristics: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
+    karakteristik: 
+      "Kamu punya Rahang tegas dan kuat Dahi dan rahang memiliki lebar yang hampir sama Panjang dan lebar wajah hampir seimbang",
   },
   bodyShapeAnalysis: {
     imageUrl: "https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh",
     description:
       "Bagian Tengah Tubuhmu Lebih Dominan, Dengan Bagian Tengah Yang Lebih Menonjol Dan Bahu Yang Lebar Serta Bagian Dada Yang Penuh.",
-    characteristics: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
+    karakteristik:
+      "Kamu punya Rahang tegas dan kuat -Dahi dan rahang memiliki lebar yang hampir sama Panjang dan lebar wajah hampir seimbang",
   },
   colorToneAnalysis: {
     description:
@@ -77,7 +71,7 @@ export const defaultUserData: UserData = {
       makeup: ["Kamu punya Rahang tegas dan kuat"],
       outfit: ["Kamu punya Rahang tegas dan kuat"],
       personality: ["Kamu punya Rahang tegas dan kuat"],
-      characteristics: ["Kamu punya Rahang tegas dan kuat"],
+      karakteristik: ["Kamu punya Rahang tegas dan kuat"],
     },
   },
   conclusionTips: {
