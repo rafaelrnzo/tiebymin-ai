@@ -19,15 +19,15 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#FFC6C6] text-[#323232] py-16 lg:px-[200px]">
+    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[200px]">
       <div className="container mx-auto">
-        <div className="container mx-auto bg-[#F0F0F0] rounded-2xl mt-[100px] py-[100px] text-center shadow-md">
-          <h2 className="font-handlee text-[64px] font-bold text-[#323232] leading-tight">
+        <div className="container mx-auto bg-[#F0F0F0] rounded-2xl mt-12 sm:mt-16 py-12 sm:py-20 text-center shadow-md">
+          <h2 className="font-handlee text-4xl sm:text-5xl lg:text-6xl font-bold text-[#323232] leading-tight">
             Siap Jadi Yang Paling Stylish
             <br />
             Dibandingkan Yang Lain
           </h2>
-          <p className="max-w-[60.5rem] mx-auto my-[50px] text-[#323232] font-poppins text-xl">
+          <p className="max-w-3xl mx-auto my-8 sm:my-12 text-[#323232] font-poppins text-base sm:text-lg lg:text-xl">
             Temukan Fashion Yang Sesuai Untukmu Dengan Cara Yang Cerdas. Hanya
             Butuh Satu Foto. <b>Tiebymin AI</b> Memberikan Rekomendasi Instan
             Tanpa Perlu Repot, Serta Hemat Waktu Dan Biaya.
@@ -55,7 +55,7 @@ export default function Footer() {
             </Button>
           </a>
         </div>
-        <div className="flex justify-between gap-10 mt-[200px]">
+        <div className="flex flex-col lg:flex-row justify-between gap-10 mt-16 sm:mt-24">
           <div className="flex flex-col">
             <Link href="/" className="inline-block">
               <Image
@@ -66,7 +66,7 @@ export default function Footer() {
                 className="h-auto"
               />
             </Link>
-            <p className="my-[25px] text-justify text-xl max-w-md text-[#323232]/50 font-poppins">
+            <p className="my-6 text-justify text-base sm:text-lg max-w-md text-[#323232]/50 font-poppins">
               Tiebymin Adalah Grup Yang Menaungi Brand Gaya Hidup Remaja
               Muslimah Nomer 1 Di Indonesia Dari Fashion Hingga Kecantikan.
               Desain Simple Dan Elegan Menjadi Ciri Khas Sekaligus Menebar
@@ -118,7 +118,7 @@ export default function Footer() {
             <h4 className="font-bold font-poppins tracking-wide">
               Market Place
             </h4>
-            <ul className="mt-[50px] space-y-[50px] text-xl text-[#323232]/50">
+            <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
               {footerLinks.marketPlace.map((link) => (
                 <li key={link.label}>
                   <Link href={link.href} className="hover:underline">
@@ -134,7 +134,7 @@ export default function Footer() {
             <h4 className="font-bold font-poppins tracking-wide">
               Sumber Daya
             </h4>
-            <ul className="mt-[50px] space-y-[50px] text-xl text-[#323232]/50">
+            <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
               {footerLinks.sumberDaya.map((link) => (
                 <li key={link.label}>
                   <Link href={link.href} className="hover:underline">

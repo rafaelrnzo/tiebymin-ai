@@ -38,17 +38,19 @@ const faqItems = [
 
 const FaqSection = () => {
   return (
-    <section className="bg-white px-10 lg:px-[200px]">
+    <section className="bg-white px-4 sm:px-10 lg:px-[200px] py-12 sm:py-16">
       <div className="container mx-auto">
         <hr className="mt-[100px] mb-[90px]" />
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-24 gap-6 items-center">
           <div className="flex flex-col">
-            <p className="text-[32px] font-handlee italic">Sempurna Untuk</p>
+            <p className="text-2xl sm:text-3xl font-handlee italic">
+              Sempurna Untuk
+            </p>
             <div>
-              <h2 className="font-oswald text-[30px] lg:text-[60px] font-bold text-gray-900">
+              <h2 className="font-oswald text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900">
                 Semua Pecinta Fashion!
               </h2>
-              <p className="mt-4 text-gray-600 text-[16px] lg:text-xl mb-3">
+              <p className="mt-4 text-gray-600 text-base sm:text-lg lg:text-xl mb-3">
                 Apakah Kamu Seorang Pemula Atau Antusias Fashion, AI Ini Akan
                 Memberikan Rekomendasi Yang Mudah Dan Cepat.
               </p>
@@ -66,10 +68,10 @@ const FaqSection = () => {
                   value={item.value}
                   className="px-4 my-4 rounded-2xl transition-colors duration-300 data-[state=closed]:bg-transparent data-[state=open]:bg-[#FFC6C6] data-[state=closed]:border"
                 >
-                  <AccordionTrigger className="font-poppins text-xl w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-[#323232]">
+                  <AccordionTrigger className="font-poppins text-base sm:text-lg lg:text-xl w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-[#323232]">
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="font-poppins text-[15px] px-4 pb-4 text-[#323232]">
+                  <AccordionContent className="font-poppins text-sm sm:text-base px-4 pb-4 text-[#323232]">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -78,9 +80,9 @@ const FaqSection = () => {
             <a href="/metodologi">
               <Button
                 size="lg"
-                className="bg-[#323232] w-full text-white font-semibold rounded-xl py-7 self-start text-[16px]"
+                className="bg-[#323232] w-full text-white font-semibold rounded-xl py-5 sm:py-7 self-start text-base"
               >
-                <Clipboard className="h-8 w-8 text-white" />
+                <Clipboard className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 Lihat Metodologi
               </Button>
             </a>

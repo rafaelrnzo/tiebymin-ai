@@ -3,10 +3,13 @@ import Image from "next/image";
 
 export const SecondSection = () => {
   return (
-    <section id="tutorial" className="bg-white px-10 lg:px-[200px]">
+    <section
+      id="tutorial"
+      className="bg-white px-4 sm:px-10 lg:px-[200px] py-12 sm:py-16"
+    >
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
-          <div className="lg:col-span-5 relative w-full rounded-xl overflow-hidden shadow-xl cursor-pointer group">
+          <div className="lg:col-span-5 relative w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden shadow-xl cursor-pointer group">
             <Image
               src="/video-thumbnail.png"
               alt="Video thumbnail of fashion analysis"
@@ -26,7 +29,7 @@ export const SecondSection = () => {
             <div className="bg-[#FFC6C6] p-6 rounded-2xl flex flex-col gap-6 w-full">
               <a href="/login">
                 <div className="bg-[#2C2C2E] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
-                  <span className="text-[#FFC6C6] font-semibold text-lg">
+                  <span className="text-[#FFC6C6] font-semibold text-base sm:text-lg">
                     Coba Sekarang Juga
                   </span>
                   <div className="bg-white/20 p-2 rounded-full border-2 border-[#FFC6C6]">
@@ -36,15 +39,15 @@ export const SecondSection = () => {
               </a>
 
               <div className="flex flex-col -space-y-4">
-                <h2 className="font-oswald text-[48px] text-[#2C2C2E] tracking-tight">
+                <h2 className="font-oswald text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
                   Cuman
                 </h2>
-                <h2 className="font-oswald font-bold text-[48px] text-[#2C2C2E] tracking-tight">
+                <h2 className="font-oswald font-bold text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
                   Rp 10 Ribuan
                 </h2>
               </div>
 
-              <p className="text-[#4F4F4F] text-lg leading-relaxed">
+              <p className="text-[#4F4F4F] text-base sm:text-lg leading-relaxed">
                 Nggak perlu mahal! Cukup dengan{" "}
                 <strong className="font-bold text-[#2C2C2E]">
                   10 Ribuan Aja
@@ -56,18 +59,18 @@ export const SecondSection = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-[#323232] p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
-                <p className="font-poppins text-3xl lg:text-[48px] font-bold text-[#FFC6C6]">
+                <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
                   {"<"}2m
                 </p>
-                <p className="text-xl text-white mt-1 text-cente font-poppins">
+                <p className="text-base sm:text-lg lg:text-xl text-white mt-1 text-center font-poppins">
                   Hasil Selesai
                 </p>
               </div>
               <div className="bg-[#323232] p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
-                <p className="font-poppins text-3xl lg:text-[48px] font-bold text-[#FFC6C6]">
+                <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
                   100%
                 </p>
-                <p className="text-xl text-white mt-1 text-center font-poppin">
+                <p className="text-base sm:text-lg lg:text-xl text-white mt-1 text-center font-poppins">
                   Buatan Lokal
                 </p>
               </div>

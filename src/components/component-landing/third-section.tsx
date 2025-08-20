@@ -69,7 +69,7 @@ const AuthorBadge: React.FC<{
 const TestimonialCard: React.FC<{ data: Testimonial }> = ({ data }) => {
   if (data.type === "text") {
     return (
-      <div className="relative h-[480px] w-80 flex-shrink-0 overflow-hidden rounded-3xl shadow-lg">
+      <div className="relative h-[400px] sm:h-[480px] w-72 sm:w-80 flex-shrink-0 overflow-hidden rounded-3xl shadow-lg">
         <div className="bg-[#323232] h-full w-full p-8 flex">
           <p className="text-[#FFC6C6] font-medium text-lg italic leading-relaxed">
             {data.content}
@@ -81,7 +81,7 @@ const TestimonialCard: React.FC<{ data: Testimonial }> = ({ data }) => {
   }
 
   return (
-    <div className="group relative h-[480px] w-80 flex-shrink-0 cursor-pointer overflow-hidden rounded-3xl shadow-lg">
+    <div className="group relative h-[400px] sm:h-[480px] w-72 sm:w-80 flex-shrink-0 cursor-pointer overflow-hidden rounded-3xl shadow-lg">
       <Image
         src={data.content}
         alt={`Testimonial by ${data.author}`}
@@ -112,13 +112,13 @@ export const ThirdSection = () => {
   };
 
   return (
-    <section id="testimoni" className="mb-[100px]">
+    <section id="testimoni" className="py-12 sm:py-16">
       <div className="container mx-auto px-4 sm:px-10 lg:px-[130px]">
         <hr className="mt-[100px] mb-[80px]" />
 
         <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-12">
           <div>
-            <h2 className="font-handlee italic text-4xl lg:text-5xl text-gray-900">
+            <h2 className="font-handlee italic text-3xl sm:text-4xl lg:text-5xl text-gray-900">
               Dengar testimoni pengguna tercinta kita
             </h2>
           </div>
