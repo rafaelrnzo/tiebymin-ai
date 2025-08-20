@@ -14,13 +14,13 @@ interface TipCardProps {
 
 const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
   <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6 h-full">
-    <div className="mb-3">
+    <div className="mb-3">  
       <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
     </div>
-    <h3 className="font-bold font-handlee italic text-[#323232] mb-3 text-xl">
+    <h3 className="font-bold font-handlee italic text-[#323232] mb-3 text-[17px]">
       {category}
     </h3>
-    <span className="text-[#323232] font-poppins text-xl leading-relaxed space-y-2">
+    <span className="text-[#323232] font-poppins text-[17px] leading-relaxed space-y-2">
       {tip}
     </span>
   </div>
@@ -90,15 +90,21 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
             alt="Tips & Trick Icon"
           />
         </div>
-        <h3 className="font-bold font-handlee italic text-[#323232] mb-3 text-xl">
+        <h3 className="font-bold font-handlee italic text-[#323232] mb-3 text-[18px]">
           Tips Makeup & BMI
         </h3>
-        <p className="text-[#323232] text-xl leading-relaxed">
+        <div className="text-[#323232] text-[18px] leading-relaxed">
+          <div className="text">
           <strong>Makeup:</strong> {allTips.makeupTip}
-          <br />
-          <br />
+
+          </div>
+          <div className="text mt-2">
           <strong>Gaya Sesuai BMI:</strong> {allTips.bmiTip}
-        </p>
+
+
+          </div>
+
+        </div>
       </div>
     </div>
   );
