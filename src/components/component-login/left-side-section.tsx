@@ -28,7 +28,7 @@ export default function LeftSideSection({
     <div className="space-y-8 w-full max-w-lg mx-auto flex flex-col items-center">
       <div className="mb-8 flex justify-center w-full">
         <Image
-          src="/tie-by-min-logo.png"
+          src="/vector/tie-by-min-logo.svg"
           alt="Tiebymin Logo"
           width={300}
           height={96}

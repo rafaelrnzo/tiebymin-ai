@@ -26,7 +26,9 @@ const AnalysisCard = ({
   return (
     <div
       className={`flex w-full lg:w-[300px] flex-row gap-4 rounded-xl px-4 py-2 shadow-lg ${
-        isAnalytics ? "bg-[#EF789B]" : "bg-white"
+        isAnalytics
+          ? "bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD]"
+          : "bg-white"
       }`}
     >
       <div className={isAnalytics ? "fill-white py-3" : "mt-2"}>{icon}</div>
@@ -69,7 +71,6 @@ export const HeroSection = () => {
           </h1>
         </div>
 
-        {/* Image Model - z-20 untuk menimpa teks hero dan card hourglass tapi tertimpa card lainnya */}
         <div className="absolute inset-x-0 top-[10rem] hidden lg:flex justify-center z-20">
           <div className="relative w-[900px] h-[1100px]">
             <Image
@@ -83,10 +84,8 @@ export const HeroSection = () => {
           </div>
         </div>
 
-        {/* Cards */}
         <div className="relative">
           <div className="flex flex-col items-center gap-8">
-            {/* Card row pertama - z-30 untuk menimpa image model */}
             <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly relative z-30">
               <AnalysisCard
                 icon={<Gem className="h-5 w-5 text-gray-700" />}
@@ -100,9 +99,7 @@ export const HeroSection = () => {
               />
             </div>
 
-            {/* Hourglass row - card hourglass dengan z-10 agar tertimpa image model */}
             <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-around relative">
-              {/* Card Hourglass - z-10 agar tertimpa oleh image model */}
               <div className="relative z-10">
                 <AnalysisCard
                   icon={<Hourglass className="h-5 w-5 text-gray-700" />}
@@ -110,7 +107,6 @@ export const HeroSection = () => {
                   subtitle="Hasil Analisa Tubuh"
                 />
               </div>
-              {/* Card UserRoundSearch - z-30 agar menimpa image model */}
               <div className="relative z-30">
                 <AnalysisCard
                   icon={<UserRoundSearch className="h-5 w-5 text-gray-700" />}
@@ -120,7 +116,6 @@ export const HeroSection = () => {
               </div>
             </div>
 
-            {/* Card row terakhir - z-30 untuk menimpa image model */}
             <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:justify-evenly relative z-30">
               <AnalysisCard
                 icon={<Package2 className="h-5 w-5 text-gray-700" />}

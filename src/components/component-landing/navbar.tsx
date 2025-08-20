@@ -5,19 +5,38 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Sparkles, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { MouseEvent, useState } from "react";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const navLinks = [
     { href: "/overview", label: "Overview AI" },
-    { href: "/tutorial", label: "Tutorial" },
+    { href: "/#tutorial", label: "Tutorial" },
     { href: "/metodologi", label: "Metodologi" },
-    { href: "/testimoni", label: "Testimoni" },
+    { href: "/#testimoni", label: "Testimoni" },
   ];
 
   const closeSheet = () => setIsOpen(false);
+
+  const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("/#")) {
+      e.preventDefault();
+      const targetId = href.substring(2);
+      if (pathname === "/") {
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: "smooth" });
+        }
+      } else {
+        router.push(`/${href.substring(1)}`);
+      }
+    }
+    closeSheet();
+  };
 
   return (
     <div className="mx-auto sticky top-[50px] z-50 w-full px-4 lg:px-[200px]">
@@ -42,6 +61,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={(e) => handleLinkClick(e, link.href)}
                 className="text-base font-medium hover:text-gray-300 transition-colors"
               >
                 {link.label}
@@ -96,7 +116,7 @@ export function Navbar() {
                       key={link.href}
                       href={link.href}
                       className="text-lg font-medium hover:text-gray-300 transition-colors"
-                      onClick={closeSheet}
+                      onClick={(e) => handleLinkClick(e, link.href)}
                     >
                       {link.label}
                     </Link>

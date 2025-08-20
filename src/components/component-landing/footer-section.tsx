@@ -4,10 +4,10 @@ import { Button } from "../ui/button";
 
 const footerLinks = {
   marketPlace: [
-    { href: "#", label: "Shopee" },
-    { href: "#", label: "Tokopedia" },
-    { href: "#", label: "TikTok Shop" },
-    { href: "#", label: "Lazada" },
+    { href: "https://shopee.co.id/", label: "Shopee" },
+    { href: "https://www.tokopedia.com/", label: "Tokopedia" },
+    { href: "https://www.tiktok.com/shop", label: "TikTok Shop" },
+    { href: "https://www.lazada.co.id/", label: "Lazada" },
   ],
   sumberDaya: [
     { href: "/testimoni", label: "Testimoni" },
@@ -59,7 +59,7 @@ export default function Footer() {
           <div className="flex flex-col">
             <Link href="/" className="inline-block">
               <Image
-                src="/tie-by-min-logo.png"
+                src="/vector/tie-by-min-logo.svg"
                 alt="Tiebymin Logo"
                 width={150}
                 height={50}
@@ -75,7 +75,11 @@ export default function Footer() {
               Tercinta Indonesia.
             </p>
             <div className="flex space-x-4 mt-6">
-              <Link href="#" className="hover:opacity-80 transition-opacity">
+              <Link
+                href="https://www.tiktok.com/@tiebymin"
+                target="_blank"
+                className="hover:opacity-80 transition-opacity"
+              >
                 <svg
                   width="28"
                   height="31"
@@ -90,7 +94,8 @@ export default function Footer() {
                 </svg>
               </Link>
               <Link
-                href="#"
+                href="https://www.instagram.com/tiebymin/"
+                target="_blank"
                 className="hover:opacity-80 transition-opacity fill-[#323232]"
               >
                 <svg

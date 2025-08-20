@@ -1,11 +1,11 @@
 "use client";
 
 import { Navbar } from "@/components/component-landing/navbar";
-import { FeedbackModal } from "@/components/sections/feedback-modal";
 import { ErrorModal } from "@/components/sections/error-modal";
+import { FeedbackModal } from "@/components/sections/feedback-modal";
+import { motion } from "framer-motion";
 import Image from "next/image";
-import { Suspense, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Suspense, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -132,6 +132,7 @@ function BeautyAnalysisPageInner() {
           : []),
       ]
     : [];
+  const totalPages = Math.ceil(filteredProducts.length / 3);
 
   const sortedProducts = [...filteredProducts].sort(
     (a, b) => b.total_compatibility_score - a.total_compatibility_score
@@ -501,24 +502,19 @@ function BeautyAnalysisPageInner() {
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-center mt-8">
-                  <Button
-                    onClick={() =>
-                      setRecommendationPage((prev) => Math.max(prev - 1, 1))
-                    }
-                    disabled={recommendationPage === 1}
-                  >
-                    Previous
-                  </Button>
-                  <span className="mx-4 self-center font-medium">
-                    Page {recommendationPage}
-                  </span>
-                  <Button
-                    onClick={() => setRecommendationPage((prev) => prev + 1)}
-                    disabled={recommendationPage * 3 >= filteredProducts.length}
-                  >
-                    Next
-                  </Button>
+                <div className="flex justify-center items-center mt-8 space-x-2">
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setRecommendationPage(index + 1)}
+                      className={`h-5 w-5 rounded-full transition-colors ${
+                        recommendationPage === index + 1
+                          ? "bg-[#EF789B]"
+                          : "bg-gray-300"
+                      }`}
+                      aria-label={`Go to page ${index + 1}`}
+                    />
+                  ))}
                 </div>
               </>
             ) : (

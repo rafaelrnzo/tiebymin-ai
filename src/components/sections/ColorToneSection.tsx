@@ -94,7 +94,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           </p>
         </div>
 
-        <div className="lg:col-span-4 p-6 rounded-2xl border-[1px] border-neutral-600 h-full">
+        <div className="lg:col-span-4 justify-between p-6 rounded-2xl border-[1px] border-neutral-600 h-full">
           <h2 className="text-center font-script font-handlee text-xl font-bold text-gray-800">
             Color Guide Line
           </h2>
@@ -108,7 +108,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
             />
           </div>
 
-          <div className="mt-6 flex items-center space-x-4 border border-gray-300 rounded-2xl p-2">
+          <div className="mt-10 flex items-center space-x-4 border border-gray-300 rounded-2xl p-2">
             <span className="font-bold text-sm text-gray-700 pl-4">
               Combination
             </span>
