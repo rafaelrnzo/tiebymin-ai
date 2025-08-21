@@ -116,7 +116,7 @@ export const ThirdSection = () => {
       <div className="container mx-auto px-4 sm:px-10 lg:px-[130px]">
         <hr className="mt-[100px] mb-[80px]" />
 
-        <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-12">
+        <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-[70px]">
           <div>
             <h2 className="font-handlee italic text-3xl sm:text-4xl lg:text-5xl text-gray-900">
               Dengar testimoni pengguna tercinta kita
