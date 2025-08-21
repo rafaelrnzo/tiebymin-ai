@@ -67,7 +67,6 @@ const BodySection: React.FC<BodySectionProps> = ({
         <p className="text-xl mt-6">{bodyDetails.penjelasan_body_shape}</p>
       </div>
 
-      {/* Kolom ini tidak perlu banyak diubah, hanya memastikan konsistensi */}
       <div className="flex flex-col gap-[50px] lg:col-span-2">
         <div className="border border-neutral-600 rounded-2xl p-6 sm:p-8 text-[#323232]">
           <h3 className="font-bold text-4xl sm:text-5xl font-oswald">
@@ -75,7 +74,7 @@ const BodySection: React.FC<BodySectionProps> = ({
           </h3>
           <hr className="my-4 border-neutral-300" />
 
-          <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="flex items-center gap-6">
             <div className="flex-shrink-0">
               <div className="rounded-full border-2 border-[#EC7498] p-1">
                 <div className="rounded-full border border-neutral-600 w-24 h-24 flex items-center justify-center">

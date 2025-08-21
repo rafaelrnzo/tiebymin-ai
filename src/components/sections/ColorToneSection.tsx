@@ -112,7 +112,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
             <span className="font-bold text-sm text-gray-700 pl-4">
               Combination
             </span>
-            <div className="flex items-center space-x-2 sm:space-x-4 overflow-x-auto">
+            <div className="flex items-center gap-x-10 justify-center">
               {(colorData.best_colour_combination || []).map(
                 (colorPair: string[], index: number) =>
                   Array.isArray(colorPair) &&

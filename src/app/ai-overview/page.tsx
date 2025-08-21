@@ -241,7 +241,7 @@ function BeautyAnalysisPageInner() {
                   alt="Analysis Result"
                   width={450}
                   height={280}
-                  className="h-[250px] w-[450px] object-cover rounded-xl"
+                  className="h-[250px] lg:w-[450px] w-full object-cover rounded-xl"
                   loading="lazy"
                 />
               ) : (
@@ -272,7 +272,7 @@ function BeautyAnalysisPageInner() {
                   alt="Bagikan Hasil"
                   loading="lazy"
                 />
-                <span>Bagikan Hasil</span>
+                <span>Share ke Instagram</span>
               </Button>
               <Button
                 onClick={() =>

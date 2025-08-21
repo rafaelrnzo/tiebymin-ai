@@ -102,25 +102,33 @@ function StoryPage() {
       setError(null);
       const result = await generateStory();
       if (result.data) {
-        const url = window.URL.createObjectURL(result.data);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `story-tiebymin-${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        showToast("Story berhasil diunduh!", "success");
-        setTimeout(() => {
-          window.open("https://www.instagram.com", "_blank");
-        }, 1000);
+        const file = new File(
+          [result.data],
+          `story-tiebymin-${Date.now()}.png`,
+          { type: "image/png" }
+        );
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "Tie By Min Story",
+            text: "Coba AI Fashion Analysis aku!",
+          });
+        } else {
+          // fallback ke download biasa
+          const url = URL.createObjectURL(file);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = file.name;
+          link.click();
+          URL.revokeObjectURL(url);
+          showToast("Story berhasil diunduh!", "success");
+        }
       }
     } catch (error) {
-      console.error("Error downloading PNG:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Gagal mengunduh story";
-      setError(errorMessage);
-      showToast(errorMessage, "error");
+      console.error("Error sharing PNG:", error);
+      setError("Gagal membagikan story");
+      showToast("Gagal membagikan story", "error");
     } finally {
       setIsGenerating(false);
     }
