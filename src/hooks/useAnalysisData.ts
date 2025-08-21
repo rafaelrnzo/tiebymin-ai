@@ -389,7 +389,7 @@ export function useGenerateStory() {
 
       return await response.blob();
     },
-    enabled: false, // This query will not run automatically
+    enabled: false, 
   });
 }
 
