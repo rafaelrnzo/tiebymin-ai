@@ -29,7 +29,7 @@ const ColorCombinationDisplay = ({
 }: {
   combinations: string[][];
 }) => (
-  <div className="flex items-center gap-4">
+  <div className="flex flex-wrap items-center gap-4">
     {combinations.map((group, groupIndex) => (
       <div key={groupIndex} className="flex items-center">
         {group.map((color, colorIndex) => (
@@ -280,13 +280,13 @@ const AnalysisDashboard: React.FC = () => {
   return (
     <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[200px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-10">
           <FaceShapeCard />
           <ColorToneCard />
           <BodyShapeCard />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-10 mt-4">
           <CelebrityCard />
           <RecommendationContainer />
         </div>

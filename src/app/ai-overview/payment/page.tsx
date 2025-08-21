@@ -36,25 +36,19 @@ const PricingCard = ({
   >
     <div className="flex items-center gap-4">
       <svg
-        width="32"
-        height="30"
-        viewBox="0 0 32 30"
+        width="26"
+        height="26"
+        viewBox="0 0 26 26"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
+        {/* --- PERUBAHAN DI SINI --- */}
         <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M27.0024 3.13645C21.242 -1.46764 18.1972 7.6494 18.1972 7.6494C18.1972 1.08512 11.1019 -1.72544 6.9055 1.08513C2.74732 3.87007 3.26438 10.3845 9.30235 13.2563C2.11185 14.5783 -3.21468 21.8263 2.24875 27.5245C8.90012 34.4616 15.0096 24.9287 16.9307 21.9311C16.9537 21.8952 16.976 21.8603 16.9978 21.8263C21.1485 29.9861 27.5056 29.9104 30.4121 25.382C36.4978 15.9003 23.1293 12.527 23.1293 12.527C23.1293 12.527 34.3547 9.01281 27.0024 3.13645ZM20.3992 13.2357C20.8831 12.952 26.0973 9.81087 23.4972 7.6494C20.3168 5.00547 17.8738 10.9771 17.8738 10.9771C17.8738 10.9771 14.509 4.05734 10.9136 6.19068C7.31831 8.32402 11.9738 13.9401 11.9738 13.9401C8.10197 14.8518 5.2844 20.2544 8.1027 22.3278C13.8654 26.5672 16.9978 19.5015 16.9978 19.5015C16.9978 19.5015 21.5605 25.9746 25.341 21.3705C29.0845 16.8114 21.6635 12.5853 20.3992 13.2357Z"
-          fill="#F0F0F0"
-        />
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M16.5392 10.9315C13.9817 10.7503 12.4461 12.639 12.4829 14.7606C12.5197 16.8823 14.4275 18.576 16.5392 18.4986C18.5749 18.424 19.9501 16.6752 19.9501 14.7606C19.9501 12.846 19.0966 11.1127 16.5392 10.9315ZM14.9719 14.7606C15.0584 13.756 15.7043 12.8718 16.7235 12.8461C17.7672 12.8197 18.4908 13.7309 18.5673 14.7606C18.654 15.9299 17.7153 17.1406 16.5392 16.9943C15.474 16.8619 14.8809 15.8185 14.9719 14.7606Z"
-          fill="#F0F0F0"
+          d="M9.38266 4.81C10.1302 2.6225 13.1527 2.55625 14.0389 4.61125L14.1139 4.81125L15.1227 7.76125C15.3538 8.43779 15.7274 9.05689 16.2182 9.57678C16.709 10.0967 17.3055 10.5053 17.9677 10.775L18.2389 10.8762L21.1889 11.8838C23.3764 12.6313 23.4427 15.6537 21.3889 16.54L21.1889 16.615L18.2389 17.6238C17.5621 17.8548 16.9428 18.2283 16.4227 18.7191C15.9026 19.2099 15.4938 19.8065 15.2239 20.4688L15.1227 20.7388L14.1152 23.69C13.3677 25.8775 10.3452 25.9438 9.46016 23.89L9.38266 23.69L8.37516 20.74C8.14413 20.0632 7.77062 19.4439 7.27984 18.9238C6.78905 18.4037 6.1924 17.9949 5.53016 17.725L5.26016 17.6238L2.31016 16.6162C0.12141 15.8687 0.0551599 12.8462 2.11016 11.9612L2.31016 11.8838L5.26016 10.8762C5.9367 10.6451 6.5558 10.2715 7.07569 9.78071C7.59558 9.28993 8.00417 8.69336 8.27391 8.03125L8.37516 7.76125L9.38266 4.81ZM21.7489 0.5C21.9828 0.5 22.2119 0.565598 22.4103 0.689339C22.6088 0.813081 22.7685 0.990003 22.8714 1.2L22.9314 1.34625L23.3689 2.62875L24.6527 3.06625C24.887 3.14587 25.0925 3.29327 25.2429 3.48977C25.3934 3.68627 25.4822 3.92302 25.498 4.17003C25.5138 4.41703 25.4559 4.66316 25.3317 4.87723C25.2074 5.0913 25.0225 5.26367 24.8002 5.3725L24.6527 5.4325L23.3702 5.87L22.9327 7.15375C22.8529 7.38804 22.7054 7.59337 22.5088 7.74374C22.3122 7.89411 22.0755 7.98274 21.8285 7.9984C21.5815 8.01407 21.3354 7.95606 21.1214 7.83172C20.9074 7.70739 20.7351 7.52233 20.6264 7.3L20.5664 7.15375L20.1289 5.87125L18.8452 5.43375C18.6108 5.35413 18.4054 5.20673 18.2549 5.01023C18.1044 4.81373 18.0156 4.57698 17.9998 4.32997C17.984 4.08297 18.0419 3.83684 18.1661 3.62277C18.2904 3.4087 18.4754 3.23633 18.6977 3.1275L18.8452 3.0675L20.1277 2.63L20.5652 1.34625C20.6494 1.09928 20.8089 0.884886 21.0212 0.733124C21.2335 0.581361 21.488 0.499843 21.7489 0.5Z"
+          fill={isFeatured ? "white" : "#323232"}
         />
       </svg>
+
       <span className="font-semibold">{tag}</span>
     </div>
     <div className="my-4">
@@ -195,7 +189,12 @@ export default function PaymentPage() {
               </svg>
             </button>
           </Link>
-          <Image src="/tie-by-min-logo.png" alt="Logo" width={99} height={40} />
+          <Image
+            src="/vector/tie-by-min-logo.svg"
+            alt="Logo"
+            width={99}
+            height={40}
+          />
         </header>
 
         <AnimatePresence mode="wait">
@@ -248,7 +247,6 @@ export default function PaymentPage() {
                 </p>
               </div>
 
-              {/* Kolom Kanan: Kartu Harga */}
               <motion.div
                 layout
                 className="lg:w-3/5 flex flex-col sm:flex-row gap-6 items-center justify-center"
@@ -304,7 +302,7 @@ export default function PaymentPage() {
                     placeholder="masukan kode promo"
                     className="flex-grow border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#EF789B]"
                   />
-                  <button className="bg-[#323232] text-white font-semibold px-6 rounded-lg hover:bg-black">
+                  <button className="bg-[#323232] text-white font-semibold px-6 rounded-lg hover:bg-black shadow-md">
                     Gunakan
                   </button>
                 </div>
@@ -313,12 +311,12 @@ export default function PaymentPage() {
                     <p>Pembelian produk - Tiebymin AI Premium</p>
                   </div>
                   <div className="flex justify-between text-gray-500">
-                    <p>Subtotal</p>
-                    <p>Rp 16,000</p>
+                    <p className="font-bold text-[#323232]">Subtotal</p>
+                    <p className="text-[#323232]/30">Rp 16,000</p>
                   </div>
                   <div className="flex justify-between text-gray-500">
-                    <p>Diskon Pesanan</p>
-                    <p>-Rp 6,000</p>
+                    <p className="font-bold text-[#323232]">Diskon Pesanan</p>
+                    <p className="text-[#323232]/30">-Rp 6,000</p>
                   </div>
                 </div>
                 <div className="mt-8 pt-4 border-t flex justify-between items-center bg-[#EF789B] text-white p-4 rounded-lg">
@@ -326,7 +324,7 @@ export default function PaymentPage() {
                   <span className="text-2xl font-bold">Rp 10,000</span>
                 </div>
               </div>
-              <div className="border-l border-[#323232]"></div>
+              <div className="border-l border-[#323232]/50 my-10"></div>
               <div className="p-8 rounded-2xl flex flex-col w-full">
                 <h2 className="text-2xl font-bold mb-6">Informasi Kontak</h2>
                 <input

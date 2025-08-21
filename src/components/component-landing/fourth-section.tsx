@@ -41,7 +41,7 @@ const FaqSection = () => {
     <section className="bg-white px-4 sm:px-10 lg:px-[200px]">
       <div className="container mx-auto">
         <hr className="mb-[100px]" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-24 gap-6 items-center">
+        <div className="grid grid-cols-1 xl:grid-cols-2 lg:gap-24 gap-6 items-center">
           <div className="flex flex-col">
             <p className="text-2xl sm:text-3xl font-handlee italic">
               Sempurna Untuk
