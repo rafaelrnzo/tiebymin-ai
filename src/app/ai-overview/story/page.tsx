@@ -12,7 +12,7 @@ import {
   useGenerateStory,
 } from "@/hooks/useAnalysisData";
 
-import StoryPoster from "@/components/story-components";
+import StoryPoster from "@/components/story-components/story-poster-story";
 import { defaultUserData } from "@/lib/mock-data";
 
 function StoryPage() {
