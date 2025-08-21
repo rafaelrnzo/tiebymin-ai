@@ -404,14 +404,14 @@ export const ColorTone = ({
               <div
                 key={idx}
                 className="flex overflow-hidden shadow-md"
-                style={{ width: 100, height: 28 }}
+                style={{ width: 130, height: 28 }}
               >
                 {pair.map((color, subIdx) => (
                   <div
                     key={subIdx}
                     style={{
                       backgroundColor: color,
-                      width: "50%",
+                      width: "100%",
                       height: "100%",
                     }}
                   />
