@@ -43,6 +43,13 @@ const testimonials: Testimonial[] = [
     author: "Rina Setyawati",
     badgeType: "success",
   },
+  {
+    type: "text",
+    content:
+      '"Sebagai orang yang buta fashion, aplikasi ini penyelamat. Cuma butuh satu foto dan semua rekomendasi langsung muncul. Super praktis!"',
+    author: "Aisha Kamilia",
+    badgeType: "highlight",
+  },
 ];
 
 const AuthorBadge: React.FC<{
@@ -112,8 +119,8 @@ export const ThirdSection = () => {
   };
 
   return (
-    <section id="testimoni">
-      <div className="container mx-auto px-4 sm:px-10 lg:px-[130px]">
+    <section id="testimoni px-[200px] md:px-0 lg:px-[180px]">
+      <div className="container mx-auto ">
         <hr className="mt-[100px] mb-[80px]" />
 
         <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-[70px]">

@@ -57,7 +57,7 @@ export const SecondSection = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               <div className="bg-[#323232] p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
                 <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
                   {"<"}2m

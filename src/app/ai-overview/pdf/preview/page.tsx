@@ -1,14 +1,13 @@
 "use client";
 import { Navbar } from "@/components/component-landing/navbar";
-import {
-  BackCover,
-  BodyShape,
-  CelebritiesMatch,
-  ColorTone,
-  Conclusion,
-  Cover,
-  FaceShape,
-} from "@/components/pdf-components";
+import { BackCover } from "@/components/pdf-components/backcover-pdf";
+import { BodyShape } from "@/components/pdf-components/bodyshape-pdf";
+import { CelebritiesMatch } from "@/components/pdf-components/celebrities-pdf";
+import { ColorTone } from "@/components/pdf-components/colortone-pdf";
+import { Conclusion } from "@/components/pdf-components/conclusion-pdf";
+import { Cover } from "@/components/pdf-components/cover-pdf";
+import { FaceShape } from "@/components/pdf-components/faceshape-pdf";
+import { ProductRecommendation } from "@/components/pdf-components/product-recommendation-pdf";
 import { EmailModal } from "@/components/sections/email-modal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -169,6 +168,14 @@ function PreviewPdfPage() {
           isLoading={tipsLoading}
           isError={tipsError}
         />
+      ),
+    },
+    {
+      id: "recommendation",
+      Component: resultId ? (
+        <ProductRecommendation userData={finalUserData} resultId={resultId} />
+      ) : (
+        <div />
       ),
     },
     { id: "backCover", Component: <BackCover /> },

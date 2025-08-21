@@ -39,9 +39,10 @@ export function Navbar() {
   };
 
   return (
-    <div className="mx-auto sticky lg:top-[50px] top-[25px] z-50 w-full px-4 lg:px-[200px]">
+    <div className="mx-auto sticky top-4 sm:top-6 lg:top-[25px] xl:top-[50px] z-50 w-full px-2 sm:px-4 lg:px-8 xl:px-[200px]">
       <header className="relative rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
-        <div className="hidden lg:flex items-center justify-between py-3 px-8">
+        {/* Desktop Navigation */}
+        <div className="hidden xl:flex items-center justify-between py-3 px-8">
           <div className="flex-shrink-0">
             <Link href="/">
               <Image
@@ -55,7 +56,6 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Bagian Tengah: Link Navigasi */}
           <nav className="flex items-center gap-20 justify-end">
             {navLinks.map((link) => (
               <Link
@@ -69,7 +69,6 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* Bagian Kanan: Tombol Aksi */}
           <div className="flex gap-3">
             <Link href="/login">
               <Button
@@ -94,49 +93,55 @@ export function Navbar() {
           </div>
         </div>
 
-        <div className="lg:hidden flex items-center justify-between py-3 px-4">
+        {/* Mobile/Tablet Navigation */}
+        <div className="xl:hidden flex items-center justify-between py-2 sm:py-3 px-3 sm:px-4">
           <div>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-gray-700 rounded-full"
+                  className="text-white hover:bg-gray-700 rounded-full p-1 sm:p-2"
                 >
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent
                 side="left"
-                className="bg-[#333333] text-white border-gray-600 w-[280px]"
+                className="bg-[#333333] text-white border-gray-600 w-[250px] sm:w-[280px]"
               >
-                <div className="flex flex-col space-y-6 mt-8 ml-4">
+                <div className="flex flex-col space-y-4 sm:space-y-6 mt-6 sm:mt-8 ml-2 sm:ml-4">
                   {navLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="text-lg font-medium hover:text-gray-300 transition-colors"
+                      className="text-base sm:text-lg font-medium hover:text-gray-300 transition-colors"
                       onClick={(e) => handleLinkClick(e, link.href)}
                     >
                       {link.label}
                     </Link>
                   ))}
-                  <div className="flex gap-2 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 pt-3 sm:pt-4">
                     <Link href="/login" onClick={closeSheet}>
                       <Button
-                        size="lg"
-                        className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2"
+                        size="default"
+                        className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full sm:w-auto px-4 py-2"
                       >
-                        <Sparkles className="w-4 h-4 text-white" />
-                        <span>Coba Sekarang</span>
+                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                        <span className="text-sm sm:text-base">
+                          Coba Sekarang
+                        </span>
                       </Button>
                     </Link>
-                    <Link href="/profile">
+                    <Link href="/profile" onClick={closeSheet}>
                       <Button
-                        size="lg"
-                        className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
+                        size="default"
+                        className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-4 py-2 mt-2 sm:mt-0"
                       >
-                        <User className="w-4 h-4 text-[#323232] fill-[#323232]" />
+                        <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
+                        <span className="text-sm sm:text-base text-[#323232]">
+                          Profile
+                        </span>
                       </Button>
                     </Link>
                   </div>
@@ -145,7 +150,7 @@ export function Navbar() {
             </Sheet>
           </div>
 
-          {/* Tengah: Logo */}
+          {/* Center Logo */}
           <div className="flex-1 flex justify-center">
             <Link href="/">
               <Image
@@ -154,13 +159,13 @@ export function Navbar() {
                 width={110}
                 height={26}
                 priority
-                className="h-6 w-auto"
+                className="h-5 sm:h-6 w-auto"
               />
             </Link>
           </div>
 
-          {/* Kanan: Tombol Aksi (disembunyikan agar tidak terlalu ramai, bisa juga diganti dengan icon jika perlu) */}
-          <div className="w-10 h-10">
+          {/* Right spacer for mobile balance */}
+          <div className="w-8 sm:w-10 h-8 sm:h-10">
             {/* Placeholder untuk menjaga logo tetap di tengah */}
           </div>
         </div>

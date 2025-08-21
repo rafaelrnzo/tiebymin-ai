@@ -1,0 +1,139 @@
+import {
+  BmiCategory,
+  BodyShapeData,
+  ColorAnalysis as ColorTone,
+  FaceShape,
+  UserData,
+} from "@/types";
+import Image from "next/image";
+import { StoryHeader } from "./story-header-story";
+import { StoryQRSection } from "./story-qr-section-story";
+import { StoryFaceShape } from "./story-faceshape-story";
+import { StoryColorTone } from "./story-colortone-story";
+import { StoryBodyShape } from "./story-bodyshape-story";
+
+const generateGimmickChartData = (
+  mainShapeName: string
+): { label: string; value: number; active: boolean }[] => {
+  const allShapes = ["Square", "Oblong", "Oval", "Round", "Heart", "Diamond"];
+  const shapeNameMap: { [key: string]: string } = {
+    Hati: "Heart",
+    Oblong: "Oblong",
+    Oval: "Oval",
+    Bulat: "Round",
+    Kotak: "Square",
+    Diamond: "Diamond",
+  };
+  const englishMainShapeName = shapeNameMap[mainShapeName] || mainShapeName;
+  const mainValue = Math.floor(Math.random() * 11) + 85;
+  const remainingValue = 100 - mainValue;
+
+  const otherValues = Array.from({ length: allShapes.length - 1 }, () => {
+    const randomValue = Math.random();
+    return randomValue;
+  });
+  const sumOfRandoms = otherValues.reduce((a, b) => a + b, 0);
+  const normalizedValues = otherValues.map((v) =>
+    Math.round((v / sumOfRandoms) * remainingValue)
+  );
+
+  const currentSum = normalizedValues.reduce((a, b) => a + b, 0);
+  const diff = remainingValue - currentSum;
+  if (normalizedValues.length > 0) normalizedValues[0] += diff;
+
+  const chartData: { label: string; value: number; active: boolean }[] = [];
+  let otherIndex = 0;
+  allShapes.forEach((shapeName) => {
+    if (shapeName.toLowerCase() === englishMainShapeName.toLowerCase()) {
+      chartData.push({ label: shapeName, value: mainValue, active: true });
+    } else {
+      chartData.push({
+        label: shapeName,
+        value: normalizedValues[otherIndex++] || 0,
+        active: false,
+      });
+    }
+  });
+
+  return chartData;
+};
+
+interface StoryPosterProps {
+  userData: UserData;
+  userPhotoUrl: string | null;
+  handleDownloadStory: () => void;
+  bodyDetails?: BodyShapeData;
+  bmiCategoryDetails?: BmiCategory;
+  isGenerating: boolean;
+  colorToneDetails?: ColorTone;
+  faceShapeDetails?: FaceShape;
+}
+
+export default function StoryPoster({
+  userData,
+  userPhotoUrl,
+  handleDownloadStory,
+  bodyDetails,
+  bmiCategoryDetails,
+  isGenerating,
+  colorToneDetails,
+  faceShapeDetails,
+}: StoryPosterProps) {
+  const faceShapeAnalysisData = generateGimmickChartData(userData.faceShape);
+  console.log(userData, userPhotoUrl);
+  const penjelasanLengkap = faceShapeDetails?.penjelasan_face_shape || "";
+
+  const kalimatUtama = penjelasanLengkap.split("-")[0].trim();
+
+  return (
+    <div
+      className="bg-white text-gray-800 w-[1080px] mx-auto p-8 font-sans"
+      style={{ lineHeight: 1.4 }}
+    >
+      <div className="m-[100px]">
+        <StoryHeader userName={userData.name} />
+        <hr className="mb-10" />
+
+        <div className="flex gap-5 mb-6">
+          <div className="w-[322px] rounded-lg">
+            <Image
+              src={userPhotoUrl || "/model.png"}
+              alt="User Photo"
+              width={322}
+              height={400}
+              className="object-cover h-[400px] rounded-lg"
+            />
+          </div>
+
+          <StoryQRSection
+            handleDownloadStory={handleDownloadStory}
+            isGenerating={isGenerating}
+          />
+        </div>
+
+        <hr className="mt-10" />
+
+        <StoryFaceShape
+          faceShapeAnalysisData={faceShapeAnalysisData}
+          userData={userData}
+          kalimatUtama={kalimatUtama}
+        />
+
+        <hr className="mb-8" />
+
+        <StoryColorTone
+          userData={userData}
+          colorToneDetails={colorToneDetails}
+        />
+
+        <hr className="mb-14" />
+
+        <StoryBodyShape
+          userData={userData}
+          bodyDetails={bodyDetails}
+          bmiCategoryDetails={bmiCategoryDetails}
+        />
+      </div>
+    </div>
+  );
+}
