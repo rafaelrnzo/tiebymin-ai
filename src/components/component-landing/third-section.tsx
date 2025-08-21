@@ -112,7 +112,7 @@ export const ThirdSection = () => {
   };
 
   return (
-    <section id="testimoni" className="py-12 sm:py-16">
+    <section id="testimoni">
       <div className="container mx-auto px-4 sm:px-10 lg:px-[130px]">
         <hr className="mt-[100px] mb-[80px]" />
 
@@ -124,7 +124,7 @@ export const ThirdSection = () => {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative mb-[100px]">
           <div
             ref={scrollRef}
             className="flex space-x-6 overflow-x-auto pb-4 scroll-smooth scrollbar-hide"

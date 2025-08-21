@@ -5,11 +5,11 @@ export const SecondSection = () => {
   return (
     <section
       id="tutorial"
-      className="bg-white px-4 sm:px-10 lg:px-[200px] py-12 sm:py-16"
+      className="bg-white px-4 sm:px-10 lg:px-[200px] mb-[100px]"
     >
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
-          <div className="lg:col-span-5 relative w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden shadow-xl cursor-pointer group">
+          <div className="lg:col-span-5 relative w-full h-full sm:h-80 md:h-full rounded-xl overflow-hidden shadow-xl cursor-pointer group">
             <Image
               src="/video-thumbnail.png"
               alt="Video thumbnail of fashion analysis"
@@ -38,7 +38,7 @@ export const SecondSection = () => {
                 </div>
               </a>
 
-              <div className="flex flex-col lg:-space-y-4">
+              <div className="flex flex-col lg:space-y-4">
                 <h2 className="font-oswald text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
                   Cuman
                 </h2>
