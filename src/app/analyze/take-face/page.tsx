@@ -12,6 +12,23 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 
+// HELPER HOOK: (Tidak ada perubahan)
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const media = window.matchMedia(query);
+      if (media.matches !== matches) {
+        setMatches(media.matches);
+      }
+      const listener = () => setMatches(media.matches);
+      window.addEventListener("resize", listener);
+      return () => window.removeEventListener("resize", listener);
+    }
+  }, [matches, query]);
+  return matches;
+};
+
 const INSTRUCTION_CARDS = [
   {
     title: "Lepaskan Kacamata",
@@ -57,6 +74,7 @@ export default function FaceScanPrepPage() {
   const router = useRouter();
   const { analysisData } = useAnalysis();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -70,6 +88,13 @@ export default function FaceScanPrepPage() {
     analysisData: analysisHookData?.rawAnalysisData,
     enabled: !!analysisHookData?.rawAnalysisData,
   });
+
+  // Data untuk stepper mobile
+  const steps = [
+    { number: "01", title: "Buat Akun", active: false },
+    { number: "02", title: "Lengkapi Data", active: false },
+    { number: "03", title: "Analisa", active: true },
+  ];
 
   useEffect(() => {
     if (analysisResultId && analysisHookData?.userData && allTipsData) {
@@ -191,7 +216,7 @@ export default function FaceScanPrepPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[url('/login-bg.png')] px-4 py-6 sm:p-8 flex items-center justify-center font-sans">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center relative bg-[url('/login-bg.png')] bg-cover bg-center">
       {/* CSS untuk Animasi Bintang */}
       <style jsx global>{`
         @keyframes rotate-sparkle {
@@ -214,94 +239,237 @@ export default function FaceScanPrepPage() {
         }
       `}</style>
 
-      <div className="w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-3 gap-12 items-start">
-        <div className="lg:col-span-1 lg:order-1">
-          <LeftSideSection
-            currentStep={3}
-            title="Scan Wajah Kamu"
-            description="Kami butuh foto selfie-mu biar bisa analisis bentuk wajah dan warna kulit dengan akurat. Dengan begitu, rekomendasi hijab yang kami kasih bisa lebih sesuai."
-          />
-        </div>
+      {isDesktop ? (
+        <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center">
+          <div className="lg:col-span-1 lg:order-1">
+            <LeftSideSection
+              currentStep={3}
+              title="Scan Wajah Kamu"
+              description="Kami butuh foto selfie-mu biar bisa analisis bentuk wajah dan warna kulit dengan akurat. Dengan begitu, rekomendasi hijab yang kami kasih bisa lebih sesuai."
+            />
+          </div>
 
-        {/* Right Column - Instructions */}
-        <div className="w-full lg:col-span-2 lg:order-2 flex flex-col items-center lg:items-start mt-10 lg:mt-12">
-          <div className="w-full flex justify-between items-center mb-8 sm:mb-10">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-oswald font-bold text-[#333333] text-center lg:text-left">
-              Siapkan Wajahmu
-            </h1>
-            <div className="hidden sm:flex items-center gap-2 bg-[#EF789B] rounded-full px-4 py-2 shadow-md">
-              <span className="text-md font-bold text-white font-poppins">
-                AI Powered
-              </span>
-              <Image
-                src="/stars.png"
-                alt="stars"
-                width={20}
-                height={20}
-                className="sparkle-animation text-white fill-white"
-              />
+          {/* Right Column - Instructions */}
+          <div className="w-full lg:col-span-2 lg:order-2 flex flex-col items-center lg:items-start mt-10 lg:mt-12">
+            <div className="w-full flex justify-between items-center mb-8 sm:mb-10">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-oswald font-bold text-[#333333] text-center lg:text-left">
+                Siapkan Wajahmu
+              </h1>
+              <div className="hidden sm:flex items-center gap-2 bg-[#EF789B] rounded-full px-4 py-2 shadow-md">
+                <span className="text-md font-bold text-white font-poppins">
+                  AI Powered
+                </span>
+                <Image
+                  src="/stars.png"
+                  alt="stars"
+                  width={20}
+                  height={20}
+                  className="sparkle-animation text-white fill-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 w-full mb-8 sm:mb-12">
+              {INSTRUCTION_CARDS.map((card, index) => (
+                <div
+                  key={index}
+                  className="bg-transparent border border-[#323232] rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between text-center space-y-3 sm:space-y-4"
+                >
+                  <h3 className="font-poppins font-bold text-base sm:text-lg text-gray-800">
+                    {card.title}
+                  </h3>
+                  <div className="h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center mb-1 sm:mb-2">
+                    <Image
+                      src={card.icon}
+                      alt={`${card.title} icon`}
+                      width={48}
+                      height={48}
+                      style={{
+                        width: "auto",
+                        height: "auto",
+                        maxWidth: "100%",
+                      }}
+                    />
+                  </div>
+
+                  <p className="font-poppins text-xs sm:text-sm text-gray-700 leading-snug">
+                    {card.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Input file tersembunyi */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/png, image/jpeg"
+            />
+
+            {/* Tombol Aksi */}
+            <div className="w-full space-y-4">
+              <Button
+                className="bg-[#323232] text-white rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                onClick={handleTakePhoto}
+              >
+                <Camera className="size-[26px] fill-white text-[#323232]" />
+                <span className="text-[16px] font-poppins">
+                  Ambil Foto Sekarang
+                </span>
+              </Button>
+              <Button
+                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                onClick={handleUploadFromGallery}
+                disabled={isApiLoading}
+              >
+                <ImageIcon className="transition-colors group-hover:text-white size-[26px]" />
+                <span className="text-[16px] font-poppins">
+                  Upload dari Galeri
+                </span>
+              </Button>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 w-full mb-8 sm:mb-12">
-            {INSTRUCTION_CARDS.map((card, index) => (
-              <div
-                key={index}
-                className="bg-transparent border border-[#323232] rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between text-center space-y-3 sm:space-y-4"
-              >
-                <h3 className="font-poppins font-bold text-base sm:text-lg text-gray-800">
-                  {card.title}
-                </h3>
-                <div className="h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center mb-1 sm:mb-2">
-                  <Image
-                    src={card.icon}
-                    alt={`${card.title} icon`}
-                    width={48}
-                    height={48}
-                    style={{ width: "auto", height: "auto", maxWidth: "100%" }}
-                  />
-                </div>
-
-                <p className="font-poppins text-xs sm:text-sm text-gray-700 leading-snug">
-                  {card.description}
-                </p>
+        </div>
+      ) : (
+        <div className="w-full mx-auto flex flex-col">
+          <LeftSideSection steps={steps} currentStepNumber={3} />
+          <div className="bg-white rounded-2xl shadow-lg p-6 mt-6">
+            {/* Header with title and AI Powered badge */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-oswald font-bold">Siapkan Wajahmu</h2>
+              <div className="flex items-center gap-2 bg-[#EF789B] rounded-full px-3 py-1 shadow-md">
+                <span className="text-sm font-bold text-white font-poppins">
+                  AI Powered
+                </span>
+                <Image
+                  src="/stars.png"
+                  alt="stars"
+                  width={16}
+                  height={16}
+                  className="sparkle-animation text-white fill-white"
+                />
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* Input file tersembunyi */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            className="hidden"
-            accept="image/png, image/jpeg"
-          />
+            {/* First row: Two cards side by side */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {INSTRUCTION_CARDS.slice(0, 2).map((card, index) => (
+                <div
+                  key={index}
+                  className="bg-transparent border border-[#323232] rounded-2xl p-3 flex flex-col items-center justify-between text-center space-y-2"
+                >
+                  <h3 className="font-poppins font-bold text-sm text-gray-800">
+                    {card.title}
+                  </h3>
+                  <div className="h-10 w-10 flex items-center justify-center mb-1">
+                    <Image
+                      src={card.icon}
+                      alt={`${card.title} icon`}
+                      width={32}
+                      height={32}
+                      style={{
+                        width: "auto",
+                        height: "auto",
+                        maxWidth: "100%",
+                      }}
+                    />
+                  </div>
 
-          {/* Tombol Aksi */}
-          <div className="w-full space-y-4">
-            <Button
-              className="bg-[#323232] text-white rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
-              onClick={handleTakePhoto}
-            >
-              <Camera className="size-[26px] fill-white text-[#323232]" />
-              <span className="text-[16px] font-poppins">
-                Ambil Foto Sekarang
-              </span>
-            </Button>
-            <Button
-              className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
-              onClick={handleUploadFromGallery}
-              disabled={isApiLoading}
-            >
-              <ImageIcon className="transition-colors group-hover:text-white size-[26px]" />
-              <span className="text-[16px] font-poppins">
-                Upload dari Galeri
-              </span>
-            </Button>
+                  <p className="font-poppins text-xs text-gray-700 leading-snug">
+                    {card.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Second row: Full width card */}
+            <div className="w-full mb-6">
+              {INSTRUCTION_CARDS.slice(2, 3).map((card, index) => (
+                <div
+                  key={index}
+                  className="bg-transparent border border-[#323232] rounded-2xl p-4 flex flex-col items-center justify-between text-center space-y-3"
+                >
+                  <h3 className="font-poppins font-bold text-base text-gray-800">
+                    {card.title}
+                  </h3>
+                  <div className="h-14 w-14 flex items-center justify-center mb-2">
+                    <Image
+                      src={card.icon}
+                      alt={`${card.title} icon`}
+                      width={48}
+                      height={48}
+                      style={{
+                        width: "auto",
+                        height: "auto",
+                        maxWidth: "100%",
+                      }}
+                    />
+                  </div>
+
+                  <p className="font-poppins text-sm text-gray-700 leading-snug">
+                    {card.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Input file tersembunyi */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/png, image/jpeg"
+            />
+
+            {/* Tombol Aksi */}
+            <div className="w-full space-y-4">
+              <Button
+                className="bg-[#323232] text-white rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                onClick={handleTakePhoto}
+              >
+                <Camera className="size-[20px] fill-white text-[#323232]" />
+                <span className="text-sm font-poppins">
+                  Ambil Foto Sekarang
+                </span>
+              </Button>
+              <Button
+                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                onClick={handleUploadFromGallery}
+                disabled={isApiLoading}
+              >
+                <ImageIcon className="transition-colors group-hover:text-white size-[20px]" />
+                <span className="text-sm font-poppins">Upload dari Galeri</span>
+              </Button>
+            </div>
+
+            {/* Privacy Policy Checkbox */}
+            <div className="mt-4 flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="privacy-policy"
+                className="mt-1 w-4 h-4 text-[#EF789B] bg-gray-100 border-gray-300 rounded focus:ring-[#EF789B] focus:ring-2"
+              />
+              <label
+                htmlFor="privacy-policy"
+                className="text-xs text-gray-600 leading-relaxed mt-1 mb-14"
+              >
+                Saya menyetujui{" "}
+                <button className="text-[#EF789B] hover:text-pink-600 underline font-medium">
+                  Kebijakan Privasi
+                </button>{" "}
+                dan{" "}
+                <button className="text-[#EF789B] hover:text-pink-600 underline font-medium">
+                  Syarat & Ketentuan
+                </button>{" "}
+                yang berlaku
+              </label>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Modal Konfirmasi Upload */}
       {selectedImage && (

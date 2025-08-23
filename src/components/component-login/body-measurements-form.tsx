@@ -4,7 +4,6 @@ import React from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
-// Komponen baru untuk input angka dengan tombol kontrol
 interface NumberInputWithControlsProps {
   label: string;
   value: string;
@@ -33,14 +32,17 @@ function NumberInputWithControls({
   };
 
   return (
-    <div className="flex flex-col flex-grow basis-0 p-2 rounded-lg hover:bg-gray-50 transition">
+    <div className="flex flex-row w-full items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition">
+      {/* Label on the far left */}
       <label
         htmlFor={id}
-        className="text-gray-700 font-medium text-xs sm:text-sm md:text-base mb-1"
+        className="text-gray-700 text-start font-medium text-xs sm:text-sm md:text-base flex-shrink-0"
       >
         {label}
       </label>
-      <div className="flex items-center gap-x-2">
+
+      {/* Input with unit in the center */}
+      <div className="flex-1 flex justify-center items-center gap-x-1">
         <Input
           id={id}
           type="number"
@@ -49,21 +51,65 @@ function NumberInputWithControls({
           className="w-16 text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         {unit && (
-          <span className="text-gray-300 font-medium w-4 sm:w-4 md:w-5">
-            {unit}
-          </span>
+          <span className="text-gray-300 font-medium text-sm">{unit}</span>
         )}
-        <div className="flex flex-col items-center justify-center">
+      </div>
+
+      {/* Buttons on the far right */}
+      <div className="flex items-center gap-x-2 flex-shrink-0">
+        {/* Mobile: Plus/Minus buttons (horizontal) */}
+        <div className="flex flex-row items-center justify-center gap-1 sm:hidden">
           <Button
             onClick={handleIncrement}
-            className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
+            className="w-6 h-6 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
           >
-            {/* SVG untuk panah atas */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="12"
               height="12"
-              className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+              className="w-3 h-3"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </Button>
+          <Button
+            onClick={handleDecrement}
+            className="w-6 h-6 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              className="w-3 h-3"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14" />
+            </svg>
+          </Button>
+        </div>
+
+        {/* Desktop: Up/Down buttons (vertical) */}
+        <div className="hidden sm:flex flex-col items-center justify-center gap-1">
+          <Button
+            onClick={handleIncrement}
+            className="w-5 h-4 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              className="w-3.5 h-3.5"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -76,14 +122,13 @@ function NumberInputWithControls({
           </Button>
           <Button
             onClick={handleDecrement}
-            className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
+            className="w-5 h-4 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
           >
-            {/* SVG untuk panah bawah */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="12"
               height="12"
-              className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+              className="w-3.5 h-3.5"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
