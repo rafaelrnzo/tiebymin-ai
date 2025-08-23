@@ -39,8 +39,8 @@ export function Navbar() {
   };
 
   return (
-    <div className="mx-auto sticky top-4 sm:top-6 lg:top-[25px] xl:top-[50px] z-50 w-full px-2 sm:px-4 lg:px-8 xl:px-[200px]">
-      <header className="relative rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
+    <div className="mx-auto sticky top-0  lg:top-[25px] xl:top-[50px] z-50 w-full px-0 sm:px-4 lg:px-8 xl:px-[200px]">
+      <header className="relative rounded-none lg:py-0 py-3 lg:rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
         {/* Desktop Navigation */}
         <div className="hidden xl:flex items-center justify-between py-3 px-8">
           <div className="flex-shrink-0">
@@ -93,8 +93,23 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile/Tablet Navigation */}
+        {/* ====================================================== */}
+        {/* Mobile/Tablet Navigation (BAGIAN YANG DIPERBAIKI) */}
+        {/* ====================================================== */}
         <div className="xl:hidden flex items-center justify-between py-2 sm:py-3 px-3 sm:px-4">
+          {/* 1. Logo di sebelah kiri */}
+          <Link href="/">
+            <Image
+              src="/tie-by-min-logo-light.png" // Menggunakan logo terang agar kontras
+              alt="Tiebymin Logo"
+              width={100}
+              height={24}
+              priority
+              className="h-8 w-auto" // Ukuran disesuaikan
+            />
+          </Link>
+
+          {/* 2. Ikon Menu di sebelah kanan */}
           <div>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
@@ -103,7 +118,7 @@ export function Navbar() {
                   size="icon"
                   className="text-white hover:bg-gray-700 rounded-full p-1 sm:p-2"
                 >
-                  <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent
@@ -148,25 +163,6 @@ export function Navbar() {
                 </div>
               </SheetContent>
             </Sheet>
-          </div>
-
-          {/* Center Logo */}
-          <div className="flex-1 flex justify-center">
-            <Link href="/">
-              <Image
-                src="/tiebymin-logo.png"
-                alt="Tiebymin Logo"
-                width={110}
-                height={26}
-                priority
-                className="h-5 sm:h-6 w-auto"
-              />
-            </Link>
-          </div>
-
-          {/* Right spacer for mobile balance */}
-          <div className="w-8 sm:w-10 h-8 sm:h-10">
-            {/* Placeholder untuk menjaga logo tetap di tengah */}
           </div>
         </div>
       </header>

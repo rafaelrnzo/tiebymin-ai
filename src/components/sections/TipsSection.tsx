@@ -18,11 +18,11 @@ const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
       <div className="mb-3">
         <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
       </div>
-      <h3 className="font-bold font-handlee italic text-[#323232] mt-1 mb-3 text-xl">
+      <h3 className="font-bold font-handlee italic text-[#323232] mt-1 mb-3 text-base sm:text-xl">
         {category}
       </h3>
     </div>
-    <span className="text-[#323232] font-poppins lg:text-xl text-xs leading-relaxed space-y-2">
+    <span className="text-[#323232] font-poppins text-sm sm:text-base lg:text-xl leading-relaxed space-y-2">
       {tip}
     </span>
   </div>
@@ -44,13 +44,15 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
 
   if (isLoading) {
     return (
-      <div className="text-center p-8">Merangkum tips terbaik untukmu...</div>
+      <div className="text-center p-8 text-sm sm:text-base">
+        Merangkum tips terbaik untukmu...
+      </div>
     );
   }
 
   if (isError || error) {
     return (
-      <div className="text-center p-8 text-red-500">
+      <div className="text-center p-8 text-red-500 text-sm sm:text-base">
         {error?.message || "Gagal memuat rangkuman tips."}
       </div>
     );
@@ -58,7 +60,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
 
   if (!allTips) {
     return (
-      <div className="text-center p-8">
+      <div className="text-center p-8 text-sm sm:text-base">
         Tidak ada tips yang bisa ditampilkan.
       </div>
     );
@@ -93,11 +95,11 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
               alt="Tips & Trick Icon"
             />
           </div>
-          <h3 className="font-bold font-handlee italic text-[#323232] mt-1 mb-3 text-xl">
+          <h3 className="font-bold font-handlee italic text-[#323232] mt-1 mb-3 text-base sm:text-xl">
             Tips Makeup & BMI
           </h3>
         </div>
-        <div className="text-[#323232] lg:text-xl text-xs leading-relaxed">
+        <div className="text-[#323232] text-sm sm:text-base lg:text-xl leading-relaxed">
           <div className="text">
             <strong>Makeup:</strong> {allTips.makeupTip}
           </div>

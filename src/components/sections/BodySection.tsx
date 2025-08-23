@@ -40,83 +40,82 @@ const BodySection: React.FC<BodySectionProps> = ({
   };
 
   if (isLoading)
-    return <div className="text-center p-8">Loading body information...</div>;
+    return <div className="text-center p-8 text-base sm:text-lg">Loading body information...</div>;
   if (error)
     return (
-      <div className="text-center p-8 text-red-500">
+      <div className="text-center p-8 text-red-500 text-base sm:text-lg">
         {error.message || "An error occurred"}
       </div>
     );
   if (!bodyDetails || !bmiCategoryDetails)
-    return <div className="text-center p-8">Data tubuh tidak ditemukan.</div>;
+    return <div className="text-center p-8 text-base sm:text-lg">Data tubuh tidak ditemukan.</div>;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-[20px] lg:gap-[50px]">
-      <div className="rounded-2xl border p-6 flex flex-col col-span-2">
-        <h3 className="font-bold text-5xl font-oswald">{bodyDetails.name}</h3>
-        <div className="flex justify-center my-6 flex-shrink-0">
+    <div className="flex flex-col lg:flex-row w-full gap-5 lg:gap-[50px]">
+      <div className="flex-1 rounded-2xl border p-4 lg:p-6">
+        <h3 className="font-bold text-2xl sm:text-3xl lg:text-5xl font-oswald">{bodyDetails.name}</h3>
+        <div className="flex justify-center my-4 sm:my-6 flex-shrink-0">
           <Image
             src={bodyDetails.link_picture}
             alt={`${bodyDetails.name} body type`}
             width={150}
-            height={280} // Menyesuaikan tinggi agar lebih proporsional
-            className="object-contain h-[280px]"
+            height={280}
+            className="object-contain h-[180px] sm:h-[220px] lg:h-[280px]"
             priority
           />
         </div>
-        <p className="lg:text-xl text-xs mt-6">
+        <p className="text-sm sm:text-base lg:text-xl mt-4 sm:mt-6">
           {bodyDetails.penjelasan_body_shape}
         </p>
       </div>
 
-      <div className="col-span-2 space-y-[20px] lg:space-y-[50px] w-full">
-        <div className="border border-neutral-600 w-full max-w-full rounded-2xl p-6 sm:p-8 text-[#323232]">
-          <h3 className="font-bold text-4xl sm:text-5xl font-oswald">
-            BMI Analyst
-          </h3>
-          <hr className="my-4 border-neutral-300" />
+      <div className="flex-1 space-y-4 lg:space-y-6">
+        <div className="grid grid-cols-1 gap-4 lg:gap-6">
+          <div className="border border-neutral-600 w-full max-w-full rounded-2xl p-4 lg:p-8 text-[#323232]">
+            <h3 className="font-bold text-lg sm:text-2xl lg:text-5xl font-oswald">
+              BMI Analyst
+            </h3>
+            <hr className="my-3 sm:my-4 border-neutral-300" />
 
-          <div className="flex items-center gap-6">
-            <div className="flex-shrink-0">
-              <div className="rounded-full border-2 border-[#EC7498] p-1">
-                <div className="rounded-full border border-neutral-600 w-24 h-24 flex items-center justify-center">
-                  <p className="text-lg font-bold">
-                    {formatBmiValue(bmiResult?.value)}
-                  </p>
+            <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
+              <div className="flex-shrink-0">
+                <div className="rounded-full border-2 border-[#EC7498] p-1">
+                  <div className="rounded-full border border-neutral-600 w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 flex items-center justify-center">
+                    <p className="text-sm sm:text-lg lg:text-2xl font-bold">
+                      {formatBmiValue(bmiResult?.value)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="font-bold lg:text-xl text-xs">
-                {bmiCategoryDetails.kategori}
-              </span>
-              <p className="text-[#323232] lg:text-xl text-xs leading-relaxed font-poppins">
-                {bmiCategoryDetails.tips_fashion}
-              </p>
+              <div className="flex flex-col text-left">
+                <span className="font-bold text-sm sm:text-base lg:text-xl">
+                  {bmiCategoryDetails.kategori}
+                </span>
+                <p className="text-[#323232] text-xs sm:text-sm lg:text-xl leading-relaxed font-poppins">
+                  {bmiCategoryDetails.tips_fashion}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-[#FFC6C6] shadow-md rounded-2xl p-6 w-full max-w-full">
-          <h3 className="italic font-handlee mb-3 text-xl text-center">
-            Karakteristik
-          </h3>
-          {bodyDetails?.karakteristik
-            ?.split("-")
-            .filter((point: string) => point.trim() !== "")
-            .map(
-              (
-                point: string,
-                index: number // index harusnya number
-              ) => (
-                <p
-                  key={index}
-                  className="lg:text-xl text-xs text-[#323232] font-poppins"
-                >
-                  • {point.trim()}
-                </p>
-              )
-            )}
+          <div className="bg-[#FFC6C6] shadow-md rounded-2xl p-4 lg:p-6 w-full max-w-full">
+            <h3 className="italic font-handlee mb-2 sm:mb-3 text-base sm:text-lg lg:text-xl text-center">
+              Karakteristik
+            </h3>
+            <div className="grid grid-cols-1 gap-1">
+              {bodyDetails?.karakteristik
+                ?.split("-")
+                .filter((point: string) => point.trim() !== "")
+                .map((point: string, index: number) => (
+                  <p
+                    key={index}
+                    className="text-xs sm:text-sm lg:text-xl text-[#323232] font-poppins"
+                  >
+                    • {point.trim()}
+                  </p>
+                ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
