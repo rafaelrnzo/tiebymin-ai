@@ -14,6 +14,7 @@ interface PricingCardProps {
   description: string;
   features: string[];
   onButtonClick: () => void;
+  className?: string;
 }
 
 const PricingCard = ({
@@ -24,11 +25,12 @@ const PricingCard = ({
   description,
   features,
   onButtonClick,
+  className = "",
 }: PricingCardProps) => (
   <motion.div
     layout
     transition={{ duration: 0.5, type: "spring", stiffness: 300, damping: 30 }}
-    className={`w-full rounded-2xl p-8 flex flex-col ${
+    className={`w-full rounded-2xl p-8 flex flex-col ${className} ${
       isFeatured
         ? "bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] text-white scale-105 z-10 shadow-2xl"
         : "bg-white border border-gray-300 text-[#323232] scale-95 opacity-80"
@@ -264,20 +266,22 @@ export default function PaymentPage() {
                       {...normalPlan}
                       isFeatured={false}
                       onButtonClick={handleProceedToPayment}
+                      className="hidden lg:block"
                     />
                   </>
                 ) : (
                   <>
                     <PricingCard
+                      key="promo"
+                      {...promoPlan}
+                      isFeatured={false}
+                      onButtonClick={handleProceedToPayment}
+                      className="hidden lg:block"
+                    />
+                    <PricingCard
                       key="normal"
                       {...normalPlan}
                       isFeatured={false}
-                      onButtonClick={handleProceedToPayment}
-                    />
-                    <PricingCard
-                      key="promo"
-                      {...promoPlan}
-                      isFeatured={true}
                       onButtonClick={handleProceedToPayment}
                     />
                   </>

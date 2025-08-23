@@ -1,35 +1,20 @@
 "use client";
 
 import LeftSideSection from "@/components/component-login/left-side-section";
-import { Button } from "@/components/ui/button";
+import { ErrorModal } from "@/components/sections/error-modal";
 import { secureUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ErrorModal } from "@/components/sections/error-modal";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [formData, setFormData] = useState({
     email: "",
-    first_name: "",
-    last_name: "",
-    phone_number: 0,
+    password: "",
   });
-
-  const generateUUID = () => {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-      /[xy]/g,
-      function (c) {
-        const r = (Math.random() * 16) | 0;
-        const v = c == "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      }
-    );
-  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -41,13 +26,11 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
     try {
-      const uniqueGoogleId = generateUUID();
-
-      const endpoint = secureUrl(`/v1/users/`);
-      console.log("fetch endpoint:", endpoint);
+      // Assuming there's a login endpoint - adjust the endpoint as needed
+      const endpoint = secureUrl(`/v1/auth/login`);
+      console.log("Login endpoint:", endpoint);
 
       let response;
       try {
@@ -60,12 +43,7 @@ export default function LoginPage() {
           redirect: "follow",
           body: JSON.stringify({
             email: formData.email,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            google_id: uniqueGoogleId,
-            is_active: true,
-            phone_number: formData.phone_number,
-            password: "qweqweasd",
+            password: formData.password,
           }),
         });
       } catch (fetchErr) {
@@ -78,37 +56,52 @@ export default function LoginPage() {
       }
 
       if (!response.ok) {
-        let errorMsg =
-          "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
+        let errorMsg = "Login gagal. Periksa email dan password Anda.";
         try {
           const errorData = await response.json();
           errorMsg = errorData.message || errorMsg;
         } catch {}
-        setErrorModalMessage(
-          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti."
-        );
+        setErrorModalMessage(errorMsg);
         setIsErrorModalOpen(true);
+        setIsLoading(false);
+        return;
       }
 
       const result = await response.json();
-      console.log("Registration successful:", result);
+      console.log("Login successful:", result);
 
-      if (result.id) {
-        localStorage.setItem("userId", result.id);
-        localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("firstName", result.first_name);
-        localStorage.setItem("lastName", result.last_name);
-        console.log(
-          "User ID saved to localStorage:",
-          result.id,
-          result.first_name,
-          result.last_name
-        );
+      // Save user data from API response
+      if (result.userId || result.id) {
+        localStorage.setItem("userId", result.userId || result.id);
       }
+      if (result.email) {
+        localStorage.setItem("userEmail", result.email);
+      }
+      if (result.name || result.full_name) {
+        localStorage.setItem("userName", result.name || result.full_name);
+      }
+      if (result.token || result.access_token) {
+        localStorage.setItem("userToken", result.token || result.access_token);
+      }
+
+      // Also save individual name fields if available
+      if (result.first_name) {
+        localStorage.setItem("firstName", result.first_name);
+      }
+      if (result.last_name) {
+        localStorage.setItem("lastName", result.last_name);
+      }
+
+      console.log("User data saved to localStorage:", {
+        userId: result.userId || result.id,
+        email: result.email,
+        name: result.name || result.full_name,
+        token: result.token || result.access_token,
+      });
 
       router.push("/analyze/first");
     } catch (err) {
-      console.error("Registration error:", err);
+      console.error("Login error:", err);
       if (
         err instanceof TypeError &&
         err.message &&
@@ -119,18 +112,10 @@ export default function LoginPage() {
         );
         setIsErrorModalOpen(true);
       } else {
-        if (
-          err instanceof Error &&
-          err.message.includes("user with this email already exists")
-        ) {
-          setErrorModalMessage("Email Anda sudah terdaftar");
-          setIsErrorModalOpen(true);
-        } else {
-          setErrorModalMessage(
-            "Maaf, Alamat email yang kamu masukan sudah di gunakan"
-          );
-          setIsErrorModalOpen(true);
-        }
+        setErrorModalMessage(
+          "Terjadi kesalahan saat login. Silakan coba lagi."
+        );
+        setIsErrorModalOpen(true);
       }
     } finally {
       setIsLoading(false);
@@ -144,8 +129,8 @@ export default function LoginPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[url('/login-bg.png')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center py-4">
-      <div className="mx-2 lg:mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+    <main className="min-h-screen bg-[url('/login-bg.png')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+      <div className="lg:mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <div className="w-full lg:flex-1 lg:max-w-[45%]">
           <LeftSideSection
             steps={steps}
@@ -153,10 +138,10 @@ export default function LoginPage() {
             showExtendedSteps={false}
           />
         </div>
-        <div className="w-full lg:flex-1 lg:max-w-[55%] px-4 sm:px-0">
-          <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-center lg:text-left">
-              Buat Akun Baru
+        <div className="w-full lg:flex-1 lg:max-w-[55%] lg:px-4">
+          <div className="bg-white/95 lg:h-full h-full backdrop-blur-sm shadow-xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
+              Login Akun
             </h2>
 
             <ErrorModal
@@ -166,56 +151,11 @@ export default function LoginPage() {
             />
 
             <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* First Name & Last Name */}
-              <div className="flex flex-col sm:flex-row w-full justify-center gap-4">
-                <div className="space-y-2 w-full">
-                  <label
-                    htmlFor="first_name"
-                    className="block text-gray-600 font-medium text-sm"
-                  >
-                    Nama Depan
-                  </label>
-                  <input
-                    id="first_name"
-                    type="text"
-                    value={formData.first_name}
-                    onChange={(e) =>
-                      handleInputChange("first_name", e.target.value)
-                    }
-                    className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                    placeholder="Masukkan nama depan"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-
-                <div className="space-y-2 w-full mt-4 sm:mt-0">
-                  <label
-                    htmlFor="last_name"
-                    className="block text-gray-600 font-medium text-sm"
-                  >
-                    Nama Belakang
-                  </label>
-                  <input
-                    id="last_name"
-                    type="text"
-                    value={formData.last_name}
-                    onChange={(e) =>
-                      handleInputChange("last_name", e.target.value)
-                    }
-                    className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                    placeholder="Masukkan nama belakang"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-
               {/* Email */}
               <div className="space-y-2">
                 <label
                   htmlFor="email"
-                  className="block text-gray-600 font-medium text-sm"
+                  className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
                   Email
                 </label>
@@ -224,41 +164,37 @@ export default function LoginPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                  className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
                   placeholder="Masukkan email"
                   required
                   disabled={isLoading}
                 />
               </div>
+
               <div className="space-y-2">
                 <label
-                  htmlFor="phone_number"
-                  className="block text-gray-600 font-medium text-sm"
+                  htmlFor="password"
+                  className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Nomor Telepon
+                  Password
                 </label>
-
-                <div className="flex items-center border-gray-300 focus-within:border-gray-600 transition-colors">
-                  <span className="text-gray-700 pl-1">+62</span>
-
-                  <input
-                    id="phone_number"
-                    type="tel"
-                    value={formData.phone_number}
-                    onChange={(e) =>
-                      handleInputChange("phone_number", e.target.value)
-                    }
-                    className="w-full border-b-gray-300 border-b-2 bg-transparent px-2 py-2 focus:outline-none focus:ring-0"
-                    placeholder="81234567890" // Placeholder diubah untuk contoh
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
+                <input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
+                  className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                  placeholder="Masukkan password"
+                  required
+                  disabled={isLoading}
+                />
               </div>
 
-              <Button
+              <button
                 type="submit"
-                className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] py-4 h-[50px] rounded-lg font-bold mt-4 transition-colors text-xl flex items-center justify-center"
+                className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -283,9 +219,66 @@ export default function LoginPage() {
                     ></path>
                   </svg>
                 ) : (
-                  "Daftar Sekarang"
+                  "Masuk"
                 )}
-              </Button>
+              </button>
+
+              <div className="flex lg:flex-row flex-col gap-4">
+                <button
+                  type="button"
+                  className="w-full text-xs lg:text-xl bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-medium transition-colors flex items-center justify-center gap-3"
+                  disabled={isLoading}
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Sign in with Google
+                </button>
+
+                <button
+                  type="button"
+                  className="w-full bg-black hover:bg-gray-800 text-white h-[40px] lg:h-[50px] rounded-lg font-medium transition-colors flex items-center justify-center gap-3 text-xs lg:text-xl"
+                  disabled={isLoading}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                  </svg>
+                  Sign in with Apple
+                </button>
+              </div>
+
+              {/* Don't have account text */}
+              <div className="text-center mt-6 mb-[10rem]">
+                <p className="text-gray-600 text-sm font-poppins">
+                  Belum punya akun?{" "}
+                  <button
+                    type="button"
+                    className="text-[#ED80A7] hover:text-pink-600 font-medium transition-colors"
+                    onClick={() => router.push("/register")}
+                  >
+                    Daftar
+                  </button>
+                </p>
+              </div>
             </form>
           </div>
         </div>
