@@ -209,7 +209,7 @@ function BeautyAnalysisPageInner() {
   }, [visitedTabs]);
 
   const resultId = searchParams.get("result_id");
-  console.log("🔍 Current resultId:", resultId); // Debug log
+  // console.log("🔍 Current resultId:", resultId); // Debug log
 
   const {
     data: analysisResult,
@@ -233,14 +233,14 @@ function BeautyAnalysisPageInner() {
   };
 
   useEffect(() => {
-    console.log("🔄 Component state updated:", {
-      resultId,
-      isLoading,
-      error,
-      userData,
-      userPhotoUrl,
-      rawAnalysisData,
-    });
+    // console.log("🔄 Component state updated:", {
+    //   resultId,
+    //   isLoading,
+    //   error,
+    //   userData,
+    //   userPhotoUrl,
+    //   rawAnalysisData,
+    // });
   }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
 
   const filteredProducts = recommendationsData
@@ -284,68 +284,33 @@ function BeautyAnalysisPageInner() {
   const renderContent = (tabId: string) => {
     const analysisData = rawAnalysisData;
     if (!analysisData) return null;
-
-    switch (tabId) {
-      case "shape":
-        return (
-          <ShapeSection
-            shapeId={analysisData.face_shape_id?.toString() || "1"}
-          />
-        );
-      case "color":
-        return (
-          <ColorToneSection
-            colorAnalysisId={analysisData.color_analysis_id?.toString() || "1"}
-          />
-        );
-      case "body":
-        return (
-          <BodySection
-            bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
-            bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
-            bmiResult={{
-              value: analysisData.analysis_details?.bmi?.value || 0,
-            }}
-          />
-        );
-      case "celebrity":
-        return (
-          <CelebrityMatchSection
-            celebrityId={
-              analysisData.celebrity_id
-                ? analysisData.celebrity_id.toString()
-                : null
-            }
-          />
-        );
-      case "tips":
-        return (
-          <TipsSection
-            analysisData={{
-              ...analysisData,
-              face_shape_id: analysisData.face_shape_id?.toString() || "1",
-              color_analysis_id:
-                analysisData.color_analysis_id?.toString() || "1",
-              body_shape_id: analysisData.body_shape_id?.toString() || "1",
-              bmi_category_id: analysisData.bmi_category_id?.toString() || "1",
-            }}
-          />
-        );
-      default:
-        return (
-          <ShapeSection
-            shapeId={analysisData.face_shape_id?.toString() || "1"}
-          />
-        );
-    }
+  
+    const content = (() => {
+      switch (tabId) {
+        case "shape":
+          return <ShapeSection shapeId={analysisData.face_shape_id?.toString() || "1"} />;
+        case "color":
+          return <ColorToneSection colorAnalysisId={analysisData.color_analysis_id?.toString() || "1"} />;
+        case "body":
+          return <BodySection bodyShapeId={analysisData.body_shape_id?.toString() || "1"} bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"} bmiResult={{ value: analysisData.analysis_details?.bmi?.value || 0 }} />;
+        case "celebrity":
+          return <CelebrityMatchSection celebrityId={analysisData.celebrity_id ? analysisData.celebrity_id.toString() : null} />;
+        case "tips":
+          return <TipsSection analysisData={{ ...analysisData, face_shape_id: analysisData.face_shape_id?.toString() || "1", color_analysis_id: analysisData.color_analysis_id?.toString() || "1", body_shape_id: analysisData.body_shape_id?.toString() || "1", bmi_category_id: analysisData.bmi_category_id?.toString() || "1" }} />;
+        default:
+          return <ShapeSection shapeId={analysisData.face_shape_id?.toString() || "1"} />;
+      }
+    })();
+  
+    return content;
   };
 
   return (
     <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col lg:flex-row justify-between w-full mb-[20px] lg:mb-10 gap-[20px] lg:gap-[50px] mt-[20px] lg:mt-[50px]">
+      <main className="max-w-7xl mx-auto px-4 py-8 lg:py-4">
+        <div className="flex flex-col lg:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 lg:gap-[50px] mt-3 md:mt-6 lg:mt-[50px]">
           <div className="bg-[#2D2D2D] h-fit lg:h-[700px] w-full lg:w-[35%] rounded-3xl p-5 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               {userPhotoUrl ? (
@@ -354,23 +319,23 @@ function BeautyAnalysisPageInner() {
                   alt="Analysis Result"
                   width={450}
                   height={280}
-                  className="h-[250px] lg:w-[450px] w-full object-cover rounded-xl"
+                  className="h-[200px] sm:h-[250px] lg:w-[450px] w-full object-cover rounded-xl"
                   loading="lazy"
                 />
               ) : (
-                <div className="h-[250px] bg-gray-200 rounded-xl flex items-center justify-center animate-pulse"></div>
+                <div className="h-[200px] sm:h-[250px] bg-gray-200 rounded-xl flex items-center justify-center animate-pulse"></div>
               )}
             </div>
-            <h2 className="text-4xl font-bold mb-3 sm:mb-4 font-handlee text-[#FFC6C6] italic">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4 font-handlee text-[#FFC6C6] italic leading-tight">
               Hi {userName}, Ini Dia
               <br />
               Hasil Analisa Kamu
             </h2>
-            <p className="text-[#f0f0f0] lg:text-xl text-xs mb-6 sm:mb-8 leading-relaxed font-poppins">
+            <p className="text-[#f0f0f0] text-sm sm:text-base lg:text-xl mb-4 sm:mb-8 leading-relaxed font-poppins">
               Dapatkan insight mendalam tentang fashion terbaik untuk kamu
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
-            <div className="mt-auto mb-2 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <div className="mb-2 grid grid-cols-2 gap-2 sm:gap-4 justify-center">
               <Button
                 onClick={handleDownloadStory}
                 disabled={!resultId || isGeneratingStory}
@@ -383,18 +348,14 @@ function BeautyAnalysisPageInner() {
                   alt="Bagikan Hasil"
                   loading="lazy"
                 />
-                <span>
-                  {isGeneratingStory
-                    ? "Membuat Story..."
-                    : "Share ke Instagram"}
-                </span>
+                <span>Share ke Instagram</span>
               </Button>
               <Button
                 onClick={() =>
                   router.push(`/ai-overview/pdf/preview?result_id=${resultId}`)
                 }
                 disabled={!resultId}
-                className="bg-[#FFC6C6] text-[#323232] px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"
+                className="bg-[#FFC6C6] text-[#323232] px-3 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"
               >
                 <Image
                   src="/overview-ai/icons/ic_round-download.svg"
@@ -403,7 +364,7 @@ function BeautyAnalysisPageInner() {
                   alt="Unduh Hasil"
                   loading="lazy"
                 />
-                <span>Download Analisa</span>
+                <span className="text-xs sm:text-sm">Download Analisa</span>
               </Button>
             </div>
           </div>
@@ -414,7 +375,7 @@ function BeautyAnalysisPageInner() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(index)}
-                  className={`flex-1 min-w-[70px] lg:min-w-[120px] sm:min-w-0 flex flex-col lg:flex-row items-center justify-center gap-2 py-2 sm:py-3 text-xs sm:text-sm font-poppins transition-all -mb-px ${
+                  className={`flex-1 min-w-[70px] lg:min-w-[120px] sm:min-w-0 flex flex-col lg:flex-row items-center justify-center gap-2 py-2 sm:py-3 text-xs sm:text-base font-poppins transition-all -mb-px ${
                     activeTab === index
                       ? "text-[#323232] font-bold border-b-2 border-[#000000]"
                       : "text-gray-500 hover:text-[#323232]"
@@ -433,63 +394,67 @@ function BeautyAnalysisPageInner() {
                       activeTab !== index ? "opacity-60" : ""
                     } w-5 h-5`}
                   />
-                  <span className="flex flex-col lg:flex lg:whitespace-normal whitespace-pre-line">
+                  <span className="flex flex-col lg:flex lg:whitespace-normal whitespace-pre-line text-xs sm:text-sm">
                     {tab.text}
                   </span>
                 </button>
               ))}
             </div>
 
-            <div className="mt-[20px] lg:mt-[50px] relative overflow-hidden">
-              <motion.div
-                className="flex"
-                animate={{ x: `-${activeTab * 100}%` }}
-                transition={{ type: "tween", ease: "easeInOut", duration: 0.4 }}
-              >
-                {analysisTabs.map((tab) => (
-                  <div key={tab.id} className="w-full flex-shrink-0">
-                    {renderContent(tab.id)}
-                  </div>
-                ))}
-              </motion.div>
+            <div className="mt-[16px] lg:mt-[50px] relative">
+              {analysisTabs.map((tab, index) => (
+                <motion.div
+                  key={tab.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: activeTab === index ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={`
+                    transition-all duration-300
+                    ${activeTab !== index ? 'absolute top-0 left-0 w-full pointer-events-none' : 'relative'}
+                  `}
+                >
+                  {renderContent(tab.id)}
+                </motion.div>
+              ))}
             </div>
-          </div>
+        </div>
         </div>
 
-        <section>
-          <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-10">
-            <h1 className="text-4xl lg:text-5xl font-oswald font-bold text-[#333333] mb-[25px]">
+        <section className="pt-8 lg:pt-16">
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-4 lg:mb-10">
+            <hr className="border-t-2 border-black w-full lg:hidden block" />
+            <h1 className="text-xl sm:text-2xl lg:text-5xl font-oswald font-bold text-[#333333] mb-2 sm:mb-4 lg:mb-[25px]">
               Rekomendasi Produk
             </h1>
             <div className="flex justify-center items-center gap-2 self-start md:self-center overflow-x-auto scrollbar-hide">
-              <div className=" flex justify-center gap-3 min-w-max">
+              <div className=" flex justify-center gap-2 sm:gap-3 min-w-max">
                 <button
                   onClick={() => handleFilterChange("hijab")}
-                  className={`flex items-center justify-center gap-2.5 rounded-lg px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
+                  className={`flex items-center justify-center gap-2.5 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 font-bold text-sm sm:text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
                     recommendationFilter === "hijab"
                       ? "bg-gray-800 text-white shadow-lg"
                       : "bg-gray-200 text-gray-600"
                   }`}
                 >
-                  <span className="font-poppins font-bold">Hijab</span>
-                  <UserStar />
+                  <span className="font-poppins font-bold text-sm sm:text-base">Hijab</span>
+                  <UserStar className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={() => handleFilterChange("clothes")}
-                  className={`flex items-center justify-center gap-2.5 rounded-lg px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
+                  className={`flex items-center justify-center gap-2.5 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 font-bold text-sm sm:text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
                     recommendationFilter === "clothes"
                       ? "bg-gray-800 text-white shadow-lg"
                       : "bg-gray-200 text-gray-600"
                   }`}
                 >
-                  <span className="font-poppins font-bold">Pakaian</span>
-                  <Shirt />
+                  <span className="font-poppins font-bold text-sm sm:text-base">Pakaian</span>
+                  <Shirt className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="relative mt-8">
+          <div className="relative">
             {filteredProducts.length > 0 ? (
               <>
                 {/* Mobile Carousel - Single Card */}
@@ -513,7 +478,7 @@ function BeautyAnalysisPageInner() {
                           damping: 35,
                           duration: 0.4,
                         }}
-                        className={`bg-white border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 h-[620px] w-80 flex-shrink-0 mx-auto cursor-grab active:cursor-grabbing select-none border-[#323232]`}
+                        className={`bg-white border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 h-fit sm:h-[620px] w-full flex-shrink-0 mx-auto cursor-grab active:cursor-grabbing select-none border-[#323232]`}
                       >
                         <div className="relative p-2">
                           <Image
@@ -521,9 +486,9 @@ function BeautyAnalysisPageInner() {
                             alt={currentProduct.name}
                             width={400}
                             height={400}
-                            className="w-full h-72 object-cover rounded-xl"
+                            className="w-full h-44 sm:h-72 object-cover rounded-xl"
                           />
-                          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+                          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
                             {topProductScores.has(currentProduct.id)
                               ? `${topProductScores.get(
                                   currentProduct.id
@@ -532,17 +497,17 @@ function BeautyAnalysisPageInner() {
                                   currentProduct.total_compatibility_score * 10
                                 }% Match`}
                           </span>
-                          <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+                          <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md">
                             <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
                             {currentProduct.average_rating}
                           </span>
                         </div>
-                        <div className="p-5 flex flex-col flex-grow">
+                        <div className="p-3 sm:p-5 flex flex-col flex-grow">
                           <div className="flex items-start justify-between gap-2">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <h3 className="font-bold text-gray-800 text-lg text-left truncate">
+                                  <h3 className="font-bold text-gray-800 text-base sm:text-lg text-left truncate">
                                     {currentProduct.name
                                       .split(" ")
                                       .slice(0, 3)
@@ -566,32 +531,32 @@ function BeautyAnalysisPageInner() {
                             )}
                           </div>
 
-                          <div className="flex items-baseline my-2">
-                            <span className="text-gray-800 font-extrabold text-2xl">
+                          <div className="flex items-baseline my-1 sm:my-2">
+                            <span className="text-gray-800 font-extrabold text-lg sm:text-2xl">
                               {`Rp${currentProduct.current_price.toLocaleString(
                                 "id-ID"
                               )}`}
                             </span>
                             {currentProduct.original_price > 0 && (
-                              <span className="text-gray-400 text-sm ml-2 line-through">
+                              <span className="text-gray-400 text-xs sm:text-sm ml-2 line-through">
                                 {`Rp${currentProduct.original_price.toLocaleString(
                                   "id-ID"
                                 )}`}
                               </span>
                             )}
                           </div>
-                          <div className="flex items-start justify-between gap-4 my-4">
+                          <div className="flex items-start justify-between gap-2 sm:gap-4 my-2 sm:my-4">
                             {/* Color Recommendations */}
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-1 sm:gap-2">
                               <span className="text-xs sm:text-sm text-gray-600">
                                 Rekomendasi Warna
                               </span>
-                              <div className="flex flex-wrap gap-2">
+                              <div className="flex flex-wrap gap-1 sm:gap-2">
                                 {currentProduct.color_recommendations?.map(
                                   (color, index) => (
                                     <div
                                       key={index}
-                                      className="w-6 h-6 rounded-full border border-gray-200"
+                                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-gray-200"
                                       style={{ backgroundColor: color }}
                                       title={color}
                                     />
@@ -599,7 +564,7 @@ function BeautyAnalysisPageInner() {
                                 )}
                               </div>
                             </div>
-                            <div className="flex flex-col items-end gap-2">
+                            <div className="flex flex-col items-end gap-1 sm:gap-2">
                               <span className="text-xs sm:text-sm text-gray-600">
                                 Ukuran
                               </span>
@@ -608,18 +573,18 @@ function BeautyAnalysisPageInner() {
                               </span>
                             </div>
                           </div>
-                          <div className="flex flex-col border rounded-xl p-4">
-                            <p>Kenapa Cocok</p>
+                          <div className="flex flex-col border rounded-xl p-2 sm:p-4">
+                            <p className="text-xs sm:text-sm">Kenapa Cocok</p>
                           </div>
 
                           <Button
                             onClick={() =>
                               window.open(currentProduct.product_link, "_blank")
                             }
-                            className="shadow-md flex justify-between mt-auto bg-[#ED80A7] w-full px-7 py-5 font-bold rounded-lg text-white items-center gap-3 text-base hover:bg-pink-500 transition-colors"
+                            className="shadow-md flex justify-between mt-3 bg-[#ED80A7] w-full px-4 sm:px-7 py-3 sm:py-5 font-bold rounded-lg text-white items-center gap-2 sm:gap-3 text-sm sm:text-base hover:bg-pink-500 transition-colors"
                           >
                             <span>Beli Sekarang</span>
-                            <ShoppingCart fill="white" />
+                            <ShoppingCart fill="white" className="w-4 h-4 sm:w-5 sm:h-5" />
                           </Button>
                         </div>
                       </motion.div>
@@ -795,7 +760,7 @@ function BeautyAnalysisPageInner() {
                 </div>
               </>
             ) : (
-              <div className="border border-dashed rounded-2xl p-8 sm:p-16 flex flex-col items-center justify-center text-center min-h-[400px]">
+              <div className="border border-dashed rounded-2xl p-6 sm:p-16 flex flex-col items-center justify-center text-center min-h-[300px] sm:min-h-[400px]">
                 <svg
                   width="70"
                   height="71"
@@ -823,7 +788,7 @@ function BeautyAnalysisPageInner() {
                   />
                 </svg>
 
-                <p className="text-xl md:text-2xl text-gray-400 font-handlee italic mt-5">
+                <p className="text-base sm:text-xl md:text-2xl text-gray-400 font-handlee italic mt-3 sm:mt-5">
                   Maaf Belum Ada Product Yang Cocok Buat Kamu...
                 </p>
               </div>

@@ -18,11 +18,13 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
 
   if (isLoading)
     return (
-      <div className="text-center p-8">Finding your celebrity match...</div>
+      <div className="text-center p-8 text-base sm:text-lg">
+        Finding your celebrity match...
+      </div>
     );
   if (error)
     return (
-      <div className="text-center p-8 text-red-500">
+      <div className="text-center p-8 text-red-500 text-base sm:text-lg">
         {error.message || "An error occurred"}
       </div>
     );
@@ -30,10 +32,10 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
   if (!matchData) {
     return (
       <div className="text-center p-8 border border-dashed rounded-2xl">
-        <h3 className="font-bold text-lg text-[#323232]">
+        <h3 className="font-bold text-base sm:text-lg text-[#323232]">
           Belum Ada Kecocokan
         </h3>
-        <p className="text-gray-600 mt-2 text-sm">
+        <p className="text-gray-600 mt-2 text-sm sm:text-base">
           Saat ini kami belum menemukan selebriti yang cocok denganmu. Nantikan
           update dari kami!
         </p>
@@ -43,28 +45,29 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
 
   return (
     <div className="flex flex-col md:flex-row gap-[20px] lg:gap-[50px]">
-      <div className="flex flex-col gap-[20px] lg:gap-[50px] w-full">
-        <div className="border-[1px] border-neutral-600 rounded-2xl p-6">
-          <p className="font-handlee text-[#323232] text-xl mb-1">
+      <div className="flex flex-col gap-[20px] lg:gap-[50px] w-full order-2 md:order-1">
+        <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6">
+          <p className="font-handlee text-[#323232] text-lg sm:text-xl mb-1">
             Artis yang mirip kamu
           </p>
-          <h3 className="text-3xl font-bold text-[#323232] font-oswald">
+          <h3 className="text-xl sm:text-3xl font-bold text-[#323232] font-oswald">
             {matchData.name}
           </h3>
-          <p className="text-[#323232] font-poppins text-xs lg:text-[18px] mt-3 leading-relaxed">
+          <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-[18px] mt-3 leading-relaxed">
             {matchData.description}
           </p>
         </div>
-        <div className="bg-[#FFC6C6] rounded-2xl p-6">
-          <h4 className="font-bold font-handlee text-[#323232] text-xl mb-2 italic">
+        <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6">
+          <h4 className="font-bold font-handlee text-[#323232] text-lg sm:text-xl mb-2 italic">
             Kenapa Cocok?
           </h4>
-          <p className="text-[#323232] font-poppins text-xs lg:text-[18px] leading-relaxed">
+          <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-[18px] leading-relaxed">
             {matchData.similarity_text}
           </p>
         </div>
       </div>
-      <div className="relative w-full min-h-[400px]">
+
+      <div className="relative w-full min-h-[300px] sm:min-h-[400px] order-1 md:order-2">
         <Image
           src={matchData.picture_url || "/hijab-3.png"}
           alt={matchData.name}
@@ -72,7 +75,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
           style={{ objectFit: "cover" }}
           className="rounded-2xl"
         />
-        <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
+        <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-2">
           <Image
             src="/overview-ai/icons/ai-generate.svg"
             width={16}

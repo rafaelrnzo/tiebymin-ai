@@ -85,7 +85,7 @@ const RiveLoadingAnimation = () => {
 
   return (
     <div
-      className={`mx-auto w-64 h-64 lg:w-[35rem] lg:h-[35rem] flex justify-center`}
+      className={`mx-auto w-80 h-80 lg:w-[35rem] lg:h-[35rem] flex justify-center`}
     >
       <RiveComponent />
     </div>
@@ -456,15 +456,15 @@ function HalamanKameraWajahContent() {
       LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
-        <div className="text-center max-w-lg mx-auto">
+        <div className="text-center max-w-lg mx-auto -mt-56">
           <RiveLoadingAnimation />
           <div className="loading-text -mt-0 lg:-mt-28">
             <p className="text-2xl font-bold mt-4">
               {progress < 100 ? `${progress}%` : "99%"}
             </p>
-            <div className="mt-8">
-              <h2 className="text-lg font-semibold mb-2">{step.title}</h2>
-              <p className="text-gray-600 text-base">{step.desc}</p>
+            <div className="mt-2 lg:mt-8">
+              <h2 className="text-base sm:text-lg font-semibold mb-2">{step.title}</h2>
+              <p className="text-gray-600 text-sm sm:text-base">{step.desc}</p>
             </div>
           </div>
         </div>

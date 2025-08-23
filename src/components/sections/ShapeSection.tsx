@@ -88,7 +88,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     );
 
   return (
-    <div className="flex flex-col lg:h-full">
+    <div className="flex flex-col lg:h-full h-fit">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
         <div className="border rounded-2xl p-4 sm:p-6">
           <h3 className="font-bold text-[24px] lg:text-[48px] font-oswald">
@@ -114,7 +114,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
           </p>
         </div>
         <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6 shadow-md">
-          <h3 className="font-bold font-handlee text-[#323232] mb-3 lg:mb-5 lg:mt-4 text-xl text-center italic">
+          <h3 className="font-bold font-handlee text-[#323232] mb-3 lg:mb-5  lg:mt-4 text-xl text-center italic">
             Karakteristik
           </h3>
           <ul className="text-[#323232] font-poppins leading-relaxed space-y-2">
