@@ -108,14 +108,28 @@ function StoryPage() {
           { type: "image/png" }
         );
 
+        // Try to share first (must be in user gesture context)
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: "Tie By Min Story",
-            text: "Coba AI Fashion Analysis aku!",
-          });
+          try {
+            await navigator.share({
+              files: [file],
+              title: "Tie By Min Story",
+              text: "Coba AI Fashion Analysis aku!",
+            });
+            showToast("Story berhasil dibagikan!", "success");
+          } catch (shareError) {
+            // If sharing fails (e.g., user gesture issue), fallback to download
+            console.warn("Share failed, falling back to download:", shareError);
+            const url = URL.createObjectURL(file);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = file.name;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast("Story berhasil diunduh!", "success");
+          }
         } else {
-          // fallback ke download biasa
+          // Fallback to download if sharing is not supported
           const url = URL.createObjectURL(file);
           const link = document.createElement("a");
           link.href = url;
@@ -126,9 +140,9 @@ function StoryPage() {
         }
       }
     } catch (error) {
-      console.error("Error sharing PNG:", error);
-      setError("Gagal membagikan story");
-      showToast("Gagal membagikan story", "error");
+      console.error("Error generating story:", error);
+      setError("Gagal membuat story");
+      showToast("Gagal membuat story", "error");
     } finally {
       setIsGenerating(false);
     }

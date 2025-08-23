@@ -51,7 +51,7 @@ const BodySection: React.FC<BodySectionProps> = ({
     return <div className="text-center p-8">Data tubuh tidak ditemukan.</div>;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-[50px]">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-[20px] lg:gap-[50px]">
       <div className="rounded-2xl border p-6 flex flex-col col-span-2">
         <h3 className="font-bold text-5xl font-oswald">{bodyDetails.name}</h3>
         <div className="flex justify-center my-6 flex-shrink-0">
@@ -64,11 +64,13 @@ const BodySection: React.FC<BodySectionProps> = ({
             priority
           />
         </div>
-        <p className="text-xl mt-6">{bodyDetails.penjelasan_body_shape}</p>
+        <p className="lg:text-xl text-xs mt-6">
+          {bodyDetails.penjelasan_body_shape}
+        </p>
       </div>
 
-      <div className="flex flex-col gap-[50px] lg:col-span-2">
-        <div className="border border-neutral-600 rounded-2xl p-6 sm:p-8 text-[#323232]">
+      <div className="col-span-2 space-y-[20px] lg:space-y-[50px] w-full">
+        <div className="border border-neutral-600 w-full max-w-full rounded-2xl p-6 sm:p-8 text-[#323232]">
           <h3 className="font-bold text-4xl sm:text-5xl font-oswald">
             BMI Analyst
           </h3>
@@ -84,19 +86,19 @@ const BodySection: React.FC<BodySectionProps> = ({
                 </div>
               </div>
             </div>
-            <div className="flex flex-col text-center sm:text-left">
-              <span className="font-bold text-base sm:text-lg">
+            <div className="flex flex-col text-left">
+              <span className="font-bold lg:text-xl text-xs">
                 {bmiCategoryDetails.kategori}
               </span>
-              <p className="text-[#323232] text-sm sm:text-base leading-relaxed font-poppins">
+              <p className="text-[#323232] lg:text-xl text-xs leading-relaxed font-poppins">
                 {bmiCategoryDetails.tips_fashion}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#FFC6C6] shadow-md rounded-2xl p-6">
-          <h3 className="font-bold italic font-handlee mb-3 text-xl text-left">
+        <div className="bg-[#FFC6C6] shadow-md rounded-2xl p-6 w-full max-w-full">
+          <h3 className="italic font-handlee mb-3 text-xl text-center">
             Karakteristik
           </h3>
           {bodyDetails?.karakteristik
@@ -107,7 +109,10 @@ const BodySection: React.FC<BodySectionProps> = ({
                 point: string,
                 index: number // index harusnya number
               ) => (
-                <p key={index} className="text-xl text-[#323232] font-poppins">
+                <p
+                  key={index}
+                  className="lg:text-xl text-xs text-[#323232] font-poppins"
+                >
                   • {point.trim()}
                 </p>
               )

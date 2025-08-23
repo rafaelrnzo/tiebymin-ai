@@ -5,7 +5,7 @@ import { ErrorModal } from "@/components/sections/error-modal";
 import { FeedbackModal } from "@/components/sections/feedback-modal";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,15 +18,9 @@ import {
 import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { analysisTabs } from "@/lib/mock-data";
-import {
-  Grid2x2,
-  Shirt,
-  ShoppingCart,
-  Star,
-  ThumbsUp,
-  UserStar,
-} from "lucide-react";
+import { Shirt, ShoppingCart, Star, ThumbsUp, UserStar } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 import BodySection from "../../components/sections/BodySection";
 import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
 import ColorToneSection from "../../components/sections/ColorToneSection";
@@ -41,17 +35,53 @@ function BeautyAnalysisPageInner() {
   const [recommendationPage, setRecommendationPage] = useState(1);
   const [userId, setUserId] = useState("");
   const [recommendationFilter, setRecommendationFilter] = useState<
-    "all" | "hijab" | "clothes"
-  >("all");
+    "hijab" | "clothes"
+  >("hijab");
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [visitedTabs, setVisitedTabs] = useState(new Set<string>());
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [topProductScores, setTopProductScores] = useState<Map<string, number>>(
     new Map()
   );
-  const handleFilterChange = (filter: "all" | "hijab" | "clothes") => {
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const handleFilterChange = (filter: "hijab" | "clothes") => {
     setRecommendationFilter(filter);
+    setRecommendationPage(1); // Reset to first page when filter changes
+  };
+
+  // Touch event handlers for swipe gestures
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && recommendationPage < totalPages && !isAnimating) {
+      setIsAnimating(true);
+      setRecommendationPage(recommendationPage + 1);
+      setTimeout(() => setIsAnimating(false), 300);
+    }
+
+    if (isRightSwipe && recommendationPage > 1 && !isAnimating) {
+      setIsAnimating(true);
+      setRecommendationPage(recommendationPage - 1);
+      setTimeout(() => setIsAnimating(false), 300);
+    }
   };
 
   useEffect(() => {
@@ -75,6 +105,10 @@ function BeautyAnalysisPageInner() {
       }
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    setCurrentCardIndex(recommendationPage - 1);
+  }, [recommendationPage]);
 
   useEffect(() => {
     const feedbackSubmitted = localStorage.getItem("feedbackSubmitted");
@@ -123,16 +157,11 @@ function BeautyAnalysisPageInner() {
   }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
 
   const filteredProducts = recommendationsData
-    ? [
-        ...(recommendationFilter === "all" || recommendationFilter === "hijab"
-          ? recommendationsData.hijab
-          : []),
-        ...(recommendationFilter === "all" || recommendationFilter === "clothes"
-          ? recommendationsData.clothes
-          : []),
-      ]
+    ? recommendationFilter === "hijab"
+      ? recommendationsData.hijab
+      : recommendationsData.clothes
     : [];
-  const totalPages = Math.ceil(filteredProducts.length / 3);
+  const totalPages = filteredProducts.length;
 
   const sortedProducts = [...filteredProducts].sort(
     (a, b) => b.total_compatibility_score - a.total_compatibility_score
@@ -163,10 +192,7 @@ function BeautyAnalysisPageInner() {
     }
   }, [recommendationsData]);
 
-  const paginatedProducts = sortedProducts.slice(
-    (recommendationPage - 1) * 3,
-    recommendationPage * 3
-  );
+  const currentProduct = sortedProducts[recommendationPage - 1];
 
   const renderContent = (tabId: string) => {
     const analysisData = rawAnalysisData;
@@ -228,12 +254,12 @@ function BeautyAnalysisPageInner() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 bg-repeat">
+    <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:py-12">
-        <div className="flex flex-col lg:flex-row justify-between w-full mb-10 gap-[50px] mt-[50px]">
-          <div className="bg-[#2D2D2D] h-[700px] w-full lg:w-[35%] rounded-3xl p-5 text-white flex flex-col">
+      <main className="max-w-7xl mx-auto px-4">
+        <div className="flex flex-col lg:flex-row justify-between w-full mb-[20px] lg:mb-10 gap-[20px] lg:gap-[50px] mt-[20px] lg:mt-[50px]">
+          <div className="bg-[#2D2D2D] h-fit lg:h-[700px] w-full lg:w-[35%] rounded-3xl p-5 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               {userPhotoUrl ? (
                 <Image
@@ -253,7 +279,7 @@ function BeautyAnalysisPageInner() {
               <br />
               Hasil Analisa Kamu
             </h2>
-            <p className="text-[#f0f0f0] text-lg mb-6 sm:mb-8 leading-relaxed font-poppins">
+            <p className="text-[#f0f0f0] lg:text-xl text-xs mb-6 sm:mb-8 leading-relaxed font-poppins">
               Dapatkan insight mendalam tentang fashion terbaik untuk kamu
               dengan teknologi AI kami dengan rekomendasi personal yang akurat.
             </p>
@@ -294,12 +320,12 @@ function BeautyAnalysisPageInner() {
           </div>
 
           <div className="w-full lg:w-[70%]">
-            <div className="flex flex-wrap border-b border-gray-300">
+            <div className="flex border-b border-gray-300">
               {analysisTabs.map((tab, index) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(index)}
-                  className={`flex-1 min-w-[120px] sm:min-w-0 flex items-center justify-center gap-2 py-2 sm:py-3 text-xs sm:text-sm font-poppins transition-all -mb-px ${
+                  className={`flex-1 min-w-[70px] lg:min-w-[120px] sm:min-w-0 flex flex-col lg:flex-row items-center justify-center gap-2 py-2 sm:py-3 text-xs sm:text-sm font-poppins transition-all -mb-px ${
                     activeTab === index
                       ? "text-[#323232] font-bold border-b-2 border-[#000000]"
                       : "text-gray-500 hover:text-[#323232]"
@@ -318,12 +344,14 @@ function BeautyAnalysisPageInner() {
                       activeTab !== index ? "opacity-60" : ""
                     } w-5 h-5`}
                   />
-                  <span className="truncate">{tab.text}</span>
+                  <span className="flex flex-col lg:flex lg:whitespace-normal whitespace-pre-line">
+                    {tab.text}
+                  </span>
                 </button>
               ))}
             </div>
 
-            <div className="mt-[50px] relative overflow-hidden">
+            <div className="mt-[20px] lg:mt-[50px] relative overflow-hidden">
               <motion.div
                 className="flex"
                 animate={{ x: `-${activeTab * 100}%` }}
@@ -344,172 +372,332 @@ function BeautyAnalysisPageInner() {
             <h1 className="text-4xl lg:text-5xl font-oswald font-bold text-[#333333] mb-[25px]">
               Rekomendasi Produk
             </h1>
-            <div className="flex items-center gap-2 self-start md:self-center">
-              <button
-                onClick={() => handleFilterChange("all")}
-                className={`flex items-center justify-center gap-2.5 rounded-full px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${
-                  recommendationFilter === "all"
-                    ? "bg-gray-800 text-white shadow-lg"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Grid2x2 />
-                Semua
-              </button>
-              <button
-                onClick={() => handleFilterChange("hijab")}
-                className={`flex items-center justify-center gap-2.5 rounded-full px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${
-                  recommendationFilter === "hijab"
-                    ? "bg-gray-800 text-white shadow-lg"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <UserStar />
-                Hijab
-              </button>
-              <button
-                onClick={() => handleFilterChange("clothes")}
-                className={`flex items-center justify-center gap-2.5 rounded-full px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${
-                  recommendationFilter === "clothes"
-                    ? "bg-gray-800 text-white shadow-lg"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Shirt />
-                Pakaian
-              </button>
+            <div className="flex justify-center items-center gap-2 self-start md:self-center overflow-x-auto scrollbar-hide">
+              <div className=" flex justify-center gap-3 min-w-max">
+                <button
+                  onClick={() => handleFilterChange("hijab")}
+                  className={`flex items-center justify-center gap-2.5 rounded-lg px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
+                    recommendationFilter === "hijab"
+                      ? "bg-gray-800 text-white shadow-lg"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  <span className="font-poppins font-bold">Hijab</span>
+                  <UserStar />
+                </button>
+                <button
+                  onClick={() => handleFilterChange("clothes")}
+                  className={`flex items-center justify-center gap-2.5 rounded-lg px-5 py-3 font-bold text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
+                    recommendationFilter === "clothes"
+                      ? "bg-gray-800 text-white shadow-lg"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  <span className="font-poppins font-bold">Pakaian</span>
+                  <Shirt />
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="relative mt-8">
             {filteredProducts.length > 0 ? (
               <>
-                <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  {paginatedProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className={`bg-white border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 h-[620px] ${
-                        sortedProducts.findIndex((p) => p.id === product.id) < 3
-                          ? "border-pink-500 border-2"
-                          : ""
-                      }`}
-                    >
-                      <div className="relative p-2">
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          width={400}
-                          height={400}
-                          className="w-full h-72 object-cover rounded-xl"
-                        />
-                        <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
-                          {topProductScores.has(product.id)
-                            ? `${topProductScores.get(product.id)}% Match`
-                            : `${
-                                product.total_compatibility_score * 10
-                              }% Match`}
-                        </span>
-                        <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
-                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                          {product.average_rating}
-                        </span>
-                      </div>
-                      <div className="p-5 flex flex-col flex-grow">
-                        <div className="flex items-start justify-between gap-2">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <h3 className="font-bold text-gray-800 text-lg text-left truncate">
-                                  {product.name
-                                    .split(" ")
-                                    .slice(0, 3)
-                                    .join(" ") + "..."}
-                                </h3>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{product.name}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          {sortedProducts.findIndex(
-                            (p) => p.id === product.id
-                          ) < 3 && (
-                            <div className="flex items-center gap-1 text-pink-500 flex-shrink-0">
-                              <ThumbsUp className="w-4 h-4" />
-                              <span className="font-semibold text-xs">
-                                Rekomendasi
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-baseline my-2">
-                          <span className="text-gray-800 font-extrabold text-2xl">
-                            {`Rp${product.current_price.toLocaleString(
-                              "id-ID"
-                            )}`}
+                {/* Mobile Carousel - Single Card */}
+                <div className="lg:hidden">
+                  <div
+                    ref={scrollContainerRef}
+                    className="flex justify-center"
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                  >
+                    {currentProduct && (
+                      <motion.div
+                        key={currentProduct.id}
+                        initial={{ opacity: 0, x: 300, scale: 0.9 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: -300, scale: 0.9 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 35,
+                          duration: 0.4,
+                        }}
+                        className={`bg-white border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 h-[620px] w-80 flex-shrink-0 mx-auto cursor-grab active:cursor-grabbing select-none border-[#323232]`}
+                      >
+                        <div className="relative p-2">
+                          <Image
+                            src={currentProduct.images[0]}
+                            alt={currentProduct.name}
+                            width={400}
+                            height={400}
+                            className="w-full h-72 object-cover rounded-xl"
+                          />
+                          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+                            {topProductScores.has(currentProduct.id)
+                              ? `${topProductScores.get(
+                                  currentProduct.id
+                                )}% Match`
+                              : `${
+                                  currentProduct.total_compatibility_score * 10
+                                }% Match`}
                           </span>
-                          {product.original_price > 0 && (
-                            <span className="text-gray-400 text-sm ml-2 line-through">
-                              {`Rp${product.original_price.toLocaleString(
+                          <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                            {currentProduct.average_rating}
+                          </span>
+                        </div>
+                        <div className="p-5 flex flex-col flex-grow">
+                          <div className="flex items-start justify-between gap-2">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <h3 className="font-bold text-gray-800 text-lg text-left truncate">
+                                    {currentProduct.name
+                                      .split(" ")
+                                      .slice(0, 3)
+                                      .join(" ") + "..."}
+                                  </h3>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{currentProduct.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            {sortedProducts.findIndex(
+                              (p) => p.id === currentProduct.id
+                            ) < 3 && (
+                              <div className="flex items-center gap-1 text-pink-500 flex-shrink-0">
+                                <ThumbsUp className="w-4 h-4" />
+                                <span className="font-semibold text-xs">
+                                  Rekomendasi
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-baseline my-2">
+                            <span className="text-gray-800 font-extrabold text-2xl">
+                              {`Rp${currentProduct.current_price.toLocaleString(
                                 "id-ID"
                               )}`}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex items-start justify-between gap-4 my-4">
-                          {/* Color Recommendations */}
-                          <div className="flex flex-col gap-2">
-                            <span className="text-xs sm:text-sm text-gray-600">
-                              Rekomendasi Warna
-                            </span>
-                            <div className="flex flex-wrap gap-2">
-                              {product.color_recommendations?.map(
-                                (color, index) => (
-                                  <div
-                                    key={index}
-                                    className="w-6 h-6 rounded-full border border-gray-200"
-                                    style={{ backgroundColor: color }}
-                                    title={color}
-                                  />
-                                )
-                              )}
+                            {currentProduct.original_price > 0 && (
+                              <span className="text-gray-400 text-sm ml-2 line-through">
+                                {`Rp${currentProduct.original_price.toLocaleString(
+                                  "id-ID"
+                                )}`}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-start justify-between gap-4 my-4">
+                            {/* Color Recommendations */}
+                            <div className="flex flex-col gap-2">
+                              <span className="text-xs sm:text-sm text-gray-600">
+                                Rekomendasi Warna
+                              </span>
+                              <div className="flex flex-wrap gap-2">
+                                {currentProduct.color_recommendations?.map(
+                                  (color, index) => (
+                                    <div
+                                      key={index}
+                                      className="w-6 h-6 rounded-full border border-gray-200"
+                                      style={{ backgroundColor: color }}
+                                      title={color}
+                                    />
+                                  )
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                              <span className="text-xs sm:text-sm text-gray-600">
+                                Ukuran
+                              </span>
+                              <span className="text-xs sm:text-sm font-medium text-right">
+                                {currentProduct.size_range}
+                              </span>
                             </div>
                           </div>
-                          <div className="flex flex-col items-end gap-2">
-                            <span className="text-xs sm:text-sm text-gray-600">
-                              Ukuran
-                            </span>
-                            <span className="text-xs sm:text-sm font-medium text-right">
-                              {product.size_range}
-                            </span>
+                          <div className="flex flex-col border rounded-xl p-4">
+                            <p>Kenapa Cocok</p>
                           </div>
-                        </div>
-                        <div className="flex flex-col border rounded-xl p-4">
-                          <p>Kenapa Cocok</p>
-                        </div>
 
-                        <Button
-                          onClick={() =>
-                            window.open(product.product_link, "_blank")
-                          }
-                          className="shadow-md flex justify-between mt-auto bg-[#ED80A7] w-full px-7 py-5 font-bold rounded-lg text-white items-center gap-3 text-base hover:bg-pink-500 transition-colors"
-                        >
-                          <span>Beli Sekarang</span>
-                          <ShoppingCart fill="white" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                          <Button
+                            onClick={() =>
+                              window.open(currentProduct.product_link, "_blank")
+                            }
+                            className="shadow-md flex justify-between mt-auto bg-[#ED80A7] w-full px-7 py-5 font-bold rounded-lg text-white items-center gap-3 text-base hover:bg-pink-500 transition-colors"
+                          >
+                            <span>Beli Sekarang</span>
+                            <ShoppingCart fill="white" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-center items-center mt-8 space-x-2">
+
+                {/* Desktop Grid Layout - All Cards */}
+                <div className="hidden lg:block">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {sortedProducts.map((product) => (
+                      <div
+                        key={product.id}
+                        className={`bg-white border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 h-[620px] w-full border-[#323232]`}
+                      >
+                        <div className="relative p-2">
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            width={400}
+                            height={400}
+                            className="w-full h-72 object-cover rounded-xl"
+                          />
+                          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+                            {topProductScores.has(product.id)
+                              ? `${topProductScores.get(product.id)}% Match`
+                              : `${
+                                  product.total_compatibility_score * 10
+                                }% Match`}
+                          </span>
+                          <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                            {product.average_rating}
+                          </span>
+                        </div>
+                        <div className="p-5 flex flex-col flex-grow">
+                          <div className="flex items-start justify-between gap-2">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <h3 className="font-bold text-gray-800 text-lg text-left truncate">
+                                    {product.name
+                                      .split(" ")
+                                      .slice(0, 3)
+                                      .join(" ") + "..."}
+                                  </h3>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{product.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            {sortedProducts.findIndex(
+                              (p) => p.id === product.id
+                            ) < 3 && (
+                              <div className="flex items-center gap-1 text-pink-500 flex-shrink-0">
+                                <ThumbsUp className="w-4 h-4" />
+                                <span className="font-semibold text-xs">
+                                  Rekomendasi
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-baseline my-2">
+                            <span className="text-gray-800 font-extrabold text-2xl">
+                              {`Rp${product.current_price.toLocaleString(
+                                "id-ID"
+                              )}`}
+                            </span>
+                            {product.original_price > 0 && (
+                              <span className="text-gray-400 text-sm ml-2 line-through">
+                                {`Rp${product.original_price.toLocaleString(
+                                  "id-ID"
+                                )}`}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-start justify-between gap-4 my-4">
+                            {/* Color Recommendations */}
+                            <div className="flex flex-col gap-2">
+                              <span className="text-xs sm:text-sm text-gray-600">
+                                Rekomendasi Warna
+                              </span>
+                              <div className="flex flex-wrap gap-2">
+                                {product.color_recommendations?.map(
+                                  (color, index) => (
+                                    <div
+                                      key={index}
+                                      className="w-6 h-6 rounded-full border border-gray-200"
+                                      style={{ backgroundColor: color }}
+                                      title={color}
+                                    />
+                                  )
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                              <span className="text-xs sm:text-sm text-gray-600">
+                                Ukuran
+                              </span>
+                              <span className="text-xs sm:text-sm font-medium text-right">
+                                {product.size_range}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col border rounded-xl p-4">
+                            <p>Kenapa Cocok</p>
+                          </div>
+
+                          <Button
+                            onClick={() =>
+                              window.open(product.product_link, "_blank")
+                            }
+                            className="shadow-md flex justify-between mt-auto bg-[#ED80A7] w-full px-7 py-5 font-bold rounded-lg text-white items-center gap-3 text-base hover:bg-pink-500 transition-colors"
+                          >
+                            <span>Beli Sekarang</span>
+                            <ShoppingCart fill="white" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Circular indicators for mobile cards */}
+                <div className="flex justify-center items-center mt-4 space-x-2 lg:hidden">
                   {Array.from({ length: totalPages }, (_, index) => (
                     <button
                       key={index}
-                      onClick={() => setRecommendationPage(index + 1)}
-                      className={`h-5 w-5 rounded-full transition-colors ${
+                      onClick={() => {
+                        if (!isAnimating) {
+                          setIsAnimating(true);
+                          setRecommendationPage(index + 1);
+                          setCurrentCardIndex(index);
+                          setTimeout(() => setIsAnimating(false), 300);
+                        }
+                      }}
+                      disabled={isAnimating}
+                      className={`h-3 w-3 rounded-full transition-colors disabled:opacity-50 ${
                         recommendationPage === index + 1
-                          ? "bg-[#EF789B]"
+                          ? "bg-pink-500"
+                          : "bg-gray-300"
+                      }`}
+                      aria-label={`Go to card ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <div className="hidden lg:flex justify-center items-center mt-8 space-x-2">
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (!isAnimating) {
+                          setIsAnimating(true);
+                          const pageNumber = index + 1;
+                          if (pageNumber <= totalPages) {
+                            setRecommendationPage(pageNumber);
+                          }
+                          setTimeout(() => setIsAnimating(false), 300);
+                        }
+                      }}
+                      disabled={isAnimating}
+                      className={`h-5 w-5 rounded-full transition-colors disabled:opacity-50 ${
+                        recommendationPage === index + 1
+                          ? "bg-pink-500"
                           : "bg-gray-300"
                       }`}
                       aria-label={`Go to page ${index + 1}`}

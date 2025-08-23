@@ -121,7 +121,7 @@ export const ThirdSection = () => {
   return (
     <section id="testimoni px-[200px] md:px-0 lg:px-[180px]">
       <div className="container mx-auto ">
-        <hr className="mt-[100px] mb-[80px]" />
+        <hr className="mt-[100px] mb-[80px] mx-5 lg:mx-0" />
 
         <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-[70px]">
           <div>

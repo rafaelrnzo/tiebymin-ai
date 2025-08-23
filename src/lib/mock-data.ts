@@ -99,17 +99,17 @@ export const defaultUserData: UserData = {
 };
 
 export const analysisTabs = [
-  { id: "shape", text: "Shape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
-  { id: "color", text: "Color Tone", icon: "/overview-ai/icons/mdi_color.svg" },
-  { id: "body", text: "Body", icon: "/overview-ai/icons/healthicons_body.svg" },
+  { id: "shape", text: "Face\nShape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
+  { id: "color", text: "Color\nTone", icon: "/overview-ai/icons/mdi_color.svg" },
+  { id: "body", text: "Body\nAnalysis", icon: "/overview-ai/icons/healthicons_body.svg" },
   {
     id: "celebrity",
-    text: "Celebrity Match",
+    text: "Celebrity\nMatch",
     icon: "/overview-ai/icons/material-symbols_crown-rounded.svg",
   },
   {
     id: "tips",
-    text: "Tips & Trick",
+    text: "Tips &\nTrick",
     icon: "/overview-ai/icons/ic_baseline-tips-and-updates.svg",
   },
 ];
