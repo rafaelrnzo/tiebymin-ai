@@ -1,11 +1,10 @@
 "use client";
 
 import LeftSideSection from "@/components/component-login/left-side-section";
-import { Button } from "@/components/ui/button";
+import { ErrorModal } from "@/components/sections/error-modal";
 import { secureUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ErrorModal } from "@/components/sections/error-modal";
 
 export default function RegisterPage() {
   const router = useRouter();

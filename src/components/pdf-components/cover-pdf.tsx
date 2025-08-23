@@ -1,43 +1,41 @@
 import { UserData } from "@/types";
 import Image from "next/image";
 import { Footer } from "./footer-pdf";
-import { PageHeader } from "./header-pdf";
 
 export const Cover = ({ userData }: { userData: UserData }) => (
-  <div className="flex items-center justify-center w-full h-screen">
-    <div className="relative bg-[#F0F0F0] w-full min-h-screen flex flex-col self-center overflow-hidden">
-      <div className="ml-10">
-        <header className="flex justify-between items-center my-4">
-          <Image
-            src="/vector/tie-by-min-logo.svg"
-            alt="Logo Tie By Min"
-            width={60}
-            height={50}
-            quality={100}
-            priority
-            className="w-[140px] h-auto"
-          />
-          <div className="font-poppins bg-[#323232] text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] truncate">
-            {userData.name}
-          </div>
-        </header>
+  <div className="flex flex-col min-h-screen bg-[#f0f0f0]">
+    <header className="flex justify-between items-center pt-[50px] pl-10">
+      <Image
+        src="/vector/tie-by-min-logo.svg"
+        alt="Logo Tie By Min"
+        width={140}
+        height={50}
+        quality={100}
+        priority
+        className="w-[140px] h-auto"
+      />
+      <div className="font-poppins bg-[#323232] text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] truncate">
+        {userData.name}
       </div>
-      <main className="flex flex-col justify-center px-10 w-full">
-        <h1 className="font-oswald text-[64px] font-extrabold text-gray-800">
+    </header>
+
+    <div className="flex flex-col">
+      <main className="px-10">
+        <h1 className="font-oswald my-10 text-[64px] font-extrabold text-gray-800">
           HASIL ANALISA LENGKAP
         </h1>
       </main>
-      <div className="absolute bottom-0 left-0 right-0 h-[60%]">
+
+      <div className="mt-auto">
         <Image
           src="/many-flower.png"
           alt="Pola Bunga Latar Belakang"
-          fill
-          className="object-cover"
+          width={1920}
+          height={80}
+          className="h-[600px] object-cover"
         />
       </div>
-      <div className="absolute -bottom-12 left-0 right-0">
-        <Footer page="01" className="bg-[#F0F0F0] w-full py-[3rem] px-10" />
-      </div>
     </div>
+    <Footer page="01" className="bg-[#F0F0F0] w-full py-6 px-10" />
   </div>
 );

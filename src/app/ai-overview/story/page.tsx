@@ -59,94 +59,6 @@ function StoryPage() {
   );
 
   const { refetch: generateStory } = useGenerateStory();
-  const [error, setError] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const showToast = (message: string, type: "success" | "error") => {
-    const toast = document.createElement("div");
-    toast.textContent = message;
-    toast.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 12px 24px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 500;
-      z-index: 10000;
-      background: ${type === "success" ? "#10B981" : "#EF4444"};
-      animation: slideIn 0.3s ease;
-    `;
-
-    // Add slide animation
-    const style = document.createElement("style");
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-      style.remove();
-    }, 4000);
-  };
-
-  const handleDownloadStory = async () => {
-    if (!resultId) return;
-    setIsGenerating(true);
-    try {
-      setError(null);
-      const result = await generateStory();
-      if (result.data) {
-        const file = new File(
-          [result.data],
-          `story-tiebymin-${Date.now()}.png`,
-          { type: "image/png" }
-        );
-
-        // Try to share first (must be in user gesture context)
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: "Tie By Min Story",
-              text: "Coba AI Fashion Analysis aku!",
-            });
-            showToast("Story berhasil dibagikan!", "success");
-          } catch (shareError) {
-            // If sharing fails (e.g., user gesture issue), fallback to download
-            console.warn("Share failed, falling back to download:", shareError);
-            const url = URL.createObjectURL(file);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = file.name;
-            link.click();
-            URL.revokeObjectURL(url);
-            showToast("Story berhasil diunduh!", "success");
-          }
-        } else {
-          // Fallback to download if sharing is not supported
-          const url = URL.createObjectURL(file);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = file.name;
-          link.click();
-          URL.revokeObjectURL(url);
-          showToast("Story berhasil diunduh!", "success");
-        }
-      }
-    } catch (error) {
-      console.error("Error generating story:", error);
-      setError("Gagal membuat story");
-      showToast("Gagal membuat story", "error");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -161,8 +73,8 @@ function StoryPage() {
     );
   }
 
-  if (fetchError || error) {
-    return <p>Error: {fetchError?.message || error}</p>;
+  if (fetchError) {
+    return <p>Error: {fetchError.message}</p>;
   }
 
   if (!finalUserData) {
@@ -175,8 +87,8 @@ function StoryPage() {
       className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 md:p-6"
     >
       <StoryPoster
-        handleDownloadStory={handleDownloadStory}
-        isGenerating={isGenerating}
+        handleDownloadStory={() => {}}
+        isGenerating={false}
         userData={finalUserData}
         userPhotoUrl={userPhotoUrl}
         bodyDetails={bodyDetails}

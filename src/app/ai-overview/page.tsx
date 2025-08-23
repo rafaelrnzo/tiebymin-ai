@@ -15,7 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAnalysisData } from "@/hooks/useAnalysisData";
+import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { analysisTabs } from "@/lib/mock-data";
 import { Shirt, ShoppingCart, Star, ThumbsUp, UserStar } from "lucide-react";
@@ -49,9 +49,95 @@ function BeautyAnalysisPageInner() {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+  const [storyError, setStoryError] = useState<string | null>(null);
+
   const handleFilterChange = (filter: "hijab" | "clothes") => {
     setRecommendationFilter(filter);
     setRecommendationPage(1); // Reset to first page when filter changes
+  };
+
+  const showToast = (message: string, type: "success" | "error") => {
+    const toast = document.createElement("div");
+    toast.textContent = message;
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 10000;
+      background: ${type === "success" ? "#10B981" : "#EF4444"};
+      animation: slideIn 0.3s ease;
+    `;
+
+    // Add slide animation
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+      style.remove();
+    }, 4000);
+  };
+
+  const handleDownloadStory = async () => {
+    if (!resultId) return;
+    setIsGeneratingStory(true);
+    try {
+      setStoryError(null);
+      const result = await generateStory();
+      if (result.data) {
+        const file = new File(
+          [result.data],
+          `story-tiebymin-${Date.now()}.png`,
+          { type: "image/png" }
+        );
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: "Tie By Min Story",
+              text: "Coba AI Fashion Analysis aku!",
+            });
+            showToast("Story berhasil dibagikan!", "success");
+          } catch (shareError) {
+            console.warn("Share failed, falling back to download:", shareError);
+            const url = URL.createObjectURL(file);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = file.name;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast("Story berhasil diunduh!", "success");
+          }
+        } else {
+          const url = URL.createObjectURL(file);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = file.name;
+          link.click();
+          URL.revokeObjectURL(url);
+          showToast("Story berhasil diunduh!", "success");
+        }
+      }
+    } catch (error) {
+      console.error("Error generating story:", error);
+      setStoryError("Gagal membuat story");
+      showToast("Gagal membuat story", "error");
+    } finally {
+      setIsGeneratingStory(false);
+    }
   };
 
   // Touch event handlers for swipe gestures
@@ -138,6 +224,7 @@ function BeautyAnalysisPageInner() {
   });
 
   const { data: recommendationsData } = useRecommendations(resultId);
+  const { refetch: generateStory } = useGenerateStory();
 
   const { userData, userPhotoUrl, rawAnalysisData } = analysisResult || {
     userData: null,
@@ -285,10 +372,8 @@ function BeautyAnalysisPageInner() {
             </p>
             <div className="mt-auto mb-2 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Button
-                onClick={() =>
-                  router.push(`/ai-overview/story?result_id=${resultId}`)
-                }
-                disabled={!resultId}
+                onClick={handleDownloadStory}
+                disabled={!resultId || isGeneratingStory}
                 className="bg-white text-xs sm:text-sm text-[#2D2D2D] px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200 disabled:opacity-50"
               >
                 <Image
@@ -298,7 +383,11 @@ function BeautyAnalysisPageInner() {
                   alt="Bagikan Hasil"
                   loading="lazy"
                 />
-                <span>Share ke Instagram</span>
+                <span>
+                  {isGeneratingStory
+                    ? "Membuat Story..."
+                    : "Share ke Instagram"}
+                </span>
               </Button>
               <Button
                 onClick={() =>

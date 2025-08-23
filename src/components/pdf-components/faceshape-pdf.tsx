@@ -1,17 +1,15 @@
 import { FaceShape as FaceShapeType, UserData } from "@/types";
 import Image from "next/image";
-import { useLayoutEffect, useRef, useState } from "react";
 import { Footer } from "./footer-pdf";
 import { PageHeader } from "./header-pdf";
 
+// Interface IShape dan fungsi generateGimmickChartData tidak berubah
 interface IShape {
   name: string;
   value: number;
 }
-
 const generateGimmickChartData = (mainShapeName: string): IShape[] => {
   const allShapes = ["Heart", "Oblong", "Oval", "Round", "Square", "Diamond"];
-
   const shapeNameMap: { [key: string]: string } = {
     Hati: "Heart",
     Oblong: "Oblong",
@@ -20,15 +18,11 @@ const generateGimmickChartData = (mainShapeName: string): IShape[] => {
     Kotak: "Square",
     Diamond: "Diamond",
   };
-
   const englishMainShapeName = shapeNameMap[mainShapeName] || mainShapeName;
-
   const mainValue = 90;
   const otherCount = allShapes.length - 1;
-
   const baseOtherValue = Math.floor(10 / otherCount);
   let sisa = 10 - baseOtherValue * otherCount;
-
   const chartData: IShape[] = [];
   allShapes.forEach((shapeName) => {
     if (shapeName.toLowerCase() === englishMainShapeName.toLowerCase()) {
@@ -42,8 +36,51 @@ const generateGimmickChartData = (mainShapeName: string): IShape[] => {
       chartData.push({ name: shapeName, value });
     }
   });
-
   return chartData;
+};
+
+// Komponen DetailList tidak berubah
+const DetailList = ({
+  title,
+  content,
+  isDark = false,
+}: {
+  title: string;
+  content: string;
+  isDark?: boolean;
+}) => {
+  const items = content
+    .split("-")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (isDark) {
+    return (
+      <div className="bg-[#323232] text-white p-6 rounded h-full">
+        <h3 className="text-sm font-bold text-[#EF789B] mb-2">{title}</h3>
+        <ul className="space-y-1">
+          {items.map((item, index) => (
+            <li key={index} className="flex text-sm">
+              <span className="mr-2">•</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  return (
+    <div className="p-6 h-full">
+      <h3 className="text-sm font-bold mb-2">{title}</h3>
+      <ul className="space-y-1">
+        {items.slice(1).map((item, index) => (
+          <li key={index} className="flex text-sm text-gray-700">
+            <span className="mr-2">•</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 };
 
 export const FaceShape = ({
@@ -56,15 +93,6 @@ export const FaceShape = ({
   faceShapeDetails?: FaceShapeType;
 }) => {
   const shapeChartData = generateGimmickChartData(userData.faceShape);
-  const infoRef = useRef<HTMLDivElement>(null);
-  const [infoHeight, setInfoHeight] = useState(0);
-
-  useLayoutEffect(() => {
-    if (infoRef.current) {
-      setInfoHeight(infoRef.current.offsetHeight);
-    }
-  }, [userData, faceShapeDetails]);
-
   const shapeNameMap: { [key: string]: string } = {
     Hati: "Heart",
     Oblong: "Oblong",
@@ -85,7 +113,7 @@ export const FaceShape = ({
     value: number;
     active?: boolean;
   }) => (
-    <div className="flex flex-col gap-[18px]">
+    <div className="flex flex-col gap-3">
       <span
         className={`text-sm font-poppins ${
           active ? "font-bold text-gray-800" : "text-gray-500"
@@ -97,35 +125,37 @@ export const FaceShape = ({
         <div
           className="bg-[#EF789B] h-2 rounded-full"
           style={{ width: `${value}%` }}
-        ></div>
+        />
       </div>
     </div>
   );
 
   return (
-    <div className="flex items-center justify-center w-full h-screen">
-      <div className="relative bg-[#F0F0F0] w-full px-10 flex flex-col justify-between min-h-screen">
-        <PageHeader name={userData.name} />
+    <div className="bg-[#F0F0F0] w-full h-full px-10 flex flex-col">
+      <PageHeader />
 
-        {/* Main content with consistent spacing */}
-        <main className="flex-grow py-6">
-          <div className="flex w-full gap-8 mb-4">
-            <div className="relative w-[600px] rounded-lg shadow overflow-hidden">
-              <Image
-                src={userPhotoUrl || "/model.png"}
-                alt="Model Wajah"
-                fill
-                className="object-cover"
-                quality={100}
-              />
-            </div>
-            <div ref={infoRef} className="w-full space-y-2 mb-4">
-              <h1 className="font-oswald text-2xl mb-2">
-                Bentuk wajah kamu {userData.faceShape}
+      <main className="flex-grow py-6 flex flex-col">
+        <div className="flex flex-row w-full gap-8 flex-grow">
+          <div className="relative w-[300px] h-[550px] rounded-lg shadow-lg overflow-hidden">
+            <Image
+              src={userPhotoUrl || "/model.png"}
+              alt="Model Wajah"
+              fill
+              className="object-cover"
+              quality={100}
+            />
+          </div>
+
+          <div className="w-7/12 flex flex-col">
+            <div>
+              <h1 className="font-oswald text-3xl">
+                Bentuk Wajah Kamu {userData.faceShape}
               </h1>
-              <p className="font-poppins text-base text-[#323232] my-4">
-                {faceShapeDetails?.penjelasan_face_shape.split("-")[0]}
+              <p className="font-poppins text-base text-[#323232] my-[10px]">
+                {faceShapeDetails?.penjelasan_face_shape.split("-")[0].trim()}
               </p>
+            </div>
+            <div className="space-y-4 pt-[10px]">
               {shapeChartData.map((shape) => (
                 <ShapeBar
                   key={shape.name}
@@ -139,45 +169,26 @@ export const FaceShape = ({
               ))}
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-6">
-              <h3 className="text-sm font-bold mb-1">Fakta Unik</h3>
-              <p className="text-xs text-gray-600 leading-snug">
-                {faceShapeDetails?.penjelasan_face_shape
-                  .split("-")
-                  .filter((item: string) => item.trim() !== "")
-                  .map((item: string, index: number) =>
-                    index === 0 ? null : (
-                      <span key={index} className="block text-[14px]">
-                        •{" "}
-                        <span className="text-[14px] ml-2">{item.trim()}</span>
-                      </span>
-                    )
-                  )}
-              </p>
-            </div>
-            <div className="bg-[#323232] text-white p-6 rounded">
-              <h3 className="text-sm font-bold text-[#EF789B] mb-1">
-                Karakteristik
-              </h3>
-              <ul className="text-[#323232] font-poppins leading-relaxed space-y-2 text-xs">
-                {faceShapeDetails?.karakteristik
-                  .split("-")
-                  .filter((item: string) => item.trim() !== "")
-                  .map((item: string, index: number) => (
-                    <li key={index} className="flex items-center">
-                      <span className="mr-2 text-white mb-1">•</span>
-                      <span className="text-xs text-white">{item.trim()}</span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          </div>
-        </main>
+        <div className="grid grid-cols-2 gap-4">
+          {faceShapeDetails && (
+            <>
+              <DetailList
+                title="Fakta Unik"
+                content={faceShapeDetails.penjelasan_face_shape}
+              />
+              <DetailList
+                title="Karakteristik"
+                content={faceShapeDetails.karakteristik}
+                isDark
+              />
+            </>
+          )}
+        </div>
+      </main>
 
-        <Footer page="02" />
-      </div>
+      <Footer page="02" />
     </div>
   );
 };
