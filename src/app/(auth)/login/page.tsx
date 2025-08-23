@@ -123,7 +123,7 @@ export default function LoginPage() {
   };
 
   const steps = [
-    { number: "01", title: "Buat Akun", active: true },
+    { number: "01", title: "Login Akun", active: true },
     { number: "02", title: "Lengkapi Data", active: false },
     { number: "03", title: "Analisa", active: false },
   ];
