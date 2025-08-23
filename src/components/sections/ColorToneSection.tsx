@@ -13,45 +13,59 @@ interface ColorGroupProps {
   colors: string[];
 }
 
+interface MobileColorRowProps {
+  title: string;
+  children: React.ReactNode;
+}
+
 interface InfoCardProps {
   title: string;
   text: string;
 }
 
+interface ColorToneSectionProps {
+  colorAnalysisId: string;
+}
+
 const ColorCircle: React.FC<ColorCircleProps> = ({ color, className }) => (
   <div
-    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${className} border border-gray-400`}
+    className={`w-8 h-8 rounded-full ${className} border border-gray-300`}
     style={{ backgroundColor: color }}
   />
 );
 
 const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
   <div className="text-center">
-    <h3 className="font-poppins lg:text-lg text-xs font-bold text-gray-700">
-      {title}
-    </h3>
-    <div className="mt-2 grid grid-cols-3 grid-rows-2 gap-2 sm:gap-3">
-      {(colors || []).map((color, index) => (
+    <h3 className="font-poppins lg:text-lg font-bold text-gray-700">{title}</h3>
+    <div className="mt-2 grid grid-cols-3 grid-rows-2 gap-3">
+      {(colors || []).map((color: string, index: number) => (
         <ColorCircle key={index} color={color} />
       ))}
     </div>
   </div>
 );
 
+const MobileColorRow: React.FC<MobileColorRowProps> = ({ title, children }) => (
+  <div className="flex items-center justify-between w-full py-3 border-b border-gray-200 last:border-b-0">
+    <h3 className="font-poppins text-sm font-bold text-gray-700 flex-shrink-0 pr-4">
+      {title}
+    </h3>
+    <div className="flex flex-wrap gap-2 justify-end">{children}</div>
+  </div>
+);
+
 const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
   <div>
-    <h4 className="font-handlee font-bold lg:text-xl text-xs italic text-[#323232] font-poppins">
+    <h4 className="font-handlee font-bold text-sm sm:text-base lg:text-xl italic text-[#323232] font-poppins">
       {title}
     </h4>
-    <p className="mt-1 lg:text-xl text-xs text-[#323232] font-poppins">
+    <p className="mt-1 text-sm sm:text-base lg:text-xl text-[#323232] font-poppins">
       {text}
     </p>
   </div>
 );
 
-interface ColorToneSectionProps {
-  colorAnalysisId: string;
-}
+// --- KOMPONEN UTAMA ---
 
 const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   colorAnalysisId,
@@ -63,20 +77,24 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   } = useColorToneData(colorAnalysisId);
 
   if (isLoading)
-    return <div className="text-center p-8">Loading color analysis...</div>;
+    return (
+      <div className="text-center p-8 text-base sm:text-lg">
+        Loading color analysis...
+      </div>
+    );
 
   if (error)
     return (
-      <div className="text-center p-8 text-red-500">
-        {error instanceof Error
-          ? error.message
-          : "Gagal memuat data analisa warna."}
+      <div className="text-center p-8 text-red-500 text-base sm:text-lg">
+        {error?.message || "Gagal memuat data analisa warna."}
       </div>
     );
 
   if (!colorData)
     return (
-      <div className="text-center p-8">Data analisa warna tidak ditemukan.</div>
+      <div className="text-center p-8 text-base sm:text-lg">
+        Data analisa warna tidak ditemukan.
+      </div>
     );
 
   const infoData: InfoCardProps[] = [
@@ -89,34 +107,43 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   return (
     <div className="font-sans max-w-6xl w-full mx-auto space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-[20px] lg:gap-[50px]">
-        <div className="lg:col-span-2 p-6 rounded-2xl border-[1px] border-neutral-600">
-          <h2 className="text-[40px] font-bold font-oswald leading-tight">
+        <div className="lg:col-span-2 p-4 sm:p-6 rounded-2xl border-[1px] border-neutral-600">
+          <h2 className="text-2xl sm:text-3xl lg:text-[40px] font-bold font-oswald leading-tight">
             {colorData.name}
           </h2>
-          <p className="mt-4 text-[#323232] font-poppins lg:text-xl text-xs">
+          <p className="mt-4 text-[#323232] font-poppins text-sm sm:text-base lg:text-xl">
             {colorData.penjelasan_color_analysis}
           </p>
         </div>
 
-        <div className="lg:col-span-4 justify-between p-6 rounded-2xl border-[1px] border-neutral-600 h-full">
-          <h2 className="text-center font-script font-handlee text-xl font-bold text-gray-800">
+        <div className="lg:col-span-4 justify-between p-4 sm:p-6 rounded-2xl border-[1px] border-neutral-600 h-full">
+          <h2 className="text-center font-script font-handlee text-lg sm:text-xl font-bold text-gray-800">
             Color Guide Line
           </h2>
 
-          <div className="mt-4 grid grid-cols-3 gap-4 sm:gap-8">
-            <ColorGroup title="Best Color" colors={colorData.best_colour} />
-            <ColorGroup title="Worst Color" colors={colorData.worst_colour} />
-            <ColorGroup
-              title="Neutral Color"
-              colors={colorData.neutral_colour}
-            />
-          </div>
-
-          <div className="mt-10 flex items-center gap-2 lg:gap-0 lg:space-x-4 border border-gray-300 rounded-2xl p-2">
-            <span className="font-bold text-sm text-gray-700 lg:pl-4">
-              Combination
-            </span>
-            <div className="flex items-center lg:gap-x-6 justify-center">
+          <div className="mt-4 lg:hidden">
+            <MobileColorRow title="Best Color">
+              {(colorData.best_colour || []).map(
+                (color: string, index: number) => (
+                  <ColorCircle key={index} color={color} />
+                )
+              )}
+            </MobileColorRow>
+            <MobileColorRow title="Worst Color">
+              {(colorData.worst_colour || []).map(
+                (color: string, index: number) => (
+                  <ColorCircle key={index} color={color} />
+                )
+              )}
+            </MobileColorRow>
+            <MobileColorRow title="Neutral Color">
+              {(colorData.neutral_colour || []).map(
+                (color: string, index: number) => (
+                  <ColorCircle key={index} color={color} />
+                )
+              )}
+            </MobileColorRow>
+            <MobileColorRow title="Combination">
               {(colorData.best_colour_combination || []).map(
                 (colorPair: string[], index: number) =>
                   Array.isArray(colorPair) &&
@@ -127,12 +154,46 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
                     </div>
                   )
               )}
+            </MobileColorRow>
+          </div>
+
+          <div className="hidden lg:block">
+            <div className="mt-4 grid grid-cols-3 gap-8">
+              <ColorGroup
+                title="Best Color"
+                colors={colorData.best_colour || []}
+              />
+              <ColorGroup
+                title="Worst Color"
+                colors={colorData.worst_colour || []}
+              />
+              <ColorGroup
+                title="Neutral Color"
+                colors={colorData.neutral_colour || []}
+              />
+            </div>
+            <div className="mt-10 flex items-center gap-2 lg:gap-0 lg:space-x-4 border border-gray-300 rounded-2xl p-2">
+              <span className="font-bold text-sm text-gray-700 lg:pl-4">
+                Combination
+              </span>
+              <div className="flex items-center lg:gap-x-6 justify-center">
+                {(colorData.best_colour_combination || []).map(
+                  (colorPair: string[], index: number) =>
+                    Array.isArray(colorPair) &&
+                    colorPair.length === 2 && (
+                      <div key={index} className="flex flex-shrink-0">
+                        <ColorCircle color={colorPair[0]} />
+                        <ColorCircle color={colorPair[1]} className="-ml-4" />
+                      </div>
+                    )
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="bg-[#FFC6C6] p-6 rounded-2xl shadow-md mt-[20px] lg:mt-[50px]">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
+      <div className="bg-[#FFC6C6] p-4 sm:p-6 rounded-2xl shadow-md">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
           {infoData.map(
             (info) => info.text && <InfoCard key={info.title} {...info} />
           )}
