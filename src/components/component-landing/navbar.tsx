@@ -39,8 +39,8 @@ export function Navbar() {
   };
 
   return (
-    <div className="mx-auto sticky top-4 sm:top-6 lg:top-[25px] xl:top-[50px] z-50 w-full px-2 sm:px-4 lg:px-8 xl:px-[200px]">
-      <header className="relative rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
+    <div className="mx-auto sticky lg:top-[25px] xl:top-[50px] z-50 w-full lg:px-8 xl:px-[200px]">
+      <header className="relative lg:rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
         {/* Desktop Navigation */}
         <div className="hidden xl:flex items-center justify-between py-3 px-8">
           <div className="flex-shrink-0">

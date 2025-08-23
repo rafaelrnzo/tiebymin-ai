@@ -1,4 +1,4 @@
-import { UserData } from "@/types";
+import { UserData, Product } from "@/types";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import Image from "next/image";
 import { Footer } from "./footer-pdf";
@@ -11,8 +11,8 @@ const MainContent = ({
   products,
 }: {
   isLoading: boolean;
-  error: any;
-  products: any[];
+  error: Error | null;
+  products: Product[];
 }) => {
   if (isLoading) {
     return (
