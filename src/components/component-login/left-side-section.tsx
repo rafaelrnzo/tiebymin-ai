@@ -113,7 +113,11 @@ export default function LeftSideSection({
       ) : null}
 
       {steps && (
-        <div className="lg:hidden w-full px-4 py-6 rounded-2xl">
+        <div className="lg:hidden w-full px-4 rounded-2xl">
+          <p className="text-center font-poppins text-xs pb-5">
+            Mulai perjalanan kecantikanmu dengan analisa kami Biar AI kami yang
+            berikan saran terbaik untuk kamu
+          </p>
           <div className="flex flex-row justify-center items-start">
             {(showExtendedSteps
               ? steps
@@ -126,18 +130,18 @@ export default function LeftSideSection({
                 currentStepNumber && stepNumber === currentStepNumber;
 
               let circleClasses =
-                "w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-colors duration-300 border-2";
-              let textClasses = "text-xs text-center mt-2 w-20 ";
+                "w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-colors duration-300";
+              let textClasses = "text-xs text-center mt-2 w-20 font-bold ";
 
               if (isCurrent) {
                 circleClasses += " bg-[#EF789B] text-white border-[#EF789B]";
-                textClasses += "text-gray-800 font-bold";
+                textClasses += "text-[#323232] font-bold";
               } else if (isCompleted) {
-                circleClasses += " bg-white text-gray-800 border-gray-300";
-                textClasses += "text-gray-500";
+                circleClasses += " bg-white text-[#323232]";
+                textClasses += "text-[#323232]";
               } else {
-                circleClasses += " bg-white text-gray-400 border-gray-300";
-                textClasses += "text-gray-400";
+                circleClasses += " bg-white text-[#323232]";
+                textClasses += "text-[#323232]";
               }
 
               return (

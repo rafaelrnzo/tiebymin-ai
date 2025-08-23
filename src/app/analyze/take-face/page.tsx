@@ -3,10 +3,6 @@ import LeftSideSection from "@/components/component-login/left-side-section";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
 import { ErrorModal } from "@/components/sections/error-modal";
-import { useAllTips } from "@/hooks/useAllTips";
-import { useAnalysisData } from "@/hooks/useAnalysisData";
-import { secureUrl } from "@/lib/api";
-import axios from "axios";
 import { Camera, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -78,16 +74,8 @@ export default function FaceScanPrepPage() {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isApiLoading, setIsApiLoading] = useState(false);
-  const [apiError, setApiError] = useState<string>("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
-  const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
-  const { data: analysisHookData } = useAnalysisData(analysisResultId);
-  const { data: allTipsData } = useAllTips({
-    analysisData: analysisHookData?.rawAnalysisData,
-    enabled: !!analysisHookData?.rawAnalysisData,
-  });
 
   // Data untuk stepper mobile
   const steps = [
@@ -95,12 +83,6 @@ export default function FaceScanPrepPage() {
     { number: "02", title: "Lengkapi Data", active: false },
     { number: "03", title: "Analisa", active: true },
   ];
-
-  useEffect(() => {
-    if (analysisResultId && analysisHookData?.userData && allTipsData) {
-      router.push(`/ai-overview?result_id=${analysisResultId}`);
-    }
-  }, [analysisResultId, analysisHookData, allTipsData, router]);
 
   const handleTakePhoto = () => {
     router.push(`/analyze/open-camera`);
@@ -125,94 +107,24 @@ export default function FaceScanPrepPage() {
     handleUploadFromGallery(); // Langsung buka galeri lagi
   };
 
-  // Helper function to convert File to Blob
-  const fileToBlob = (file: File): Promise<Blob> => {
-    return new Promise((resolve) => {
-      resolve(new Blob([file], { type: file.type }));
-    });
-  };
-
-  const handleAnalyzeFromGallery = async () => {
+  const handleProceedToCamera = () => {
     if (!selectedFile) {
       setErrorModalMessage("Tidak ada file yang dipilih.");
       setIsErrorModalOpen(true);
       return;
     }
 
-    setIsApiLoading(true);
-    setApiError("");
+    // Convert selected image to base64 and store it
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64Image = e.target?.result as string;
+      localStorage.setItem("uploadedFaceImage", base64Image);
+      localStorage.setItem("uploadedFaceImageName", selectedFile.name);
 
-    try {
-      // Convert file to blob untuk API
-      const imageBlob = await fileToBlob(selectedFile);
-
-      // Get analysis data from context
-      const { tinggi, berat, umur, body_shape_id } = analysisData;
-
-      // Validate required data
-      if (!tinggi || !berat || !umur || !body_shape_id) {
-        setErrorModalMessage(
-          "Data analisis tidak lengkap. Silakan ulangi proses."
-        );
-        setIsErrorModalOpen(true);
-        setIsApiLoading(false);
-        return;
-      }
-
-      // Get user ID
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
-        setIsErrorModalOpen(true);
-        setIsApiLoading(false);
-        return;
-      }
-
-      // Prepare form data
-      const formData = new FormData();
-      formData.append("user_id", userId);
-      formData.append("tinggi_badan", tinggi);
-      formData.append("berat_badan", berat);
-      formData.append("umur", umur);
-      formData.append("body_shape_id", body_shape_id);
-      formData.append("foto_wajah", imageBlob, selectedFile.name);
-
-      // Call API
-      const endpoint = secureUrl(`/v1/analysis/full-analysis`);
-      console.log("Calling API endpoint:", endpoint);
-
-      const response = await axios.post(endpoint, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (response.status >= 200 && response.status < 300) {
-        const resultId = response.data.analysis_result_id;
-        if (resultId) {
-          localStorage.setItem("analysisResultId", resultId);
-          localStorage.setItem("skipCameraForGallery", "true");
-
-          router.push("/analyze/open-camera?fromGallery=true&skipCamera=true");
-        } else {
-          throw new Error("Proses analisis gagal. Silakan coba lagi.");
-        }
-      } else {
-        throw new Error(
-          response.data?.message ||
-            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
-        );
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      const err = error as Error;
-      setErrorModalMessage(
-        "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
-      );
-      setIsErrorModalOpen(true);
-    } finally {
-      setIsApiLoading(false);
-    }
+      // Redirect to open-camera with gallery flag
+      router.push("/analyze/open-camera?fromGallery=true&skipCamera=true");
+    };
+    reader.readAsDataURL(selectedFile);
   };
 
   return (
@@ -322,7 +234,6 @@ export default function FaceScanPrepPage() {
               <Button
                 className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
                 onClick={handleUploadFromGallery}
-                disabled={isApiLoading}
               >
                 <ImageIcon className="transition-colors group-hover:text-white size-[26px]" />
                 <span className="text-[16px] font-poppins">
@@ -339,7 +250,7 @@ export default function FaceScanPrepPage() {
             {/* Header with title and AI Powered badge */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-oswald font-bold">Siapkan Wajahmu</h2>
-              <div className="flex items-center gap-2 bg-[#EF789B] rounded-full px-3 py-1 shadow-md">
+              <div className="flex items-center py-3 gap-2 bg-[#EF789B] rounded-full px-4 shadow-md">
                 <span className="text-sm font-bold text-white font-poppins">
                   AI Powered
                 </span>
@@ -438,7 +349,6 @@ export default function FaceScanPrepPage() {
               <Button
                 className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
                 onClick={handleUploadFromGallery}
-                disabled={isApiLoading}
               >
                 <ImageIcon className="transition-colors group-hover:text-white size-[20px]" />
                 <span className="text-sm font-poppins">Upload dari Galeri</span>
@@ -497,22 +407,14 @@ export default function FaceScanPrepPage() {
               <Button
                 onClick={handleReselect}
                 className="w-full py-3 px-4 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100"
-                disabled={isApiLoading}
               >
                 Pilih Ulang
               </Button>
               <Button
-                onClick={handleAnalyzeFromGallery}
+                onClick={handleProceedToCamera}
                 className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
-                disabled={isApiLoading}
               >
-                {isApiLoading ? (
-                  <Spinner />
-                ) : (
-                  <>
-                    Mulai Analisa <AnalysisIcon className="stroke-[#323232]" />
-                  </>
-                )}
+                Lanjut ke Kamera
               </Button>
             </div>
           </div>
