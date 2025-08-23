@@ -27,7 +27,9 @@ const ColorCircle: React.FC<ColorCircleProps> = ({ color, className }) => (
 
 const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
   <div className="text-center">
-    <h3 className="font-poppins text-lg font-bold text-gray-700">{title}</h3>
+    <h3 className="font-poppins lg:text-lg text-xs font-bold text-gray-700">
+      {title}
+    </h3>
     <div className="mt-2 grid grid-cols-3 grid-rows-2 gap-2 sm:gap-3">
       {(colors || []).map((color, index) => (
         <ColorCircle key={index} color={color} />
@@ -38,10 +40,12 @@ const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
 
 const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
   <div>
-    <h4 className="font-handlee font-bold text-xl italic text-[#323232] font-poppins">
+    <h4 className="font-handlee font-bold lg:text-xl text-xs italic text-[#323232] font-poppins">
       {title}
     </h4>
-    <p className="mt-1 text-[18px] text-[#323232] font-poppins">{text}</p>
+    <p className="mt-1 lg:text-xl text-xs text-[#323232] font-poppins">
+      {text}
+    </p>
   </div>
 );
 
@@ -84,12 +88,12 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
 
   return (
     <div className="font-sans max-w-6xl w-full mx-auto space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-6 gap-[50px]">
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-[20px] lg:gap-[50px]">
         <div className="lg:col-span-2 p-6 rounded-2xl border-[1px] border-neutral-600">
           <h2 className="text-[40px] font-bold font-oswald leading-tight">
             {colorData.name}
           </h2>
-          <p className="mt-4 text-[#323232] font-poppins text-[18px]">
+          <p className="mt-4 text-[#323232] font-poppins lg:text-xl text-xs">
             {colorData.penjelasan_color_analysis}
           </p>
         </div>
@@ -108,11 +112,11 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
             />
           </div>
 
-          <div className="mt-10 flex items-center space-x-4 border border-gray-300 rounded-2xl p-2">
-            <span className="font-bold text-sm text-gray-700 pl-4">
+          <div className="mt-10 flex items-center gap-2 lg:gap-0 lg:space-x-4 border border-gray-300 rounded-2xl p-2">
+            <span className="font-bold text-sm text-gray-700 lg:pl-4">
               Combination
             </span>
-            <div className="flex items-center gap-x-10 justify-center">
+            <div className="flex items-center lg:gap-x-6 justify-center">
               {(colorData.best_colour_combination || []).map(
                 (colorPair: string[], index: number) =>
                   Array.isArray(colorPair) &&
@@ -127,7 +131,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           </div>
         </div>
       </div>
-      <div className="bg-[#FFC6C6] p-6 rounded-2xl shadow-md mt-[50px]">
+      <div className="bg-[#FFC6C6] p-6 rounded-2xl shadow-md mt-[20px] lg:mt-[50px]">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
           {infoData.map(
             (info) => info.text && <InfoCard key={info.title} {...info} />

@@ -14,13 +14,15 @@ interface TipCardProps {
 
 const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
   <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6 h-full">
-    <div className="mb-3">  
-      <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+    <div className="flex flex-row items-center gap-2 lg:flex-col lg:items-start">
+      <div className="mb-3">
+        <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+      </div>
+      <h3 className="font-bold font-handlee italic text-[#323232] mt-1 mb-3 text-xl">
+        {category}
+      </h3>
     </div>
-    <h3 className="font-bold font-handlee italic text-[#323232] mb-3 text-[17px]">
-      {category}
-    </h3>
-    <span className="text-[#323232] font-poppins text-[17px] leading-relaxed space-y-2">
+    <span className="text-[#323232] font-poppins lg:text-xl text-xs leading-relaxed space-y-2">
       {tip}
     </span>
   </div>
@@ -63,7 +65,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[50px]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
       <TipCard
         category="Tips Bentuk Wajah"
         tip={allTips.faceTip}
@@ -82,28 +84,26 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
         icon="/overview-ai/icons/mdi_color.svg"
       />
       <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6 shadow-md">
-        <div className="mb-3">
-          <Image
-            src="/overview-ai/icons/ic_baseline-tips-and-updates.svg"
-            width={32}
-            height={32}
-            alt="Tips & Trick Icon"
-          />
+        <div className="flex lg:flex-col flex-row items-center lg:items-start gap-2">
+          <div className="mb-3">
+            <Image
+              src="/overview-ai/icons/ic_baseline-tips-and-updates.svg"
+              width={32}
+              height={32}
+              alt="Tips & Trick Icon"
+            />
+          </div>
+          <h3 className="font-bold font-handlee italic text-[#323232] mt-1 mb-3 text-xl">
+            Tips Makeup & BMI
+          </h3>
         </div>
-        <h3 className="font-bold font-handlee italic text-[#323232] mb-3 text-[18px]">
-          Tips Makeup & BMI
-        </h3>
-        <div className="text-[#323232] text-[18px] leading-relaxed">
+        <div className="text-[#323232] lg:text-xl text-xs leading-relaxed">
           <div className="text">
-          <strong>Makeup:</strong> {allTips.makeupTip}
-
+            <strong>Makeup:</strong> {allTips.makeupTip}
           </div>
           <div className="text mt-2">
-          <strong>Gaya Sesuai BMI:</strong> {allTips.bmiTip}
-
-
+            <strong>Gaya Sesuai BMI:</strong> {allTips.bmiTip}
           </div>
-
         </div>
       </div>
     </div>

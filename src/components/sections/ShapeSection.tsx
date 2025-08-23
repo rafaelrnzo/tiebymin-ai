@@ -15,8 +15,8 @@ interface ShapeBarProps {
 
 const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
   <div>
-    <p className="text-xl font-poppins text-gray-800">{name}</p>
-    <div className="mt-2 w-full bg-gray-200 rounded-full h-3.5">
+    <p className="lg:text-xl text-xs font-poppins text-gray-800">{name}</p>
+    <div className="mt-2 w-full bg-[#323232]/10 rounded-full h-3.5">
       <div
         className={`h-3.5 rounded-full bg-gradient-to-l from-[#FFA2BD] to-[#FF7EA4]`}
         style={{ width: `${value}%` }}
@@ -88,22 +88,21 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     );
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[50px]">
+    <div className="flex flex-col lg:h-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
         <div className="border rounded-2xl p-4 sm:p-6">
-          <h3 className="font-bold text-[48px] font-oswald">
+          <h3 className="font-bold text-[24px] lg:text-[48px] font-oswald">
             {shapeDetails.name}
           </h3>
-          <p className="text-[#323232] leading-relaxed mt-4 font-poppins">
+          <p className="text-[#323232] leading-relaxed mt-3 lg:mt-4 font-poppins">
             {shapeDetails.penjelasan_face_shape
               .split("-")
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) =>
                 index === 0 ? (
                   <span key={index}>
-                    <span className="block text-[18px]">{item.trim()}</span>
-                    <span className="hidden text-lg my-3 font-bold font-handlee text-black">
-                      Fakta Unik
+                    <span className="block text-xs lg:text-[18px]">
+                      {item.trim()}
                     </span>
                   </span>
                 ) : (
@@ -115,7 +114,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
           </p>
         </div>
         <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6 shadow-md">
-          <h3 className="font-bold font-handlee text-[#323232] mb-5 mt-4 text-xl text-center italic">
+          <h3 className="font-bold font-handlee text-[#323232] mb-3 lg:mb-5 lg:mt-4 text-xl text-center italic">
             Karakteristik
           </h3>
           <ul className="text-[#323232] font-poppins leading-relaxed space-y-2">
@@ -124,8 +123,10 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) => (
                 <li key={index} className="flex items-center">
-                  <span className="mr-2 text-gray-500 mb-1">•</span>
-                  <span className="text-[18px]">{item.trim()}</span>
+                  <span className="mr-2 text-gray-500 mb-1 text-xs lg:text-[18px]">
+                    •
+                  </span>
+                  <span className="text-xs lg:text-[18px]">{item.trim()}</span>
                 </li>
               ))}
           </ul>

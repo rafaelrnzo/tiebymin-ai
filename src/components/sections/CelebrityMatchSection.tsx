@@ -4,7 +4,6 @@ import { useCelebrityData } from "@/hooks/useAnalysisData";
 import Image from "next/image";
 import React, { useState } from "react";
 
-// --- Komponen Utama ---
 interface CelebrityMatchSectionProps {
   celebrityId: string | null;
 }
@@ -28,11 +27,12 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
       </div>
     );
 
-  // Tampilan jika tidak ada kecocokan (celebrityId null atau fetch gagal)
   if (!matchData) {
     return (
       <div className="text-center p-8 border border-dashed rounded-2xl">
-        <h3 className="font-bold text-lg text-gray-800">Belum Ada Kecocokan</h3>
+        <h3 className="font-bold text-lg text-[#323232]">
+          Belum Ada Kecocokan
+        </h3>
         <p className="text-gray-600 mt-2 text-sm">
           Saat ini kami belum menemukan selebriti yang cocok denganmu. Nantikan
           update dari kami!
@@ -41,26 +41,25 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
     );
   }
 
-  // Tampilan jika ada kecocokan
   return (
-    <div className="flex flex-col md:flex-row gap-[50px]">
-      <div className="flex flex-col gap-[50px] w-full">
+    <div className="flex flex-col md:flex-row gap-[20px] lg:gap-[50px]">
+      <div className="flex flex-col gap-[20px] lg:gap-[50px] w-full">
         <div className="border-[1px] border-neutral-600 rounded-2xl p-6">
-          <p className="font-handlee text-[#ED80A7] text-xl mb-1">
+          <p className="font-handlee text-[#323232] text-xl mb-1">
             Artis yang mirip kamu
           </p>
-          <h3 className="text-3xl font-bold text-gray-800 font-oswald">
+          <h3 className="text-3xl font-bold text-[#323232] font-oswald">
             {matchData.name}
           </h3>
-          <p className="text-[#323232] font-poppins text-[18px] mt-3 leading-relaxed">
+          <p className="text-[#323232] font-poppins text-xs lg:text-[18px] mt-3 leading-relaxed">
             {matchData.description}
           </p>
         </div>
         <div className="bg-[#FFC6C6] rounded-2xl p-6">
-          <h4 className="font-bold font-handlee text-gray-800 text-[18px] mb-2 italic">
+          <h4 className="font-bold font-handlee text-[#323232] text-xl mb-2 italic">
             Kenapa Cocok?
           </h4>
-          <p className="text-[#323232] font-poppins text-[18px] leading-relaxed">
+          <p className="text-[#323232] font-poppins text-xs lg:text-[18px] leading-relaxed">
             {matchData.similarity_text}
           </p>
         </div>
