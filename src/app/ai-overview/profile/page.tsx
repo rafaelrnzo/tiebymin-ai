@@ -18,6 +18,23 @@ import {
 import { Download, Share2 } from "lucide-react";
 import Image from "next/image";
 
+// Function to shorten month names
+const shortenMonth = (dateString: string) => {
+  return dateString
+    .replace("January", "Jan")
+    .replace("February", "Feb")
+    .replace("March", "Mar")
+    .replace("April", "Apr")
+    .replace("May", "May")
+    .replace("June", "Jun")
+    .replace("July", "Jul")
+    .replace("August", "Aug")
+    .replace("September", "Sep")
+    .replace("October", "Oct")
+    .replace("November", "Nov")
+    .replace("December", "Dec");
+};
+
 const testHistory = [
   { date: "December 20, 2025" },
   { date: "December 20, 2025" },
@@ -29,51 +46,45 @@ export default function DashboardPage() {
   return (
     <div className="bg-white min-h-screen w-full font-poppins text-[#323232]">
       <Navbar />
-      <main className="lg:px-[200px] mt-[50px] py-8 sm:py-12 md:py-16">
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-[50px] mb-12 md:mb-16">
+      <main className="lg:px-[200px] px-4 mt-[20px] lg:mt-[50px]">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-[20px] lg:gap-[50px] mb-[20px]">
           <Card className="lg:col-span-1 rounded-2xl border flex flex-col items-center justify-center text-center p-6">
             <Image
               src={"/flower-profile.png"}
               alt="Analysis Result"
               width={204}
               height={204}
-              className="h-[204px] w-[204px] object-cover rounded-full"
+              className="h-[120px] w-[120px] sm:h-[150px] sm:w-[150px] md:h-[180px] md:w-[180px] lg:h-[204px] lg:w-[204px] object-cover rounded-full"
               loading="lazy"
             />
             <input
               defaultValue="Winona Karamoy"
-              className="w-full text-center font-bold text-[36px] border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+              className="w-full text-center font-bold text-[24px] lg:text-[36px] border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
             />
-            <div className="w-full mt-6 space-y-3">
-              <Button
-                variant="outline"
-                className="w-full rounded-lg border-[#EF789B] text-[#EF789B] hover:bg-[#EF789B] hover:text-white"
-              >
+            <div className="flex flex-row gap-4 items-center lg:flex-col w-full">
+              <button className="py-2 border w-full rounded-lg border-[#EF789B] text-[#EF789B] hover:bg-[#EF789B] hover:text-white">
                 Reset Password
-              </Button>
-              <Button
-                variant="destructive"
-                className="w-full rounded-lg bg-[#EF789B] hover:bg-pink-500"
-              >
+              </button>
+              <button className="w-full py-2 text-white font-bold font-poppins rounded-lg bg-[#EF789B] hover:bg-pink-500">
                 Log Out
-              </Button>
+              </button>
             </div>
           </Card>
 
           <div className="w-full lg:col-span-2">
-            <div className="flex flex-col w-full gap-[50px] h-full">
-              <h1 className="font-oswald text-4xl md:text-5xl font-bold text-[#323232]">
+            <div className="flex flex-col w-full gap-[20px] lg:gap-[50px] h-full">
+              <h1 className="hidden lg:block font-oswald text-4xl md:text-5xl font-bold text-[#323232]">
                 Selamat datang, Winona!
               </h1>
-              <p className="text-[#323232] text-xl font-poppins">
+              <p className="hidden lg:block text-[#323232] text-xl font-poppins">
                 Temukan versi terbaik dirimu dengan sentuhan teknologi AI. Mulai
                 dari bentuk wajah, warna kulit, bentuk tubuh hingga rekomendasi
                 produk terbaik. Semuanya kami analisis untuk bantu kamu tampil
                 lebih percaya diri dalam setiap aktivitas kamu.
               </p>
-              <Card className="bg-[#323232] bg-[url('/card-bg.png')] text-white rounded-2xl shadow-xl p-6 md:p-8 flex flex-col items-center justify-between gap-6 flex-1">
+              <div className="bg-[#323232] bg-[url('/card-bg.png')] text-white rounded-2xl shadow-xl p-6 flex flex-col items-center justify-between gap-6 flex-1">
                 <div className="text-center md:text-left">
-                  <h3 className="font-handlee text-4xl md:text-5xl mt-5">
+                  <h3 className="font-handlee italic text-4xl md:text-5xl mt-5">
                     Mulai Analisis Kecantikan Kamu
                   </h3>
                 </div>
@@ -96,13 +107,13 @@ export default function DashboardPage() {
                   </div>
                   <p className="font-poppins">Mulai Analisa</p>
                 </Button>
-              </Card>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Bagian Riwayat Tes */}
-        <section className="flex flex-col gap-[50px] mt-[50px]">
+        <section className="flex flex-col gap-[20px] lg:gap-[50px] mt-0 lg:mt-[50px]">
           <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#323232]">
             Test History
           </h2>
@@ -117,14 +128,14 @@ export default function DashboardPage() {
             <Table className="border-0">
               <TableHeader className="border-0">
                 <TableRow className="bg-[#FFC6C6] hover:bg-[#FFC6C6]/90 shadow-md border-0">
-                  <TableHead className="text-[#323232] font-bold text-base w-[30%] rounded-l-2xl py-4 border-0">
+                  <TableHead className="text-[#323232] font-bold text-base pl-10 rounded-l-2xl py-4 border-0">
                     Date
                   </TableHead>
-                  <TableHead className="text-[#323232] font-bold text-base w-[40%] py-4 border-0">
-                    Lihat Hasil Analisa
+                  <TableHead className="text-[#323232] font-bold text-base py-4 border-0">
+                    Preview
                   </TableHead>
-                  <TableHead className="text-[#323232] font-bold text-base text-left w-[30%] rounded-r-2xl py-4 border-0">
-                    Download & Share
+                  <TableHead className="text-[#323232] font-bold text-base rounded-r-2xl py-4 border-0">
+                    Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -132,7 +143,7 @@ export default function DashboardPage() {
                 {testHistory.map((item, index) => (
                   <TableRow key={index} className="border-b-[#323232]/20">
                     <TableCell className="font-medium py-4">
-                      {item.date}
+                      {shortenMonth(item.date)}
                     </TableCell>
                     <TableCell className="py-4">
                       <Button
@@ -153,14 +164,17 @@ export default function DashboardPage() {
                             />
                           </svg>
                         </div>
-                        <p>Lihat Hasil Analisa</p>
+                        <p className="hidden sm:block">Lihat Hasil Analisa</p>
+                        <p className="sm:hidden">Lihat</p>
                       </Button>
                     </TableCell>
                     <TableCell className="py-4">
                       <div className="flex items-center gap-8">
                         <Button className="bg-[#EF789B] hover:bg-pink-500 rounded-lg shadow-md">
-                          <Download className="mr-2 h-4 w-4 text-white" />
-                          <p className="text-white">Download</p>
+                          <Download className="h-4 w-4 text-white" />
+                          <p className="hidden sm:block text-white ml-2">
+                            Download
+                          </p>
                         </Button>
                         <Button
                           variant="outline"

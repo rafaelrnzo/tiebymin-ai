@@ -3,7 +3,6 @@
 import React from "react";
 import { useColorToneData } from "@/hooks/useAnalysisData";
 
-
 interface ColorCircleProps {
   color: string;
   className?: string;
@@ -28,8 +27,6 @@ interface ColorToneSectionProps {
   colorAnalysisId: string;
 }
 
-
-
 const ColorCircle: React.FC<ColorCircleProps> = ({ color, className }) => (
   <div
     className={`w-8 h-8 rounded-full ${className} border border-gray-300`}
@@ -39,11 +36,9 @@ const ColorCircle: React.FC<ColorCircleProps> = ({ color, className }) => (
 
 const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
   <div className="text-center">
-    <h3 className="font-poppins lg:text-lg font-bold text-gray-700">
-      {title}
-    </h3>
+    <h3 className="font-poppins lg:text-lg font-bold text-gray-700">{title}</h3>
     <div className="mt-2 grid grid-cols-3 grid-rows-2 gap-3">
-      {(colors || []).map((color, index) => (
+      {(colors || []).map((color: string, index: number) => (
         <ColorCircle key={index} color={color} />
       ))}
     </div>
@@ -55,9 +50,7 @@ const MobileColorRow: React.FC<MobileColorRowProps> = ({ title, children }) => (
     <h3 className="font-poppins text-sm font-bold text-gray-700 flex-shrink-0 pr-4">
       {title}
     </h3>
-    <div className="flex flex-wrap gap-2 justify-end">
-      {children}
-    </div>
+    <div className="flex flex-wrap gap-2 justify-end">{children}</div>
   </div>
 );
 
@@ -72,7 +65,6 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
   </div>
 );
 
-
 // --- KOMPONEN UTAMA ---
 
 const ColorToneSection: React.FC<ColorToneSectionProps> = ({
@@ -85,20 +77,24 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   } = useColorToneData(colorAnalysisId);
 
   if (isLoading)
-    return <div className="text-center p-8 text-base sm:text-lg">Loading color analysis...</div>;
+    return (
+      <div className="text-center p-8 text-base sm:text-lg">
+        Loading color analysis...
+      </div>
+    );
 
   if (error)
     return (
       <div className="text-center p-8 text-red-500 text-base sm:text-lg">
-        {error instanceof Error
-          ? error.message
-          : "Gagal memuat data analisa warna."}
+        {error?.message || "Gagal memuat data analisa warna."}
       </div>
     );
 
   if (!colorData)
     return (
-      <div className="text-center p-8 text-base sm:text-lg">Data analisa warna tidak ditemukan.</div>
+      <div className="text-center p-8 text-base sm:text-lg">
+        Data analisa warna tidak ditemukan.
+      </div>
     );
 
   const infoData: InfoCardProps[] = [
@@ -127,19 +123,25 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
 
           <div className="mt-4 lg:hidden">
             <MobileColorRow title="Best Color">
-              {(colorData.best_colour || []).map((color, index) => (
-                <ColorCircle key={index} color={color} />
-              ))}
+              {(colorData.best_colour || []).map(
+                (color: string, index: number) => (
+                  <ColorCircle key={index} color={color} />
+                )
+              )}
             </MobileColorRow>
             <MobileColorRow title="Worst Color">
-              {(colorData.worst_colour || []).map((color, index) => (
-                <ColorCircle key={index} color={color} />
-              ))}
+              {(colorData.worst_colour || []).map(
+                (color: string, index: number) => (
+                  <ColorCircle key={index} color={color} />
+                )
+              )}
             </MobileColorRow>
             <MobileColorRow title="Neutral Color">
-              {(colorData.neutral_colour || []).map((color, index) => (
-                <ColorCircle key={index} color={color} />
-              ))}
+              {(colorData.neutral_colour || []).map(
+                (color: string, index: number) => (
+                  <ColorCircle key={index} color={color} />
+                )
+              )}
             </MobileColorRow>
             <MobileColorRow title="Combination">
               {(colorData.best_colour_combination || []).map(
@@ -157,9 +159,18 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
 
           <div className="hidden lg:block">
             <div className="mt-4 grid grid-cols-3 gap-8">
-              <ColorGroup title="Best Color" colors={colorData.best_colour} />
-              <ColorGroup title="Worst Color" colors={colorData.worst_colour} />
-              <ColorGroup title="Neutral Color" colors={colorData.neutral_colour} />
+              <ColorGroup
+                title="Best Color"
+                colors={colorData.best_colour || []}
+              />
+              <ColorGroup
+                title="Worst Color"
+                colors={colorData.worst_colour || []}
+              />
+              <ColorGroup
+                title="Neutral Color"
+                colors={colorData.neutral_colour || []}
+              />
             </div>
             <div className="mt-10 flex items-center gap-2 lg:gap-0 lg:space-x-4 border border-gray-300 rounded-2xl p-2">
               <span className="font-bold text-sm text-gray-700 lg:pl-4">

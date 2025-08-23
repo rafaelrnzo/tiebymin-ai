@@ -298,8 +298,7 @@ function PreviewPdfPage() {
         />
         {error && (
           <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg max-w-6xl w-full">
-            {" "}
-            {error}{" "}
+            {error}
           </div>
         )}
       </div>
@@ -312,12 +311,10 @@ export default function PreviewPdf() {
     <Suspense
       fallback={
         <div className="bg-[#F0F0F0] min-h-screen flex flex-col">
-          {" "}
-          <Skeleton className="h-16 w-full" />{" "}
+          <Skeleton className="h-16 w-full" />
           <div className="flex-grow flex items-center justify-center p-4">
-            {" "}
-            <Skeleton className="h-[85vh] w-full max-w-6xl rounded-2xl" />{" "}
-          </div>{" "}
+            <Skeleton className="h-[85vh] w-full max-w-6xl rounded-2xl" />
+          </div>
         </div>
       }
     >

@@ -7,6 +7,24 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import LeftSideSection from "@/components/component-login/left-side-section";
+import { ChevronRight } from "lucide-react";
+
+// HELPER HOOK: (Tidak ada perubahan)
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const media = window.matchMedia(query);
+      if (media.matches !== matches) {
+        setMatches(media.matches);
+      }
+      const listener = () => setMatches(media.matches);
+      window.addEventListener("resize", listener);
+      return () => window.removeEventListener("resize", listener);
+    }
+  }, [matches, query]);
+  return matches;
+};
 
 const BodyTypeSkeleton = ({ count = 6 }) => {
   const topRowCount = Math.ceil(count / 2);
@@ -58,13 +76,11 @@ interface BodyType {
 
 export default function PrepareFacePage() {
   const { analysisData, setAnalysisData } = useAnalysis();
-
   const [allBodyTypes, setAllBodyTypes] = useState<BodyType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showOverlay, setShowOverlay] = useState(false);
-
   const router = useRouter();
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
     const fetchAllBodyShapes = async () => {
@@ -72,14 +88,11 @@ export default function PrepareFacePage() {
       setError(null);
       try {
         const response = await axios.get(secureUrl(`/v1/body-shapes/`));
-
         if (response.data && response.data.length > 0) {
           setAllBodyTypes(response.data);
-
           if (!analysisData.body_shape_id) {
             setAnalysisData((prev) => ({
               ...prev,
-              bodyType: response.data[0].id,
               body_shape_id: response.data[0].id,
             }));
           }
@@ -88,40 +101,35 @@ export default function PrepareFacePage() {
         }
       } catch (err) {
         setError("Gagal memuat data bentuk tubuh. Silakan coba lagi nanti.");
-        console.error("Fetch error in PrepareFacePage:", err);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchAllBodyShapes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSelectBodyType = (typeId: string) => {
-    setAnalysisData((prev) => ({
-      ...prev,
-      body_shape_id: typeId,
-    }));
+    setAnalysisData((prev) => ({ ...prev, body_shape_id: typeId }));
   };
 
   const handleNext = () => {
     router.push(`/analyze/take-face`);
   };
 
-  const handleCloseOverlay = () => setShowOverlay(false);
-
   const selectedTypeId = analysisData.body_shape_id;
   const selectedType = allBodyTypes.find((type) => type.id === selectedTypeId);
 
+  // Data untuk layout desktop
   const topRow = allBodyTypes.slice(0, Math.ceil(allBodyTypes.length / 2));
   const bottomRow = allBodyTypes.slice(Math.ceil(allBodyTypes.length / 2));
 
-  // Responsive image sizes
-  const bodyImageWidth = 100;
-  const bodyImageHeight = 220;
-  const bodyImageClass =
-    "w-[70px] h-[140px] xs:w-[80px] xs:h-[180px] sm:w-[100px] sm:h-[220px] object-contain";
+  // Data untuk stepper mobile
+  const steps = [
+    { number: "01", title: "Buat Akun", active: false },
+    { number: "02", title: "Lengkapi Data", active: false },
+    { number: "03", title: "Analisa", active: true },
+  ];
 
   if (error)
     return (
@@ -131,235 +139,211 @@ export default function PrepareFacePage() {
     );
 
   return (
-    <div className="min-h-screen w-full p-2 sm:p-3 flex flex-col items-center justify-center relative bg-[url('/login-bg.png')] bg-cover bg-center">
-      <style jsx global>{`
-        @keyframes rotate-sparkle {
-          0%,
-          100% {
-            transform: rotate(0deg);
-          }
-          25% {
-            transform: rotate(90deg);
-          }
-          50% {
-            transform: rotate(0deg);
-          }
-          75% {
-            transform: rotate(-90deg);
-          }
-        }
-        .sparkle-animation {
-          animation: rotate-sparkle 4s ease-in-out infinite;
-        }
-      `}</style>
-
-      {showOverlay && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-2 sm:p-4">
-          <div
-            className="absolute inset-0 bg-[#323232]/30 backdrop-blur-sm"
-            onClick={handleCloseOverlay}
-          />
-          <div className="relative bg-white/90 rounded-2xl shadow-xl p-4 sm:p-8 max-w-md w-full">
-            <div className="flex justify-end">
-              <Button
-                onClick={handleCloseOverlay}
-                className="text-gray-500 hover:text-gray-700 text-2xl font-bold -mt-4 -mr-2"
-                aria-label="Tutup"
-              >
-                ×
-              </Button>
-            </div>
-            <div className="flex flex-col items-center">
-              <Image
-                src="/scan-face-illustration.png"
-                alt="Scan Wajah"
-                width={100}
-                height={100}
-                className="mb-4"
-              />
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">
-                Scan Wajah Kamu
-              </h2>
-              <p className="text-gray-600 text-center mb-4 text-sm sm:text-base">
-                Fitur scan wajah akan segera tersedia! <br /> Nantikan update
-                dari kami.
-              </p>
-              <Button
-                onClick={handleCloseOverlay}
-                className="bg-pink-400 hover:bg-pink-500 text-white font-semibold rounded-xl px-6 py-2 transition-colors"
-              >
-                Tutup
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center justify-center">
-          <div className="flex flex-col gap-8">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center relative bg-[url('/login-bg.png')] bg-cover bg-center">
+      {isDesktop ? (
+        <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center">
+          <div className="lg:order-1">
             <LeftSideSection
               currentStep={3}
               title="Pilih Bentuk Tubuh Kamu"
               description="Dengan mengetahui bentuk tubuhmu, kami bisa memberikan rekomendasi pakaian yang sesuai dengan proporsi tubuhmu"
             />
           </div>
-
-          {isLoading ? (
-            <BodyTypeSkeleton
-              count={allBodyTypes.length > 0 ? allBodyTypes.length : 6}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-2 md:px-0 lg:order-2">
-              <div className="flex flex-col justify-between w-full gap-4 sm:gap-8">
+          <div className="lg:order-2">
+            {isLoading ? (
+              <BodyTypeSkeleton
+                count={allBodyTypes.length > 0 ? allBodyTypes.length : 6}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto gap-4 sm:gap-8">
                 <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 justify-center w-full">
                   {topRow.map((type) => (
                     <div
                       key={type.id}
                       onClick={() => handleSelectBodyType(type.id)}
-                      className="focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto flex-1 min-w-[90px] max-w-[120px] border-0"
+                      className="cursor-pointer flex flex-col items-center flex-1 min-w-[90px] max-w-[120px]"
                     >
-                      <div className="flex flex-col items-center border-0">
-                        <div className="relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center border-0">
-                          <div
-                            className={`absolute inset-0 transition-opacity duration-300 ${
-                              selectedTypeId === type.id
-                                ? "rounded-lg opacity-100 bg-gradient-to-b from-white/90 to-transparent border-0"
-                                : "opacity-0"
-                            }`}
-                          />
-                          <Image
-                            src={type.link_picture}
-                            alt={`${type.name} body type`}
-                            width={bodyImageWidth}
-                            height={bodyImageHeight}
-                            className={`${bodyImageClass} relative z-10`}
-                          />
-                        </div>
-                        <p
-                          className={`${
+                      <div className="relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center">
+                        <div
+                          className={`absolute inset-0 transition-opacity duration-300 rounded-lg ${
                             selectedTypeId === type.id
-                              ? "text-gray-800 font-bold"
-                              : "text-gray-500"
-                          } text-xs sm:text-sm text-center`}
-                        >
-                          {type.name}
-                        </p>
+                              ? "opacity-100 bg-gradient-to-b from-white/90 to-transparent"
+                              : "opacity-0"
+                          }`}
+                        />
+                        <Image
+                          src={type.link_picture}
+                          alt={`${type.name} body type`}
+                          layout="fill"
+                          objectFit="contain"
+                          className="relative z-10"
+                        />
                       </div>
+                      <p
+                        className={`text-xs sm:text-sm text-center ${
+                          selectedTypeId === type.id
+                            ? "text-gray-800 font-bold"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {type.name}
+                      </p>
                     </div>
                   ))}
                 </div>
-                <div className="border-0 flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 justify-center w-full">
+                <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 justify-center w-full">
                   {bottomRow.map((type) => (
                     <div
                       key={type.id}
                       onClick={() => handleSelectBodyType(type.id)}
-                      className="border-0 focus:outline-none p-0 bg-transparent hover:bg-transparent h-auto flex-1 min-w-[90px] max-w-[120px]"
+                      className="cursor-pointer flex flex-col items-center flex-1 min-w-[90px] max-w-[120px]"
                     >
-                      <div className="border-0 flex flex-col items-center">
-                        <div className="border-0 relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center">
-                          <div
-                            className={`border-0 absolute inset-0 transition-opacity duration-300 ${
-                              selectedTypeId === type.id
-                                ? "rounded-lg opacity-100 bg-gradient-to-b from-white/90 to-transparent"
-                                : "opacity-0"
-                            }`}
-                          />
-                          <Image
-                            src={type.link_picture}
-                            alt={`${type.name} body type`}
-                            width={bodyImageWidth}
-                            height={bodyImageHeight}
-                            className={`${bodyImageClass} relative z-10`}
-                          />
-                        </div>
-                        <p
-                          className={`${
+                      <div className="relative mb-2 flex h-36 xs:h-40 sm:h-64 w-16 xs:w-20 sm:w-32 items-center justify-center">
+                        <div
+                          className={`absolute inset-0 transition-opacity duration-300 rounded-lg ${
                             selectedTypeId === type.id
-                              ? "text-gray-800 font-bold"
-                              : "text-gray-500"
-                          } text-xs sm:text-sm text-center`}
-                        >
-                          {type.name}
-                        </p>
+                              ? "opacity-100 bg-gradient-to-b from-white/90 to-transparent"
+                              : "opacity-0"
+                          }`}
+                        />
+                        <Image
+                          src={type.link_picture}
+                          alt={`${type.name} body type`}
+                          layout="fill"
+                          objectFit="contain"
+                          className="relative z-10"
+                        />
                       </div>
+                      <p
+                        className={`text-xs sm:text-sm text-center ${
+                          selectedTypeId === type.id
+                            ? "text-gray-800 font-bold"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {type.name}
+                      </p>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
-          )}
-
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl h-[620px] py-6 sm:py-8 px-2 sm:px-3 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3 mt-6 lg:mt-0">
+            )}
+          </div>
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl h-[620px] py-6 sm:py-8 px-4 sm:px-6 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-3">
             {isLoading || !selectedType ? (
-              <div className="w-full animate-pulse">
-                <div className="h-10 sm:h-12 w-3/4 bg-gray-300/70 rounded mb-4 sm:mb-6"></div>
-                <div className="flex justify-center mb-6 sm:mb-8">
-                  <div className="w-12 sm:w-16 h-20 sm:h-24 bg-gray-300/70 rounded-md"></div>
-                </div>
-                <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                  <div className="h-4 w-full bg-gray-300/70 rounded"></div>
-                  <div className="h-4 w-full bg-gray-300/70 rounded"></div>
-                  <div className="h-4 w-5/6 bg-gray-300/70 rounded"></div>
-                </div>
-                <div className="mb-6 sm:mb-8">
-                  <div className="h-5 sm:h-6 w-1/2 bg-gray-300/70 rounded mb-3 sm:mb-4"></div>
-                  <div className="space-y-2 sm:space-y-3">
-                    <div className="h-4 w-full bg-gray-300/70 rounded"></div>
-                    <div className="h-4 w-full bg-gray-300/70 rounded"></div>
-                  </div>
-                </div>
-                <div className="w-full h-12 sm:h-14 bg-gray-400/70 rounded-xl mt-4"></div>
+              <div className="w-full animate-pulse space-y-4">
+                <BodyTypeSkeleton />
               </div>
             ) : (
               <>
                 <div className="w-full">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 sm:mb-6 font-oswald text-left">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 font-oswald text-left">
                     {selectedType.name}
                   </h2>
-                  <div className="flex justify-center mb-6 sm:mb-8">
-                    <Image
-                      src={selectedType.link_picture}
-                      alt={`${selectedType.name} body type`}
-                      width={60}
-                      height={90}
-                      className="w-auto h-20 sm:h-24 object-contain"
-                    />
-                  </div>
-                  <p className="text-gray-600 text-xs sm:text-sm mb-6 sm:mb-8 leading-relaxed text-left">
+                  <p className="text-gray-600 text-xs sm:text-sm my-4 leading-relaxed text-left">
                     {selectedType.penjelasan_body_shape}
                   </p>
-                  <div className="mb-6 sm:mb-8">
-                    <h3 className="font-bold text-gray-800 mb-2 sm:mb-3 text-left">
-                      Karakteristik
-                    </h3>
-                    <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600 text-left">
-                      {selectedType.karakteristik
-                        .split("-")
-                        .filter((char: string) => char.trim() !== "")
-                        .map((char: string, index: number) => (
-                          <li key={index} className="flex items-start">
-                            <span className="mr-2 sm:mr-3 text-gray-500">
-                              •
-                            </span>
-                            <span>{char.trim()}</span>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
+                  <h3 className="font-bold text-gray-800 mb-2 text-left">
+                    Karakteristik
+                  </h3>
+                  <ul className="space-y-1 text-xs sm:text-sm text-gray-600 text-left list-disc list-inside">
+                    {selectedType.karakteristik
+                      .split("-")
+                      .filter((char) => char.trim() !== "")
+                      .map((char, index) => (
+                        <li key={index}>
+                          <span>{char.trim()}</span>
+                        </li>
+                      ))}
+                  </ul>
                 </div>
                 <Button
-                  className="w-full bg-[#323232] text-center text-white rounded-xl py-2 sm:py-3 px-4 sm:px-6 font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 sm:gap-4 mt-4"
+                  className="w-full bg-[#323232] text-white rounded-xl py-3 font-bold hover:bg-gray-700"
                   onClick={handleNext}
                 >
-                  <span>Selanjutnya</span>
-                  <span>→</span>
+                  Selanjutnya
+                  <ChevronRight />
                 </Button>
               </>
             )}
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="w-full mx-auto flex flex-col">
+          <LeftSideSection steps={steps} currentStepNumber={3} />
+          <div className="bg-white rounded-2xl shadow-lg p-6 mt-6">
+            <h2 className="text-xl font-oswald font-bold mb-4">
+              Pilih Bentuk Tubuh Kamu
+            </h2>
+            <div className="overflow-x-auto pb-4">
+              <div className="flex justify-center w-max gap-x-10">
+                {allBodyTypes.map((type) => (
+                  <div
+                    key={type.id}
+                    onClick={() => handleSelectBodyType(type.id)}
+                    className="flex flex-col items-center cursor-pointer flex-shrink-0"
+                  >
+                    <Image
+                      src={type.link_picture}
+                      alt={type.name}
+                      width={45}
+                      height={130}
+                      className="h-32 w-auto object-contain"
+                    />
+                    <div
+                      className={`transition-opacity duration-300 ${
+                        selectedTypeId === type.id ? "opacity-100" : "opacity-0"
+                      }`}
+                    >
+                      <div className="w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-black mt-2"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {isLoading || !selectedType ? (
+              <div className="animate-pulse space-y-3 mt-6">
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              </div>
+            ) : (
+              <div className="mt-3 border p-3 rounded-lg flex flex-col h-[310px]">
+                <h2 className="text-2xl font-bold font-oswald">
+                  {selectedType.name}
+                </h2>
+                <p className="text-gray-600 text-sm mt-2 mb-4 overflow-y-auto">
+                  {selectedType.penjelasan_body_shape}
+                </p>
+                <div className="flex-1 overflow-y-auto">
+                  <h3 className="font-bold text-gray-800 mb-2">
+                    Karakteristik
+                  </h3>
+                  <ul className="space-y-1 text-sm text-gray-600 list-disc list-inside">
+                    {selectedType.karakteristik
+                      .split("-")
+                      .filter((c) => c.trim() !== "")
+                      .map((char, index) => (
+                        <li key={index}>{char.trim()}</li>
+                      ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6">
+              <Button
+                className="w-full bg-[#323232] text-white mb-10 rounded-xl py-3 font-bold hover:bg-gray-700"
+                onClick={handleNext}
+              >
+                Selanjutnya
+                <ChevronRight />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
