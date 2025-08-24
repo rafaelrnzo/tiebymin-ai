@@ -32,7 +32,7 @@ function NumberInputWithControls({
   };
 
   return (
-    <div className="flex flex-row w-full items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition">
+    <div className="flex flex-row gap-4 w-full items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition">
       {/* Label on the far left */}
       <label
         htmlFor={id}
@@ -163,7 +163,7 @@ export default function BodyMeasurementsForm({
 }: BodyMeasurementsFormProps) {
   return (
     <>
-      <div className="flex flex-col lg:flex-row items-stretch md:items-center gap-y-4 md:gap-x-4 mb-8 w-full">
+      <div className="flex flex-col lg:flex-row lg:gap-10 items-stretch md:items-center gap-y-4 md:gap-x-4 mb-8 w-full">
         <NumberInputWithControls
           label="Tinggi Badan"
           id="tinggi-input"

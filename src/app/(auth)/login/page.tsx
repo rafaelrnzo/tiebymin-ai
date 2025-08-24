@@ -139,7 +139,7 @@ export default function LoginPage() {
           />
         </div>
         <div className="w-full lg:flex-1 lg:max-w-[55%] lg:px-4">
-          <div className="bg-white/95 lg:h-full h-full backdrop-blur-sm shadow-xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
+          <div className="bg-white/95 lg:h-full h-full backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
               Login Akun
             </h2>
@@ -226,7 +226,7 @@ export default function LoginPage() {
               <div className="flex lg:flex-row flex-col gap-4">
                 <button
                   type="button"
-                  className="w-full text-xs lg:text-xl bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-medium transition-colors flex items-center justify-center gap-3"
+                  className="w-full text-xs lg:text-lg bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
                   disabled={isLoading}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -252,7 +252,7 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  className="w-full bg-black hover:bg-gray-800 text-white h-[40px] lg:h-[50px] rounded-lg font-medium transition-colors flex items-center justify-center gap-3 text-xs lg:text-xl"
+                  className="w-full bg-[#323232] hover:bg-gray-800 text-white h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3 text-xs lg:text-lg"
                   disabled={isLoading}
                 >
                   <svg
@@ -267,7 +267,7 @@ export default function LoginPage() {
               </div>
 
               {/* Don't have account text */}
-              <div className="text-center mt-6 mb-[10rem]">
+              <div className="text-center mt-6 mb-[10rem] lg:mb-0">
                 <p className="text-gray-600 text-sm font-poppins">
                   Belum punya akun?{" "}
                   <button

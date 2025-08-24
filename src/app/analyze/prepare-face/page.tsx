@@ -275,8 +275,8 @@ export default function PrepareFacePage() {
             <h2 className="text-xl font-oswald font-bold mb-4">
               Pilih Bentuk Tubuh Kamu
             </h2>
-            <div className="overflow-x-auto pb-4">
-              <div className="flex justify-center w-max gap-x-10">
+            <div className="overflow-x-auto flex justify-centeritems-center pb-4">
+              <div className="flex justify-between items-center gap-x-7">
                 {allBodyTypes.map((type) => (
                   <div
                     key={type.id}

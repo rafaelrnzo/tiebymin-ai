@@ -250,8 +250,17 @@ function BeautyAnalysisPageInner() {
     //   rawAnalysisData,
     // });
 
+    // Check if user has stored image from camera flow (no result_id but has image)
+    const hasStoredImage =
+      localStorage.getItem("capturedImage") ||
+      localStorage.getItem("uploadedFaceImage");
+
+    // Show payment modal if user has stored image but no result_id
+    if (!resultId && hasStoredImage && !isLoading) {
+      setIsLockedModalOpen(true);
+    }
     // Show locked modal if resultId exists but no analysis data is available
-    if (resultId && !isLoading && !userData && !error) {
+    else if (resultId && !isLoading && !userData && !error) {
       setIsLockedModalOpen(true);
     } else {
       setIsLockedModalOpen(false);
@@ -884,17 +893,18 @@ function BeautyAnalysisPageInner() {
               <Lock className="w-8 h-8 text-[#323232]" />
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-4 font-oswald">
-              Hasil Analisis Terkunci
+              {resultId ? "Hasil Analisis Terkunci" : "Bayar Hasil Analisa"}
             </h2>
             <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-              Untuk melihat hasil analisis lengkap dan rekomendasi personal
-              hijab Anda, silakan lakukan pembayaran terlebih dahulu.
+              {resultId
+                ? "Untuk melihat hasil analisis lengkap dan rekomendasi personal hijab Anda, silakan lakukan pembayaran terlebih dahulu."
+                : "Hasil analisis AI Anda telah siap! Bayar sekarang untuk melihat rekomendasi personal hijab yang sesuai dengan wajah Anda."}
             </p>
             <Button
               onClick={() => router.push("/ai-overview/payment")}
               className="w-full bg-[#FFC6C6] text-[#323232] font-bold py-3 px-6 rounded-xl hover:bg-pink-300 transition-colors"
             >
-              Bayar Sekarang
+              {resultId ? "Bayar Sekarang" : "Bayar Hasil Analisa"}
             </Button>
           </div>
         </div>
