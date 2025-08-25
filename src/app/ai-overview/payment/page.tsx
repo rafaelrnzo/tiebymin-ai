@@ -170,8 +170,12 @@ export default function PaymentPage() {
     console.log("Current step:", step);
   }, [step]);
 
+  useEffect(() => {
+    console.log("Analysis data on payment page mount:", analysisData);
+  }, [analysisData]);
+
   const handlePayNow = async () => {
-    console.log(analysisData);
+    console.log("handlePayNow triggered. Current analysisData:", analysisData);
     setIsAnalysisLoading(true);
     setAnalysisError(null);
 
@@ -186,17 +190,21 @@ export default function PaymentPage() {
       // Get analysis data from context
       const { tinggi, berat, umur, body_shape_id } = analysisData;
 
-      // Validate and provide default values for required data
-      const defaultTinggi = tinggi || "165";
-      const defaultBerat = berat || "55";
-      const defaultUmur = umur || "25";
-      const defaultBodyShapeId = body_shape_id || "1";
+      // Validasi data
+      if (!tinggi || !berat || !umur || !body_shape_id) {
+        console.error("Analysis data is incomplete:", analysisData);
+        setAnalysisError(
+          "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
+        );
+        setIsAnalysisLoading(false);
+        return;
+      }
 
       console.log("Using analysis data:", {
-        tinggi: defaultTinggi,
-        berat: defaultBerat,
-        umur: defaultUmur,
-        body_shape_id: defaultBodyShapeId,
+        tinggi,
+        berat,
+        umur,
+        body_shape_id,
       });
 
       // Get user ID
@@ -249,10 +257,10 @@ export default function PaymentPage() {
       // Prepare form data for analysis
       const formData = new FormData();
       formData.append("user_id", userId);
-      formData.append("tinggi_badan", defaultTinggi);
-      formData.append("berat_badan", defaultBerat);
-      formData.append("umur", defaultUmur);
-      formData.append("body_shape_id", defaultBodyShapeId);
+      formData.append("tinggi_badan", tinggi);
+      formData.append("berat_badan", berat);
+      formData.append("umur", umur);
+      formData.append("body_shape_id", body_shape_id);
       formData.append("foto_wajah", imageBlob, "face-photo.png");
 
       // Call analysis API

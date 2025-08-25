@@ -1,8 +1,7 @@
 "use client";
 import LeftSideSection from "@/components/component-login/left-side-section";
-import { Button } from "@/components/ui/button";
-import { useAnalysis } from "@/context/AnalysisContext";
 import { ErrorModal } from "@/components/sections/error-modal";
+import { Button } from "@/components/ui/button";
 import { Camera, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -43,32 +42,8 @@ const INSTRUCTION_CARDS = [
   },
 ];
 
-const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M12 2a10 10 0 1 0 10 10c0-4.42-2.87-8.17-6.84-9.5c-.52-.17-1.04.22-1 .75c.03.35.25.65.57.8c2.32.93 3.97 3.19 3.97 5.95a6 6 0 1 1-7.23-5.45c.4-.19.68-.59.59-1.03c-.1-0.44-.52-.75-.97-.63C5.66 3.6 2 7.4 2 12a10 10 0 0 0 10 10z" />{" "}
-    <path d="m15.58 12.5-1.08-2.5-2.5-1.08 1.08-2.5 2.5-1.08 1.08 2.5 2.5 1.08-1.08 2.5-2.5 1.08z" />{" "}
-    <path d="m6.5 12.5-1-2-2-1 1-2 2-1 1 2 2 1-1 2-2 1z" />
-  </svg>
-);
-
-const Spinner = () => (
-  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-pink-800"></div>
-);
-
 export default function FaceScanPrepPage() {
   const router = useRouter();
-  const { analysisData } = useAnalysis();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
@@ -244,12 +219,13 @@ export default function FaceScanPrepPage() {
           </div>
         </div>
       ) : (
-        <div className="w-full mx-auto flex flex-col">
+        <div className="w-full mx-auto flex flex-col h-full">
           <LeftSideSection steps={steps} currentStepNumber={3} />
-          <div className="bg-white rounded-2xl shadow-lg p-6 mt-6">
-            {/* Header with title and AI Powered badge */}
+          <div className="bg-white lg:h-full rounded-2xl shadow-lg p-6 mt-4">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-oswald font-bold">Siapkan Wajahmu</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-oswald font-bold">
+                Siapkan Wajahmu
+              </h2>
               <div className="flex items-center py-3 gap-2 bg-[#EF789B] rounded-full px-4 shadow-md">
                 <span className="text-sm font-bold text-white font-poppins">
                   AI Powered
@@ -296,7 +272,7 @@ export default function FaceScanPrepPage() {
             </div>
 
             {/* Second row: Full width card */}
-            <div className="w-full mb-6">
+            <div className="w-full my-[20px]">
               {INSTRUCTION_CARDS.slice(2, 3).map((card, index) => (
                 <div
                   key={index}
@@ -366,14 +342,14 @@ export default function FaceScanPrepPage() {
                 htmlFor="privacy-policy"
                 className="text-xs text-gray-600 leading-relaxed mt-1 mb-14"
               >
-                Saya menyetujui{" "}
+                Saya menyetujui
                 <button className="text-[#EF789B] hover:text-pink-600 underline font-medium">
                   Kebijakan Privasi
-                </button>{" "}
-                dan{" "}
+                </button>
+                dan
                 <button className="text-[#EF789B] hover:text-pink-600 underline font-medium">
                   Syarat & Ketentuan
-                </button>{" "}
+                </button>
                 yang berlaku
               </label>
             </div>

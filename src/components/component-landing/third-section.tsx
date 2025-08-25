@@ -46,8 +46,8 @@ const testimonials: Testimonial[] = [
   {
     type: "text",
     content:
-      '"Sebagai orang yang buta fashion, aplikasi ini penyelamat. Cuma butuh satu foto dan semua rekomendasi langsung muncul. Super praktis!"',
-    author: "Aisha Kamilia",
+      '"Fitur analisis warna kulitnya itu game-changer! Aku baru sadar selama ini sering salah pilih warna. Sekarang penampilan jadi kelihatan lebih fresh dan cerah. Suka banget!"',
+    author: "Fitri Handayani",
     badgeType: "highlight",
   },
 ];
@@ -119,8 +119,8 @@ export const ThirdSection = () => {
   };
 
   return (
-    <section id="testimoni px-[200px] md:px-0 lg:px-[180px]">
-      <div className="container mx-auto ">
+    <section id="testimoni" className="px-4 sm:px-10 lg:px-[200px]">
+      <div className="container mx-auto">
         <hr className="mt-[100px] mb-[80px] mx-5 lg:mx-0" />
 
         <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-[70px]">

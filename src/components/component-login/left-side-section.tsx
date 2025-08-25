@@ -134,7 +134,6 @@ export default function LeftSideSection({
 
       {steps && (
         <>
-          {/* Mobile Steps */}
           <div className="lg:hidden w-full px-4 rounded-2xl">
             <p className="text-center font-poppins text-xs pb-5">
               Mulai perjalanan kecantikanmu dengan analisa kami Biar AI kami
@@ -153,7 +152,7 @@ export default function LeftSideSection({
 
                 let circleClasses =
                   "w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-colors duration-300";
-                let textClasses = "text-xs text-center mt-2 w-20 font-bold ";
+                let textClasses = "text-xs text-center mt-2 w-full font-bold ";
 
                 if (isCurrent) {
                   circleClasses += " bg-[#EF789B] text-white border-[#EF789B]";
@@ -197,7 +196,6 @@ export default function LeftSideSection({
             </div>
           </div>
 
-          {/* Desktop Steps */}
           <div className="hidden lg:block w-full max-w-sm mx-auto">
             <h3 className="text-center font-poppins text-gray-800 mb-4">
               Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami

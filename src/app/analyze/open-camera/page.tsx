@@ -281,7 +281,6 @@ function HalamanKameraWajahContent() {
   useEffect(() => {
     if (completedAnalyses >= totalAnalyses && analysisResultId) {
       if (typeof window !== "undefined") {
-        localStorage.removeItem("tiebymin-analysis-data");
         setAnalysisData({ tinggi: "", berat: "", umur: "", body_shape_id: "" });
       }
 
