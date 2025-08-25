@@ -18,7 +18,14 @@ import {
 import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { analysisTabs } from "@/lib/mock-data";
-import { Shirt, ShoppingCart, Star, ThumbsUp, UserStar } from "lucide-react";
+import {
+  Shirt,
+  ShoppingCart,
+  Star,
+  ThumbsUp,
+  UserStar,
+  Lock,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import BodySection from "../../components/sections/BodySection";
@@ -43,6 +50,7 @@ function BeautyAnalysisPageInner() {
   const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [topProductScores, setTopProductScores] = useState<Map<string, number>>(
     new Map()
   );
@@ -241,6 +249,22 @@ function BeautyAnalysisPageInner() {
     //   userPhotoUrl,
     //   rawAnalysisData,
     // });
+
+    // Check if user has stored image from camera flow (no result_id but has image)
+    const hasStoredImage =
+      localStorage.getItem("capturedImage") ||
+      localStorage.getItem("uploadedFaceImage");
+
+    // Show payment modal if user has stored image but no result_id
+    if (!resultId && hasStoredImage && !isLoading) {
+      setIsLockedModalOpen(true);
+    }
+    // Show locked modal if resultId exists but no analysis data is available
+    else if (resultId && !isLoading && !userData && !error) {
+      setIsLockedModalOpen(true);
+    } else {
+      setIsLockedModalOpen(false);
+    }
   }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
 
   const filteredProducts = recommendationsData
@@ -284,24 +308,66 @@ function BeautyAnalysisPageInner() {
   const renderContent = (tabId: string) => {
     const analysisData = rawAnalysisData;
     if (!analysisData) return null;
-  
+
     const content = (() => {
       switch (tabId) {
         case "shape":
-          return <ShapeSection shapeId={analysisData.face_shape_id?.toString() || "1"} />;
+          return (
+            <ShapeSection
+              shapeId={analysisData.face_shape_id?.toString() || "1"}
+            />
+          );
         case "color":
-          return <ColorToneSection colorAnalysisId={analysisData.color_analysis_id?.toString() || "1"} />;
+          return (
+            <ColorToneSection
+              colorAnalysisId={
+                analysisData.color_analysis_id?.toString() || "1"
+              }
+            />
+          );
         case "body":
-          return <BodySection bodyShapeId={analysisData.body_shape_id?.toString() || "1"} bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"} bmiResult={{ value: analysisData.analysis_details?.bmi?.value || 0 }} />;
+          return (
+            <BodySection
+              bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
+              bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
+              bmiResult={{
+                value: analysisData.analysis_details?.bmi?.value || 0,
+              }}
+            />
+          );
         case "celebrity":
-          return <CelebrityMatchSection celebrityId={analysisData.celebrity_id ? analysisData.celebrity_id.toString() : null} />;
+          return (
+            <CelebrityMatchSection
+              celebrityId={
+                analysisData.celebrity_id
+                  ? analysisData.celebrity_id.toString()
+                  : null
+              }
+            />
+          );
         case "tips":
-          return <TipsSection analysisData={{ ...analysisData, face_shape_id: analysisData.face_shape_id?.toString() || "1", color_analysis_id: analysisData.color_analysis_id?.toString() || "1", body_shape_id: analysisData.body_shape_id?.toString() || "1", bmi_category_id: analysisData.bmi_category_id?.toString() || "1" }} />;
+          return (
+            <TipsSection
+              analysisData={{
+                ...analysisData,
+                face_shape_id: analysisData.face_shape_id?.toString() || "1",
+                color_analysis_id:
+                  analysisData.color_analysis_id?.toString() || "1",
+                body_shape_id: analysisData.body_shape_id?.toString() || "1",
+                bmi_category_id:
+                  analysisData.bmi_category_id?.toString() || "1",
+              }}
+            />
+          );
         default:
-          return <ShapeSection shapeId={analysisData.face_shape_id?.toString() || "1"} />;
+          return (
+            <ShapeSection
+              shapeId={analysisData.face_shape_id?.toString() || "1"}
+            />
+          );
       }
     })();
-  
+
     return content;
   };
 
@@ -410,18 +476,22 @@ function BeautyAnalysisPageInner() {
                   transition={{ duration: 0.3 }}
                   className={`
                     transition-all duration-300
-                    ${activeTab !== index ? 'absolute top-0 left-0 w-full pointer-events-none' : 'relative'}
+                    ${
+                      activeTab !== index
+                        ? "absolute top-0 left-0 w-full pointer-events-none"
+                        : "relative"
+                    }
                   `}
                 >
                   {renderContent(tab.id)}
                 </motion.div>
               ))}
             </div>
-        </div>
+          </div>
         </div>
 
         <section className="pt-8 lg:pt-16">
-        <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-4 lg:mb-10">
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-4 lg:mb-10">
             <hr className="border-t-2 border-black w-full lg:hidden block" />
             <h1 className="text-xl sm:text-2xl lg:text-5xl font-oswald font-bold text-[#333333] mb-2 sm:mb-4 lg:mb-[25px]">
               Rekomendasi Produk
@@ -436,7 +506,9 @@ function BeautyAnalysisPageInner() {
                       : "bg-gray-200 text-gray-600"
                   }`}
                 >
-                  <span className="font-poppins font-bold text-sm sm:text-base">Hijab</span>
+                  <span className="font-poppins font-bold text-sm sm:text-base">
+                    Hijab
+                  </span>
                   <UserStar className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
@@ -447,7 +519,9 @@ function BeautyAnalysisPageInner() {
                       : "bg-gray-200 text-gray-600"
                   }`}
                 >
-                  <span className="font-poppins font-bold text-sm sm:text-base">Pakaian</span>
+                  <span className="font-poppins font-bold text-sm sm:text-base">
+                    Pakaian
+                  </span>
                   <Shirt className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
@@ -584,7 +658,10 @@ function BeautyAnalysisPageInner() {
                             className="shadow-md flex justify-between mt-3 bg-[#ED80A7] w-full px-4 sm:px-7 py-3 sm:py-5 font-bold rounded-lg text-white items-center gap-2 sm:gap-3 text-sm sm:text-base hover:bg-pink-500 transition-colors"
                           >
                             <span>Beli Sekarang</span>
-                            <ShoppingCart fill="white" className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <ShoppingCart
+                              fill="white"
+                              className="w-4 h-4 sm:w-5 sm:h-5"
+                            />
                           </Button>
                         </div>
                       </motion.div>
@@ -807,6 +884,31 @@ function BeautyAnalysisPageInner() {
         onClose={() => setIsErrorModalOpen(false)}
         errorMessage={errorModalMessage}
       />
+
+      {/* Locked Modal */}
+      {isLockedModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
+            <div className="w-16 h-16 bg-[#FFC6C6] rounded-full flex items-center justify-center mb-6">
+              <Lock className="w-8 h-8 text-[#323232]" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 font-oswald">
+              {resultId ? "Hasil Analisis Terkunci" : "Bayar Hasil Analisa"}
+            </h2>
+            <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+              {resultId
+                ? "Untuk melihat hasil analisis lengkap dan rekomendasi personal hijab Anda, silakan lakukan pembayaran terlebih dahulu."
+                : "Hasil analisis AI Anda telah siap! Bayar sekarang untuk melihat rekomendasi personal hijab yang sesuai dengan wajah Anda."}
+            </p>
+            <Button
+              onClick={() => router.push("/ai-overview/payment")}
+              className="w-full bg-[#FFC6C6] text-[#323232] font-bold py-3 px-6 rounded-xl hover:bg-pink-300 transition-colors"
+            >
+              {resultId ? "Bayar Sekarang" : "Bayar Hasil Analisa"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

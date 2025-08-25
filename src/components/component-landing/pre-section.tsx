@@ -160,7 +160,7 @@ const BodyShapeCard = () => (
           fill="black"
         />
       </svg>
-      <h3 className="font-handlee italic mt-1.5">Bentuk Tubuh</h3>
+      <h3 className="font-handlee italic mt-1.5 text-xl">Bentuk Tubuh</h3>
     </div>
     <hr />
     <div className="flex gap-4">
@@ -278,7 +278,7 @@ const RecommendationContainer = () => {
 
 const AnalysisDashboard: React.FC = () => {
   return (
-    <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[200px]">
+    <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[190px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-10">
           <FaceShapeCard />

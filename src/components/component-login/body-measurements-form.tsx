@@ -8,7 +8,7 @@ interface NumberInputWithControlsProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  unit?: string; // Satuan seperti 'cm' atau 'kg' (opsional)
+  unit?: string;
   id: string;
 }
 
@@ -32,17 +32,15 @@ function NumberInputWithControls({
   };
 
   return (
-    <div className="flex flex-row w-full items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition">
-      {/* Label on the far left */}
+    <div className="grid grid-cols-3 w-full lg:w-fit lg:grid-cols-[auto_1fr_auto] gap-x-2 items-center p-2 rounded-lg hover:bg-gray-50 transition">
       <label
         htmlFor={id}
-        className="text-gray-700 text-start font-medium text-xs sm:text-sm md:text-base flex-shrink-0"
+        className="text-gray-700 text-start font-medium text-xs sm:text-sm md:text-base whitespace-nowrap"
       >
         {label}
       </label>
 
-      {/* Input with unit in the center */}
-      <div className="flex-1 flex justify-center items-center gap-x-1">
+      <div className="flex justify-center items-center gap-x-1">
         <Input
           id={id}
           type="number"
@@ -50,14 +48,17 @@ function NumberInputWithControls({
           onChange={(e) => onChange(e.target.value)}
           className="w-16 text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
-        {unit && (
-          <span className="text-gray-300 font-medium text-sm">{unit}</span>
+
+        {unit ? (
+          <span className="w-8 text-left text-gray-300 font-medium text-sm">
+            {unit}
+          </span>
+        ) : (
+          <div className="w-8" />
         )}
       </div>
 
-      {/* Buttons on the far right */}
-      <div className="flex items-center gap-x-2 flex-shrink-0">
-        {/* Mobile: Plus/Minus buttons (horizontal) */}
+      <div className="flex items-center justify-end">
         <div className="flex flex-row items-center justify-center gap-1 sm:hidden">
           <Button
             onClick={handleIncrement}
@@ -99,7 +100,6 @@ function NumberInputWithControls({
           </Button>
         </div>
 
-        {/* Desktop: Up/Down buttons (vertical) */}
         <div className="hidden sm:flex flex-col items-center justify-center gap-1">
           <Button
             onClick={handleIncrement}
@@ -145,7 +145,6 @@ function NumberInputWithControls({
   );
 }
 
-// Komponen Form Utama yang telah diperbarui untuk hanya berisi form
 interface BodyMeasurementsFormProps {
   formData: {
     tinggi: string;
@@ -161,40 +160,46 @@ export default function BodyMeasurementsForm({
   onFormDataChange,
   onSubmit,
 }: BodyMeasurementsFormProps) {
+  React.useEffect(() => {
+    console.log("BodyMeasurementsForm formData updated:", formData);
+  }, [formData]);
+
+  const handleInputChange = (field: string, value: string) => {
+    console.log(`Input changed: ${field} = ${value}`);
+    onFormDataChange(field, value);
+  };
+
   return (
-    <>
-      <div className="flex flex-col lg:flex-row items-stretch md:items-center gap-y-4 md:gap-x-4 mb-8 w-full">
+    <div className="mb-32 lg:mb-0">
+      <div className="flex flex-col lg:flex-row lg:justify-between items-center gap-y-4 mb-8 w-full">
         <NumberInputWithControls
           label="Tinggi Badan"
           id="tinggi-input"
           value={formData.tinggi}
-          onChange={(value) => onFormDataChange("tinggi", value)}
+          onChange={(value) => handleInputChange("tinggi", value)}
           unit="cm"
         />
         <NumberInputWithControls
           label="Berat Badan"
           id="berat-input"
           value={formData.berat}
-          onChange={(value) => onFormDataChange("berat", value)}
+          onChange={(value) => handleInputChange("berat", value)}
           unit="kg"
         />
-        <div className="flex flex-col">
-          <NumberInputWithControls
-            label="Umur"
-            id="umur-input"
-            value={formData.umur}
-            onChange={(value) => onFormDataChange("umur", value)}
-          />
-        </div>
+        <NumberInputWithControls
+          label="Umur"
+          id="umur-input"
+          value={formData.umur}
+          onChange={(value) => handleInputChange("umur", value)}
+        />
       </div>
 
-      {/* Tombol Submit */}
       <Button
         onClick={onSubmit}
         className="w-full h-14 bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
       >
         Selanjutnya
       </Button>
-    </>
+    </div>
   );
 }

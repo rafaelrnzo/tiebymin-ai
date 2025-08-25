@@ -5,6 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAnalysis } from "@/context/AnalysisContext";
+import { useEffect } from "react";
+import { secureUrl } from "@/lib/api";
+import axios from "axios";
 
 interface PricingCardProps {
   isFeatured: boolean;
@@ -147,12 +152,157 @@ const normalPlan = {
 
 // --- Komponen Utama ---
 export default function PaymentPage() {
+  const router = useRouter();
+  const { analysisData } = useAnalysis();
   const [step, setStep] = useState("selection"); // 'selection' atau 'payment'
   const [plan, setPlan] = useState("promo");
   const [selectedMethod, setSelectedMethod] = useState("Bank Central Asia");
+  const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const handleProceedToPayment = () => {
+    console.log("Proceeding to payment step");
     setStep("payment");
+  };
+
+  // Debug logging for step changes
+  useEffect(() => {
+    console.log("Current step:", step);
+  }, [step]);
+
+  useEffect(() => {
+    console.log("Analysis data on payment page mount:", analysisData);
+  }, [analysisData]);
+
+  const handlePayNow = async () => {
+    console.log("handlePayNow triggered. Current analysisData:", analysisData);
+    setIsAnalysisLoading(true);
+    setAnalysisError(null);
+
+    try {
+      // Simulate payment process first
+      console.log("Processing payment...");
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate payment delay
+
+      // Payment successful - now proceed with analysis
+      console.log("Payment successful, starting analysis...");
+
+      // Get analysis data from context
+      const { tinggi, berat, umur, body_shape_id } = analysisData;
+
+      // Validasi data
+      if (!tinggi || !berat || !umur || !body_shape_id) {
+        console.error("Analysis data is incomplete:", analysisData);
+        setAnalysisError(
+          "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
+        );
+        setIsAnalysisLoading(false);
+        return;
+      }
+
+      console.log("Using analysis data:", {
+        tinggi,
+        berat,
+        umur,
+        body_shape_id,
+      });
+
+      // Get user ID
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        setAnalysisError("User ID tidak ditemukan. Mohon login kembali.");
+        setIsAnalysisLoading(false);
+        return;
+      }
+
+      // Get captured image from localStorage (from camera flow)
+      let capturedImage = localStorage.getItem("capturedImage");
+
+      // If no captured image from camera, try gallery upload
+      if (!capturedImage) {
+        capturedImage = localStorage.getItem("uploadedFaceImage");
+      }
+
+      if (!capturedImage) {
+        setAnalysisError(
+          "Foto tidak ditemukan. Silakan ambil foto terlebih dahulu."
+        );
+        setIsAnalysisLoading(false);
+        return;
+      }
+
+      // Convert base64 to blob
+      const dataURLtoBlob = (dataurl: string) => {
+        const arr = dataurl.split(",");
+        if (arr.length < 2) return null;
+        const mimeMatch = arr[0].match(/:(.*?);/);
+        if (!mimeMatch) return null;
+        const mime = mimeMatch[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+      };
+
+      const imageBlob = dataURLtoBlob(capturedImage);
+      if (!imageBlob) {
+        setAnalysisError("Gagal memproses gambar.");
+        setIsAnalysisLoading(false);
+        return;
+      }
+
+      // Prepare form data for analysis
+      const formData = new FormData();
+      formData.append("user_id", userId);
+      formData.append("tinggi_badan", tinggi);
+      formData.append("berat_badan", berat);
+      formData.append("umur", umur);
+      formData.append("body_shape_id", body_shape_id);
+      formData.append("foto_wajah", imageBlob, "face-photo.png");
+
+      // Call analysis API
+      const endpoint = secureUrl(`/v1/analysis/full-analysis`);
+      console.log("Calling analysis API endpoint:", endpoint);
+
+      const response = await axios.post(endpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        const resultId = response.data.analysis_result_id;
+        if (resultId) {
+          // Clear images from localStorage
+          localStorage.removeItem("capturedImage");
+          localStorage.removeItem("uploadedFaceImage");
+          localStorage.removeItem("uploadedFaceImageName");
+
+          // Redirect to ai-overview with result_id
+          console.log("Analysis completed, redirecting to results...");
+          router.push(`/ai-overview?result_id=${resultId}`);
+        } else {
+          throw new Error("Proses analisis gagal. Silakan coba lagi.");
+        }
+      } else {
+        throw new Error(
+          response.data?.message ||
+            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
+        );
+      }
+    } catch (error) {
+      console.error("Payment/Analysis Error:", error);
+      const err = error as Error;
+      setAnalysisError(
+        err.message ||
+          "Terjadi kesalahan saat memproses pembayaran atau analisis. Silakan coba lagi."
+      );
+    } finally {
+      setIsAnalysisLoading(false);
+    }
   };
 
   const selectionVariants = {
@@ -168,10 +318,10 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen w-full font-poppins text-[#323232] flex flex-col p-4 sm:p-8">
+    <div className="bg-gray-100 min-h-screen w-full font-poppins text-[#323232] flex flex-col lg:p-4">
       <div className="w-full max-w-screen-xl lg:mx-[200px]">
         {/* Header */}
-        <header className="flex items-center mt-8 sm:mt-16 mb-8 sm:mb-12 gap-4">
+        <header className="flex items-center m-4 gap-4">
           <Link href="/">
             <button className="flex items-center gap-2 font-semibold hover:opacity-75">
               <svg
@@ -210,16 +360,13 @@ export default function PaymentPage() {
               transition={{ duration: 0.5, ease: "easeInOut" }}
               className="flex flex-col lg:flex-row gap-8"
             >
-              <div className="flex flex-col gap-[30px] lg:w-2/5 px-4">
+              <div className="flex flex-col gap-[20px] lg:gap-[30px] lg:w-2/5 px-4">
                 <div className="flex flex-col gap-3">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-oswald mb-4 sm:mb-6">
-                    Lihat lengkap
-                  </h1>
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-oswald mb-4 sm:mb-6">
-                    hasil Analisis AI
+                  <h1 className="text-2xl lg:text-6xl font-bold font-oswald mb-0 lg:mb-4 sm:mb-6 whitespace-nowrap sm:whitespace-normal">
+                    Lihat lengkap hasil Analisis AI
                   </h1>
                 </div>
-                <div className="flex items-center border rounded-full max-w-xs mb-6">
+                <div className="flex items-center border rounded-full max-w-xs mb-0 lg:mb-6">
                   <button
                     onClick={() => setPlan("promo")}
                     className={`w-1/2 py-2 rounded-full text-sm font-semibold transition-colors ${
@@ -242,48 +389,58 @@ export default function PaymentPage() {
                   </button>
                 </div>
                 <p className="text-gray-600 text-base sm:text-lg lg:text-xl leading-relaxed">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor.
+                  Dapatkan akses penuh ke hasil analisis AI fashion yang telah
+                  dipersonalisasi khusus untuk Anda.
                 </p>
               </div>
 
               <motion.div
                 layout
-                className="lg:w-3/5 flex flex-col sm:flex-row gap-6 items-center justify-center"
+                className="lg:w-3/5 mx-5 flex flex-col lg:flex-row gap-6 items-center justify-center"
               >
                 {plan === "promo" ? (
                   <>
-                    <PricingCard
-                      key="promo"
-                      {...promoPlan}
-                      isFeatured={true}
-                      onButtonClick={handleProceedToPayment}
-                    />
-                    <PricingCard
-                      key="normal"
-                      {...normalPlan}
-                      isFeatured={false}
-                      onButtonClick={handleProceedToPayment}
-                      className="hidden lg:block"
-                    />
+                    <div className="w-full lg:w-1/2">
+                      <PricingCard
+                        key="promo"
+                        {...promoPlan}
+                        isFeatured={true}
+                        onButtonClick={() => {
+                          console.log("Promo plan button clicked");
+                          handleProceedToPayment();
+                        }}
+                      />
+                    </div>
+                    <div className="hidden lg:block w-1/2">
+                      <PricingCard
+                        key="normal"
+                        {...normalPlan}
+                        isFeatured={false}
+                        onButtonClick={handleProceedToPayment}
+                      />
+                    </div>
                   </>
                 ) : (
                   <>
-                    <PricingCard
-                      key="promo"
-                      {...promoPlan}
-                      isFeatured={false}
-                      onButtonClick={handleProceedToPayment}
-                      className="hidden lg:block"
-                    />
-                    <PricingCard
-                      key="normal"
-                      {...normalPlan}
-                      isFeatured={false}
-                      onButtonClick={handleProceedToPayment}
-                    />
+                    <div className="w-full lg:w-1/2 ">
+                      <PricingCard
+                        key="normal"
+                        {...normalPlan}
+                        isFeatured={false}
+                        onButtonClick={() => {
+                          console.log("Normal plan button clicked");
+                          handleProceedToPayment();
+                        }}
+                      />
+                    </div>
+                    <div className="hidden lg:block w-1/2">
+                      <PricingCard
+                        key="promo"
+                        {...promoPlan}
+                        isFeatured={true}
+                        onButtonClick={handleProceedToPayment}
+                      />
+                    </div>
                   </>
                 )}
               </motion.div>
@@ -298,8 +455,10 @@ export default function PaymentPage() {
               transition={{ duration: 0.5, ease: "easeInOut" }}
               className="flex flex-col lg:flex-row w-full"
             >
-              <div className="p-8 rounded-2xl flex flex-col w-full">
-                <h2 className="text-2xl font-bold mb-6">Detail Pembayaran</h2>
+              <div className="p-4 lg:p-8 rounded-2xl flex flex-col w-full">
+                <h2 className="text-2xl font-bold mb-6 font-oswald">
+                  Detail Pembayaran
+                </h2>
                 <div className="flex gap-2 mb-6">
                   <input
                     type="text"
@@ -328,8 +487,8 @@ export default function PaymentPage() {
                   <span className="text-2xl font-bold">Rp 10,000</span>
                 </div>
               </div>
-              <div className="border-l border-[#323232]/50 my-10"></div>
-              <div className="p-8 rounded-2xl flex flex-col w-full">
+              <div className="border-t lg:border-l border-[#323232]/50 m-5 border-2 lg:my-10"></div>
+              <div className="p-4 lg:p-8 rounded-2xl flex flex-col w-full">
                 <h2 className="text-2xl font-bold mb-6">Informasi Kontak</h2>
                 <input
                   type="text"
@@ -374,9 +533,20 @@ export default function PaymentPage() {
                     </div>
                   ))}
                 </div>
-                <button className="w-full mt-8 bg-[#323232] text-white font-semibold py-4 rounded-lg hover:bg-black">
-                  Bayar Sekarang
+                <button
+                  onClick={handlePayNow}
+                  disabled={isAnalysisLoading}
+                  className="w-full mt-8 bg-[#323232] text-white font-semibold py-4 rounded-lg hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAnalysisLoading
+                    ? "Memproses Analisis..."
+                    : "Bayar Sekarang"}
                 </button>
+                {analysisError && (
+                  <p className="mt-4 text-red-600 text-sm text-center">
+                    {analysisError}
+                  </p>
+                )}
               </div>
             </motion.div>
           )}

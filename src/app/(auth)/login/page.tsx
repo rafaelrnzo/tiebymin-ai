@@ -28,7 +28,6 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Assuming there's a login endpoint - adjust the endpoint as needed
       const endpoint = secureUrl(`/v1/auth/login`);
       console.log("Login endpoint:", endpoint);
 
@@ -139,7 +138,7 @@ export default function LoginPage() {
           />
         </div>
         <div className="w-full lg:flex-1 lg:max-w-[55%] lg:px-4">
-          <div className="bg-white/95 lg:h-full h-full backdrop-blur-sm shadow-xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
+          <div className="bg-white lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
               Login Akun
             </h2>
@@ -192,41 +191,41 @@ export default function LoginPage() {
                 />
               </div>
 
-              <button
-                onClick={() => router.push("/analyze/first")}
-                className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                ) : (
-                  "Masuk"
-                )}
-              </button>
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={() => router.push("/analyze/first")}
+                  className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    "Masuk"
+                  )}
+                </button>
 
-              <div className="flex lg:flex-row flex-col gap-4">
                 <button
                   type="button"
-                  className="w-full text-xs lg:text-xl bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-medium transition-colors flex items-center justify-center gap-3"
+                  className="w-full text-xs lg:text-lg bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
                   disabled={isLoading}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -249,25 +248,10 @@ export default function LoginPage() {
                   </svg>
                   Sign in with Google
                 </button>
-
-                <button
-                  type="button"
-                  className="w-full bg-black hover:bg-gray-800 text-white h-[40px] lg:h-[50px] rounded-lg font-medium transition-colors flex items-center justify-center gap-3 text-xs lg:text-xl"
-                  disabled={isLoading}
-                >
-                  <svg
-                    className="w-5 h-5"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                  </svg>
-                  Sign in with Apple
-                </button>
               </div>
 
               {/* Don't have account text */}
-              <div className="text-center mt-6 mb-[10rem]">
+              <div className="text-center mt-6 mb-[10rem] lg:mb-0">
                 <p className="text-gray-600 text-sm font-poppins">
                   Belum punya akun?{" "}
                   <button

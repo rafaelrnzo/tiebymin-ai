@@ -3,10 +3,7 @@
 import { ErrorModal } from "@/components/sections/error-modal";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/context/AnalysisContext";
-import { useAnalysisData } from "@/hooks/useAnalysisData";
-import { secureUrl } from "@/lib/api";
 import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
-import axios from "axios";
 import { Camera, Check, RotateCw } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -35,7 +32,13 @@ const Spinner = () => (
   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-pink-800"></div>
 );
 
-type AppState = "CAMERA" | "CONFIRM" | "ANALYZING" | "RESULTS" | "API_ERROR";
+type AppState =
+  | "CAMERA"
+  | "CONFIRM"
+  | "ANALYZING"
+  | "RESULTS"
+  | "API_ERROR"
+  | "SHOW_RESULTS_MODAL";
 
 const LOADING_STEPS = [
   {
@@ -85,7 +88,7 @@ const RiveLoadingAnimation = () => {
 
   return (
     <div
-      className={`mx-auto w-80 h-80 lg:w-[35rem] lg:h-[35rem] flex justify-center`}
+      className={`w-80 h-[10rem] sm:w-96 sm:h-[10rem] lg:w-[30rem] lg:h-[20rem] xl:w-[35rem] xl:h-[15rem] flex justify-center items-center`}
     >
       <RiveComponent />
     </div>
@@ -232,11 +235,8 @@ function HalamanKameraWajahContent() {
   }, [fromGallery, skipCamera, appState, facingMode]);
 
   useEffect(() => {
-    if (appState === "ANALYZING" && analysisResultId) {
-      console.log(
-        "Starting analysis animation for result ID:",
-        analysisResultId
-      );
+    if (appState === "ANALYZING") {
+      console.log("Starting analysis animation...");
       setLoadingStep(0);
       setProgress(0);
 
@@ -253,27 +253,10 @@ function HalamanKameraWajahContent() {
       }, Math.max(20, totalDuration / 100));
 
       const finishTimer = setTimeout(() => {
-        console.log(
-          "Analysis animation completed, cleaning up and redirecting..."
-        );
+        console.log("Analysis animation completed, showing results modal...");
 
         setProgress(100);
-
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("tiebymin-analysis-data");
-          setAnalysisData({
-            tinggi: "",
-            berat: "",
-            umur: "",
-            body_shape_id: "",
-          });
-        }
-
-        console.log(
-          "Redirecting to:",
-          `/ai-overview?result_id=${analysisResultId}`
-        );
-        router.replace(`/ai-overview?result_id=${analysisResultId}`);
+        setAppState("SHOW_RESULTS_MODAL");
       }, totalDuration);
 
       return () => {
@@ -282,7 +265,7 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState, analysisResultId, router, setAnalysisData]);
+  }, [appState, router, setAnalysisData]);
 
   useEffect(() => {
     if (appState === "RESULTS") {
@@ -298,7 +281,6 @@ function HalamanKameraWajahContent() {
   useEffect(() => {
     if (completedAnalyses >= totalAnalyses && analysisResultId) {
       if (typeof window !== "undefined") {
-        localStorage.removeItem("tiebymin-analysis-data");
         setAnalysisData({ tinggi: "", berat: "", umur: "", body_shape_id: "" });
       }
 
@@ -364,7 +346,7 @@ function HalamanKameraWajahContent() {
   ) => {
     const { tinggi, berat, umur, body_shape_id } = contextAnalysisData;
 
-    console.log("MENGIRIM PAYLOAD KE API:", {
+    console.log("MENYIAPKAN DATA UNTUK ANALISIS:", {
       tinggi,
       berat,
       umur,
@@ -390,61 +372,14 @@ function HalamanKameraWajahContent() {
       return;
     }
 
-    const tinggiParse = parseFloat(tinggi);
-    const beratParse = parseFloat(berat);
-    const umurParse = parseInt(umur, 10);
-
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
-      setIsErrorModalOpen(true);
-      return;
+    // Store the captured image for later use
+    if (capturedImage) {
+      localStorage.setItem("capturedImage", capturedImage);
     }
-    const formData = new FormData();
-    formData.append("user_id", userId);
-    formData.append("tinggi_badan", String(tinggiParse));
-    formData.append("berat_badan", String(beratParse));
-    formData.append("umur", String(umurParse));
-    formData.append("body_shape_id", body_shape_id);
-    formData.append("foto_wajah", imageToUpload, imageFileName);
 
-    setIsApiLoading(true);
-    setErrorModalMessage("");
-    setIsErrorModalOpen(false);
-    const endpoint = secureUrl(`/v1/analysis/full-analysis`);
-    console.log("fetch endpoint:", endpoint);
-
-    try {
-      const response = await axios.post(endpoint, formData);
-
-      if (response.status >= 200 && response.status < 300) {
-        const resultId = response.data.analysis_result_id;
-        if (resultId) {
-          setAnalysisResultId(resultId);
-          setAppState("ANALYZING");
-        } else {
-          setErrorModalMessage("Proses analisis gagal. Silakan coba lagi.");
-          setIsErrorModalOpen(true);
-        }
-      } else {
-        throw new Error(
-          response.data?.message ||
-            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
-        );
-      }
-
-      setAppState("ANALYZING");
-    } catch (error: unknown) {
-      console.error("API Error:", error);
-      setErrorModalMessage(
-        error instanceof Error
-          ? error.message
-          : "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
-      );
-      setIsErrorModalOpen(true);
-    } finally {
-      setIsApiLoading(false);
-    }
+    // Go directly to analyzing state without API call
+    console.log("Starting analysis animation...");
+    setAppState("ANALYZING");
   };
 
   const handleAnalyze = () => {
@@ -456,16 +391,50 @@ function HalamanKameraWajahContent() {
       LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
-        <div className="text-center max-w-lg mx-auto -mt-56">
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <RiveLoadingAnimation />
-          <div className="loading-text -mt-0 lg:-mt-28">
-            <p className="text-2xl font-bold mt-4">
+          <div className="flex flex-col items-center justify-center text-center">
+            <p className="text-2xl font-bold mb-4">
               {progress < 100 ? `${progress}%` : "99%"}
             </p>
-            <div className="mt-2 lg:mt-8">
-              <h2 className="text-base sm:text-lg font-semibold mb-2">{step.title}</h2>
-              <p className="text-gray-600 text-sm sm:text-base">{step.desc}</p>
+            <div className="flex flex-col items-center justify-center text-center">
+              <h2 className="text-base sm:text-lg font-semibold mb-2 text-center">
+                {step.title}
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base text-center max-w-md">
+                {step.desc}
+              </p>
             </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (appState === "SHOW_RESULTS_MODAL") {
+    return (
+      <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#323232]/50 backdrop-blur-lg">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <Check className="text-green-600 w-8 h-8" />
+            </div>
+            <h2 className="font-oswald text-2xl font-bold text-gray-800 mb-2">
+              Analisis Selesai!
+            </h2>
+            <p className="font-poppins text-gray-600 text-sm mb-6">
+              Hasil analisis AI Anda telah siap. Klik tombol di bawah untuk
+              melihat hasilnya.
+            </p>
+            <Button
+              onClick={() => {
+                console.log("Redirecting to ai-overview...");
+                router.push("/ai-overview");
+              }}
+              className="w-full py-3 px-4 bg-[#323232] text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+            >
+              <span className="font-poppins">Lihat Hasil</span>
+            </Button>
           </div>
         </div>
       </main>
