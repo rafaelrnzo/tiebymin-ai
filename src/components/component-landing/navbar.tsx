@@ -70,7 +70,7 @@ export function Navbar() {
           </nav>
 
           <div className="flex gap-3">
-            <Link href="/login">
+            <Link href="/register">
               <Button
                 size="lg"
                 className="rounded-full bg-[#FFC6C6] hover:bg-[#f9bfbf] flex items-center gap-2 px-6 py-3"
@@ -137,7 +137,7 @@ export function Navbar() {
                     </Link>
                   ))}
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 pt-3 sm:pt-4">
-                    <Link href="/login" onClick={closeSheet}>
+                    <Link href="/register" onClick={closeSheet}>
                       <Button
                         size="default"
                         className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full sm:w-auto px-4 py-2"
