@@ -381,7 +381,7 @@ function BeautyAnalysisPageInner() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 lg:py-4">
         <div className="flex flex-col lg:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 lg:gap-[50px] mt-3 md:mt-6 lg:mt-[50px]">
-          <div className="bg-[#2D2D2D] h-fit lg:h-[700px] w-full lg:w-[35%] rounded-3xl p-5 text-white flex flex-col">
+          <div className="bg-[#2D2D2D] w-full lg:w-[35%] rounded-3xl p-5 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               {userPhotoUrl ? (
                 <Image
