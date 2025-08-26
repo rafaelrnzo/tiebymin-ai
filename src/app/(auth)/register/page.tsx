@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phoneNumber: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -64,7 +64,7 @@ export default function RegisterPage() {
             last_name: formData.fullName.split(" ").slice(1).join(" ") || "",
             google_id: uniqueGoogleId,
             is_active: true,
-            phone_number: parseInt(formData.phoneNumber) || 0,
+            phone_number: parseInt(formData.phone) || 0,
             password: formData.password,
           }),
         });
@@ -204,7 +204,7 @@ export default function RegisterPage() {
               {/* Phone Number */}
               <div className="space-y-2">
                 <label
-                  htmlFor="phoneNumber"
+                  htmlFor="phone"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
                   Nomor Telepon
@@ -214,12 +214,10 @@ export default function RegisterPage() {
                     +62
                   </span>
                   <input
-                    id="phoneNumber"
+                    id="phone"
                     type="tel"
-                    value={formData.phoneNumber}
-                    onChange={(e) =>
-                      handleInputChange("phoneNumber", e.target.value)
-                    }
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     className="w-full text-xs lg:text-sm border-b-gray-300 border-b-2 bg-transparent px-2 py-2 focus:outline-none focus:ring-0"
                     placeholder="81234567890"
                   />
@@ -332,7 +330,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     className="text-[#ED80A7] hover:text-pink-600 font-medium transition-colors"
-                    onClick={() => router.push("/login")}
+                    onClick={() => console.log("login")}
                   >
                     Masuk
                   </button>

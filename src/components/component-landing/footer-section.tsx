@@ -32,7 +32,7 @@ export default function Footer() {
             Butuh Satu Foto. <b>Tiebymin AI</b> Memberikan Rekomendasi Instan
             Tanpa Perlu Repot, Serta Hemat Waktu Dan Biaya.
           </p>
-          <a href="/login">
+          <a href="/register">
             <Button
               size="lg"
               className="bg-[#323232] text-white font-semibold rounded-lg px-10 py-6 shadow-sm hover:bg-gray-100 transition-colors"

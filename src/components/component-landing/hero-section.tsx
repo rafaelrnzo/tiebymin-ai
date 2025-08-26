@@ -55,11 +55,11 @@ const AnalysisCard = ({
 
 export const HeroSection = () => {
   return (
-    <main className="relative w-full -mt-24 overflow-hidden bg-cover bg-center bg-[url('/hero-bg.png')] min-h-screen flex items-center">
+    <main className="relative w-full flex flex-col items-center justify-center -mt-24 overflow-hidden bg-cover bg-center bg-[url('/hero-bg.png')] min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 z-20 relative">
         {/* Teks Hero */}
-        <div className="text-center relative z-10 mt-[14rem] md:mt-0 lg:mt-0">
-          <h1 className="font-oswald mt-8 sm:mt-20 text-6xl md:text-8xl lg:text-8xl xl:text-[156px] font-medium text-[#323232] tracking-tight leading-tight">
+        <div className="text-center relative">
+          <h1 className="font-oswald text-6xl md:text-8xl lg:text-8xl xl:text-[156px] font-medium text-[#323232] tracking-tight leading-tight">
             AI Temukan
             <br />
             <div className="flex mt-4 sm:mt-6 md:mt-8 lg:mt-10 text-center gap-8 sm:gap-20 md:gap-32 lg:gap-40 xl:gap-64 justify-center items-center">
@@ -70,7 +70,7 @@ export const HeroSection = () => {
         </div>
 
         {/* Model Image - Visible on all devices */}
-        <div className="absolute lg:-bottom-[4rem] bottom-0 inset-x-0 top-1/2 -translate-y-1/2 flex justify-center z-20">
+        <div className="absolute lg:-bottom-[4rem] bottom-0 inset-x-0 top-1/2 -translate-y-[15rem] lg:-translate-y-1/2  flex justify-center z-20">
           <div className="relative w-full h-screen">
             <Image
               src="/new-model-hero.png"
@@ -130,7 +130,7 @@ export const HeroSection = () => {
                 title="Rekomendasi Produk"
                 subtitle="Saran Produk"
               />
-              <a href="/login" className="w-auto sm:w-auto">
+              <a href="/register" className="w-auto sm:w-auto">
                 <AnalysisCard
                   isAnalytics={true}
                   icon={
