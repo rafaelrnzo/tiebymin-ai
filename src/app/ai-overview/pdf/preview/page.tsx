@@ -55,7 +55,6 @@ function PreviewPdfPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-  // ... (semua logika dan state lainnya tidak berubah)
   const { data: analysisResult } = useAnalysisData(resultId);
   const {
     userData = defaultUserData,
@@ -104,7 +103,33 @@ function PreviewPdfPage() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const handleDownloadPDF = async () => {
-    // ... (kode ini tidak berubah)
+    if (!resultId) return;
+
+    setIsDownloading(true);
+    try {
+      setError(null);
+      const result = await downloadPdf();
+
+      if (result.data) {
+        const url = window.URL.createObjectURL(result.data);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `hasil-analisa-lengkap-${Date.now()}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Terjadi kesalahan saat mendownload PDF";
+      setError(errorMessage);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const pdfPages: PdfPage[] = useMemo(
@@ -201,15 +226,9 @@ function PreviewPdfPage() {
 
           <div className="relative flex-grow overflow-x-auto overflow-y-hidden">
             {isDesktop ? (
-              // --- PERUBAHAN DIMULAI DI SINI ---
-              // PERBAIKAN 1: Tambahkan `gap-x-8` untuk memberi jarak eksplisit
               <div className="flex h-full w-max items-center p-8 gap-x-8">
                 {pdfPages.map(({ id, Component }) => (
-                  // PERBAIKAN 2: Beri ukuran eksplisit pada wadah sesuai skala
-                  // Lebar: 680px * 0.5 = 340px
-                  // Tinggi: 1140px * 0.5 = 570px
                   <div key={id} className="w-[340px] h-[570px] flex-shrink-0">
-                    {/* PERBAIKAN 3: Ubah titik transformasi ke pojok kiri atas */}
                     <div className="transform scale-[0.5] origin-top-left">
                       <div className="w-[680px] h-[1140px] shadow-lg rounded-lg overflow-hidden bg-white">
                         {Component}
@@ -219,8 +238,6 @@ function PreviewPdfPage() {
                 ))}
               </div>
             ) : (
-              // --- PERUBAHAN SELESAI DI SINI ---
-              // Tampilan mobile tidak berubah
               <div className="h-full w-full flex items-center justify-center">
                 <div className="transform scale-[0.45] sm:scale-[0.5]">
                   <div className="w-[680px] h-[1140px] shadow-lg rounded-lg overflow-hidden bg-white">
@@ -231,7 +248,6 @@ function PreviewPdfPage() {
             )}
           </div>
 
-          {/* ... (bagian footer tidak berubah) ... */}
           {isDesktop ? (
             <div className="bg-white p-4 flex gap-4 justify-start border-t border-gray-200">
               <Button

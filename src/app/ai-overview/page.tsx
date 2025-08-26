@@ -105,12 +105,14 @@ function BeautyAnalysisPageInner() {
       setStoryError(null);
       const result = await generateStory();
       if (result.data) {
-        const file = new File(
-          [result.data],
-          `story-tiebymin-${Date.now()}.png`,
-          { type: "image/png" }
-        );
+        // Use the data directly - the API should return the correct format
+        const imageData = result.data;
 
+        const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
+          type: "image/png",
+        });
+
+        // Check if sharing is supported and try to share first
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
@@ -121,6 +123,7 @@ function BeautyAnalysisPageInner() {
             showToast("Story berhasil dibagikan!", "success");
           } catch (shareError) {
             console.warn("Share failed, falling back to download:", shareError);
+            // Fallback to download
             const url = URL.createObjectURL(file);
             const link = document.createElement("a");
             link.href = url;
@@ -130,6 +133,8 @@ function BeautyAnalysisPageInner() {
             showToast("Story berhasil diunduh!", "success");
           }
         } else {
+          // Direct download if sharing is not supported
+          console.log("Web Share API not supported, using direct download");
           const url = URL.createObjectURL(file);
           const link = document.createElement("a");
           link.href = url;
@@ -138,6 +143,8 @@ function BeautyAnalysisPageInner() {
           URL.revokeObjectURL(url);
           showToast("Story berhasil diunduh!", "success");
         }
+      } else {
+        throw new Error("No story data received");
       }
     } catch (error) {
       console.error("Error generating story:", error);
