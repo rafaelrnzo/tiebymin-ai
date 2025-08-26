@@ -8,6 +8,8 @@ import { Camera, Check, RotateCw } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
+import { secureUrl } from "@/lib/api";
+import axios from "axios";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -344,42 +346,125 @@ function HalamanKameraWajahContent() {
     imageBlobFromGallery: Blob | null = null,
     imageNameFromGallery: string | null = null
   ) => {
-    const { tinggi, berat, umur, body_shape_id } = contextAnalysisData;
+    setIsApiLoading(true);
 
-    console.log("MENYIAPKAN DATA UNTUK ANALISIS:", {
-      tinggi,
-      berat,
-      umur,
-      body_shape_id,
-      foto_wajah: imageBlobFromGallery ? "ada dari galeri" : "ada dari kamera",
-    });
+    try {
+      // Get analysis data from localStorage
+      const storedData = localStorage.getItem("tiebymin-analysis-data");
+      if (!storedData) {
+        setErrorModalMessage(
+          "Data analisis tidak ditemukan. Silakan kembali ke halaman analisis dan lengkapi data Anda."
+        );
+        setIsErrorModalOpen(true);
+        setIsApiLoading(false);
+        return;
+      }
 
-    let imageToUpload: Blob | null = null;
-    let imageFileName: string = "face-photo.png";
+      const analysisData = JSON.parse(storedData);
+      const { tinggi, berat, umur, body_shape_id } = analysisData;
 
-    if (imageBlobFromGallery && imageNameFromGallery) {
-      imageToUpload = imageBlobFromGallery;
-      imageFileName = imageNameFromGallery;
-    } else if (capturedImage) {
-      imageToUpload = dataURLtoBlob(capturedImage);
-    }
+      // Validate required data
+      if (!tinggi || !berat || !umur || !body_shape_id) {
+        setErrorModalMessage(
+          "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
+        );
+        setIsErrorModalOpen(true);
+        setIsApiLoading(false);
+        return;
+      }
 
-    if (!imageToUpload) {
+      console.log("MENYIAPKAN DATA UNTUK ANALISIS:", {
+        tinggi,
+        berat,
+        umur,
+        body_shape_id,
+        foto_wajah: imageBlobFromGallery
+          ? "ada dari galeri"
+          : "ada dari kamera",
+      });
+
+      let imageToUpload: Blob | null = null;
+      let imageFileName: string = "face-photo.png";
+
+      if (imageBlobFromGallery && imageNameFromGallery) {
+        imageToUpload = imageBlobFromGallery;
+        imageFileName = imageNameFromGallery;
+      } else if (capturedImage) {
+        imageToUpload = dataURLtoBlob(capturedImage);
+      }
+
+      if (!imageToUpload) {
+        setErrorModalMessage(
+          "Informasi tidak lengkap. Foto atau tipe tubuh tidak ditemukan."
+        );
+        setIsErrorModalOpen(true);
+        setIsApiLoading(false);
+        return;
+      }
+
+      // Store the captured image for later use
+      if (capturedImage) {
+        localStorage.setItem("capturedImage", capturedImage);
+      }
+
+      // Get user ID
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
+        setIsErrorModalOpen(true);
+        setIsApiLoading(false);
+        return;
+      }
+
+      // Prepare form data for analysis
+      const formData = new FormData();
+      formData.append("user_id", userId);
+      formData.append("tinggi_badan", tinggi);
+      formData.append("berat_badan", berat);
+      formData.append("umur", umur);
+      formData.append("body_shape_id", body_shape_id);
+      formData.append("foto_wajah", imageToUpload, imageFileName);
+
+      // Call analysis API
+      const endpoint = secureUrl("/v1/analysis/full-analysis");
+      console.log("Calling analysis API endpoint:", endpoint);
+
+      const response = await axios.post(endpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        const resultId = response.data.analysis_result_id;
+
+        if (resultId) {
+          console.log("Analysis started successfully, result ID:", resultId);
+          setAnalysisResultId(resultId);
+
+          // Start the analysis animation
+          console.log("Starting analysis animation...");
+          setAppState("ANALYZING");
+        } else {
+          throw new Error("Gagal mendapatkan ID hasil analisis.");
+        }
+      } else {
+        throw new Error(
+          response.data?.message ||
+            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
+        );
+      }
+    } catch (error) {
+      console.error("Analysis error:", error);
+      const err = error as Error;
       setErrorModalMessage(
-        "Informasi tidak lengkap. Foto atau tipe tubuh tidak ditemukan."
+        err.message ||
+          "Terjadi kesalahan saat memulai analisis. Silakan coba lagi."
       );
       setIsErrorModalOpen(true);
-      return;
+    } finally {
+      setIsApiLoading(false);
     }
-
-    // Store the captured image for later use
-    if (capturedImage) {
-      localStorage.setItem("capturedImage", capturedImage);
-    }
-
-    // Go directly to analyzing state without API call
-    console.log("Starting analysis animation...");
-    setAppState("ANALYZING");
   };
 
   const handleAnalyze = () => {
@@ -428,8 +513,11 @@ function HalamanKameraWajahContent() {
             </p>
             <Button
               onClick={() => {
-                console.log("Redirecting to ai-overview...");
-                router.push("/ai-overview");
+                console.log(
+                  "Redirecting to ai-overview with result_id:",
+                  analysisResultId
+                );
+                router.push(`/ai-overview?result_id=${analysisResultId}`);
               }}
               className="w-full py-3 px-4 bg-[#323232] text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
             >
