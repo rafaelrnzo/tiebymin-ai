@@ -34,13 +34,7 @@ const Spinner = () => (
   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-pink-800"></div>
 );
 
-type AppState =
-  | "CAMERA"
-  | "CONFIRM"
-  | "ANALYZING"
-  | "RESULTS"
-  | "API_ERROR"
-  | "SHOW_RESULTS_MODAL";
+type AppState = "CAMERA" | "CONFIRM" | "ANALYZING" | "LOADING_UI" | "API_ERROR";
 
 const LOADING_STEPS = [
   {
@@ -110,7 +104,6 @@ function HalamanKameraWajahContent() {
 
   const getInitialState = (): AppState => {
     if (fromGallery && skipCamera) {
-      // If coming from gallery with skipCamera flag, go directly to analyzing
       return "ANALYZING";
     }
     return "CAMERA";
@@ -122,9 +115,6 @@ function HalamanKameraWajahContent() {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [isApiLoading, setIsApiLoading] = useState(false);
-  const [completedAnalyses, setCompletedAnalyses] = useState(0);
-  const totalAnalyses = 4;
-
   const [loadingStep, setLoadingStep] = useState(0);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
 
@@ -132,65 +122,25 @@ function HalamanKameraWajahContent() {
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
   };
 
+  // Handle initial gallery upload case
   useEffect(() => {
     if (fromGallery && skipCamera && appState === "ANALYZING") {
-      const storedResultId = localStorage.getItem("analysisResultId");
-      if (storedResultId) {
-        setAnalysisResultId(storedResultId);
-        localStorage.removeItem("analysisResultId");
-        localStorage.removeItem("skipCameraForGallery");
+      const uploadedImage = localStorage.getItem("uploadedFaceImage");
+      const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
+
+      if (uploadedImage && uploadedImageName) {
+        setCapturedImage(uploadedImage);
+        handleFullAnalysis();
+        localStorage.removeItem("uploadedFaceImage");
+        localStorage.removeItem("uploadedFaceImageName");
+      } else {
+        setAppState("CAMERA");
       }
     }
-  }, []); // Run only once on mount
+  }, [fromGallery, skipCamera, appState]);
 
+  // Camera setup effect
   useEffect(() => {
-    if (appState === "ANALYZING") return;
-
-    if (fromGallery && skipCamera) {
-      console.log("Gallery upload with skipCamera detected...");
-
-      const uploadedImage = localStorage.getItem("uploadedFaceImage");
-      const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
-
-      if (uploadedImage && uploadedImageName) {
-        console.log("Found gallery image data, proceeding to analysis...");
-        setCapturedImage(uploadedImage);
-
-        // Start analysis immediately without API call
-        // The API call will happen during the loading animation
-        setAppState("ANALYZING");
-
-        localStorage.removeItem("uploadedFaceImage");
-        localStorage.removeItem("uploadedFaceImageName");
-        return;
-      } else {
-        console.log("No gallery image data found, falling back to camera");
-        setAppState("CAMERA");
-      }
-    }
-
-    if (fromGallery && !skipCamera) {
-      const uploadedImage = localStorage.getItem("uploadedFaceImage");
-      const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
-
-      if (uploadedImage && uploadedImageName) {
-        setCapturedImage(uploadedImage);
-        setAppState("ANALYZING");
-        const imageBlob = dataURLtoBlob(uploadedImage);
-        if (imageBlob) {
-          handleFullAnalysis(imageBlob, uploadedImageName);
-        } else {
-          setErrorModalMessage("Gagal memproses gambar yang diunggah.");
-          setIsErrorModalOpen(true);
-        }
-        localStorage.removeItem("uploadedFaceImage");
-        localStorage.removeItem("uploadedFaceImageName");
-      } else {
-        setAppState("CAMERA");
-      }
-      return;
-    }
-
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
 
     let currentStream: MediaStream | null = null;
@@ -233,40 +183,15 @@ function HalamanKameraWajahContent() {
     };
   }, [fromGallery, skipCamera, appState, facingMode]);
 
+  // Loading UI effect - starts after API analysis completes
   useEffect(() => {
-    if (appState === "ANALYZING") {
-      console.log("Starting analysis animation...");
+    if (appState === "LOADING_UI") {
+      console.log("Starting loading UI animation...");
       setLoadingStep(0);
       setProgress(0);
 
-      // For gallery uploads, API analysis happens during animation
-      // For camera photos, API analysis is already done when button is clicked
-      const startApiAnalysisIfNeeded = async () => {
-        if (fromGallery && skipCamera) {
-          const uploadedImage = localStorage.getItem("uploadedFaceImage");
-          const uploadedImageName = localStorage.getItem(
-            "uploadedFaceImageName"
-          );
-
-          if (uploadedImage && uploadedImageName) {
-            const imageBlob = dataURLtoBlob(uploadedImage);
-            if (imageBlob) {
-              await handleFullAnalysis(imageBlob, uploadedImageName);
-            } else {
-              console.error("Failed to process gallery image");
-              setErrorModalMessage("Gagal memproses gambar yang diunggah.");
-              setIsErrorModalOpen(true);
-            }
-          }
-        }
-        // For camera photos, API analysis is already done in handleAnalyze
-      };
-
-      // Start API analysis if needed (gallery uploads)
-      startApiAnalysisIfNeeded();
-
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 45000; // 45 detik
+      const totalDuration = 45000; // 45 seconds
       const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
@@ -278,10 +203,9 @@ function HalamanKameraWajahContent() {
       }, Math.max(20, totalDuration / 100));
 
       const finishTimer = setTimeout(() => {
-        console.log("Analysis animation completed, navigating to results...");
-
+        console.log("Loading UI completed, navigating to results...");
         setProgress(100);
-        // Navigate directly to ai-overview with result_id
+
         if (analysisResultId) {
           router.push(`/ai-overview?result_id=${analysisResultId}`);
         } else {
@@ -299,38 +223,7 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState, router, setAnalysisData, fromGallery, skipCamera]);
-
-  useEffect(() => {
-    if (appState === "RESULTS") {
-      const animationTimer = setInterval(() => {
-        setCompletedAnalyses((prev) =>
-          prev >= totalAnalyses ? prev : prev + 1
-        );
-      }, 700);
-      return () => clearInterval(animationTimer);
-    }
-  }, [appState]);
-
-  useEffect(() => {
-    if (completedAnalyses >= totalAnalyses && analysisResultId) {
-      if (typeof window !== "undefined") {
-        setAnalysisData({ tinggi: "", berat: "", umur: "", body_shape_id: "" });
-      }
-
-      const redirectTimer = setTimeout(() => {
-        router.push(`/ai-overview?result_id=${analysisResultId}`);
-      }, 1000);
-
-      return () => clearTimeout(redirectTimer);
-    }
-  }, [
-    completedAnalyses,
-    analysisResultId,
-    totalAnalyses,
-    router,
-    setAnalysisData,
-  ]);
+  }, [appState, analysisResultId, router]);
 
   // Helper function to convert data URL to Blob
   const dataURLtoBlob = (dataurl: string) => {
@@ -368,7 +261,6 @@ function HalamanKameraWajahContent() {
   const handleRetake = () => {
     setCapturedImage(null);
     setProgress(0);
-    setCompletedAnalyses(0);
     setAppState("CAMERA");
     setErrorModalMessage("");
     setIsErrorModalOpen(false);
@@ -473,9 +365,10 @@ function HalamanKameraWajahContent() {
         if (resultId) {
           console.log("Analysis completed successfully, result ID:", resultId);
           setAnalysisResultId(resultId);
+          setIsApiLoading(false);
 
-          // Don't set state to ANALYZING since we're already in that state
-          // The loading animation will continue and navigate when complete
+          // After API analysis completes, show loading UI
+          setAppState("LOADING_UI");
         } else {
           throw new Error("Gagal mendapatkan ID hasil analisis.");
         }
@@ -493,27 +386,17 @@ function HalamanKameraWajahContent() {
           "Terjadi kesalahan saat memulai analisis. Silakan coba lagi."
       );
       setIsErrorModalOpen(true);
-    } finally {
       setIsApiLoading(false);
     }
   };
 
   const handleAnalyze = async () => {
-    // Perform API analysis first, like in gallery upload
-    setIsApiLoading(true);
-    try {
-      await handleFullAnalysis();
-      // Only start loading animation after API analysis completes
-      setAppState("ANALYZING");
-    } catch (error) {
-      console.error("Analysis failed:", error);
-      // Error is already handled in handleFullAnalysis
-    } finally {
-      setIsApiLoading(false);
-    }
+    console.log("Starting API analysis...");
+    await handleFullAnalysis();
   };
 
-  if (appState === "ANALYZING") {
+  // Loading UI state - shows detailed loading animation after API completes
+  if (appState === "LOADING_UI") {
     const step =
       LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
     return (
@@ -533,82 +416,6 @@ function HalamanKameraWajahContent() {
               </p>
             </div>
           </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (appState === "SHOW_RESULTS_MODAL") {
-    return (
-      <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#323232]/50 backdrop-blur-lg">
-          <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <Check className="text-green-600 w-8 h-8" />
-            </div>
-            <h2 className="font-oswald text-2xl font-bold text-gray-800 mb-2">
-              Analisis Selesai!
-            </h2>
-            <p className="font-poppins text-gray-600 text-sm mb-6">
-              Hasil analisis AI Anda telah siap. Klik tombol di bawah untuk
-              melihat hasilnya.
-            </p>
-            <Button
-              onClick={() => {
-                console.log(
-                  "Redirecting to ai-overview with result_id:",
-                  analysisResultId
-                );
-                router.push(`/ai-overview?result_id=${analysisResultId}`);
-              }}
-              className="w-full py-3 px-4 bg-[#323232] text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
-            >
-              <span className="font-poppins">Lihat Hasil</span>
-            </Button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (appState === "RESULTS") {
-    const analysesList = [
-      "Analisa bentuk wajahmu",
-      "Analisa tone kulitmu",
-      "Analisa kecocokan gaya selebriti",
-      "Rekomendasi hijab personal",
-    ];
-    return (
-      <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
-        <div className="text-center ">
-          <RiveLoadingAnimation />
-          <p className="text-2xl font-bold mt-4">99%</p>
-        </div>
-        <div className="mt-12 w-full max-w-sm flex flex-col gap-3">
-          {analysesList.map((label, index) => {
-            const isCompleted = index < completedAnalyses;
-            return (
-              <Button
-                key={index}
-                className={`w-full p-3 font-semibold rounded-xl flex items-center justify-between transition-all duration-500
-                  ${
-                    isCompleted
-                      ? "bg-gray-800 text-white"
-                      : "bg-white text-gray-500 border border-gray-200"
-                  }
-                `}
-              >
-                <span>{label}</span>
-                {isCompleted ? (
-                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                    <Check className="text-gray-800" />
-                  </div>
-                ) : (
-                  <AnalysisIcon className="stroke-gray-400" />
-                )}
-              </Button>
-            );
-          })}
         </div>
       </main>
     );
