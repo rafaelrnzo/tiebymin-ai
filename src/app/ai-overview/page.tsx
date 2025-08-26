@@ -250,21 +250,25 @@ function BeautyAnalysisPageInner() {
     //   rawAnalysisData,
     // });
 
+    // COMMENTED OUT: Payment modal logic - modal tidak akan muncul setelah analisa
     // Check if user has stored image from camera flow (no result_id but has image)
-    const hasStoredImage =
-      localStorage.getItem("capturedImage") ||
-      localStorage.getItem("uploadedFaceImage");
+    // const hasStoredImage =
+    //   localStorage.getItem("capturedImage") ||
+    //   localStorage.getItem("uploadedFaceImage");
 
     // Show payment modal if user has stored image but no result_id
-    if (!resultId && hasStoredImage && !isLoading) {
-      setIsLockedModalOpen(true);
-    }
+    // if (!resultId && hasStoredImage && !isLoading) {
+    //   setIsLockedModalOpen(true);
+    // }
     // Show locked modal if resultId exists but no analysis data is available
-    else if (resultId && !isLoading && !userData && !error) {
-      setIsLockedModalOpen(true);
-    } else {
-      setIsLockedModalOpen(false);
-    }
+    // else if (resultId && !isLoading && !userData && !error) {
+    //   setIsLockedModalOpen(true);
+    // } else {
+    //   setIsLockedModalOpen(false);
+    // }
+
+    // Always set modal to false - tidak akan muncul modal bayar
+    setIsLockedModalOpen(false);
   }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
 
   const filteredProducts = recommendationsData
@@ -885,8 +889,8 @@ function BeautyAnalysisPageInner() {
         errorMessage={errorModalMessage}
       />
 
-      {/* Locked Modal */}
-      {isLockedModalOpen && (
+      {/* COMMENTED OUT: Locked Modal - modal bayar tidak akan muncul setelah analisa */}
+      {/* {isLockedModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
             <div className="w-16 h-16 bg-[#FFC6C6] rounded-full flex items-center justify-center mb-6">
@@ -908,7 +912,7 @@ function BeautyAnalysisPageInner() {
             </Button>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
