@@ -52,7 +52,7 @@ export default function Step2Page() {
           />
         </div>
         <div className="w-full lg:mr-10 lg:flex-1 lg:max-w-[55%]">
-          <div className="bg-white lg:h-full lg:h-full h-[73vh] backdrop-blur-sm shadow-xl rounded-t-2xl lg:rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10">
+          <div className="bg-white lg:h-full h-[73vh] backdrop-blur-sm shadow-xl rounded-t-2xl lg:rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
               Lengkapi Data Diri
             </h2>
