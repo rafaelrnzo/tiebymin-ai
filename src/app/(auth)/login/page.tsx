@@ -193,7 +193,7 @@ export default function LoginPage() {
 
               <div className="flex flex-col gap-4">
                 <button
-                  onClick={() => router.push("/analyze/first")}
+                  type="submit"
                   className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
                   disabled={isLoading}
                 >

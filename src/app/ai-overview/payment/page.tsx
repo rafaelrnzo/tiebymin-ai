@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAnalysis } from "@/context/AnalysisContext";
 import { useEffect } from "react";
 import { secureUrl } from "@/lib/api";
 import axios from "axios";
@@ -153,7 +152,6 @@ const normalPlan = {
 // --- Komponen Utama ---
 export default function PaymentPage() {
   const router = useRouter();
-  const { analysisData } = useAnalysis();
   const [step, setStep] = useState("selection"); // 'selection' atau 'payment'
   const [plan, setPlan] = useState("promo");
   const [selectedMethod, setSelectedMethod] = useState("Bank Central Asia");
@@ -170,12 +168,8 @@ export default function PaymentPage() {
     console.log("Current step:", step);
   }, [step]);
 
-  useEffect(() => {
-    console.log("Analysis data on payment page mount:", analysisData);
-  }, [analysisData]);
-
   const handlePayNow = async () => {
-    console.log("handlePayNow triggered. Current analysisData:", analysisData);
+    console.log("handlePayNow triggered");
     setIsAnalysisLoading(true);
     setAnalysisError(null);
 
@@ -187,7 +181,17 @@ export default function PaymentPage() {
       // Payment successful - now proceed with analysis
       console.log("Payment successful, starting analysis...");
 
-      // Get analysis data from context
+      // Get analysis data from localStorage
+      const storedData = localStorage.getItem("tiebymin-analysis-data");
+      if (!storedData) {
+        setAnalysisError(
+          "Data analisis tidak ditemukan. Silakan kembali ke halaman analisis dan lengkapi data Anda."
+        );
+        setIsAnalysisLoading(false);
+        return;
+      }
+
+      const analysisData = JSON.parse(storedData);
       const { tinggi, berat, umur, body_shape_id } = analysisData;
 
       // Validasi data
