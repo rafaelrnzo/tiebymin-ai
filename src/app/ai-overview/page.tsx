@@ -5,7 +5,7 @@ import { ErrorModal } from "@/components/sections/error-modal";
 import { FeedbackModal } from "@/components/sections/feedback-modal";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,7 +27,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import BodySection from "../../components/sections/BodySection";
 import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
 import ColorToneSection from "../../components/sections/ColorToneSection";
@@ -78,6 +78,9 @@ function BeautyAnalysisPageInner() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
   const [storyError, setStoryError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
   const handleFilterChange = (filter: "hijab" | "clothes") => {
     setRecommendationFilter(filter);
@@ -174,6 +177,35 @@ function BeautyAnalysisPageInner() {
     }
   };
 
+  const handleImageLoad = () => {
+    setImageLoading(false);
+    setImageError(false);
+    setRetryCount(0);
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+
+    // Auto retry up to 3 times with increasing delay
+    if (retryCount < 3) {
+      setTimeout(() => {
+        setRetryCount((prev) => prev + 1);
+        setImageError(false);
+        setImageLoading(true);
+      }, Math.pow(2, retryCount) * 1000); // 1s, 2s, 4s delays
+    }
+  };
+
+  const checkImageAvailability = async (url: string): Promise<boolean> => {
+    try {
+      const response = await fetch(url, { method: "HEAD" });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  };
+
   // Touch event handlers for swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
@@ -266,6 +298,44 @@ function BeautyAnalysisPageInner() {
       userPhotoUrl: null,
       rawAnalysisData: null,
     };
+
+  // Reset image state when userPhotoUrl changes
+  useEffect(() => {
+    if (userPhotoUrl) {
+      setImageError(false);
+      setImageLoading(true);
+      setRetryCount(0);
+    }
+  }, [userPhotoUrl]);
+
+  // Periodic check for image availability
+  useEffect(() => {
+    if (!userPhotoUrl || !imageLoading) return;
+
+    const checkImage = async () => {
+      const isAvailable = await checkImageAvailability(userPhotoUrl);
+      if (isAvailable && imageLoading) {
+        setImageLoading(false);
+        setImageError(false);
+      }
+    };
+
+    // Check immediately and then every 2 seconds for up to 30 seconds
+    checkImage();
+    const interval = setInterval(checkImage, 2000);
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      if (imageLoading) {
+        setImageLoading(false);
+        setImageError(true);
+      }
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [userPhotoUrl, imageLoading]);
 
   useEffect(() => {
     // console.log("🔄 Component state updated:", {
@@ -411,14 +481,55 @@ function BeautyAnalysisPageInner() {
           <div className="bg-[#2D2D2D] w-full lg:w-[35%] rounded-3xl p-5 text-white flex flex-col">
             <div className="mb-4 sm:mb-6">
               {userPhotoUrl ? (
-                <Image
-                  src={userPhotoUrl}
-                  alt="Analysis Result"
-                  width={450}
-                  height={280}
-                  className="h-[200px] sm:h-[250px] lg:w-[450px] w-full object-cover rounded-xl"
-                  loading="lazy"
-                />
+                <div className="relative">
+                  {imageLoading && !imageError && (
+                    <div className="absolute inset-0 bg-gray-200 rounded-xl flex items-center justify-center animate-pulse z-10">
+                      <div className="text-sm text-gray-500">
+                        Memuat gambar...
+                      </div>
+                    </div>
+                  )}
+                  {imageError && retryCount < 3 && (
+                    <div className="absolute inset-0 bg-gray-200 rounded-xl flex flex-col items-center justify-center z-10">
+                      <div className="text-sm text-gray-500 mb-2">
+                        Memuat ulang...
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        Percobaan {retryCount + 1}/3
+                      </div>
+                    </div>
+                  )}
+                  {imageError && retryCount >= 3 ? (
+                    <div className="h-[200px] sm:h-[250px] bg-gray-200 rounded-xl flex flex-col items-center justify-center">
+                      <div className="text-sm text-gray-500 mb-2">
+                        Gambar tidak dapat dimuat
+                      </div>
+                      <button
+                        onClick={() => {
+                          setImageError(false);
+                          setImageLoading(true);
+                          setRetryCount(0);
+                        }}
+                        className="text-xs text-blue-500 hover:text-blue-700 underline"
+                      >
+                        Coba lagi
+                      </button>
+                    </div>
+                  ) : (
+                    <Image
+                      key={`${userPhotoUrl}-${retryCount}`} // Force re-render on retry
+                      src={userPhotoUrl}
+                      alt="Analysis Result"
+                      width={450}
+                      height={280}
+                      className="h-[200px] sm:h-[250px] lg:w-[450px] w-full object-cover rounded-xl"
+                      loading="lazy"
+                      onLoad={handleImageLoad}
+                      onError={handleImageError}
+                      unoptimized={true} // Disable Next.js optimization for external URLs
+                    />
+                  )}
+                </div>
               ) : (
                 <div className="h-[200px] sm:h-[250px] bg-gray-200 rounded-xl flex items-center justify-center animate-pulse"></div>
               )}

@@ -174,14 +174,6 @@ export default function FaceScanPrepPage() {
           // Convert selected image to base64 and store it
           const reader = new FileReader();
           reader.onload = (e) => {
-            const base64Image = e.target?.result as string;
-            localStorage.setItem("uploadedFaceImage", base64Image);
-            localStorage.setItem("uploadedFaceImageName", selectedFile!.name);
-
-            console.log("Image stored in localStorage as base64");
-            console.log("Base64 length:", base64Image.length);
-
-            // Reset loading state and redirect to open-camera with gallery flag
             setIsAnalyzing(false);
             router.push(
               "/analyze/open-camera?fromGallery=true&skipCamera=true"
