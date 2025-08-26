@@ -146,32 +146,39 @@ function HalamanKameraWajahContent() {
 
   useEffect(() => {
     if (appState === "ANALYZING") return;
-
+  
     if (fromGallery && skipCamera) {
-      console.log("Gallery upload detected, skipping camera...");
-
-      const storedResultId = localStorage.getItem("analysisResultId");
-      const skipCameraFlag = localStorage.getItem("skipCameraForGallery");
-
-      if (storedResultId && skipCameraFlag === "true") {
-        console.log("Found stored analysis result ID:", storedResultId);
-        setAnalysisResultId(storedResultId);
+      console.log("Gallery upload with skipCamera detected...");
+  
+      const uploadedImage = localStorage.getItem("uploadedFaceImage");
+      const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
+  
+      if (uploadedImage && uploadedImageName) {
+        console.log("Found gallery image data, proceeding to analysis...");
+        setCapturedImage(uploadedImage);
         setAppState("ANALYZING");
-
-        localStorage.removeItem("analysisResultId");
-        localStorage.removeItem("skipCameraForGallery");
-        return; // Exit early, don't continue to camera setup
+        
+        const imageBlob = dataURLtoBlob(uploadedImage);
+        if (imageBlob) {
+          handleFullAnalysis(imageBlob, uploadedImageName);
+        } else {
+          setErrorModalMessage("Gagal memproses gambar yang diunggah.");
+          setIsErrorModalOpen(true);
+        }
+        
+        localStorage.removeItem("uploadedFaceImage");
+        localStorage.removeItem("uploadedFaceImageName");
+        return; 
       } else {
-        console.log("No stored analysis data found, falling back to camera");
+        console.log("No gallery image data found, falling back to camera");
         setAppState("CAMERA");
       }
     }
-
-    // Original gallery logic (for old flow compatibility)
+  
     if (fromGallery && !skipCamera) {
       const uploadedImage = localStorage.getItem("uploadedFaceImage");
       const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
-
+  
       if (uploadedImage && uploadedImageName) {
         setCapturedImage(uploadedImage);
         setAppState("ANALYZING");
@@ -189,12 +196,11 @@ function HalamanKameraWajahContent() {
       }
       return;
     }
-
-    // Normal camera setup for regular camera flow
+  
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
-
+  
     let currentStream: MediaStream | null = null;
-
+  
     const startCamera = async () => {
       try {
         if (videoRef.current && videoRef.current.srcObject) {
@@ -202,7 +208,7 @@ function HalamanKameraWajahContent() {
             .getTracks()
             .forEach((track) => track.stop());
         }
-
+  
         const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: facingMode,
@@ -210,7 +216,7 @@ function HalamanKameraWajahContent() {
             height: { ideal: 1080 },
           },
         });
-
+  
         currentStream = mediaStream;
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
@@ -222,12 +228,11 @@ function HalamanKameraWajahContent() {
         setIsErrorModalOpen(true);
       }
     };
-
-    // Only start camera if not skipping camera
-    if (!skipCamera) {
+  
+    if (!fromGallery || !skipCamera) {
       startCamera();
     }
-
+  
     return () => {
       if (currentStream)
         currentStream.getTracks().forEach((track) => track.stop());
