@@ -103,8 +103,9 @@ function HalamanKameraWajahContent() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const getInitialState = (): AppState => {
+    // Jika dari galeri dan skip camera, langsung ke LOADING_UI
     if (fromGallery && skipCamera) {
-      return "ANALYZING";
+      return "LOADING_UI";
     }
     return "CAMERA";
   };
@@ -122,22 +123,36 @@ function HalamanKameraWajahContent() {
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
   };
 
-  // Handle initial gallery upload case
+  // Handle initial gallery upload case - modified
   useEffect(() => {
-    if (fromGallery && skipCamera && appState === "ANALYZING") {
+    if (fromGallery && skipCamera && appState === "LOADING_UI") {
+      // Get result_id from localStorage (should be stored by take-face page)
+      const storedResultId = localStorage.getItem("analysisResultId");
       const uploadedImage = localStorage.getItem("uploadedFaceImage");
       const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
 
-      if (uploadedImage && uploadedImageName) {
-        setCapturedImage(uploadedImage);
-        handleFullAnalysis();
-        localStorage.removeItem("uploadedFaceImage");
-        localStorage.removeItem("uploadedFaceImageName");
+      if (storedResultId) {
+        console.log("Found stored analysis result ID:", storedResultId);
+        setAnalysisResultId(storedResultId);
+
+        // Set the uploaded image as captured image for display purposes if needed
+        if (uploadedImage) {
+          setCapturedImage(uploadedImage);
+        }
       } else {
-        setAppState("CAMERA");
+        console.error("No analysis result ID found in localStorage");
+        setErrorModalMessage(
+          "Hasil analisis tidak ditemukan. Silakan coba lagi."
+        );
+        setIsErrorModalOpen(true);
+        // Redirect back to take-face page
+        setTimeout(() => {
+          router.push("/analyze/take-face");
+        }, 2000);
+        return;
       }
     }
-  }, [fromGallery, skipCamera, appState]);
+  }, [fromGallery, skipCamera, appState, router]);
 
   // Camera setup effect
   useEffect(() => {
@@ -183,7 +198,7 @@ function HalamanKameraWajahContent() {
     };
   }, [fromGallery, skipCamera, appState, facingMode]);
 
-  // Loading UI effect - starts after API analysis completes
+  // Loading UI effect - modified to handle gallery flow
   useEffect(() => {
     if (appState === "LOADING_UI") {
       console.log("Starting loading UI animation...");
@@ -206,8 +221,12 @@ function HalamanKameraWajahContent() {
         console.log("Loading UI completed, navigating to results...");
         setProgress(100);
 
-        if (analysisResultId) {
-          router.push(`/ai-overview?result_id=${analysisResultId}`);
+        // For gallery flow, use the stored analysisResultId
+        const resultIdToUse =
+          fromGallery && skipCamera ? analysisResultId : analysisResultId;
+
+        if (resultIdToUse) {
+          router.push(`/ai-overview?result_id=${resultIdToUse}`);
         } else {
           console.error("No analysis result ID available for navigation");
           setErrorModalMessage(
@@ -223,7 +242,7 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState, analysisResultId, router]);
+  }, [appState, analysisResultId, router, fromGallery, skipCamera]);
 
   // Helper function to convert data URL to Blob
   const dataURLtoBlob = (dataurl: string) => {
@@ -395,7 +414,7 @@ function HalamanKameraWajahContent() {
     await handleFullAnalysis();
   };
 
-  // Loading UI state - shows detailed loading animation after API completes
+  // Loading UI state - shows detailed loading animation
   if (appState === "LOADING_UI") {
     const step =
       LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
