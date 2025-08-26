@@ -27,7 +27,7 @@ export const SecondSection = () => {
 
           <div className="lg:col-span-2 flex flex-col gap-4 w-full">
             <div className="bg-[#FFC6C6] p-6 rounded-2xl flex flex-col gap-6 w-full">
-              <a href="/login">
+              <a href="/register">
                 <div className="bg-[#2C2C2E] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
                   <span className="text-[#FFC6C6] font-semibold text-base sm:text-lg">
                     Coba Sekarang Juga

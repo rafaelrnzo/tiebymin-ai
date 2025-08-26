@@ -14,7 +14,7 @@ interface ErrorModalProps {
 export function ErrorModal({ isOpen, onClose, errorMessage }: ErrorModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[650px] bg-[#f0f0f0] rounded-2xl p-8">
+      <DialogContent className="sm:max-w-[650px] bg-[#f0f0f0] rounded-2xl p-8 px-4 sm:px-8">
         <div className="flex flex-col items-center justify-center space-y-6">
           <div className="flex justify-center">
             <TriangleAlert
