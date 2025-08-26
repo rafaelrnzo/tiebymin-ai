@@ -312,25 +312,49 @@ export default function FaceScanPrepPage() {
             />
 
             {/* Tombol Aksi */}
-            <div className="w-full space-y-4">
-              <Button
-                className="bg-[#323232] text-white rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
-                onClick={handleTakePhoto}
-              >
-                <Camera className="size-[26px] fill-white text-[#323232]" />
-                <span className="text-[16px] font-poppins">
-                  Ambil Foto Sekarang
-                </span>
-              </Button>
-              <Button
-                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
-                onClick={handleUploadFromGallery}
-              >
-                <ImageIcon className="transition-colors group-hover:text-white size-[26px]" />
-                <span className="text-[16px] font-poppins">
-                  Upload dari Galeri
-                </span>
-              </Button>
+            <div className="w-full space-y-6">
+              <div className="space-y-4">
+                <Button
+                  className="bg-[#323232] text-white rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                  onClick={handleTakePhoto}
+                >
+                  <Camera className="size-[26px] fill-white text-[#323232]" />
+                  <span className="text-[16px] font-poppins">
+                    Ambil Foto Sekarang
+                  </span>
+                </Button>
+                <Button
+                  className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                  onClick={handleUploadFromGallery}
+                >
+                  <ImageIcon className="transition-colors group-hover:text-white size-[26px]" />
+                  <span className="text-[16px] font-poppins">
+                    Upload dari Galeri
+                  </span>
+                </Button>
+              </div>
+
+              {/* Privacy Policy Section - Improved Layout */}
+              <div className="rounded-xl p-4 mt-6">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="privacy-policy"
+                    className="mt-1 w-4 h-4 text-[#EF789B] bg-gray-100 border-gray-300 rounded focus:ring-[#EF789B] focus:ring-2"
+                  />
+                  <p className="font-poppins text-md text-gray-600 leading-relaxed mt-2">
+                    Dengan melanjutkan, saya menyetujui
+                    <button className="text-[#EF789B] hover:text-pink-600 underline font-medium mx-1">
+                      Kebijakan Privasi
+                    </button>
+                    dan
+                    <button className="text-[#EF789B] hover:text-pink-600 underline font-medium ml-1">
+                      Syarat & Ketentuan
+                    </button>
+                    yang berlaku untuk penggunaan data pribadi saya.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
