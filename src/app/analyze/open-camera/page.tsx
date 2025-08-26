@@ -110,11 +110,8 @@ function HalamanKameraWajahContent() {
 
   const getInitialState = (): AppState => {
     if (fromGallery && skipCamera) {
-      const storedResultId = localStorage.getItem("analysisResultId");
-      const skipCameraFlag = localStorage.getItem("skipCameraForGallery");
-      if (storedResultId && skipCameraFlag === "true") {
-        return "ANALYZING";
-      }
+      // If coming from gallery with skipCamera flag, go directly to analyzing
+      return "ANALYZING";
     }
     return "CAMERA";
   };
@@ -150,26 +147,28 @@ function HalamanKameraWajahContent() {
     if (appState === "ANALYZING") return;
 
     if (fromGallery && skipCamera) {
-      console.log("Gallery upload detected, skipping camera...");
+      console.log("Gallery upload with skipCamera detected...");
 
-      const storedResultId = localStorage.getItem("analysisResultId");
-      const skipCameraFlag = localStorage.getItem("skipCameraForGallery");
+      const uploadedImage = localStorage.getItem("uploadedFaceImage");
+      const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
 
-      if (storedResultId && skipCameraFlag === "true") {
-        console.log("Found stored analysis result ID:", storedResultId);
-        setAnalysisResultId(storedResultId);
+      if (uploadedImage && uploadedImageName) {
+        console.log("Found gallery image data, proceeding to analysis...");
+        setCapturedImage(uploadedImage);
+
+        // Start analysis immediately without API call
+        // The API call will happen during the loading animation
         setAppState("ANALYZING");
 
-        localStorage.removeItem("analysisResultId");
-        localStorage.removeItem("skipCameraForGallery");
-        return; // Exit early, don't continue to camera setup
+        localStorage.removeItem("uploadedFaceImage");
+        localStorage.removeItem("uploadedFaceImageName");
+        return;
       } else {
-        console.log("No stored analysis data found, falling back to camera");
+        console.log("No gallery image data found, falling back to camera");
         setAppState("CAMERA");
       }
     }
 
-    // Original gallery logic (for old flow compatibility)
     if (fromGallery && !skipCamera) {
       const uploadedImage = localStorage.getItem("uploadedFaceImage");
       const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
@@ -192,7 +191,6 @@ function HalamanKameraWajahContent() {
       return;
     }
 
-    // Normal camera setup for regular camera flow
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
 
     let currentStream: MediaStream | null = null;
@@ -225,8 +223,7 @@ function HalamanKameraWajahContent() {
       }
     };
 
-    // Only start camera if not skipping camera
-    if (!skipCamera) {
+    if (!fromGallery || !skipCamera) {
       startCamera();
     }
 
@@ -242,6 +239,32 @@ function HalamanKameraWajahContent() {
       setLoadingStep(0);
       setProgress(0);
 
+      // For gallery uploads, API analysis happens during animation
+      // For camera photos, API analysis is already done when button is clicked
+      const startApiAnalysisIfNeeded = async () => {
+        if (fromGallery && skipCamera) {
+          const uploadedImage = localStorage.getItem("uploadedFaceImage");
+          const uploadedImageName = localStorage.getItem(
+            "uploadedFaceImageName"
+          );
+
+          if (uploadedImage && uploadedImageName) {
+            const imageBlob = dataURLtoBlob(uploadedImage);
+            if (imageBlob) {
+              await handleFullAnalysis(imageBlob, uploadedImageName);
+            } else {
+              console.error("Failed to process gallery image");
+              setErrorModalMessage("Gagal memproses gambar yang diunggah.");
+              setIsErrorModalOpen(true);
+            }
+          }
+        }
+        // For camera photos, API analysis is already done in handleAnalyze
+      };
+
+      // Start API analysis if needed (gallery uploads)
+      startApiAnalysisIfNeeded();
+
       const stepCount = LOADING_STEPS.length;
       const totalDuration = 45000; // 45 detik
       const stepDuration = Math.floor(totalDuration / stepCount);
@@ -255,10 +278,19 @@ function HalamanKameraWajahContent() {
       }, Math.max(20, totalDuration / 100));
 
       const finishTimer = setTimeout(() => {
-        console.log("Analysis animation completed, showing results modal...");
+        console.log("Analysis animation completed, navigating to results...");
 
         setProgress(100);
-        setAppState("SHOW_RESULTS_MODAL");
+        // Navigate directly to ai-overview with result_id
+        if (analysisResultId) {
+          router.push(`/ai-overview?result_id=${analysisResultId}`);
+        } else {
+          console.error("No analysis result ID available for navigation");
+          setErrorModalMessage(
+            "Hasil analisis tidak ditemukan. Silakan coba lagi."
+          );
+          setIsErrorModalOpen(true);
+        }
       }, totalDuration);
 
       return () => {
@@ -267,7 +299,7 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState, router, setAnalysisData]);
+  }, [appState, router, setAnalysisData, fromGallery, skipCamera]);
 
   useEffect(() => {
     if (appState === "RESULTS") {
@@ -439,12 +471,11 @@ function HalamanKameraWajahContent() {
         const resultId = response.data.analysis_result_id;
 
         if (resultId) {
-          console.log("Analysis started successfully, result ID:", resultId);
+          console.log("Analysis completed successfully, result ID:", resultId);
           setAnalysisResultId(resultId);
 
-          // Start the analysis animation
-          console.log("Starting analysis animation...");
-          setAppState("ANALYZING");
+          // Don't set state to ANALYZING since we're already in that state
+          // The loading animation will continue and navigate when complete
         } else {
           throw new Error("Gagal mendapatkan ID hasil analisis.");
         }
@@ -467,8 +498,19 @@ function HalamanKameraWajahContent() {
     }
   };
 
-  const handleAnalyze = () => {
-    handleFullAnalysis();
+  const handleAnalyze = async () => {
+    // Perform API analysis first, like in gallery upload
+    setIsApiLoading(true);
+    try {
+      await handleFullAnalysis();
+      // Only start loading animation after API analysis completes
+      setAppState("ANALYZING");
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      // Error is already handled in handleFullAnalysis
+    } finally {
+      setIsApiLoading(false);
+    }
   };
 
   if (appState === "ANALYZING") {

@@ -6,6 +6,8 @@ import { Camera, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { secureUrl } from "@/lib/api";
+import axios from "axios";
 
 // HELPER HOOK: (Tidak ada perubahan)
 const useMediaQuery = (query: string) => {
@@ -51,6 +53,7 @@ export default function FaceScanPrepPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Data untuk stepper mobile
   const steps = [
@@ -82,6 +85,127 @@ export default function FaceScanPrepPage() {
     handleUploadFromGallery(); // Langsung buka galeri lagi
   };
 
+  const handleFullAnalysis = async (
+    imageBlobFromGallery: Blob | null = null,
+    imageNameFromGallery: string | null = null
+  ) => {
+    try {
+      // Get analysis data from localStorage
+      const storedData = localStorage.getItem("tiebymin-analysis-data");
+      if (!storedData) {
+        setErrorModalMessage(
+          "Data analisis tidak ditemukan. Silakan kembali ke halaman analisis dan lengkapi data Anda."
+        );
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      const analysisData = JSON.parse(storedData);
+      const { tinggi, berat, umur, body_shape_id } = analysisData;
+
+      // Validate required data
+      if (!tinggi || !berat || !umur || !body_shape_id) {
+        setErrorModalMessage(
+          "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
+        );
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      console.log("MENYIAPKAN DATA UNTUK ANALISIS:", {
+        tinggi,
+        berat,
+        umur,
+        body_shape_id,
+        foto_wajah: imageBlobFromGallery
+          ? "ada dari galeri"
+          : "ada dari kamera",
+      });
+
+      let imageToUpload: Blob | null = null;
+      let imageFileName: string = "face-photo.png";
+
+      if (imageBlobFromGallery && imageNameFromGallery) {
+        imageToUpload = imageBlobFromGallery;
+        imageFileName = imageNameFromGallery;
+      }
+
+      if (!imageToUpload) {
+        setErrorModalMessage("Informasi tidak lengkap. Foto tidak ditemukan.");
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      // Get user ID
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      // Prepare form data for analysis
+      const formData = new FormData();
+      formData.append("user_id", userId);
+      formData.append("tinggi_badan", tinggi);
+      formData.append("berat_badan", berat);
+      formData.append("umur", umur);
+      formData.append("body_shape_id", body_shape_id);
+      formData.append("foto_wajah", imageToUpload, imageFileName);
+
+      // Call analysis API
+      const endpoint = secureUrl("/v1/analysis/full-analysis");
+      console.log("Calling analysis API endpoint:", endpoint);
+
+      const response = await axios.post(endpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        const resultId = response.data.analysis_result_id;
+
+        if (resultId) {
+          console.log("Analysis completed successfully, result ID:", resultId);
+          // Store result ID for later use
+          localStorage.setItem("analysisResultId", resultId);
+
+          // Convert selected image to base64 and store it
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64Image = e.target?.result as string;
+            localStorage.setItem("uploadedFaceImage", base64Image);
+            localStorage.setItem("uploadedFaceImageName", selectedFile!.name);
+
+            // Reset loading state and redirect to open-camera with gallery flag
+            setIsAnalyzing(false);
+            router.push(
+              "/analyze/open-camera?fromGallery=true&skipCamera=true"
+            );
+          };
+          reader.readAsDataURL(selectedFile!);
+        } else {
+          throw new Error("Gagal mendapatkan ID hasil analisis.");
+        }
+      } else {
+        throw new Error(
+          response.data?.message ||
+            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
+        );
+      }
+    } catch (error) {
+      console.error("Analysis error:", error);
+      const err = error as Error;
+      setErrorModalMessage(
+        err.message ||
+          "Terjadi kesalahan saat memulai analisis. Silakan coba lagi."
+      );
+      setIsErrorModalOpen(true);
+      setIsAnalyzing(false); // Reset loading state on error
+    }
+  };
+
   const handleProceedToCamera = () => {
     if (!selectedFile) {
       setErrorModalMessage("Tidak ada file yang dipilih.");
@@ -89,17 +213,9 @@ export default function FaceScanPrepPage() {
       return;
     }
 
-    // Convert selected image to base64 and store it
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64Image = e.target?.result as string;
-      localStorage.setItem("uploadedFaceImage", base64Image);
-      localStorage.setItem("uploadedFaceImageName", selectedFile.name);
-
-      // Redirect to open-camera with gallery flag
-      router.push("/analyze/open-camera?fromGallery=true&skipCamera=true");
-    };
-    reader.readAsDataURL(selectedFile);
+    // Set loading state and perform API analysis first, then redirect
+    setIsAnalyzing(true);
+    handleFullAnalysis(selectedFile, selectedFile.name);
   };
 
   return (
@@ -384,13 +500,21 @@ export default function FaceScanPrepPage() {
                 onClick={handleReselect}
                 className="w-full py-3 px-4 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100"
               >
-                Pilih Ulang
+                Ganti Gambar
               </Button>
               <Button
                 onClick={handleProceedToCamera}
-                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                disabled={isAnalyzing}
+                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Lanjut ke Kamera
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#323232]"></div>
+                    Menganalisa...
+                  </>
+                ) : (
+                  "Mulai Analisa"
+                )}
               </Button>
             </div>
           </div>
