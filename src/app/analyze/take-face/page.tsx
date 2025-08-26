@@ -178,11 +178,20 @@ export default function FaceScanPrepPage() {
             localStorage.setItem("uploadedFaceImage", base64Image);
             localStorage.setItem("uploadedFaceImageName", selectedFile!.name);
 
+            console.log("Image stored in localStorage as base64");
+            console.log("Base64 length:", base64Image.length);
+
             // Reset loading state and redirect to open-camera with gallery flag
             setIsAnalyzing(false);
             router.push(
               "/analyze/open-camera?fromGallery=true&skipCamera=true"
             );
+          };
+          reader.onerror = (error) => {
+            console.error("Error converting image to base64:", error);
+            setErrorModalMessage("Gagal memproses gambar. Silakan coba lagi.");
+            setIsErrorModalOpen(true);
+            setIsAnalyzing(false);
           };
           reader.readAsDataURL(selectedFile!);
         } else {
@@ -205,7 +214,6 @@ export default function FaceScanPrepPage() {
       setIsAnalyzing(false); // Reset loading state on error
     }
   };
-
   const handleProceedToCamera = () => {
     if (!selectedFile) {
       setErrorModalMessage("Tidak ada file yang dipilih.");

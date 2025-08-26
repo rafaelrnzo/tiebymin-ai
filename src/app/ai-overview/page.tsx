@@ -7,59 +7,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Suspense, useState } from "react";
 
-// Type definitions
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  current_price: number;
-  original_price: number;
-  total_compatibility_score: number;
-  average_rating: number;
-  color_recommendations?: string[];
-  size_range: string;
-  product_link: string;
-}
-
-interface AnalysisData {
-  face_shape_id?: string;
-  color_analysis_id?: string;
-  body_shape_id?: string;
-  bmi_category_id?: string;
-  celebrity_id?: string;
-  analysis_details?: {
-    bmi?: {
-      value: number;
-    };
-  };
-}
-
-interface UserData {
-  id?: string;
-  name?: string;
-  email?: string;
-  [key: string]: unknown;
-}
-
-interface AnalysisResult {
-  userData: UserData | null;
-  userPhotoUrl: string | null;
-  rawAnalysisData: AnalysisData | null;
-}
-
-interface RecommendationsData {
-  hijab: Product[];
-  clothes: Product[];
-}
-
-interface TouchEventType {
-  targetTouches: Array<{
-    clientX: number;
-  }>;
-}
-
-type ToastType = "success" | "error";
-
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -86,41 +33,58 @@ import CelebrityMatchSection from "../../components/sections/CelebrityMatchSecti
 import ColorToneSection from "../../components/sections/ColorToneSection";
 import ShapeSection from "../../components/sections/ShapeSection";
 import TipsSection from "../../components/sections/TipsSection";
+import { UserData } from "@/types";
+
+interface AnalysisData {
+  face_shape_id?: string;
+  color_analysis_id?: string;
+  body_shape_id?: string;
+  bmi_category_id?: string;
+  celebrity_id?: string;
+  analysis_details?: {
+    bmi?: {
+      value: number;
+    };
+  };
+}
+interface AnalysisResult {
+  userData: UserData | null;
+  userPhotoUrl: string | null;
+  rawAnalysisData: AnalysisData | null;
+}
 
 function BeautyAnalysisPageInner() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState(0);
   const searchParams = useSearchParams();
-  const [userName, setUserName] = useState<string>("");
-  const [recommendationPage, setRecommendationPage] = useState<number>(1);
-  const [userId, setUserId] = useState<string>("");
+  const [userName, setUserName] = useState("");
+  const [recommendationPage, setRecommendationPage] = useState(1);
+  const [userId, setUserId] = useState("");
   const [recommendationFilter, setRecommendationFilter] = useState<
     "hijab" | "clothes"
   >("hijab");
-  const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
-  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(
-    new Set<string>()
-  );
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [visitedTabs, setVisitedTabs] = useState(new Set<string>());
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isFeedbackModalOpen, setFeedbackModalOpen] = useState<boolean>(false);
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
-  const [errorModalMessage, setErrorModalMessage] = useState<string>("");
-  const [isLockedModalOpen, setIsLockedModalOpen] = useState<boolean>(false);
+  const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [topProductScores, setTopProductScores] = useState<Map<string, number>>(
-    new Map<string, number>()
+    new Map()
   );
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [isAnimating, setIsAnimating] = useState<boolean>(false);
-  const [isGeneratingStory, setIsGeneratingStory] = useState<boolean>(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
   const [storyError, setStoryError] = useState<string | null>(null);
 
-  const handleFilterChange = (filter: "hijab" | "clothes"): void => {
+  const handleFilterChange = (filter: "hijab" | "clothes") => {
     setRecommendationFilter(filter);
     setRecommendationPage(1); // Reset to first page when filter changes
   };
 
-  const showToast = (message: string, type: ToastType): void => {
+  const showToast = (message: string, type: "success" | "error") => {
     const toast = document.createElement("div");
     toast.textContent = message;
     toast.style.cssText = `
@@ -153,68 +117,50 @@ function BeautyAnalysisPageInner() {
     }, 4000);
   };
 
-  const handleDownloadStory = async (): Promise<void> => {
+  const handleDownloadStory = async () => {
     if (!resultId) return;
     setIsGeneratingStory(true);
     try {
       setStoryError(null);
       const result = await generateStory();
       if (result.data) {
+        // Use the data directly - the API should return the correct format
         const imageData = result.data;
 
         const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
           type: "image/png",
         });
 
-        // Check if we're on mobile (where Instagram app is likely available)
-        const isMobile =
-          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
-          );
-
-        if (isMobile) {
-          // Try Instagram Stories deep link first (mobile only)
+        // Check if sharing is supported and try to share first
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
-            // Create a temporary URL for the image
-            const imageUrl = URL.createObjectURL(file);
-
-            // Instagram Stories deep link with image
-            const instagramStoriesUrl = `instagram-stories://share?media_url=${encodeURIComponent(
-              imageUrl
-            )}`;
-
-            // Try to open Instagram Stories directly
-            window.location.href = instagramStoriesUrl;
-
-            // Fallback: if Instagram app isn't installed, show instructions
-            setTimeout(() => {
-              const userConfirmed = confirm(
-                "Instagram app tidak terdeteksi. Apakah Anda ingin mengunduh gambar dan membagikannya manual ke Instagram Stories?"
-              );
-              if (userConfirmed) {
-                // Download the image
-                const link = document.createElement("a");
-                link.href = imageUrl;
-                link.download = file.name;
-                link.click();
-
-                // Show instructions
-                showToast(
-                  "Gambar telah diunduh. Buka Instagram > Stories > Galeri untuk membagikan",
-                  "success"
-                );
-              }
-              URL.revokeObjectURL(imageUrl);
-            }, 1000);
-          } catch (error) {
-            console.warn("Instagram Stories deep link failed:", error);
+            await navigator.share({
+              files: [file],
+              title: "Tie By Min Story",
+              text: "Coba AI Fashion Analysis aku!",
+            });
+            showToast("Story berhasil dibagikan!", "success");
+          } catch (shareError) {
+            console.warn("Share failed, falling back to download:", shareError);
             // Fallback to download
-            downloadImageWithInstructions(file);
+            const url = URL.createObjectURL(file);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = file.name;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast("Story berhasil diunduh!", "success");
           }
         } else {
-          // Desktop: Open Instagram website directly
-          window.open("https://www.instagram.com/create/story/", "_blank");
-          showToast("Buka Instagram dan bagikan story Anda!", "success");
+          // Direct download if sharing is not supported
+          console.log("Web Share API not supported, using direct download");
+          const url = URL.createObjectURL(file);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = file.name;
+          link.click();
+          URL.revokeObjectURL(url);
+          showToast("Story berhasil diunduh!", "success");
         }
       } else {
         throw new Error("No story data received");
@@ -228,85 +174,17 @@ function BeautyAnalysisPageInner() {
     }
   };
 
-  const downloadImageWithInstructions = (file: File): void => {
-    const url = URL.createObjectURL(file);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = file.name;
-    link.click();
-    URL.revokeObjectURL(url);
-
-    const instructionModal = document.createElement("div");
-    instructionModal.innerHTML = `
-    <div style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      font-family: Arial, sans-serif;
-    ">
-      <div style="
-        background: white;
-        padding: 24px;
-        border-radius: 12px;
-        max-width: 400px;
-        text-align: center;
-        margin: 20px;
-      ">
-        <h3 style="margin: 0 0 16px 0; color: #333;">Cara Bagikan ke Instagram Stories</h3>
-        <ol style="text-align: left; color: #666; line-height: 1.5;">
-          <li>Buka aplikasi Instagram</li>
-          <li>Tap ikon "+" atau swipe kanan dari beranda</li>
-          <li>Pilih "Story"</li>
-          <li>Tap ikon galeri di kiri bawah</li>
-          <li>Pilih gambar yang baru diunduh</li>
-          <li>Edit sesuai keinginan dan bagikan!</li>
-        </ol>
-        <button onclick="this.parentElement.parentElement.remove()" style="
-          background: #E1306C;
-          color: white;
-          border: none;
-          padding: 12px 24px;
-          border-radius: 6px;
-          margin-top: 16px;
-          cursor: pointer;
-        ">Mengerti</button>
-      </div>
-    </div>
-  `;
-
-    document.body.appendChild(instructionModal);
-
-    // Auto remove after 10 seconds
-    setTimeout(() => {
-      if (instructionModal.parentElement) {
-        instructionModal.remove();
-      }
-    }, 10000);
-
-    showToast(
-      "Gambar berhasil diunduh! Lihat panduan untuk membagikan ke Instagram Stories",
-      "success"
-    );
-  };
-
   // Touch event handlers for swipe gestures
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>): void => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
   };
 
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>): void => {
+  const handleTouchMove = (e: React.TouchEvent) => {
     setTouchEnd(e.targetTouches[0].clientX);
   };
 
-  const handleTouchEnd = (): void => {
+  const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
 
     const distance = touchStart - touchEnd;
@@ -420,21 +298,20 @@ function BeautyAnalysisPageInner() {
     setIsLockedModalOpen(false);
   }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
 
-  const filteredProducts: Product[] = recommendationsData
+  const filteredProducts = recommendationsData
     ? recommendationFilter === "hijab"
       ? recommendationsData.hijab
       : recommendationsData.clothes
     : [];
-  const totalPages: number = filteredProducts.length;
+  const totalPages = filteredProducts.length;
 
-  const sortedProducts: Product[] = [...filteredProducts].sort(
-    (a: Product, b: Product) =>
-      b.total_compatibility_score - a.total_compatibility_score
+  const sortedProducts = [...filteredProducts].sort(
+    (a, b) => b.total_compatibility_score - a.total_compatibility_score
   );
 
   useEffect(() => {
     if (sortedProducts.length > 0) {
-      const possibleScores: number[] = [90, 91, 92, 93, 94, 95];
+      const possibleScores = [90, 91, 92, 93, 94, 95];
 
       for (let i = possibleScores.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -447,7 +324,7 @@ function BeautyAnalysisPageInner() {
       const newScores = new Map<string, number>();
       const topThree = sortedProducts.slice(0, 3);
 
-      topThree.forEach((product: Product, index: number) => {
+      topThree.forEach((product, index) => {
         if (possibleScores[index] !== undefined) {
           newScores.set(product.id, possibleScores[index]);
         }
@@ -457,10 +334,9 @@ function BeautyAnalysisPageInner() {
     }
   }, [recommendationsData]);
 
-  const currentProduct: Product | undefined =
-    sortedProducts[recommendationPage - 1];
+  const currentProduct = sortedProducts[recommendationPage - 1];
 
-  const renderContent = (tabId: string): React.ReactNode => {
+  const renderContent = (tabId: string) => {
     const analysisData = rawAnalysisData;
     if (!analysisData) return null;
 
