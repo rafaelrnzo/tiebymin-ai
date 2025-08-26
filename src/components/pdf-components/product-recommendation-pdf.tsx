@@ -30,7 +30,7 @@ const MainContent = ({
     );
   }
 
-  if (products.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
         <p className="text-gray-600">
@@ -42,33 +42,40 @@ const MainContent = ({
 
   return (
     <div className="flex flex-col gap-8">
-      {products.map((product) => (
+      {products.slice(0, 3).map((product, index) => (
         <div
           key={product.id}
           className="flex flex-row items-center h-[180px] shadow-lg"
         >
           {/* Card Gambar */}
-          <div className="w-1/2 h-full relative overflow-hidden rounded-l-lg">
+          <div className="w-1/2 h-full relative overflow-hidden rounded-l-lg bg-gray-100">
             <Image
-              src={product.images[0] || "/placeholder.png"}
-              alt={product.name}
+              src={product.images?.[0] || "/placeholder.png"}
+              alt={product.name || "Product"}
               fill
               className="object-cover"
+              priority={true} // Prioritize ALL images for PDF generation
+              unoptimized={true} // Disable optimization for PDF generation
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.png";
+              }}
             />
             <div className="absolute bottom-3 left-3 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-xs font-bold">
-              {Math.round(product.total_compatibility_score * 100)}% Match
+              {Math.round((product.total_compatibility_score || 0) * 10)}% Match
             </div>
           </div>
           {/* Card Deskripsi */}
           <div className="w-1/2 bg-[#323232] text-white p-6 flex flex-col justify-center h-full rounded-r-lg">
             <h2
               className="text-3xl font-oswald mb-2 truncate"
-              title={product.name}
+              title={product.name || "Product"}
             >
-              {product.name}
+              {product.name || "Product Name"}
             </h2>
             <p className="text-lg font-bold text-gray-200">
-              Rp{product.current_price.toLocaleString("id-ID")}
+              Rp{(product.current_price || 0).toLocaleString("id-ID")}
             </p>
           </div>
         </div>

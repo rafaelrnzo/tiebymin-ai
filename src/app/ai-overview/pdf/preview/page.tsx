@@ -184,10 +184,11 @@ function PreviewPdfPage() {
       },
       {
         id: "recommendation",
-        Component: resultId ? (
-          <ProductRecommendation userData={finalUserData} resultId={resultId} />
-        ) : (
-          <div />
+        Component: (
+          <ProductRecommendation
+            userData={finalUserData}
+            resultId={resultId as string}
+          />
         ),
       },
       { id: "backCover", Component: <BackCover /> },

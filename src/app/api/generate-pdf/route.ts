@@ -77,16 +77,30 @@ async function generatePdf(req: NextRequest) {
 
     await page.goto(pdfUrl.toString(), {
       waitUntil: ["networkidle0", "domcontentloaded"],
-      timeout: 30000, 
+      timeout: 30000,
     });
 
+    // Wait for images to load - increased time for all images
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
     try {
-      await page.waitForSelector("#pdf-content", { timeout: 10000 });
+      await page.waitForSelector("#pdf-content", { timeout: 15000 });
     } catch (error) {
       console.warn(
         `PDF content selector not found, continuing anyway, ${error}`
       );
     }
+
+    // Wait for product recommendation images to load
+    try {
+      await page.waitForSelector('img[alt*="Product"]', { timeout: 10000 });
+      console.log("Product images found and loaded");
+    } catch (error) {
+      console.warn("Product images not found within timeout, continuing anyway");
+    }
+
+    // Additional wait for dynamic content and images - increased time
+    await new Promise(resolve => setTimeout(resolve, 4000));
 
     const pdf = await page.pdf({
       format: "A4",

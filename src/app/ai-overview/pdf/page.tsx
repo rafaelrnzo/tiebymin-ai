@@ -31,6 +31,7 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useMemo, useState } from "react";
+import { ProductRecommendation } from "@/components/pdf-components/product-recommendation-pdf";
 
 interface PageProps {
   userData: UserData;
@@ -200,6 +201,9 @@ function PdfPage() {
     BodyShape: (props) => <BodyShape {...props} />,
     CelebritiesMatch: (props) => <CelebritiesMatch {...props} />,
     Conclusion: (props) => <Conclusion {...props} />,
+    ProductRecommendation: (props) => (
+      <ProductRecommendation {...props} resultId={resultId as string} />
+    ),
     BackCover: () => <BackCover />,
   };
 
