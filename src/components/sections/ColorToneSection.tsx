@@ -29,14 +29,16 @@ interface ColorToneSectionProps {
 
 const ColorCircle: React.FC<ColorCircleProps> = ({ color, className }) => (
   <div
-    className={`w-8 h-8 rounded-full ${className} border border-gray-300`}
+    className={`w-[38px] h-[38px] rounded-full ${className} border border-gray-300`}
     style={{ backgroundColor: color }}
   />
 );
 
 const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
   <div className="text-center">
-    <h3 className="font-poppins lg:text-lg font-bold text-gray-700">{title}</h3>
+    <h3 className="font-poppins lg:text-lg font-bold text-[#323232]">
+      {title}
+    </h3>
     <div className="mt-2 grid grid-cols-3 grid-rows-2 gap-3">
       {(colors || []).map((color: string, index: number) => (
         <ColorCircle key={index} color={color} />
@@ -47,7 +49,7 @@ const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
 
 const MobileColorRow: React.FC<MobileColorRowProps> = ({ title, children }) => (
   <div className="flex items-center justify-between w-full py-3 border-b border-gray-200 last:border-b-0">
-    <h3 className="font-poppins text-sm font-bold text-gray-700 flex-shrink-0 pr-4">
+    <h3 className="font-poppins text-sm font-bold text-[#323232] flex-shrink-0 pr-4">
       {title}
     </h3>
     <div className="flex flex-wrap gap-2 justify-end">{children}</div>
@@ -56,16 +58,14 @@ const MobileColorRow: React.FC<MobileColorRowProps> = ({ title, children }) => (
 
 const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
   <div>
-    <h4 className="font-handlee font-bold text-sm sm:text-base lg:text-xl italic text-[#323232] font-poppins">
+    <h4 className="font-handlee text-sm sm:text-base lg:text-xl italic text-[#323232] font-oswald">
       {title}
     </h4>
-    <p className="mt-1 text-sm sm:text-base lg:text-xl text-[#323232] font-poppins">
+    <p className="mt-1 text-sm sm:text-base lg:text-lg text-[#323232] font-poppins">
       {text}
     </p>
   </div>
 );
-
-// --- KOMPONEN UTAMA ---
 
 const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   colorAnalysisId,
@@ -105,10 +105,10 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   ];
 
   return (
-    <div className="font-sans max-w-6xl w-full mx-auto space-y-6">
+    <div className="font-sans max-w-6xl w-full mx-auto space-y-[50px]">
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-[20px] lg:gap-[50px]">
-        <div className="lg:col-span-2 p-4 sm:p-6 rounded-2xl border-[1px] border-neutral-600">
-          <h2 className="text-2xl sm:text-3xl lg:text-[40px] font-bold font-oswald leading-tight">
+        <div className="lg:col-span-2 px-[25px] pt-[10px] pb-[18px] rounded-2xl border-[1px] border-neutral-600">
+          <h2 className="text-2xl sm:text-3xl lg:text-[48px] font-bold font-oswald ">
             {colorData.name}
           </h2>
           <p className="mt-4 text-[#323232] font-poppins text-sm sm:text-base lg:text-xl">
@@ -116,8 +116,8 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           </p>
         </div>
 
-        <div className="lg:col-span-4 justify-between p-4 sm:p-6 rounded-2xl border-[1px] border-neutral-600 h-full">
-          <h2 className="text-center font-script font-handlee text-lg sm:text-xl font-bold text-gray-800">
+        <div className="lg:col-span-4 px-[25px] justify-between rounded-2xl border-[1px] border-neutral-600 h-full">
+          <h2 className="text-center mt-[25px] italic font-handlee text-lg sm:text-xl text-[#323232]">
             Color Guide Line
           </h2>
 
@@ -157,7 +157,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
             </MobileColorRow>
           </div>
 
-          <div className="hidden lg:block">
+          <div className="hidden lg:block lg:space-y-10">
             <div className="mt-4 grid grid-cols-3 gap-8">
               <ColorGroup
                 title="Best Color"
@@ -172,8 +172,8 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
                 colors={colorData.neutral_colour || []}
               />
             </div>
-            <div className="mt-10 flex items-center gap-2 lg:gap-0 lg:space-x-4 border border-gray-300 rounded-2xl p-2">
-              <span className="font-bold text-sm text-gray-700 lg:pl-4">
+            <div className="flex items-center gap-2 lg:gap-0 lg:space-x-4 border border-[#323232] rounded-2xl p-2">
+              <span className="font-bold text-sm text-[#323232] lg:pl-4">
                 Combination
               </span>
               <div className="flex items-center lg:gap-x-6 justify-center">
@@ -192,7 +192,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           </div>
         </div>
       </div>
-      <div className="bg-[#FFC6C6] p-4 sm:p-6 rounded-2xl shadow-md">
+      <div className="bg-[#FFC6C6] rounded-2xl shadow-md p-[15px]">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
           {infoData.map(
             (info) => info.text && <InfoCard key={info.title} {...info} />

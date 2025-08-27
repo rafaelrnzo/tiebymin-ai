@@ -15,7 +15,7 @@ interface ShapeBarProps {
 
 const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
   <div>
-    <p className="lg:text-xl text-xs font-poppins text-gray-800">{name}</p>
+    <p className="lg:text-xl text-xs font-poppins text-[#323232]">{name}</p>
     <div className="mt-2 w-full bg-[#323232]/10 rounded-full h-3.5">
       <div
         className={`h-3.5 rounded-full bg-gradient-to-l from-[#FFA2BD] to-[#FF7EA4]`}
@@ -27,9 +27,6 @@ const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
 
 const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
   <div className="w-full mt-[50px]">
-    <h3 className="font-bold text-2xl font-oswald mb-4">
-      Face Shape Distribution
-    </h3>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
       {data.map((shape) => (
         <ShapeBar key={shape.name} {...shape} />
@@ -90,47 +87,50 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
   return (
     <div className="flex flex-col lg:h-full h-fit">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
-        <div className="border rounded-2xl p-4 sm:p-6">
-          <h3 className="font-bold text-[24px] lg:text-[48px] font-oswald">
+        <div className="border rounded-2xl px-5">
+          <h3 className="font-bold text-xl mt-2 lg:text-[48px] font-oswald">
             {shapeDetails.name}
           </h3>
-          <p className="text-[#323232] leading-relaxed mt-3 lg:mt-4 font-poppins">
+          <p className="text-[#323232] leading-relaxed mt-[10px] font-poppins">
             {shapeDetails.penjelasan_face_shape
               .split("-")
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) =>
                 index === 0 ? (
                   <span key={index}>
-                    <span className="block text-xs lg:text-[18px]">
+                    <span className="block text-xs lg:text-xl">
                       {item.trim()}
                     </span>
                   </span>
                 ) : (
-                  <span key={index} className="hidden text-xl">
+                  <span key={index} className="hidden text-xl text-[#323232]">
                     • <span className="text-xl ml-2">{item.trim()}</span>
                   </span>
                 )
               )}
           </p>
         </div>
-        <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6 shadow-md">
-          <h3 className="font-bold font-handlee text-[#323232] mb-3 lg:mb-5  lg:mt-4 text-xl text-center italic">
+        <div className="bg-[#FFC6C6] px-5 pb-5 rounded-2xl shadow-md">
+          <h3 className="font-bold font-handlee pt-5 text-[#323232] text-xl text-center italic">
             Karakteristik
           </h3>
-          <ul className="text-[#323232] font-poppins leading-relaxed space-y-2">
+          <ul className="text-[#323232] mt-[20px] font-poppins leading-relaxed space-y-2">
             {shapeDetails.karakteristik
               .split("-")
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) => (
                 <li key={index} className="flex items-center">
-                  <span className="mr-2 text-gray-500 mb-1 text-xs lg:text-[18px]">
+                  <span className="mr-2 text-[#323232] mb-1 text-xs lg:text-xl">
                     •
                   </span>
-                  <span className="text-xs lg:text-[18px]">{item.trim()}</span>
+                  <span className="text-xs lg:text-xl">{item.trim()}</span>
                 </li>
               ))}
           </ul>
         </div>
+        <h1 className="font-oswald font-bold text-4xl">
+          Face Shape Distribution
+        </h1>
       </div>
       {gimmickChartData.length > 0 && (
         <FaceShapeAnalysis data={gimmickChartData} />
