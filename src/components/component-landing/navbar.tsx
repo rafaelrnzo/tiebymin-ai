@@ -39,7 +39,7 @@ export function Navbar() {
   };
 
   return (
-    <div className="mx-auto sticky top-0  lg:top-[25px] xl:top-[50px] z-50 w-full px-0 sm:px-4 lg:px-8 xl:px-[200px]">
+    <div className="fixed top-0 left-0 right-0 z-50 w-full px-0 lg:px-8 xl:px-[200px] lg:pt-[25px] xl:pt-[50px]">
       <header className="relative rounded-none lg:py-0 py-3 lg:rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
         {/* Desktop Navigation */}
         <div className="hidden xl:flex items-center justify-between py-3 px-8">
@@ -93,9 +93,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* ====================================================== */}
-        {/* Mobile/Tablet Navigation (BAGIAN YANG DIPERBAIKI) */}
-        {/* ====================================================== */}
         <div className="xl:hidden flex items-center justify-between py-2 sm:py-3 px-3 sm:px-4">
           {/* 1. Logo di sebelah kiri */}
           <Link href="/">

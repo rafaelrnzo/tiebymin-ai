@@ -77,12 +77,10 @@ export const Conclusion = ({
   isLoading?: boolean;
   isError?: boolean;
 }) => {
-  // Mengambil kalimat pertama untuk rekap
   const getFirstSentence = (text?: string) =>
     text ? `${text.split(".")[0]}.` : "";
 
   return (
-    // PERUBAHAN 1: Ganti `h-screen` menjadi `h-full` dan sederhanakan struktur root.
     <div className="bg-[#F0F0F0] w-full h-full px-10 flex flex-col">
       <PageHeader name={userData.name} />
 

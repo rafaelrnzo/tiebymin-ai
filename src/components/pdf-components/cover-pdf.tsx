@@ -12,6 +12,8 @@ export const Cover = ({ userData }: { userData: UserData }) => (
         height={50}
         quality={100}
         priority
+        loading="eager"
+        decoding="sync"
         className="w-[140px] h-auto"
       />
       <div className="font-poppins bg-[#323232] text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 rounded-sm text-start w-[140px] sm:w-[180px] truncate">

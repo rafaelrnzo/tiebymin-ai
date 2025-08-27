@@ -2,7 +2,6 @@ import { ColorAnalysis as ColorToneType, UserData } from "@/types";
 import { Footer } from "./footer-pdf";
 import { PageHeader } from "./header-pdf";
 
-// Komponen ColorPalette: Mengganti inline style dengan kelas Tailwind agar konsisten
 const ColorPalette = ({
   title,
   colors,
