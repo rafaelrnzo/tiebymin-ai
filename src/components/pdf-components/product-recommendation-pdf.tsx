@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Footer } from "./footer-pdf";
 import { PageHeader } from "./header-pdf";
 
-// Komponen kecil untuk menampilkan konten utama secara dinamis
 const MainContent = ({
   isLoading,
   error,
@@ -53,8 +52,10 @@ const MainContent = ({
               src={product.images?.[0] || "/placeholder.png"}
               alt={product.name || "Product"}
               fill
+              loading="eager"
+              decoding="sync"
               className="object-cover"
-              priority={true} // Prioritize ALL images for PDF generation
+              priority={true}
               unoptimized={true} // Disable optimization for PDF generation
               onError={(e) => {
                 // Fallback to placeholder if image fails to load

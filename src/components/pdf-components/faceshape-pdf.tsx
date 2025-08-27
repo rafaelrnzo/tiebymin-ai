@@ -141,6 +141,8 @@ export const FaceShape = ({
               src={userPhotoUrl || "/model.png"}
               alt="Model Wajah"
               fill
+              loading="eager"
+              decoding="sync"
               className="object-cover"
               quality={100}
             />

@@ -20,20 +20,18 @@ export const BodyShape = ({
       .filter(Boolean) || [];
 
   return (
-    // PERUBAHAN 1: Hapus wrapper dan ganti `h-screen` menjadi `h-full`.
-    // Hapus `justify-between` untuk mengandalkan `flex-grow` pada <main>.
     <div className="bg-[#F0F0F0] w-full h-full px-10 flex flex-col">
       <PageHeader width={100} name={userData.name} />
 
-      {/* PERUBAHAN 2: <main> dengan flex-grow akan mengisi sisa ruang secara otomatis. */}
       <main className="mx-auto py-6 max-w-5xl flex-grow flex flex-col">
-        {/* Konten Atas: Gambar dan Deskripsi */}
         <div className="flex gap-10">
           <div className="flex-shrink-0">
             <Image
               src={
                 bodyDetails?.link_picture || userData.bodyShapeAnalysis.imageUrl
               }
+              loading="eager"
+              decoding="sync"
               alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
               width={300} // Ukuran tetap sesuai desain
               height={400} // Ukuran tetap sesuai desain

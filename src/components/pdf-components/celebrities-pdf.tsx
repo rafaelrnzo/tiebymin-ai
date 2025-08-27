@@ -11,7 +11,6 @@ export const CelebritiesMatch = ({
   userData: UserData;
   celebrityDetails?: Celebrity;
 }) => (
-  // PERUBAHAN 1: Ganti `min-h-screen` menjadi `h-full` dan sederhanakan struktur root.
   <div className="bg-[#F0F0F0] w-full h-full px-10 flex flex-col">
     <PageHeader name={userData.name} />
 
@@ -22,11 +21,12 @@ export const CelebritiesMatch = ({
       </h1>
       <hr className="border-[#323232] my-10" />
 
-      {/* PERUBAHAN 2: Beri `flex-grow` agar kontainer 2 kolom ini mengisi sisa ruang */}
       <div className="flex gap-6">
         {/* Kolom Kiri: Gambar */}
         <div className="relative w-[55%] h-full overflow-hidden shadow-lg">
           <Image
+            loading="eager"
+            decoding="sync"
             src={celebrityDetails?.picture_url || "/placeholder.png"} // Tambahkan placeholder
             alt={celebrityDetails?.name || "Celebrity Match"}
             fill
