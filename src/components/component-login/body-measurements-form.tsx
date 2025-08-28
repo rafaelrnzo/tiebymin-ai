@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 
 interface NumberInputWithControlsProps {
   label: string;
@@ -32,16 +30,16 @@ function NumberInputWithControls({
   };
 
   return (
-    <div className="grid grid-cols-3 w-full lg:w-fit lg:grid-cols-[auto_1fr_auto] gap-x-2 items-center p-2 rounded-lg hover:bg-gray-50 transition">
+    <div className="flex gap-3 justify-between items-center rounded-lg w-full">
       <label
         htmlFor={id}
-        className="text-gray-700 text-start font-medium text-xs sm:text-sm md:text-base whitespace-nowrap"
+        className="text-[#323232] text-start font-medium text-xs sm:text-sm md:text-base whitespace-nowrap"
       >
         {label}
       </label>
 
-      <div className="flex justify-center items-center gap-x-1">
-        <Input
+      <div className="flex justify-center items-center gap-4">
+        <input
           id={id}
           type="number"
           value={value}
@@ -53,16 +51,14 @@ function NumberInputWithControls({
           <span className="w-8 text-left text-gray-300 font-medium text-sm">
             {unit}
           </span>
-        ) : (
-          <div className="w-8" />
-        )}
+        ) : null}
       </div>
 
       <div className="flex items-center justify-end">
         <div className="flex flex-row items-center justify-center gap-1 sm:hidden">
-          <Button
+          <button
             onClick={handleIncrement}
-            className="w-6 h-6 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
+            className="w-6 h-6 flex items-center justify-center text-[#323232] rounded-sm hover:bg-gray-100 p-0"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -78,10 +74,10 @@ function NumberInputWithControls({
             >
               <path d="M12 5v14M5 12h14" />
             </svg>
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={handleDecrement}
-            className="w-6 h-6 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
+            className="w-6 h-6 flex items-center justify-center text-[#323232] rounded-sm hover:bg-gray-100 p-0"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -97,13 +93,13 @@ function NumberInputWithControls({
             >
               <path d="M5 12h14" />
             </svg>
-          </Button>
+          </button>
         </div>
 
         <div className="hidden sm:flex flex-col items-center justify-center gap-1">
-          <Button
+          <button
             onClick={handleIncrement}
-            className="w-5 h-4 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
+            className="w-5 h-4 flex items-center justify-center text-[#323232] rounded-sm hover:bg-gray-100 p-0"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -119,10 +115,10 @@ function NumberInputWithControls({
             >
               <path d="m18 15-6-6-6 6" />
             </svg>
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={handleDecrement}
-            className="w-5 h-4 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
+            className="w-5 h-4 flex items-center justify-center text-[#323232] rounded-sm hover:bg-gray-100 p-0"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -138,7 +134,7 @@ function NumberInputWithControls({
             >
               <path d="m6 9 6 6 6-6" />
             </svg>
-          </Button>
+          </button>
         </div>
       </div>
     </div>
@@ -170,36 +166,46 @@ export default function BodyMeasurementsForm({
   };
 
   return (
-    <div className="mb-32 lg:mb-0">
-      <div className="flex flex-col lg:flex-row lg:justify-between items-center gap-y-4 mb-8 w-full">
-        <NumberInputWithControls
-          label="Tinggi Badan"
-          id="tinggi-input"
-          value={formData.tinggi}
-          onChange={(value) => handleInputChange("tinggi", value)}
-          unit="cm"
-        />
-        <NumberInputWithControls
-          label="Berat Badan"
-          id="berat-input"
-          value={formData.berat}
-          onChange={(value) => handleInputChange("berat", value)}
-          unit="kg"
-        />
-        <NumberInputWithControls
-          label="Umur"
-          id="umur-input"
-          value={formData.umur}
-          onChange={(value) => handleInputChange("umur", value)}
-        />
-      </div>
+    <div className="bg-white lg:min-h-full min-h-[73vh] backdrop-blur-sm shadow-xl rounded-t-2xl lg:rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#323232] mb-6 font-oswald text-left">
+        Lengkapi Data Diri
+      </h2>
+      <p className="mb-4 font-poppins">
+        Semakin lengkap data kamu akan membuat hasil analisa kami jauh lebih
+        tepat, jangan lupa di isi ya....
+      </p>
+      <hr className="bg-[#323232] lg:hidden block my-4" />
+      <div className="mb-32 lg:mb-0">
+        <div className="flex flex-col lg:flex-row lg:justify-between items-center gap-x-2 gap-y-4 mb-8 w-full">
+          <NumberInputWithControls
+            label="Tinggi Badan"
+            id="tinggi-input"
+            value={formData.tinggi}
+            onChange={(value) => handleInputChange("tinggi", value)}
+            unit="cm"
+          />
+          <NumberInputWithControls
+            label="Berat Badan"
+            id="berat-input"
+            value={formData.berat}
+            onChange={(value) => handleInputChange("berat", value)}
+            unit="kg"
+          />
+          <NumberInputWithControls
+            label="Umur"
+            id="umur-input"
+            value={formData.umur}
+            onChange={(value) => handleInputChange("umur", value)}
+          />
+        </div>
 
-      <Button
-        onClick={onSubmit}
-        className="w-full h-14 bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
-      >
-        Selanjutnya
-      </Button>
+        <button
+          onClick={onSubmit}
+          className="w-full h-14 bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
+        >
+          Selanjutnya
+        </button>
+      </div>
     </div>
   );
 }

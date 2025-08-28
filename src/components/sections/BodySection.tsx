@@ -40,7 +40,11 @@ const BodySection: React.FC<BodySectionProps> = ({
   };
 
   if (isLoading)
-    return <div className="text-center p-8 text-base sm:text-lg">Loading body information...</div>;
+    return (
+      <div className="text-center p-8 text-base sm:text-lg">
+        Loading body information...
+      </div>
+    );
   if (error)
     return (
       <div className="text-center p-8 text-red-500 text-base sm:text-lg">
@@ -48,12 +52,18 @@ const BodySection: React.FC<BodySectionProps> = ({
       </div>
     );
   if (!bodyDetails || !bmiCategoryDetails)
-    return <div className="text-center p-8 text-base sm:text-lg">Data tubuh tidak ditemukan.</div>;
+    return (
+      <div className="text-center p-8 text-base sm:text-lg">
+        Data tubuh tidak ditemukan.
+      </div>
+    );
 
   return (
     <div className="flex flex-col lg:flex-row w-full gap-5 lg:gap-[50px]">
-      <div className="flex-1 rounded-2xl border p-4 lg:p-6">
-        <h3 className="font-bold text-2xl sm:text-3xl lg:text-5xl font-oswald">{bodyDetails.name}</h3>
+      <div className="flex-1 px-[20px] pt-[10px] rounded-2xl border">
+        <h3 className="font-bold text-2xl sm:text-3xl lg:text-5xl font-oswald">
+          {bodyDetails.name}
+        </h3>
         <div className="flex justify-center my-4 sm:my-6 flex-shrink-0">
           <Image
             src={bodyDetails.link_picture}
@@ -64,34 +74,34 @@ const BodySection: React.FC<BodySectionProps> = ({
             priority
           />
         </div>
-        <p className="text-sm sm:text-base lg:text-xl mt-4 sm:mt-6">
+        <p className="font-poppins text-sm sm:text-base lg:text-lg mt-4 sm:mt-6">
           {bodyDetails.penjelasan_body_shape}
         </p>
       </div>
 
-      <div className="flex-1 space-y-4 lg:space-y-6">
-        <div className="grid grid-cols-1 gap-4 lg:gap-6">
+      <div className="flex-2 space-y-4 lg:space-y-6">
+        <div className="grid grid-cols-1 gap-4 lg:gap-12">
           <div className="border border-neutral-600 w-full max-w-full rounded-2xl p-4 lg:p-8 text-[#323232]">
-            <h3 className="font-bold text-lg sm:text-2xl lg:text-5xl font-oswald">
+            <h3 className="font-bold lg:text-center text-left text-lg sm:text-2xl lg:text-5xl font-oswald">
               BMI Analyst
             </h3>
-            <hr className="my-3 sm:my-4 border-neutral-300" />
+            <hr className="my-[25px] border-[#323232]" />
 
             <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
               <div className="flex-shrink-0">
                 <div className="rounded-full border-2 border-[#EC7498] p-1">
                   <div className="rounded-full border border-neutral-600 w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 flex items-center justify-center">
-                    <p className="text-sm sm:text-lg lg:text-2xl font-bold">
+                    <p className="text-sm sm:text-lg lg:text-xl font-bold">
                       {formatBmiValue(bmiResult?.value)}
                     </p>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col text-left">
-                <span className="font-bold text-sm sm:text-base lg:text-xl">
+                <span className="font-bold text-sm sm:text-base lg:text-lg">
                   {bmiCategoryDetails.kategori}
                 </span>
-                <p className="text-[#323232] text-xs sm:text-sm lg:text-xl leading-relaxed font-poppins">
+                <p className="text-[#323232] text-xs sm:text-sm lg:text-lg leading-relaxed font-poppins">
                   {bmiCategoryDetails.tips_fashion}
                 </p>
               </div>
@@ -102,14 +112,14 @@ const BodySection: React.FC<BodySectionProps> = ({
             <h3 className="italic font-handlee mb-2 sm:mb-3 text-base sm:text-lg lg:text-xl text-center">
               Karakteristik
             </h3>
-            <div className="grid grid-cols-1 gap-1">
+            <div className="grid grid-cols-1 gap-2">
               {bodyDetails?.karakteristik
                 ?.split("-")
                 .filter((point: string) => point.trim() !== "")
                 .map((point: string, index: number) => (
                   <p
                     key={index}
-                    className="text-xs sm:text-sm lg:text-xl text-[#323232] font-poppins"
+                    className="text-xs sm:text-sm lg:text-lg text-[#323232] font-poppins"
                   >
                     • {point.trim()}
                   </p>

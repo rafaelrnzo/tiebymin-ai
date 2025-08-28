@@ -2,14 +2,13 @@
 
 import { ErrorModal } from "@/components/sections/error-modal";
 import { Button } from "@/components/ui/button";
-import { useAnalysis } from "@/context/AnalysisContext";
+import { secureUrl } from "@/lib/api";
 import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
-import { Camera, Check, RotateCw } from "lucide-react";
+import axios from "axios";
+import { Camera, Check, File, RotateCw } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { secureUrl } from "@/lib/api";
-import axios from "axios";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -34,7 +33,13 @@ const Spinner = () => (
   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-pink-800"></div>
 );
 
-type AppState = "CAMERA" | "CONFIRM" | "ANALYZING" | "LOADING_UI" | "API_ERROR";
+type AppState =
+  | "CAMERA"
+  | "CONFIRM"
+  | "ANALYZING"
+  | "LOADING_UI"
+  | "COMPLETION_MODAL"
+  | "API_ERROR";
 
 const LOADING_STEPS = [
   {
@@ -96,14 +101,12 @@ function HalamanKameraWajahContent() {
   const searchParams = useSearchParams();
   const fromGallery = searchParams.get("fromGallery") === "true";
   const skipCamera = searchParams.get("skipCamera") === "true";
-  const { analysisData: contextAnalysisData, setAnalysisData } = useAnalysis();
   const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const getInitialState = (): AppState => {
-    // Jika dari galeri dan skip camera, langsung ke LOADING_UI
     if (fromGallery && skipCamera) {
       return "LOADING_UI";
     }
@@ -123,19 +126,15 @@ function HalamanKameraWajahContent() {
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
   };
 
-  // Handle initial gallery upload case - modified
   useEffect(() => {
     if (fromGallery && skipCamera && appState === "LOADING_UI") {
-      // Get result_id from localStorage (should be stored by take-face page)
       const storedResultId = localStorage.getItem("analysisResultId");
       const uploadedImage = localStorage.getItem("uploadedFaceImage");
-      const uploadedImageName = localStorage.getItem("uploadedFaceImageName");
 
       if (storedResultId) {
         console.log("Found stored analysis result ID:", storedResultId);
         setAnalysisResultId(storedResultId);
 
-        // Set the uploaded image as captured image for display purposes if needed
         if (uploadedImage) {
           setCapturedImage(uploadedImage);
         }
@@ -145,7 +144,6 @@ function HalamanKameraWajahContent() {
           "Hasil analisis tidak ditemukan. Silakan coba lagi."
         );
         setIsErrorModalOpen(true);
-        // Redirect back to take-face page
         setTimeout(() => {
           router.push("/analyze/take-face");
         }, 2000);
@@ -154,7 +152,6 @@ function HalamanKameraWajahContent() {
     }
   }, [fromGallery, skipCamera, appState, router]);
 
-  // Camera setup effect
   useEffect(() => {
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
 
@@ -198,7 +195,6 @@ function HalamanKameraWajahContent() {
     };
   }, [fromGallery, skipCamera, appState, facingMode]);
 
-  // Loading UI effect - modified to handle gallery flow
   useEffect(() => {
     if (appState === "LOADING_UI") {
       console.log("Starting loading UI animation...");
@@ -218,22 +214,9 @@ function HalamanKameraWajahContent() {
       }, Math.max(20, totalDuration / 100));
 
       const finishTimer = setTimeout(() => {
-        console.log("Loading UI completed, navigating to results...");
+        console.log("Loading UI completed, showing completion modal...");
         setProgress(100);
-
-        // For gallery flow, use the stored analysisResultId
-        const resultIdToUse =
-          fromGallery && skipCamera ? analysisResultId : analysisResultId;
-
-        if (resultIdToUse) {
-          router.push(`/ai-overview?result_id=${resultIdToUse}`);
-        } else {
-          console.error("No analysis result ID available for navigation");
-          setErrorModalMessage(
-            "Hasil analisis tidak ditemukan. Silakan coba lagi."
-          );
-          setIsErrorModalOpen(true);
-        }
+        setAppState("COMPLETION_MODAL");
       }, totalDuration);
 
       return () => {
@@ -244,7 +227,6 @@ function HalamanKameraWajahContent() {
     }
   }, [appState, analysisResultId, router, fromGallery, skipCamera]);
 
-  // Helper function to convert data URL to Blob
   const dataURLtoBlob = (dataurl: string) => {
     const arr = dataurl.split(",");
     if (arr.length < 2) return null;
@@ -292,7 +274,6 @@ function HalamanKameraWajahContent() {
     setIsApiLoading(true);
 
     try {
-      // Get analysis data from localStorage
       const storedData = localStorage.getItem("tiebymin-analysis-data");
       if (!storedData) {
         setErrorModalMessage(
@@ -306,7 +287,6 @@ function HalamanKameraWajahContent() {
       const analysisData = JSON.parse(storedData);
       const { tinggi, berat, umur, body_shape_id } = analysisData;
 
-      // Validate required data
       if (!tinggi || !berat || !umur || !body_shape_id) {
         setErrorModalMessage(
           "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
@@ -345,12 +325,10 @@ function HalamanKameraWajahContent() {
         return;
       }
 
-      // Store the captured image for later use
       if (capturedImage) {
         localStorage.setItem("capturedImage", capturedImage);
       }
 
-      // Get user ID
       const userId = localStorage.getItem("userId");
       if (!userId) {
         setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
@@ -359,7 +337,6 @@ function HalamanKameraWajahContent() {
         return;
       }
 
-      // Prepare form data for analysis
       const formData = new FormData();
       formData.append("user_id", userId);
       formData.append("tinggi_badan", tinggi);
@@ -414,7 +391,6 @@ function HalamanKameraWajahContent() {
     await handleFullAnalysis();
   };
 
-  // Loading UI state - shows detailed loading animation
   if (appState === "LOADING_UI") {
     const step =
       LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
@@ -434,6 +410,59 @@ function HalamanKameraWajahContent() {
                 {step.desc}
               </p>
             </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (appState === "COMPLETION_MODAL") {
+    return (
+      <main className="relative h-screen w-screen overflow-hidden bg-pink-200">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-[#323232] rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-xl text-left flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                <Check className="w-7 h-7 text-[#323232]" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl text-white font-oswald font-bold">
+                Analisa Selesai!
+              </h1>
+            </div>
+
+            <p className="text-gray-300 text-base font-poppins leading-relaxed">
+              Klik Tombol{" "}
+              <span className="font-bold text-[#E97099]">
+                &ldquo;Lihat Hasil&rdquo;
+              </span>{" "}
+              Untuk Membuka Laporan Personal Yang Telah Kami Siapkan Khusus
+              Untukmu.
+            </p>
+
+            <Button
+              onClick={() => {
+                const resultIdToUse =
+                  fromGallery && skipCamera
+                    ? analysisResultId
+                    : analysisResultId;
+
+                if (resultIdToUse) {
+                  router.push(`/ai-overview?result_id=${resultIdToUse}`);
+                } else {
+                  console.error(
+                    "No analysis result ID available for navigation"
+                  );
+                  setErrorModalMessage(
+                    "Hasil analisis tidak ditemukan. Silakan coba lagi."
+                  );
+                  setIsErrorModalOpen(true);
+                }
+              }}
+              className="bg-[#E97099] w-full text-white font-bold py-7 px-6 rounded-xl hover:bg-[#d8668c] transition-colors text-lg flex items-center justify-center gap-3"
+            >
+              <File />
+              Lihat Hasil
+            </Button>
           </div>
         </div>
       </main>

@@ -71,21 +71,21 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
       <div className="hidden md:flex flex-row gap-[20px] lg:gap-[50px]">
         <div className="flex flex-col gap-[20px] lg:gap-[50px] w-full md:w-1/2">
           <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6">
-            <p className="font-handlee text-[#323232] text-lg sm:text-xl mb-1">
+            <p className="font-handlee italic text-[#EF789B] text-lg sm:text-xl mb-1">
               Artis yang mirip kamu
             </p>
             <h3 className="text-xl sm:text-3xl font-bold text-[#323232] font-oswald">
               {matchData.name}
             </h3>
-            <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-[18px] mt-3 leading-relaxed">
+            <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-lg mt-3 leading-relaxed">
               {matchData.description}
             </p>
           </div>
           <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6">
-            <h4 className="font-bold font-handlee text-[#323232] text-lg sm:text-xl mb-2 italic">
+            <h4 className=" font-handlee text-[#323232] text-lg sm:text-xl mb-2 italic">
               Kenapa Cocok?
             </h4>
-            <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-[18px] leading-relaxed">
+            <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-lg leading-relaxed">
               {matchData.similarity_text}
             </p>
           </div>
