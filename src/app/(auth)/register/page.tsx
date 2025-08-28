@@ -38,16 +38,79 @@ export default function RegisterPage() {
     }));
   };
 
+  // Tambahkan validasi form sebelum submit
+  const validateForm = () => {
+    const errors = [];
+
+    // Validasi nama lengkap (minimal 2 karakter)
+    if (!formData.fullName.trim() || formData.fullName.trim().length < 2) {
+      errors.push("Nama lengkap minimal 2 karakter");
+    }
+
+    // Validasi email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      errors.push("Format email tidak valid");
+    }
+
+    // Validasi nomor telepon
+    if (!formData.phone || formData.phone.length < 10) {
+      errors.push("Nomor telepon minimal 10 digit");
+    }
+
+    // Validasi password
+    if (formData.password.length < 6) {
+      errors.push("Password minimal 6 karakter");
+    }
+
+    // Validasi konfirmasi password
+    if (formData.password !== formData.confirmPassword) {
+      errors.push("Password dan konfirmasi password tidak sama");
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    // Validasi form terlebih dahulu
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      setErrorModalMessage(validationErrors.join(", "));
+      setIsErrorModalOpen(true);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const uniqueGoogleId = generateUUID();
 
       const endpoint = secureUrl(`/v1/users/`);
       console.log("fetch endpoint:", endpoint);
+
+      const nameParts = formData.fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || "";
+      const lastName =
+        nameParts.length > 1
+          ? nameParts.slice(1).join(" ")
+          : nameParts[0] || "";
+
+      const phoneNumber = formData.phone.replace(/\D/g, "");
+
+      const requestBody = {
+        email: formData.email.trim().toLowerCase(),
+        first_name: firstName,
+        last_name: lastName || "",
+        google_id: uniqueGoogleId,
+        is_active: true,
+        phone_number: parseInt(phoneNumber) || null,
+        password: formData.password,
+      };
+
+      console.log("Request body:", requestBody);
 
       let response;
       try {
@@ -58,17 +121,10 @@ export default function RegisterPage() {
             Accept: "application/json",
           },
           redirect: "follow",
-          body: JSON.stringify({
-            email: formData.email,
-            first_name: formData.fullName.split(" ")[0] || "",
-            last_name: formData.fullName.split(" ").slice(1).join(" ") || "",
-            google_id: uniqueGoogleId,
-            is_active: true,
-            phone_number: parseInt(formData.phone) || 0,
-            password: formData.password,
-          }),
+          body: JSON.stringify(requestBody),
         });
       } catch (fetchErr) {
+        console.error("Fetch error:", fetchErr);
         setErrorModalMessage(
           "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti."
         );
@@ -77,17 +133,38 @@ export default function RegisterPage() {
         return;
       }
 
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
       if (!response.ok) {
         let errorMsg =
           "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
         try {
           const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch {}
-        setErrorModalMessage(
-          `Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti. ${errorMsg}`
-        );
+          console.error("Error response:", errorData);
+
+          // Handle specific error messages dari backend
+          if (errorData.detail) {
+            if (Array.isArray(errorData.detail)) {
+              errorMsg = errorData.detail
+                .map((err: any) => `${err.loc?.join(".")}: ${err.msg}`)
+                .join(", ");
+            } else {
+              errorMsg = errorData.detail;
+            }
+          } else if (errorData.message) {
+            errorMsg = errorData.message;
+          } else if (errorData.error) {
+            errorMsg = errorData.error;
+          }
+        } catch (parseErr) {
+          console.error("Failed to parse error response:", parseErr);
+        }
+
+        setErrorModalMessage(errorMsg);
         setIsErrorModalOpen(true);
+        setIsLoading(false);
+        return;
       }
 
       const result = await response.json();
@@ -96,8 +173,8 @@ export default function RegisterPage() {
       if (result.id) {
         localStorage.setItem("userId", result.id);
         localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("firstName", result.first_name);
-        localStorage.setItem("lastName", result.last_name);
+        localStorage.setItem("firstName", result.first_name || "");
+        localStorage.setItem("lastName", result.last_name || "");
         console.log(
           "User ID saved to localStorage:",
           result.id,
@@ -127,7 +204,7 @@ export default function RegisterPage() {
           setIsErrorModalOpen(true);
         } else {
           setErrorModalMessage(
-            "Maaf, Alamat email yang kamu masukan sudah di gunakan"
+            "Maaf, terjadi kesalahan yang tidak terduga. Silakan coba lagi."
           );
           setIsErrorModalOpen(true);
         }
@@ -169,7 +246,7 @@ export default function RegisterPage() {
                   htmlFor="fullName"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Full Name
+                  Full Name *
                 </label>
                 <input
                   id="fullName"
@@ -179,7 +256,9 @@ export default function RegisterPage() {
                     handleInputChange("fullName", e.target.value)
                   }
                   className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                  placeholder="Masukkan nama lengkap"
+                  placeholder="Masukkan nama lengkap (minimal 2 karakter)"
+                  required
+                  minLength={2}
                 />
               </div>
 
@@ -189,7 +268,7 @@ export default function RegisterPage() {
                   htmlFor="email"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Email
+                  Email *
                 </label>
                 <input
                   id="email"
@@ -198,6 +277,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
                   placeholder="Masukkan email"
+                  required
                 />
               </div>
 
@@ -207,7 +287,7 @@ export default function RegisterPage() {
                   htmlFor="phone"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Nomor Telepon
+                  Nomor Telepon *
                 </label>
                 <div className="flex items-center border-gray-300 focus-within:border-gray-600 transition-colors">
                   <span className="text-gray-700 pl-1 text-xs lg:text-sm">
@@ -219,7 +299,9 @@ export default function RegisterPage() {
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     className="w-full text-xs lg:text-sm border-b-gray-300 border-b-2 bg-transparent px-2 py-2 focus:outline-none focus:ring-0"
-                    placeholder="81234567890"
+                    placeholder="81234567890 (minimal 10 digit)"
+                    required
+                    minLength={10}
                   />
                 </div>
               </div>
@@ -230,7 +312,7 @@ export default function RegisterPage() {
                     htmlFor="password"
                     className="block text-gray-600 font-medium text-xs lg:text-sm"
                   >
-                    Password
+                    Password *
                   </label>
                   <input
                     id="password"
@@ -240,7 +322,9 @@ export default function RegisterPage() {
                       handleInputChange("password", e.target.value)
                     }
                     className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                    placeholder="Masukkan password"
+                    placeholder="Minimal 6 karakter"
+                    required
+                    minLength={6}
                   />
                 </div>
 
@@ -249,7 +333,7 @@ export default function RegisterPage() {
                     htmlFor="confirmPassword"
                     className="block text-gray-600 font-medium text-xs lg:text-sm"
                   >
-                    Konfirmasi Password
+                    Konfirmasi Password *
                   </label>
                   <input
                     id="confirmPassword"
@@ -260,6 +344,7 @@ export default function RegisterPage() {
                     }
                     className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
                     placeholder="Konfirmasi password"
+                    required
                   />
                 </div>
               </div>
