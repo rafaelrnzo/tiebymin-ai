@@ -43,30 +43,20 @@ export default function Step2Page() {
 
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="mx-auto container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
-        <div className="w-full lg:flex-1 lg:max-w-[45%] lg:flex-shrink-0">
+      <div className="mx-auto container w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+        <div className="w-full max-w-[85rem] lg:flex-1">
           <LeftSideSection
             steps={steps}
             currentStepNumber={2}
             showExtendedSteps={false}
           />
         </div>
-        <div className="w-full lg:mr-10 lg:flex-1 lg:max-w-[55%]">
-          <div className="bg-white lg:min-h-full min-h-[73vh] backdrop-blur-sm shadow-xl rounded-t-2xl lg:rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
-              Lengkapi Data Diri
-            </h2>
-            <p className="mb-4 font-poppins">
-              Semakin lengkap data kamu akan membuat hasil analisa kami jauh
-              lebih tepat, jangan lupa di isi ya....
-            </p>
-            <hr className="bg-[#323232] lg:hidden block my-4" />
-            <BodyMeasurementsForm
-              formData={analysisData}
-              onFormDataChange={handleFormDataChange}
-              onSubmit={handleSubmit}
-            />
-          </div>
+        <div className="w-full lg:flex-1 lg:mr-[50px] mr-0">
+          <BodyMeasurementsForm
+            formData={analysisData}
+            onFormDataChange={handleFormDataChange}
+            onSubmit={handleSubmit}
+          />
         </div>
       </div>
     </main>
