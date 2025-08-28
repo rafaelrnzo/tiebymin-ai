@@ -9,23 +9,13 @@ import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { analysisTabs } from "@/lib/mock-data";
-import {
-  Shirt,
-  ShoppingCart,
-  Star,
-  ThumbsUp,
-  UserStar,
-  Lock,
-} from "lucide-react";
+import { UserData } from "@/types";
+import { Shirt, UserStar } from "lucide-react";
+import ProductCardMobile from "@/components/ProductCardMobile";
+import ProductCardDesktop from "@/components/ProductCardDesktop";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BodySection from "../../components/sections/BodySection";
@@ -33,7 +23,6 @@ import CelebrityMatchSection from "../../components/sections/CelebrityMatchSecti
 import ColorToneSection from "../../components/sections/ColorToneSection";
 import ShapeSection from "../../components/sections/ShapeSection";
 import TipsSection from "../../components/sections/TipsSection";
-import { UserData } from "@/types";
 
 interface AnalysisData {
   face_shape_id?: string;
@@ -681,248 +670,25 @@ function BeautyAnalysisPageInner() {
                     onTouchEnd={handleTouchEnd}
                   >
                     {currentProduct && (
-                      <motion.div
-                        key={currentProduct.id}
-                        initial={{ opacity: 0, x: 300, scale: 0.9 }}
-                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: -300, scale: 0.9 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 35,
-                          duration: 0.4,
-                        }}
-                        className={`bg-white border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 h-fit sm:h-[620px] w-full flex-shrink-0 mx-auto cursor-grab active:cursor-grabbing select-none border-[#323232]`}
-                      >
-                        <div className="relative p-2">
-                          <Image
-                            src={currentProduct.images[0]}
-                            alt={currentProduct.name}
-                            width={400}
-                            height={400}
-                            className="w-full h-44 sm:h-72 object-cover rounded-xl"
-                          />
-                          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
-                            {topProductScores.has(currentProduct.id)
-                              ? `${topProductScores.get(
-                                  currentProduct.id
-                                )}% Match`
-                              : `${
-                                  currentProduct.total_compatibility_score * 10
-                                }% Match`}
-                          </span>
-                          <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md">
-                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                            {currentProduct.average_rating}
-                          </span>
-                        </div>
-                        <div className="p-3 sm:p-5 flex flex-col flex-grow">
-                          <div className="flex items-start justify-between gap-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <h3 className="font-bold text-gray-800 text-base sm:text-lg text-left truncate">
-                                    {currentProduct.name
-                                      .split(" ")
-                                      .slice(0, 3)
-                                      .join(" ") + "..."}
-                                  </h3>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{currentProduct.name}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            {sortedProducts.findIndex(
-                              (p) => p.id === currentProduct.id
-                            ) < 3 && (
-                              <div className="flex items-center gap-1 text-pink-500 flex-shrink-0">
-                                <ThumbsUp className="w-4 h-4" />
-                                <span className="font-semibold text-xs">
-                                  Rekomendasi
-                                </span>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex items-baseline my-1 sm:my-2">
-                            <span className="text-gray-800 font-extrabold text-lg sm:text-2xl">
-                              {`Rp${currentProduct.current_price.toLocaleString(
-                                "id-ID"
-                              )}`}
-                            </span>
-                            {currentProduct.original_price > 0 && (
-                              <span className="text-gray-400 text-xs sm:text-sm ml-2 line-through">
-                                {`Rp${currentProduct.original_price.toLocaleString(
-                                  "id-ID"
-                                )}`}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-start justify-between gap-2 sm:gap-4 my-2 sm:my-4">
-                            {/* Color Recommendations */}
-                            <div className="flex flex-col gap-1 sm:gap-2">
-                              <span className="text-xs sm:text-sm text-gray-600">
-                                Rekomendasi Warna
-                              </span>
-                              <div className="flex flex-wrap gap-1 sm:gap-2">
-                                {currentProduct.color_recommendations?.map(
-                                  (color, index) => (
-                                    <div
-                                      key={index}
-                                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-gray-200"
-                                      style={{ backgroundColor: color }}
-                                      title={color}
-                                    />
-                                  )
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end gap-1 sm:gap-2">
-                              <span className="text-xs sm:text-sm text-gray-600">
-                                Ukuran
-                              </span>
-                              <span className="text-xs sm:text-sm font-medium text-right">
-                                {currentProduct.size_range}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex flex-col border rounded-xl p-2 sm:p-4">
-                            <p className="text-xs sm:text-sm">Kenapa Cocok</p>
-                          </div>
-
-                          <Button
-                            onClick={() =>
-                              window.open(currentProduct.product_link, "_blank")
-                            }
-                            className="shadow-md flex justify-between mt-3 bg-[#ED80A7] w-full px-4 sm:px-7 py-3 sm:py-5 font-bold rounded-lg text-white items-center gap-2 sm:gap-3 text-sm sm:text-base hover:bg-pink-500 transition-colors"
-                          >
-                            <span>Beli Sekarang</span>
-                            <ShoppingCart
-                              fill="white"
-                              className="w-4 h-4 sm:w-5 sm:h-5"
-                            />
-                          </Button>
-                        </div>
-                      </motion.div>
+                      <ProductCardMobile
+                        product={currentProduct}
+                        topProductScores={topProductScores}
+                        sortedProducts={sortedProducts}
+                        isAnimating={isAnimating}
+                      />
                     )}
                   </div>
                 </div>
 
-                {/* Desktop Grid Layout - All Cards */}
                 <div className="hidden lg:block">
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {sortedProducts.map((product) => (
-                      <div
+                      <ProductCardDesktop
                         key={product.id}
-                        className={`bg-white border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 h-[620px] w-full border-[#323232]`}
-                      >
-                        <div className="relative p-2">
-                          <Image
-                            src={product.images[0]}
-                            alt={product.name}
-                            width={400}
-                            height={400}
-                            className="w-full h-72 object-cover rounded-xl"
-                          />
-                          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
-                            {topProductScores.has(product.id)
-                              ? `${topProductScores.get(product.id)}% Match`
-                              : `${
-                                  product.total_compatibility_score * 10
-                                }% Match`}
-                          </span>
-                          <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
-                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                            {product.average_rating}
-                          </span>
-                        </div>
-                        <div className="p-5 flex flex-col flex-grow">
-                          <div className="flex items-start justify-between gap-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <h3 className="font-bold text-gray-800 text-lg text-left truncate">
-                                    {product.name
-                                      .split(" ")
-                                      .slice(0, 3)
-                                      .join(" ") + "..."}
-                                  </h3>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{product.name}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            {sortedProducts.findIndex(
-                              (p) => p.id === product.id
-                            ) < 3 && (
-                              <div className="flex items-center gap-1 text-pink-500 flex-shrink-0">
-                                <ThumbsUp className="w-4 h-4" />
-                                <span className="font-semibold text-xs">
-                                  Rekomendasi
-                                </span>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex items-baseline my-2">
-                            <span className="text-gray-800 font-extrabold text-2xl">
-                              {`Rp${product.current_price.toLocaleString(
-                                "id-ID"
-                              )}`}
-                            </span>
-                            {product.original_price > 0 && (
-                              <span className="text-gray-400 text-sm ml-2 line-through">
-                                {`Rp${product.original_price.toLocaleString(
-                                  "id-ID"
-                                )}`}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-start justify-between gap-4 my-4">
-                            {/* Color Recommendations */}
-                            <div className="flex flex-col gap-2">
-                              <span className="text-xs sm:text-sm text-gray-600">
-                                Rekomendasi Warna
-                              </span>
-                              <div className="flex flex-wrap gap-2">
-                                {product.color_recommendations?.map(
-                                  (color, index) => (
-                                    <div
-                                      key={index}
-                                      className="w-6 h-6 rounded-full border border-gray-200"
-                                      style={{ backgroundColor: color }}
-                                      title={color}
-                                    />
-                                  )
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                              <span className="text-xs sm:text-sm text-gray-600">
-                                Ukuran
-                              </span>
-                              <span className="text-xs sm:text-sm font-medium text-right">
-                                {product.size_range}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex flex-col border rounded-xl p-4">
-                            <p>Kenapa Cocok</p>
-                          </div>
-
-                          <Button
-                            onClick={() =>
-                              window.open(product.product_link, "_blank")
-                            }
-                            className="shadow-md flex justify-between mt-auto bg-[#ED80A7] w-full px-7 py-5 font-bold rounded-lg text-white items-center gap-3 text-base hover:bg-pink-500 transition-colors"
-                          >
-                            <span>Beli Sekarang</span>
-                            <ShoppingCart fill="white" />
-                          </Button>
-                        </div>
-                      </div>
+                        product={product}
+                        topProductScores={topProductScores}
+                        sortedProducts={sortedProducts}
+                      />
                     ))}
                   </div>
                 </div>

@@ -1,6 +1,7 @@
+"use client";
 import { Crown, Handbag, ShoppingCart, Sparkles } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface ColorSwatchProps {
   colors: string[];
@@ -69,7 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 );
 
 const FaceShapeCard = () => (
-  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border">
+  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
     <div className="flex items-center gap-4 font-semibold text-gray-700">
       <svg
         width="24"
@@ -115,7 +116,7 @@ const ColorToneCard = () => {
   ];
 
   return (
-    <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border">
+    <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
       <div className="flex items-center gap-4 font-semibold text-gray-700">
         <svg
           width="24"
@@ -144,7 +145,7 @@ const ColorToneCard = () => {
 };
 
 const BodyShapeCard = () => (
-  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border">
+  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
     <div className="flex items-center gap-4 font-semibold text-gray-700">
       <svg
         width="18"
@@ -198,7 +199,7 @@ const BodyShapeCard = () => (
 );
 
 const CelebrityCard = () => (
-  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border">
+  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
     <div className="flex items-center gap-4 font-semibold text-gray-700">
       <Crown className="h-5 w-5 fill-[#323232]" />
       <h3 className="font-handlee italic mt-2 text-xl">Selebriti serupa</h3>
@@ -276,18 +277,88 @@ const RecommendationContainer = () => {
   );
 };
 
+const MobileCardsSlider: React.FC = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  const cards = [
+    <FaceShapeCard key="face" />,
+    <ColorToneCard key="color" />,
+    <BodyShapeCard key="body" />,
+    <CelebrityCard key="celebrity" />,
+  ];
+
+  const handleScroll = () => {
+    if (!sliderRef.current || isScrolling) return;
+
+    const container = sliderRef.current;
+    const scrollLeft = container.scrollLeft;
+    const cardWidth = container.clientWidth;
+    const newSlide = Math.round(scrollLeft / cardWidth);
+
+    if (newSlide !== currentSlide) {
+      setCurrentSlide(newSlide);
+    }
+  };
+
+  useEffect(() => {
+    const container = sliderRef.current;
+    if (!container) return;
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [currentSlide, isScrolling]);
+
+  // Progress percentage (0-100%)
+  const progressPercentage = ((currentSlide + 1) / cards.length) * 100;
+
+  return (
+    <>
+      {/* Mobile Slider */}
+      <div className="block lg:hidden">
+        <div
+          ref={sliderRef}
+          className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-4 pb-4"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {cards.map((card, index) => (
+            <div key={index} className="min-w-full snap-start">
+              {card}
+            </div>
+          ))}
+        </div>
+
+        {/* Progress Bar Indicator */}
+        <div className="px-4">
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] h-2 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Grid (unchanged) */}
+      <div className="hidden lg:grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-10">
+        <FaceShapeCard />
+        <ColorToneCard />
+        <BodyShapeCard />
+      </div>
+    </>
+  );
+};
 const AnalysisDashboard: React.FC = () => {
   return (
     <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[190px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-10">
-          <FaceShapeCard />
-          <ColorToneCard />
-          <BodyShapeCard />
-        </div>
+        <MobileCardsSlider />
 
         <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-10 mt-4">
-          <CelebrityCard />
+          <div className="hidden lg:block">
+            <CelebrityCard />
+          </div>
           <RecommendationContainer />
         </div>
         <hr className="mt-[60px] mb-[50px]" />

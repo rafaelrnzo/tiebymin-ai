@@ -50,7 +50,7 @@ const FaqSection = () => {
               <h2 className="font-oswald text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900">
                 Semua Pecinta Fashion!
               </h2>
-              <p className="mt-4 text-gray-600 text-base sm:text-lg lg:text-xl mb-3">
+              <p className="mt-4 text-[#323232] text-base sm:text-lg lg:text-xl mb-3 font-poppins">
                 Apakah Kamu Seorang Pemula Atau Antusias Fashion, AI Ini Akan
                 Memberikan Rekomendasi Yang Mudah Dan Cepat.
               </p>
