@@ -71,6 +71,10 @@ export function useAnalysisData(
         console.log("📋 Analysis data received:", analysisData);
         console.log("🖼️ Photos data received:", photosData);
 
+        if (analysisData?.user_id && typeof window !== "undefined") {
+          localStorage.setItem("userId", analysisData.user_id);
+        }
+
         // Validasi data yang diperlukan
         if (!analysisData) {
           throw new Error("Data analisis kosong atau tidak terdefinisi");

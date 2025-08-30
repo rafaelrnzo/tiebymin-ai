@@ -81,7 +81,7 @@ export function Navbar() {
                 </span>
               </Button>
             </Link>
-            <Link href="/profile">
+            <Link href="/ai-overview/profile">
               <Button
                 size="lg"
                 className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
@@ -102,11 +102,10 @@ export function Navbar() {
               width={100}
               height={24}
               priority
-              className="h-8 w-auto" // Ukuran disesuaikan
+              className="h-8 w-auto"
             />
           </Link>
 
-          {/* 2. Ikon Menu di sebelah kanan */}
           <div>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
@@ -133,11 +132,11 @@ export function Navbar() {
                       {link.label}
                     </Link>
                   ))}
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 pt-3 sm:pt-4">
+                  <div className="flex flex-col gap-2 pt-3">
                     <Link href="/register" onClick={closeSheet}>
                       <Button
                         size="default"
-                        className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full sm:w-auto px-4 py-2"
+                        className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full px-4 py-2"
                       >
                         <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                         <span className="text-sm sm:text-base">
@@ -145,10 +144,10 @@ export function Navbar() {
                         </span>
                       </Button>
                     </Link>
-                    <Link href="/profile" onClick={closeSheet}>
+                    <Link href="/ai-overview/profile" onClick={closeSheet}>
                       <Button
                         size="default"
-                        className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-4 py-2 mt-2 sm:mt-0"
+                        className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 w-full px-4 py-2"
                       >
                         <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
                         <span className="text-sm sm:text-base text-[#323232]">

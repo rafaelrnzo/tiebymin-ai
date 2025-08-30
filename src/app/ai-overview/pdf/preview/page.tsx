@@ -1,5 +1,4 @@
 "use client";
-import { Navbar } from "@/components/component-landing/navbar";
 import { BackCover } from "@/components/pdf-components/backcover-pdf";
 import { BodyShape } from "@/components/pdf-components/bodyshape-pdf";
 import { CelebritiesMatch } from "@/components/pdf-components/celebrities-pdf";
@@ -21,26 +20,11 @@ import {
   useFaceShapeData,
 } from "@/hooks/useAnalysisData";
 import { defaultUserData } from "@/lib/mock-data";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState, useEffect } from "react";
+import { Suspense, useMemo, useState } from "react";
 
-// Hook useMediaQuery tidak berubah
-const useMediaQuery = (query: string) => {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const media = window.matchMedia(query);
-      if (media.matches !== matches) {
-        setMatches(media.matches);
-      }
-      const listener = () => setMatches(media.matches);
-      window.addEventListener("resize", listener);
-      return () => window.removeEventListener("resize", listener);
-    }
-  }, [matches, query]);
-  return matches;
-};
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface PdfPage {
   id: string;
@@ -217,13 +201,16 @@ function PreviewPdfPage() {
 
   return (
     <div className="bg-[#F0F0F0] min-h-screen flex flex-col">
-      <Navbar />
       <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-6">
         <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-md lg:max-w-6xl flex flex-col overflow-hidden h-[85vh]">
-          <X
+          <Button
             onClick={() => router.back()}
-            className="cursor-pointer absolute top-4 right-4 text-gray-500 hover:text-gray-800 z-20"
-          />
+            variant="ghost"
+            size="icon"
+            className="cursor-pointer absolute top-4 left-4 text-gray-500 hover:text-gray-800 z-20 bg-white/80 backdrop-blur-sm rounded-full"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
 
           <div className="relative flex-grow overflow-x-auto overflow-y-hidden">
             {isDesktop ? (

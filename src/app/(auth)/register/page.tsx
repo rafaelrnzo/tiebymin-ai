@@ -1,17 +1,23 @@
 "use client";
 
 import LeftSideSection from "@/components/component-login/left-side-section";
+import RegistrationFlow from "@/components/registration-flow/RegistrationFlow";
 import { ErrorModal } from "@/components/sections/error-modal";
 import { secureUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { RegistrationStep } from "@/components/registration-flow/RegistrationFlow";
+import { useStepsProgress } from "@/hooks/useStepsProgress";
+import { useRegistrationFlow } from "@/hooks/useLocalStorage";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState<RegistrationStep>("register");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -19,6 +25,43 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+
+  const { markStepCompleted, getCurrentStepFromStorage } = useStepsProgress(1);
+  const {
+    currentStep: persistedCurrentStep,
+    setCurrentStep: setPersistedCurrentStep,
+  } = useRegistrationFlow();
+
+  // Initialize step from localStorage only once on component mount
+  useEffect(() => {
+    if (!isInitialized) {
+      try {
+        const savedStep = getCurrentStepFromStorage();
+        const savedStepFromRegistration = persistedCurrentStep;
+
+        // Use the higher step value between the two storage mechanisms
+        const stepToUse = Math.max(savedStep, savedStepFromRegistration);
+
+        if (stepToUse > 1) {
+          // Convert numeric step to RegistrationStep
+          const stepMap: { [key: number]: RegistrationStep } = {
+            1: "register",
+            2: "measurements",
+            3: "body-shape",
+            4: "body-shape",
+            5: "face-scan",
+          };
+          const savedRegistrationStep = stepMap[stepToUse] || "register";
+          setCurrentStep(savedRegistrationStep);
+        }
+
+        setIsInitialized(true);
+      } catch (error) {
+        console.error("Error initializing step from storage:", error);
+        setIsInitialized(true);
+      }
+    }
+  }, [isInitialized, getCurrentStepFromStorage, persistedCurrentStep]);
 
   const generateUUID = () => {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -38,32 +81,40 @@ export default function RegisterPage() {
     }));
   };
 
-  // Tambahkan validasi form sebelum submit
+  const handleStepChange = (step: RegistrationStep) => {
+    setCurrentStep(step);
+
+    // Also update the persisted step
+    const stepNumberMap: { [key in RegistrationStep]: number } = {
+      register: 1,
+      measurements: 2,
+      "body-shape": 4,
+      "face-scan": 5,
+    };
+
+    setPersistedCurrentStep(stepNumberMap[step]);
+  };
+
   const validateForm = () => {
     const errors = [];
 
-    // Validasi nama lengkap (minimal 2 karakter)
     if (!formData.fullName.trim() || formData.fullName.trim().length < 2) {
       errors.push("Nama lengkap minimal 2 karakter");
     }
 
-    // Validasi email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       errors.push("Format email tidak valid");
     }
 
-    // Validasi nomor telepon
     if (!formData.phone || formData.phone.length < 10) {
       errors.push("Nomor telepon minimal 10 digit");
     }
 
-    // Validasi password
     if (formData.password.length < 6) {
       errors.push("Password minimal 6 karakter");
     }
 
-    // Validasi konfirmasi password
     if (formData.password !== formData.confirmPassword) {
       errors.push("Password dan konfirmasi password tidak sama");
     }
@@ -88,7 +139,7 @@ export default function RegisterPage() {
     try {
       const uniqueGoogleId = generateUUID();
 
-      const endpoint = secureUrl(`/v1/users/`);
+      const endpoint = secureUrl(`/v1/auth/register`);
       console.log("fetch endpoint:", endpoint);
 
       const nameParts = formData.fullName.trim().split(/\s+/);
@@ -183,7 +234,10 @@ export default function RegisterPage() {
         );
       }
 
-      router.push("/analyze/first");
+      // Mark step 1 as completed and move to step 2
+      markStepCompleted(1);
+      setPersistedCurrentStep(2);
+      setCurrentStep("measurements");
     } catch (err) {
       console.error("Registration error:", err);
       if (
@@ -214,15 +268,38 @@ export default function RegisterPage() {
     }
   };
 
+  // Show registration flow for steps after register
+  if (currentStep !== "register") {
+    return (
+      <RegistrationFlow
+        currentStep={currentStep}
+        onStepChange={handleStepChange}
+      />
+    );
+  }
+
+  // Don't render the registration form until we've checked localStorage
+  if (!isInitialized) {
+    return (
+      <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+        </div>
+      </main>
+    );
+  }
+
   const steps = [
     { number: "01", title: "Buat Akun", active: true },
     { number: "02", title: "Lengkapi Data", active: false },
     { number: "03", title: "Analisa", active: false },
+    { number: "04", title: "Pilih Bentuk Tubuh Kamu", active: false },
+    { number: "05", title: "Scan Wajah Kamu", active: false },
   ];
 
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="container mx-auto w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <LeftSideSection
           steps={steps}
           currentStepNumber={1}
@@ -415,7 +492,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     className="text-[#ED80A7] hover:text-pink-600 font-medium transition-colors"
-                    onClick={() => console.log("login")}
+                    onClick={() => router.push("/login")}
                   >
                     Masuk
                   </button>

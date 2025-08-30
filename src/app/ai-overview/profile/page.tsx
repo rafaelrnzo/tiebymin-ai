@@ -1,3 +1,5 @@
+"use client";
+
 import { Navbar } from "@/components/component-landing/navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,6 +19,8 @@ import {
 } from "@/components/ui/table";
 import { Download, Share2 } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { secureUrl } from "@/lib/api";
 
 // Function to shorten month names
 const shortenMonth = (dateString: string) => {
@@ -35,14 +39,111 @@ const shortenMonth = (dateString: string) => {
     .replace("December", "Dec");
 };
 
-const testHistory = [
-  { date: "December 20, 2025" },
-  { date: "December 20, 2025" },
-  { date: "December 20, 2026" },
-  { date: "December 20, 2025" },
-];
+interface UserProfile {
+  user_id: string;
+  user_full_name: string;
+  user_first_name: string;
+}
+
+interface AnalysisHistoryItem {
+  analysis_id: string;
+  analysis_date: string;
+}
+
+interface AnalysisHistoryResponse {
+  total_items: number;
+  items: AnalysisHistoryItem[];
+  limit: number;
+  skip: number;
+}
 
 export default function DashboardPage() {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [analysisHistory, setAnalysisHistory] = useState<AnalysisHistoryItem[]>(
+    []
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Fetch user profile
+        const profileResponse = await fetch(
+          secureUrl("/v1/user-profile/user-info"),
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+            },
+          }
+        );
+
+        if (!profileResponse.ok) {
+          throw new Error("Failed to fetch user profile");
+        }
+
+        const profileData = await profileResponse.json();
+        setUserProfile(profileData);
+
+        // Fetch analysis history
+        const historyResponse = await fetch(
+          secureUrl("/v1/user-profile/analysis-history"),
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+            },
+          }
+        );
+
+        if (!historyResponse.ok) {
+          throw new Error("Failed to fetch analysis history");
+        }
+
+        const historyData: AnalysisHistoryResponse =
+          await historyResponse.json();
+        setAnalysisHistory(historyData.items);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load user data"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="bg-white min-h-screen w-full font-poppins text-[#323232]">
+        <Navbar />
+        <main className="lg:px-[200px] px-4 mt-[20px] lg:mt-[50px] flex items-center justify-center">
+          <div className="animate-pulse">Loading...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white min-h-screen w-full font-poppins text-[#323232]">
+        <Navbar />
+        <main className="lg:px-[200px] px-4 mt-[20px] lg:mt-[50px] flex items-center justify-center">
+          <div className="text-red-500">Error: {error}</div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white min-h-screen w-full font-poppins text-[#323232]">
       <Navbar />
@@ -58,7 +159,7 @@ export default function DashboardPage() {
               loading="lazy"
             />
             <input
-              defaultValue="Winona Karamoy"
+              defaultValue={userProfile?.user_full_name || "User"}
               className="w-full text-center font-bold text-[24px] lg:text-[36px] border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
             />
             <div className="flex flex-row gap-4 items-center lg:flex-col w-full">
@@ -74,7 +175,7 @@ export default function DashboardPage() {
           <div className="w-full lg:col-span-2">
             <div className="flex flex-col w-full gap-[20px] lg:gap-[50px] h-full">
               <h1 className="hidden lg:block font-oswald text-4xl md:text-5xl font-bold text-[#323232]">
-                Selamat datang, Winona!
+                Selamat datang, {userProfile?.user_first_name || "User"}!
               </h1>
               <p className="hidden lg:block text-[#323232] text-xl font-poppins">
                 Temukan versi terbaik dirimu dengan sentuhan teknologi AI. Mulai
@@ -140,10 +241,10 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {testHistory.map((item, index) => (
+                {analysisHistory.map((item, index) => (
                   <TableRow key={index} className="border-b-[#323232]/20">
                     <TableCell className="font-medium py-4">
-                      {shortenMonth(item.date)}
+                      {shortenMonth(item.analysis_date)}
                     </TableCell>
                     <TableCell className="py-4">
                       <Button

@@ -74,7 +74,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             priority
           />
         </div>
-        <p className="font-poppins text-sm sm:text-base lg:text-lg mt-4 sm:mt-6">
+        <p className="font-poppins text-sm sm:text-base lg:text-lg my-4 sm:mt-6">
           {bodyDetails.penjelasan_body_shape}
         </p>
       </div>

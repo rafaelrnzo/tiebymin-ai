@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Image from "next/image";
 
 interface Step {
@@ -14,6 +14,8 @@ interface LeftSideSectionProps {
   title?: string;
   description?: string;
   showExtendedSteps?: boolean;
+  animateStep?: number;
+  previousStep?: number;
 }
 
 export default function LeftSideSection({
@@ -23,9 +25,91 @@ export default function LeftSideSection({
   title,
   description,
   showExtendedSteps = true,
+  animateStep,
+  previousStep,
 }: LeftSideSectionProps) {
   return (
     <div className="space-y-[17px] lg:space-y-8 w-full max-w-lg mx-auto flex flex-col items-center">
+      {/* Animation Styles */}
+      <style jsx global>{`
+        @keyframes stepExpand {
+          0% {
+            transform: scale(1);
+            background-color: transparent;
+            border-color: #323232;
+            color: #323232;
+          }
+          50% {
+            transform: scale(1.05);
+            background-color: rgba(255, 198, 198, 0.1);
+            border-color: #ef789b;
+          }
+          100% {
+            transform: scale(1);
+            background-color: #ef789b;
+            border-color: #ef789b;
+            color: white;
+          }
+        }
+
+        @keyframes pinkCardExpand {
+          0% {
+            transform: scale(1);
+            background-color: transparent;
+            border-color: #323232;
+            color: #323232;
+          }
+          30% {
+            transform: scale(1.1);
+            background-color: rgba(239, 120, 155, 0.2);
+            border-color: #ef789b;
+          }
+          70% {
+            transform: scale(1.15);
+            background-color: rgba(239, 120, 155, 0.6);
+            border-color: #ef789b;
+            color: white;
+          }
+          100% {
+            transform: scale(1.2);
+            background-color: #ef789b;
+            border-color: #ef789b;
+            color: white;
+          }
+        }
+
+        .step-animation {
+          animation: stepExpand 0.8s ease-in-out;
+        }
+
+        .pink-card-animation {
+          animation: pinkCardExpand 1.2s ease-in-out;
+        }
+
+        @keyframes rotate-sparkle {
+          0%,
+          100% {
+            transform: rotate(0deg);
+          }
+          25% {
+            transform: rotate(90deg);
+          }
+          50% {
+            transform: rotate(0deg);
+          }
+          75% {
+            transform: rotate(-90deg);
+          }
+        }
+
+        .sparkle-animation {
+          animation: rotate-sparkle 4s ease-in-out infinite;
+        }
+
+        .step-transition {
+          transition: all 0.3s ease-in-out;
+        }
+      `}</style>
       <div className="flex justify-center w-[120px] lg:w-full mt-[40px] lg:mt-0">
         <Image
           src="/vector/tie-by-min-logo.svg"
@@ -35,6 +119,14 @@ export default function LeftSideSection({
           priority
           className="mx-auto"
         />
+      </div>
+
+      {/* Description text for all steps */}
+      <div className="w-full max-w-sm mx-auto">
+        <h3 className="text-center font-poppins text-gray-800 mb-4">
+          Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami yang
+          berikan saran terbaik untuk kamu
+        </h3>
       </div>
 
       {currentStep && (
@@ -48,102 +140,99 @@ export default function LeftSideSection({
         </div>
       )}
 
-      {title === "Pilih Bentuk Tubuh Kamu" ? (
+      {/* Special layout for body-shape and face-scan steps */}
+      {title && (
         <div className="flex flex-col gap-8">
-          <style jsx global>{`
-            @keyframes rotate-sparkle {
-              0%,
-              100% {
-                transform: rotate(0deg);
-              }
-              25% {
-                transform: rotate(90deg);
-              }
-              50% {
-                transform: rotate(0deg);
-              }
-              75% {
-                transform: rotate(-90deg);
-              }
-            }
-            .sparkle-animation {
-              animation: rotate-sparkle 4s ease-in-out infinite;
-            }
-          `}</style>
-          <div className="bg-[#EF789B] rounded-2xl p-6 text-white w-full max-w-sm mx-auto shadow-md">
-            <div className="flex items-start justify-between mb-4">
-              <h2 className="text-xl font-bold font-poppins">{title}</h2>
-              <div className="w-6 h-6 rounded flex items-center justify-center">
-                <Image
-                  src="/stars.png"
-                  alt="stars"
-                  width={20}
-                  height={20}
-                  className="sparkle-animation"
-                />
+          {title === "Pilih Bentuk Tubuh Kamu" && (
+            <>
+              <div
+                className={`bg-[#EF789B] hidden lg:block rounded-2xl p-6 text-white w-full max-w-sm mx-auto shadow-md ${
+                  animateStep === 3 && previousStep !== 3
+                    ? "pink-card-animation"
+                    : ""
+                }`}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <h2 className="text-xl font-bold font-poppins">{title}</h2>
+                  <div className="w-6 h-6 rounded flex items-center justify-center">
+                    <Image
+                      src="/stars.png"
+                      alt="stars"
+                      width={20}
+                      height={20}
+                      className="sparkle-animation"
+                    />
+                  </div>
+                </div>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  {description}
+                </p>
               </div>
-            </div>
-            <p className="text-white/90 text-sm leading-relaxed">
-              {description}
-            </p>
-          </div>
-          <div
-            className={
-              "shadow-md border rounded-2xl p-4 flex items-center justify-between transition-colors duration-300"
-            }
-          >
-            <span className="font-bold font-poppins">Scan Wajah Kamu</span>
-            <div className="w-6 h-6 rounded flex items-center justify-center">
-              <Sparkles fill="black" />
-            </div>
-          </div>
-        </div>
-      ) : title === "Scan Wajah Kamu" ? (
-        <div className="flex flex-col gap-8">
-          <div
-            className={
-              "shadow-md bg-white rounded-2xl p-4 flex items-center justify-between transition-colors duration-300"
-            }
-          >
-            <span className="font-bold font-poppins">
-              Pilih bentuk Tubuh Kamu
-            </span>
-            <div className="w-6 h-6 rounded flex items-center justify-center">
-              <Sparkles fill="black" />
-            </div>
-          </div>
-          <div className="bg-[#EF789B] rounded-2xl p-6 text-white w-full max-w-sm mx-auto shadow-md">
-            <div className="flex items-start justify-between mb-4">
-              <h2 className="text-xl font-bold font-poppins">{title}</h2>
-              <div className="w-6 h-6 rounded flex items-center justify-center">
-                <Image
-                  src="/stars.png"
-                  alt="stars"
-                  width={20}
-                  height={20}
-                  className="sparkle-animation"
-                />
+              <div
+                className={
+                  "shadow-md hidden lg:flex border rounded-2xl p-4 items-center justify-between transition-colors duration-300"
+                }
+              >
+                <span className="font-bold font-poppins">Scan Wajah Kamu</span>
+                <div className="w-6 h-6 rounded flex items-center justify-center">
+                  <Sparkles fill="black" />
+                </div>
               </div>
-            </div>
-            <p className="text-white/90 text-sm leading-relaxed">
-              {description}
-            </p>
-          </div>
-        </div>
-      ) : null}
+            </>
+          )}
 
+          {title === "Scan Wajah Kamu" && (
+            <>
+              <div
+                className={
+                  "shadow-md hidden lg:flex bg-white rounded-2xl p-4 items-center justify-between transition-colors duration-300"
+                }
+              >
+                <span className="font-bold font-poppins">
+                  Pilih bentuk Tubuh Kamu
+                </span>
+                <div className="w-6 h-6 rounded flex items-center justify-center">
+                  <Sparkles fill="black" />
+                </div>
+              </div>
+              <div
+                className={`bg-[#EF789B] hidden lg:block rounded-2xl p-6 text-white w-full max-w-sm mx-auto shadow-md ${
+                  animateStep === 4 && previousStep !== 4
+                    ? "pink-card-animation"
+                    : ""
+                }`}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <h2 className="text-xl font-bold font-poppins">{title}</h2>
+                  <div className="w-6 h-6 rounded flex items-center justify-center">
+                    <Image
+                      src="/stars.png"
+                      alt="stars"
+                      width={20}
+                      height={20}
+                      className="sparkle-animation"
+                    />
+                  </div>
+                </div>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  {description}
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Mobile steps - always show when steps exist */}
       {steps && (
-        <>
-          <div className="lg:hidden w-full px-4 rounded-2xl">
-            <p className="text-center font-poppins text-xs pb-5">
-              Mulai perjalanan kecantikanmu dengan analisa kami Biar AI kami
-              yang berikan saran terbaik untuk kamu
-            </p>
-            <div className="flex flex-row justify-center items-start">
-              {(showExtendedSteps
-                ? steps
-                : steps.filter((step) => parseInt(step.number, 10) <= 3)
-              ).map((step, index, arr) => {
+        <div className="lg:hidden w-full px-4 rounded-2xl">
+          <div className="flex flex-row justify-center items-start">
+            {steps
+              .filter((step) => {
+                const stepNumber = parseInt(step.number, 10);
+                return stepNumber <= 3;
+              })
+              .map((step, index, arr) => {
                 const stepNumber = parseInt(step.number, 10);
                 const isCompleted =
                   currentStepNumber && stepNumber < currentStepNumber;
@@ -153,6 +242,12 @@ export default function LeftSideSection({
                 let circleClasses =
                   "w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-colors duration-300";
                 let textClasses = "text-xs text-center mt-2 w-full font-bold ";
+                let circleAnimation = "";
+
+                // Apply animation for mobile circles
+                if (animateStep === stepNumber && previousStep !== stepNumber) {
+                  circleAnimation = "step-animation";
+                }
 
                 if (isCurrent) {
                   circleClasses += " bg-[#EF789B] text-white border-[#EF789B]";
@@ -165,13 +260,16 @@ export default function LeftSideSection({
                   textClasses += "text-[#323232]";
                 }
 
+                // Change step 3 title to "Analisa" for mobile
+                const displayTitle = stepNumber === 3 ? "Analisa" : step.title;
+
                 return (
                   <div key={index} className="flex items-start">
                     <div className="flex flex-col items-center">
-                      <div className={circleClasses}>
+                      <div className={`${circleClasses} ${circleAnimation}`}>
                         <span>{step.number}</span>
                       </div>
-                      <p className={textClasses}>{step.title}</p>
+                      <p className={textClasses}>{displayTitle}</p>
                     </div>
 
                     {index < arr.length - 1 && (
@@ -193,48 +291,134 @@ export default function LeftSideSection({
                   </div>
                 );
               })}
-            </div>
           </div>
+        </div>
+      )}
 
+      {/* Desktop steps - show when steps exist and not on special title steps */}
+      {steps &&
+        !(
+          title === "Pilih Bentuk Tubuh Kamu" || title === "Scan Wajah Kamu"
+        ) && (
           <div className="hidden lg:block w-full max-w-sm mx-auto">
-            <h3 className="text-center font-poppins text-gray-800 mb-4">
-              Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami
-              yang berikan saran terbaik untuk kamu
-            </h3>
             <div className="space-y-5">
-              {(showExtendedSteps
-                ? steps
-                : steps.filter((step) => parseInt(step.number, 10) <= 3)
-              ).map((step, index) => {
-                const stepNumber = parseInt(step.number, 10);
-                const isCompleted =
-                  currentStepNumber && stepNumber < currentStepNumber;
-                const isCurrent =
-                  currentStepNumber && stepNumber === currentStepNumber;
+              {/* Show main steps (1-3) when not in analysis phase */}
+              {(!currentStepNumber || currentStepNumber < 3) && (
+                <>
+                  {steps
+                    .filter((step) => {
+                      const stepNumber = parseInt(step.number, 10);
+                      return stepNumber <= 3;
+                    })
+                    .map((step, index) => {
+                      const stepNumber = parseInt(step.number, 10);
+                      const isCompleted =
+                        currentStepNumber && stepNumber < currentStepNumber;
+                      const isCurrent =
+                        currentStepNumber && stepNumber === currentStepNumber;
 
-                let stepClasses =
-                  "backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md";
+                      let stepClasses =
+                        "backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md step-transition";
 
-                if (isCurrent || isCompleted) {
-                  stepClasses += " bg-white text-[#323232] shadow-md";
-                } else {
-                  stepClasses +=
-                    " bg-transparent text-gray-600 border-2 border-[#323232]/50";
-                }
+                      let animationClass = "";
+                      if (
+                        animateStep === stepNumber &&
+                        previousStep !== stepNumber
+                      ) {
+                        animationClass = "step-animation";
+                      }
 
-                return (
-                  <div key={index} className={stepClasses}>
-                    <span className="font-poppins font-bold">{step.title}</span>
-                    <div className="w-8 h-8 flex items-center justify-center text-sm font-bold text-[#323232]">
-                      {step.number}
+                      if (isCurrent || isCompleted) {
+                        stepClasses += " bg-white text-[#323232] shadow-md";
+                      } else {
+                        stepClasses +=
+                          " bg-transparent text-gray-600 border-2 border-[#323232]/50";
+                      }
+
+                      return (
+                        <div
+                          key={index}
+                          className={`${stepClasses} ${animationClass}`}
+                        >
+                          <span className="font-poppins font-bold">
+                            {step.title}
+                          </span>
+                          <div className="w-8 h-8 flex items-center justify-center text-sm font-bold text-[#323232]">
+                            {step.number}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </>
+              )}
+
+              {/* Show expanded analysis steps when in analysis phase */}
+              {currentStepNumber && currentStepNumber >= 3 && (
+                <>
+                  {/* Main Analisa step */}
+                  <div className="backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md bg-[#EF789B] text-white">
+                    <span className="font-poppins font-bold">Analisa</span>
+                    <div className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white">
+                      3
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* Sub-steps for analysis */}
+                  {steps
+                    .filter((step) => {
+                      const stepNumber = parseInt(step.number, 10);
+                      return stepNumber === 4 || stepNumber === 5; // Pilih Bentuk Tubuh and Scan Wajah
+                    })
+                    .map((step, index) => {
+                      const stepNumber = parseInt(step.number, 10);
+                      const isCompleted =
+                        currentStepNumber && stepNumber < currentStepNumber;
+                      const isCurrent =
+                        currentStepNumber && stepNumber === currentStepNumber;
+
+                      let stepClasses =
+                        "backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md step-transition ml-8";
+
+                      let animationClass = "";
+                      if (
+                        animateStep === stepNumber &&
+                        previousStep !== stepNumber
+                      ) {
+                        if (stepNumber === 4 || stepNumber === 5) {
+                          animationClass = "pink-card-animation";
+                        } else {
+                          animationClass = "step-animation";
+                        }
+                      }
+
+                      if (isCurrent) {
+                        stepClasses += " bg-[#EF789B] text-white shadow-md";
+                      } else if (isCompleted) {
+                        stepClasses += " bg-white text-[#323232] shadow-md";
+                      } else {
+                        stepClasses +=
+                          " bg-transparent text-gray-600 border-2 border-[#323232]/50";
+                      }
+
+                      return (
+                        <div
+                          key={index}
+                          className={`${stepClasses} ${animationClass}`}
+                        >
+                          <span className="font-poppins font-bold">
+                            {step.title}
+                          </span>
+                          <div className="w-8 h-8 flex items-center justify-center text-sm font-bold text-[#323232]">
+                            {step.number}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </>
+              )}
             </div>
           </div>
-        </>
-      )}
+        )}
     </div>
   );
 }

@@ -46,6 +46,7 @@ export default function LoginPage() {
           }),
         });
       } catch (fetchErr) {
+        console.error("Fetch error:", fetchErr);
         setErrorModalMessage(
           "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti."
         );
@@ -58,8 +59,11 @@ export default function LoginPage() {
         let errorMsg = "Login gagal. Periksa email dan password Anda.";
         try {
           const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch {}
+          console.error("Login error response:", errorData);
+          errorMsg = errorData.message || errorData.detail || errorMsg;
+        } catch (parseErr) {
+          console.error("Failed to parse error response:", parseErr);
+        }
         setErrorModalMessage(errorMsg);
         setIsErrorModalOpen(true);
         setIsLoading(false);
@@ -70,17 +74,17 @@ export default function LoginPage() {
       console.log("Login successful:", result);
 
       // Save user data from API response
-      if (result.userId || result.id) {
-        localStorage.setItem("userId", result.userId || result.id);
+      if (result.user_id || result.id) {
+        localStorage.setItem("userId", result.user_id || result.id);
       }
       if (result.email) {
         localStorage.setItem("userEmail", result.email);
       }
-      if (result.name || result.full_name) {
-        localStorage.setItem("userName", result.name || result.full_name);
+      if (result.full_name || result.name) {
+        localStorage.setItem("userName", result.full_name || result.name);
       }
-      if (result.token || result.access_token) {
-        localStorage.setItem("userToken", result.token || result.access_token);
+      if (result.access_token || result.token) {
+        localStorage.setItem("userToken", result.access_token || result.token);
       }
 
       // Also save individual name fields if available
@@ -92,13 +96,13 @@ export default function LoginPage() {
       }
 
       console.log("User data saved to localStorage:", {
-        userId: result.userId || result.id,
+        userId: result.user_id || result.id,
         email: result.email,
-        name: result.name || result.full_name,
-        token: result.token || result.access_token,
+        name: result.full_name || result.name,
+        token: result.access_token || result.token,
       });
 
-      router.push("/analyze/first");
+      router.push("/ai-overview");
     } catch (err) {
       console.error("Login error:", err);
       if (
@@ -121,6 +125,24 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true);
+      const googleLoginUrl = secureUrl(`/v1/auth/google/login`);
+      console.log("Google login URL:", googleLoginUrl);
+
+      // Redirect to Google OAuth
+      window.location.href = googleLoginUrl;
+    } catch (err) {
+      console.error("Google login error:", err);
+      setErrorModalMessage(
+        "Terjadi kesalahan saat login dengan Google. Silakan coba lagi."
+      );
+      setIsErrorModalOpen(true);
+      setIsLoading(false);
+    }
+  };
+
   const steps = [
     { number: "01", title: "Login Akun", active: true },
     { number: "02", title: "Lengkapi Data", active: false },
@@ -129,7 +151,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="lg:mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="container mx-auto w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <div className="w-full lg:flex-1 lg:max-w-[45%]">
           <LeftSideSection
             steps={steps}
@@ -225,6 +247,7 @@ export default function LoginPage() {
 
                 <button
                   type="button"
+                  onClick={handleGoogleLogin}
                   className="w-full text-xs lg:text-lg bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
                   disabled={isLoading}
                 >

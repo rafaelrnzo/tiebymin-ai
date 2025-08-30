@@ -87,7 +87,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
   return (
     <div className="flex flex-col lg:h-full h-fit">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
-        <div className="border rounded-2xl px-5">
+        <div className="border rounded-2xl px-5 pb-5">
           <h3 className="font-bold text-xl mt-2 lg:text-[48px] font-oswald">
             {shapeDetails.name}
           </h3>
@@ -119,19 +119,24 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .split("-")
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) => (
-                <li key={index} className="flex items-center">
-                  <span className="mr-2 text-[#323232] mb-1 text-xs lg:text-xl">
-                    •
-                  </span>
-                  <span className="text-xs lg:text-xl">{item.trim()}</span>
-                </li>
+                <p
+                  key={index}
+                  className="text-xs sm:text-sm lg:text-lg text-[#323232] font-poppins"
+                >
+                  • {item.trim()}
+                </p>
               ))}
           </ul>
         </div>
-        <h1 className="font-oswald font-bold text-4xl">
+      </div>
+
+      {/* Face Shape Distribution - Full Width */}
+      <div className="w-full mt-[30px] lg:mt-[50px]">
+        <h1 className="font-oswald font-bold text-2xl lg:text-4xl w-full">
           Face Shape Distribution
         </h1>
       </div>
+
       {gimmickChartData.length > 0 && (
         <FaceShapeAnalysis data={gimmickChartData} />
       )}
