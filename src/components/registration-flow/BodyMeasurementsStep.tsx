@@ -19,7 +19,7 @@ export default function BodyMeasurementsStep({
   onNext,
 }: BodyMeasurementsStepProps) {
   return (
-    <div className="w-full lg:flex-1 lg:max-w-[60%] lg:mr-[50px]">
+    <div className="w-full">
       <BodyMeasurementsForm
         formData={formData}
         onFormDataChange={onFormDataChange}

@@ -17,7 +17,7 @@ const TipBox = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-white p-6  animate-pulse">
+      <div className="bg-[#f0f0f0] p-6  animate-pulse">
         <div className="h-6 bg-gray-300 rounded w-1/3 mb-4"></div>
         <div className="space-y-3">
           <div className="h-4 bg-gray-300 rounded w-full"></div>
@@ -105,9 +105,9 @@ export const Conclusion = ({
             loading={isLoading}
             error={isError}
           />
-          <div className="bg-[#323232] font-poppins text-white p-6  shadow-lg">
+          <div className="bg-[#323232] font-poppins text-[#f0f0f0] p-6  shadow-lg">
             <div className="flex items-center gap-3 mb-3">
-              <Sparkles className="fill-white" size={20} />
+              <Sparkles className="fill-[#f0f0f0]" size={20} />
               <p className="font-bold">Rekap Cepat Tips Kamu</p>
             </div>
             <p className="text-sm leading-relaxed text-gray-200">

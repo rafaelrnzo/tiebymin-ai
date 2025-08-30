@@ -9,6 +9,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { ErrorModal } from "../sections/error-modal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useMutation } from "@tanstack/react-query";
 
 const INSTRUCTION_CARDS = [
   {
@@ -41,7 +42,70 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Mutation for full analysis
+  const fullAnalysisMutation = useMutation({
+    mutationFn: async (data: {
+      imageBlob: Blob;
+      imageName: string;
+      userId: string;
+      analysisData: {
+        tinggi: string;
+        berat: string;
+        umur: string;
+        body_shape_id: string;
+      };
+    }) => {
+      const formData = new FormData();
+      formData.append("user_id", data.userId);
+      formData.append("tinggi_badan", data.analysisData.tinggi);
+      formData.append("berat_badan", data.analysisData.berat);
+      formData.append("umur", data.analysisData.umur);
+      formData.append("body_shape_id", data.analysisData.body_shape_id);
+      formData.append("foto_wajah", data.imageBlob, data.imageName);
+
+      const response = await axios.post(
+        secureUrl("/v1/analysis/full-analysis"),
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      return response.data;
+    },
+    onSuccess: (resultId) => {
+      console.log("Analysis completed successfully, result ID:", resultId);
+      localStorage.setItem("analysisResultId", resultId);
+
+      // Convert selected image to base64 and store it
+      if (selectedFile) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          localStorage.setItem("uploadedFaceImage", e.target?.result as string);
+          // Redirect to open-camera page with loading animation
+          router.push(`/analyze/open-camera?fromGallery=true&skipCamera=true`);
+        };
+        reader.onerror = (error) => {
+          console.error("Error converting image to base64:", error);
+          setErrorModalMessage("Gagal memproses gambar. Silakan coba lagi.");
+          setIsErrorModalOpen(true);
+        };
+        reader.readAsDataURL(selectedFile);
+      }
+    },
+    onError: (error) => {
+      console.error("Analysis error:", error);
+      const err = error as Error;
+      setErrorModalMessage(
+        err.message ||
+          "Terjadi kesalahan saat memulai analisis. Silakan coba lagi."
+      );
+      setIsErrorModalOpen(true);
+    },
+  });
 
   const handleTakePhoto = () => {
     router.push(`/analyze/open-camera`);
@@ -66,134 +130,6 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
     handleUploadFromGallery(); // Langsung buka galeri lagi
   };
 
-  const handleFullAnalysis = async (
-    imageBlobFromGallery: Blob | null = null,
-    imageNameFromGallery: string | null = null
-  ) => {
-    try {
-      // Get analysis data from localStorage
-      const storedData = localStorage.getItem("tiebymin-analysis-data");
-      if (!storedData) {
-        setErrorModalMessage(
-          "Data analisis tidak ditemukan. Silakan kembali ke halaman analisis dan lengkapi data Anda."
-        );
-        setIsErrorModalOpen(true);
-        return;
-      }
-
-      const analysisData = JSON.parse(storedData);
-      const { tinggi, berat, umur, body_shape_id } = analysisData;
-
-      // Validate required data
-      if (!tinggi || !berat || !umur || !body_shape_id) {
-        setErrorModalMessage(
-          "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
-        );
-        setIsErrorModalOpen(true);
-        return;
-      }
-
-      console.log("MENYIAPKAN DATA UNTUK ANALISIS:", {
-        tinggi,
-        berat,
-        umur,
-        body_shape_id,
-        foto_wajah: imageBlobFromGallery
-          ? "ada dari galeri"
-          : "ada dari kamera",
-      });
-
-      let imageToUpload: Blob | null = null;
-      let imageFileName: string = "face-photo.png";
-
-      if (imageBlobFromGallery && imageNameFromGallery) {
-        imageToUpload = imageBlobFromGallery;
-        imageFileName = imageNameFromGallery;
-      }
-
-      if (!imageToUpload) {
-        setErrorModalMessage("Informasi tidak lengkap. Foto tidak ditemukan.");
-        setIsErrorModalOpen(true);
-        return;
-      }
-
-      // Get user ID
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
-        setIsErrorModalOpen(true);
-        return;
-      }
-
-      // Prepare form data for analysis
-      const formData = new FormData();
-      formData.append("user_id", userId);
-      formData.append("tinggi_badan", tinggi);
-      formData.append("berat_badan", berat);
-      formData.append("umur", umur);
-      formData.append("body_shape_id", body_shape_id);
-      formData.append("foto_wajah", imageToUpload, imageFileName);
-
-      // Call analysis API
-      const endpoint = secureUrl("/v1/analysis/full-analysis");
-      console.log("Calling analysis API endpoint:", endpoint);
-
-      const response = await axios.post(endpoint, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (response.status >= 200 && response.status < 300) {
-        const resultId = response.data.analysis_result_id;
-
-        if (resultId) {
-          console.log("Analysis completed successfully, result ID:", resultId);
-          // Store result ID for later use
-          localStorage.setItem("analysisResultId", resultId);
-
-          // Convert selected image to base64 and store it
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            setIsAnalyzing(false);
-            // Store the uploaded image for the open-camera page
-            localStorage.setItem(
-              "uploadedFaceImage",
-              e.target?.result as string
-            );
-            // Redirect to open-camera page with loading animation
-            router.push(
-              `/analyze/open-camera?fromGallery=true&skipCamera=true`
-            );
-          };
-          reader.onerror = (error) => {
-            console.error("Error converting image to base64:", error);
-            setErrorModalMessage("Gagal memproses gambar. Silakan coba lagi.");
-            setIsErrorModalOpen(true);
-            setIsAnalyzing(false);
-          };
-          reader.readAsDataURL(selectedFile!);
-        } else {
-          throw new Error("Gagal mendapatkan ID hasil analisis.");
-        }
-      } else {
-        throw new Error(
-          response.data?.message ||
-            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
-        );
-      }
-    } catch (error) {
-      console.error("Analysis error:", error);
-      const err = error as Error;
-      setErrorModalMessage(
-        err.message ||
-          "Terjadi kesalahan saat memulai analisis. Silakan coba lagi."
-      );
-      setIsErrorModalOpen(true);
-      setIsAnalyzing(false); // Reset loading state on error
-    }
-  };
-
   const handleProceedToCamera = () => {
     if (!selectedFile) {
       setErrorModalMessage("Tidak ada file yang dipilih.");
@@ -201,9 +137,43 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       return;
     }
 
-    // Set loading state and perform API analysis first, then redirect to open-camera
-    setIsAnalyzing(true);
-    handleFullAnalysis(selectedFile, selectedFile.name);
+    // Get analysis data from localStorage
+    const storedData = localStorage.getItem("tiebymin-analysis-data");
+    if (!storedData) {
+      setErrorModalMessage(
+        "Data analisis tidak ditemukan. Silakan kembali ke halaman analisis dan lengkapi data Anda."
+      );
+      setIsErrorModalOpen(true);
+      return;
+    }
+
+    const analysisData = JSON.parse(storedData);
+    const { tinggi, berat, umur, body_shape_id } = analysisData;
+
+    // Validate required data
+    if (!tinggi || !berat || !umur || !body_shape_id) {
+      setErrorModalMessage(
+        "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
+      );
+      setIsErrorModalOpen(true);
+      return;
+    }
+
+    // Get user ID
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
+      setIsErrorModalOpen(true);
+      return;
+    }
+
+    // Trigger the mutation
+    fullAnalysisMutation.mutate({
+      imageBlob: selectedFile,
+      imageName: selectedFile.name,
+      userId,
+      analysisData: { tinggi, berat, umur, body_shape_id },
+    });
   };
 
   return (
@@ -237,7 +207,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
               Siapkan Wajahmu
             </h1>
             <div className="hidden sm:flex items-center gap-2 bg-[#EF789B] rounded-full px-4 py-2 shadow-md">
-              <span className="text-md font-bold text-white font-poppins">
+              <span className="text-md font-bold text-[#f0f0f0] font-poppins">
                 AI Powered
               </span>
               <Image
@@ -245,7 +215,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
                 alt="stars"
                 width={20}
                 height={20}
-                className="sparkle-animation text-white fill-white"
+                className="sparkle-animation text-[#f0f0f0] fill-[#f0f0f0]"
               />
             </div>
           </div>
@@ -293,19 +263,19 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
           <div className="w-full space-y-6">
             <div className="space-y-4">
               <Button
-                className="bg-[#323232] text-white rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
                 onClick={handleTakePhoto}
               >
-                <Camera className="size-[26px] fill-white text-[#323232]" />
+                <Camera className="size-[26px] fill-[#f0f0f0] text-[#323232]" />
                 <span className="text-[16px] font-poppins">
                   Ambil Foto Sekarang
                 </span>
               </Button>
               <Button
-                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
                 onClick={handleUploadFromGallery}
               >
-                <ImageIcon className="transition-colors group-hover:text-white size-[26px]" />
+                <ImageIcon className="transition-colors group-hover:text-[#f0f0f0] size-[26px]" />
                 <span className="text-[16px] font-poppins">
                   Upload dari Galeri
                 </span>
@@ -336,13 +306,13 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
           </div>
         </div>
       ) : (
-        <div className="bg-white lg:h-full rounded-2xl shadow-lg p-6 mt-4">
+        <div className="bg-[#f0f0f0] lg:h-full rounded-2xl shadow-lg p-6 mt-4">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-oswald font-bold">
               Siapkan Wajahmu
             </h2>
             <div className="flex items-center py-3 gap-2 bg-[#EF789B] rounded-full px-4 shadow-md">
-              <span className="text-sm font-bold text-white font-poppins">
+              <span className="text-sm font-bold text-[#f0f0f0] font-poppins">
                 AI Powered
               </span>
               <Image
@@ -350,7 +320,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
                 alt="stars"
                 width={16}
                 height={16}
-                className="sparkle-animation text-white fill-white"
+                className="sparkle-animation text-[#f0f0f0] fill-[#f0f0f0]"
               />
             </div>
           </div>
@@ -429,17 +399,17 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
           {/* Tombol Aksi */}
           <div className="w-full space-y-4">
             <Button
-              className="bg-[#323232] text-white rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
+              className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
               onClick={handleTakePhoto}
             >
-              <Camera className="size-[20px] fill-white text-[#323232]" />
+              <Camera className="size-[20px] fill-[#f0f0f0] text-[#323232]" />
               <span className="text-sm font-poppins">Ambil Foto Sekarang</span>
             </Button>
             <Button
-              className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] hover:text-white hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
+              className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
               onClick={handleUploadFromGallery}
             >
-              <ImageIcon className="transition-colors group-hover:text-white size-[20px]" />
+              <ImageIcon className="transition-colors group-hover:text-[#f0f0f0] size-[20px]" />
               <span className="text-sm font-poppins">Upload dari Galeri</span>
             </Button>
           </div>
@@ -472,7 +442,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       {/* Modal Konfirmasi Upload */}
       {selectedImage && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#323232]/50 backdrop-blur-lg">
-          <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
+          <div className="bg-[#f0f0f0] rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
             <h2 className="font-oswald text-2xl font-bold text-gray-800">
               Gunakan Gambar Ini
             </h2>
@@ -500,10 +470,10 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
               </Button>
               <Button
                 onClick={handleProceedToCamera}
-                disabled={isAnalyzing}
+                disabled={fullAnalysisMutation.isPending}
                 className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isAnalyzing ? (
+                {fullAnalysisMutation.isPending ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#323232]"></div>
                     Menganalisa...

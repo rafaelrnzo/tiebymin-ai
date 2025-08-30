@@ -30,12 +30,12 @@ const AnalysisCard = ({
       className={`flex w-[180px] xs:w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] xl:w-[340px] flex-row gap-2 xs:gap-3 sm:gap-4 rounded-xl px-2 xs:px-3 sm:px-4 py-2 sm:py-3 shadow-lg ${zIndex} relative ${
         isAnalytics
           ? "bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD]"
-          : "bg-white"
+          : "bg-[#f0f0f0]"
       }`}
     >
       <div
         className={
-          isAnalytics ? "fill-white py-1 xs:py-2 sm:py-3" : "mt-1 sm:mt-2"
+          isAnalytics ? "fill-[#f0f0f0] py-1 xs:py-2 sm:py-3" : "mt-1 sm:mt-2"
         }
       >
         {icon}
@@ -44,7 +44,7 @@ const AnalysisCard = ({
       <div className="flex flex-col justify-center">
         <p
           className={`font-bold text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl ${
-            isAnalytics ? "text-white" : "text-[#323232]"
+            isAnalytics ? "text-[#f0f0f0]" : "text-[#323232]"
           }`}
         >
           {title}
@@ -52,7 +52,7 @@ const AnalysisCard = ({
         {subtitle && (
           <p
             className={`text-[10px] xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl ${
-              isAnalytics ? "text-white" : "text-[#323232]"
+              isAnalytics ? "text-[#f0f0f0]" : "text-[#323232]"
             }`}
           >
             {subtitle}
@@ -148,7 +148,7 @@ export const HeroSection = () => {
                 <AnalysisCard
                   isAnalytics={true}
                   icon={
-                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 fill-white text-white" />
+                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 fill-[#f0f0f0] text-[#f0f0f0]" />
                   }
                   title="Coba Sekarang"
                 />

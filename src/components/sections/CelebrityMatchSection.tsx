@@ -55,7 +55,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
             className="rounded-2xl object-cover object-center"
             sizes="(max-width: 768px) 100vw, 50vw"
           />
-          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
+          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-[#f0f0f0] px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
             <Image
               src="/overview-ai/icons/ai-generate.svg"
               width={16}
@@ -99,7 +99,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
             className="rounded-2xl object-cover object-center"
             sizes="(min-width: 768px) 50vw, 100vw"
           />
-          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-2">
+          <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-[#f0f0f0] px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-2">
             <Image
               src="/overview-ai/icons/ai-generate.svg"
               width={16}

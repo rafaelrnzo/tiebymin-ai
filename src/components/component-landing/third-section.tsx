@@ -85,7 +85,7 @@ const testimonials: Testimonial[] = [
     type: "image",
     content: "/testi-2.png",
     hoverContent:
-      '"Gila, AI-nya nggak kaleng-kaleng. Cocok banget sama style fashion aku dan bikin outfit hijabku makin mantap. Bintang lima tiebymin!!!!"',
+      '"Gila, AI-nya nggak kaleng-kaleng. Cocok banget sama style fashion aku dan bikin outfit hijabku makin mantap. Bintang lima tiebymin!!!!"',
     author: "Shinta P",
     badgeType: "success",
   },
@@ -93,7 +93,7 @@ const testimonials: Testimonial[] = [
     type: "image",
     content: "/testi-3.png",
     hoverContent:
-      '"Ini literally penolongku. Rekomendasi hijab dari AI-nya accurate parah. Effortlessbanget dan hasilnya auto keren. Luv!"',
+      '"Ini literally penolongku. Rekomendasi hijab dari AI-nya accurate parah. Effortless banget dan hasilnya auto keren. Luv!"',
     author: "Miska",
     badgeType: "highlight",
   },
@@ -101,7 +101,7 @@ const testimonials: Testimonial[] = [
     type: "image",
     content: "/testi-4.png",
     hoverContent:
-      '"Definisi AI yang berguna banget buat spill rekomendasi hijab. Anti pusing-pusing mikirin cocok apa nggak. Worth it banget sih!"',
+      '"Definisi AI yang berguna banget buat spill rekomendasi hijab. Anti pusing-pusing mikirin cocok apa nggak. Worth it banget sih!"',
     author: "Arsyila S",
     badgeType: "success",
   },
@@ -120,9 +120,9 @@ const AuthorBadge: React.FC<{
 }> = ({ author }) => {
   return (
     <div
-      className={`absolute bg-white bottom-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full`}
+      className={`absolute bg-[#f0f0f0] bottom-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full`}
     >
-      <div className="bg-white p-0.5 rounded-full">
+      <div className="bg-[#f0f0f0] p-0.5 rounded-full">
         <svg
           width="28"
           height="28"
@@ -256,7 +256,7 @@ export const ThirdSection = () => {
             </div>
             <button
               onClick={scrollNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all focus:outline-none"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 bg-[#f0f0f0] rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all focus:outline-none"
               aria-label="Next testimonial"
             >
               <ChevronRight className="h-6 w-6 text-gray-800" />
@@ -278,7 +278,7 @@ export const ThirdSection = () => {
               <button
                 onClick={goToPreviousCard}
                 disabled={currentCardIndex === 0}
-                className="bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-[#f0f0f0] rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Previous testimonial"
               >
                 <ChevronLeft className="h-5 w-5 text-gray-800" />
@@ -286,7 +286,7 @@ export const ThirdSection = () => {
               <button
                 onClick={goToNextCard}
                 disabled={currentCardIndex === testimonials.length - 1}
-                className="bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-[#f0f0f0] rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Next testimonial"
               >
                 <ChevronRight className="h-5 w-5 text-gray-800" />

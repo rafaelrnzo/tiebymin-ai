@@ -91,7 +91,7 @@ function BeautyAnalysisPageInner() {
 
   const { data: recommendationsData, isLoading: isLoadingRecommendations } =
     useRecommendations(finalResultId);
-  const { refetch: generateStory } = useGenerateStory();
+  const { mutateAsync: generateStory } = useGenerateStory();
 
   const {
     sortedProducts,
@@ -112,7 +112,7 @@ function BeautyAnalysisPageInner() {
     setIsGeneratingStory(true);
     try {
       setStoryError(null);
-      const result = await generateStory();
+      const result = await generateStory(finalResultId);
       if (result.data) {
         const imageData = result.data;
         const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
@@ -278,7 +278,7 @@ function BeautyAnalysisPageInner() {
     <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
 
-      <main className="container mx-auto w-full max-w-[85rem] px-4 py-8 lg:py-4 pt-[80px]">
+      <main className="container mx-auto w-full py-8 lg:py-4 pt-[80px] xl:px-[120px] lg:px-0">
         <div className="flex flex-col lg:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 lg:gap-[50px] mt-3 md:mt-6 lg:mt-[160px]">
           <UserProfileSection
             userName={userName}

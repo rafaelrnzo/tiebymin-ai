@@ -35,7 +35,7 @@ export default function Footer() {
           <a href="/register">
             <Button
               size="lg"
-              className="bg-[#323232] text-white font-semibold rounded-lg px-10 py-6 shadow-sm hover:bg-gray-100 transition-colors"
+              className="bg-[#323232] text-[#f0f0f0] font-semibold rounded-lg px-10 py-6 shadow-sm hover:bg-gray-100 transition-colors"
             >
               <svg
                 width="30"

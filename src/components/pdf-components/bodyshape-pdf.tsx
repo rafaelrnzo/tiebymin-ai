@@ -46,7 +46,7 @@ export const BodyShape = ({
             <p className="text-gray-600 mb-6 leading-relaxed">
               {bodyDetails?.penjelasan_body_shape}
             </p>
-            <div className="bg-[#323232] text-white p-6 rounded-lg mt-auto">
+            <div className="bg-[#323232] text-[#f0f0f0] p-6 rounded-lg mt-auto">
               <h3 className="text-lg font-bold mb-3">Karakteristik</h3>
               <ul className="list-disc list-inside space-y-2">
                 {characteristics.map((point, index) => (

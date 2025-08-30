@@ -422,10 +422,10 @@ function HalamanKameraWajahContent() {
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-[#323232] rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-xl text-left flex flex-col gap-6">
             <div className="flex items-center gap-4">
-              <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="bg-[#f0f0f0] w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
                 <Check className="w-7 h-7 text-[#323232]" />
               </div>
-              <h1 className="text-2xl sm:text-3xl text-white font-oswald font-bold">
+              <h1 className="text-2xl sm:text-3xl text-[#f0f0f0] font-oswald font-bold">
                 Analisa Selesai!
               </h1>
             </div>
@@ -458,7 +458,7 @@ function HalamanKameraWajahContent() {
                   setIsErrorModalOpen(true);
                 }
               }}
-              className="bg-[#E97099] w-full text-white font-bold py-7 px-6 rounded-xl hover:bg-[#d8668c] transition-colors text-lg flex items-center justify-center gap-3"
+              className="bg-[#E97099] w-full text-[#f0f0f0] font-bold py-7 px-6 rounded-xl hover:bg-[#d8668c] transition-colors text-lg flex items-center justify-center gap-3"
             >
               <File />
               Lihat Hasil
@@ -512,18 +512,18 @@ function HalamanKameraWajahContent() {
             {/* Tombol Ganti Kamera */}
             <Button
               onClick={handleCameraSwitch}
-              className="w-16 h-16 -ml-12 bg-white/30 mr-2 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+              className="w-16 h-16 -ml-12 bg-[#f0f0f0]/30 mr-2 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-[#f0f0f0]/50 focus:outline-none focus:ring-2 focus:ring-[#f0f0f0]"
               aria-label="Ganti Kamera"
             >
-              <RotateCw className="text-white size-8" />
+              <RotateCw className="text-[#f0f0f0] size-8" />
             </Button>
 
             {/* Tombol Ambil Gambar */}
             <Button
               onClick={handleCapture}
-              className="w-20 h-20 -ml-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
+              className="w-20 h-20 -ml-12 bg-[#f0f0f0] rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
             >
-              <Camera className="text-white size-12 fill-[#323232]" />
+              <Camera className="text-[#f0f0f0] size-12 fill-[#323232]" />
             </Button>
           </div>
         </div>
@@ -531,7 +531,7 @@ function HalamanKameraWajahContent() {
 
       {appState === "CONFIRM" && capturedImage && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#323232]/50 backdrop-blur-lg">
-          <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
+          <div className="bg-[#f0f0f0] rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
             <h2 className="font-oswald text-2xl font-bold text-gray-800">
               Gunakan Gambar Ini
             </h2>
@@ -584,7 +584,7 @@ export default function HalamanKameraWajah() {
   return (
     <Suspense
       fallback={
-        <div className="h-screen w-screen flex items-center justify-center bg-[#323232] text-white">
+        <div className="h-screen w-screen flex items-center justify-center bg-[#323232] text-[#f0f0f0]">
           <div className="animate-pulse rounded-full h-16 w-16 bg-gray-700"></div>
         </div>
       }

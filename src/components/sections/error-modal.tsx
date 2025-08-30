@@ -30,7 +30,7 @@ export function ErrorModal({ isOpen, onClose, errorMessage }: ErrorModalProps) {
           <div className="w-full pt-4">
             <Button
               onClick={onClose}
-              className="w-full bg-[#323232] text-white py-6 rounded-xl text-md font-semibold hover:bg-gray-700 transition-colors"
+              className="w-full bg-[#323232] text-[#f0f0f0] py-6 rounded-xl text-md font-semibold hover:bg-gray-700 transition-colors"
             >
               Tutup
             </Button>

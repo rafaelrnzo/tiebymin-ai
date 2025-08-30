@@ -100,12 +100,12 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
               height={400}
               className="w-full h-72 object-cover rounded-xl"
             />
-            <span className="absolute bottom-4 left-6 bg-[#323232] bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+            <span className="absolute bottom-4 left-6 bg-[#323232] bg-opacity-70 text-[#f0f0f0] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
               {topProductScores.has(product.id)
                 ? `${topProductScores.get(product.id)}% Match`
                 : `${product.total_compatibility_score * 10}% Match`}
             </span>
-            <span className="absolute bottom-4 right-6 bg-white text-[#323232] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+            <span className="absolute bottom-4 right-6 bg-[#f0f0f0] text-[#323232] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
               <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
               {product.average_rating}
             </span>
@@ -159,7 +159,7 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
 
             <Button
               onClick={() => window.open(product.product_link, "_blank")}
-              className="shadow-md flex justify-between mt-auto bg-[#ED80A7] w-full px-7 py-5 font-bold rounded-lg text-white items-center gap-3 text-base hover:bg-pink-500 transition-colors"
+              className="shadow-md flex justify-between mt-auto bg-[#ED80A7] w-full px-7 py-5 font-bold rounded-lg text-[#f0f0f0] items-center gap-3 text-base hover:bg-pink-500 transition-colors"
             >
               <span>Beli Sekarang</span>
               <Image

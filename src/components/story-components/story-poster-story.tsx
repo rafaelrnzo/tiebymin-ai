@@ -87,7 +87,7 @@ export default function StoryPoster({
 
   return (
     <div
-      className="bg-white text-gray-800 w-[1080px] mx-auto p-8 font-sans"
+      className="bg-[#f0f0f0] text-gray-800 w-[1080px] mx-auto p-8 font-sans"
       style={{ lineHeight: 1.4 }}
     >
       <div className="m-[100px]">

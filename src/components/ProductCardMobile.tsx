@@ -30,7 +30,7 @@ const ProductCardMobile: React.FC<ProductCardMobileProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 min-h-[550px] w-full mx-auto border-[#323232]`}
+      className={`bg-[#f0f0f0] border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 min-h-[550px] w-full mx-auto border-[#323232]`}
     >
       <div className="relative p-2">
         <Image
@@ -38,14 +38,14 @@ const ProductCardMobile: React.FC<ProductCardMobileProps> = ({
           alt={product.name}
           width={400}
           height={400}
-          className="w-full h-44 sm:h-72 object-cover rounded-xl"
+          className="w-full h-full object-cover rounded-xl"
         />
-        <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-white px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
+        <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-[#f0f0f0] px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
           {topProductScores.has(product.id)
             ? `${topProductScores.get(product.id)}% Match`
             : `${product.total_compatibility_score * 10}% Match`}
         </span>
-        <span className="absolute bottom-4 right-4 bg-white text-[#323232] px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md">
+        <span className="absolute bottom-4 right-4 bg-[#f0f0f0] text-[#323232] px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md">
           <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
           {product.average_rating}
         </span>
@@ -96,7 +96,7 @@ const ProductCardMobile: React.FC<ProductCardMobileProps> = ({
 
         <Button
           onClick={() => window.open(product.product_link, "_blank")}
-          className="shadow-md flex justify-between mt-3 bg-[#ED80A7] w-full px-4 sm:px-7 py-3 sm:py-5 font-bold rounded-lg text-white items-center gap-2 sm:gap-3 text-sm sm:text-base hover:bg-pink-500 transition-colors"
+          className="shadow-md flex justify-between mt-3 bg-[#ED80A7] w-full px-4 sm:px-7 py-3 sm:py-5 font-bold rounded-lg text-[#f0f0f0] items-center gap-2 sm:gap-3 text-sm sm:text-base hover:bg-pink-500 transition-colors"
         >
           <span>Beli Sekarang</span>
           <Image

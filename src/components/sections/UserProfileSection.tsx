@@ -31,7 +31,7 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   } = useImageHandling(userPhotoUrl);
 
   return (
-    <div className="bg-[#323232] w-full lg:w-[35%] lg:h-[735px] rounded-3xl p-5 text-white flex flex-col">
+    <div className="bg-[#323232] w-full lg:w-[35%] lg:h-[735px] rounded-3xl p-5 text-[#f0f0f0] flex flex-col">
       <div className="mb-4 sm:mb-6">
         {userPhotoUrl ? (
           <div className="relative">
@@ -94,7 +94,7 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
         <Button
           onClick={onDownloadStory}
           disabled={!resultId || isGeneratingStory}
-          className="bg-white text-xs sm:text-sm text-[#2D2D2D] px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200 disabled:opacity-50"
+          className="bg-[#f0f0f0] text-xs sm:text-sm text-[#323232] px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200 disabled:opacity-50"
         >
           <Image
             src="/overview-ai/icons/material-symbols_share.svg"

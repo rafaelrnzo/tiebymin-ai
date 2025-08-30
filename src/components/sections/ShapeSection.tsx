@@ -88,7 +88,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     <div className="flex flex-col lg:h-full h-fit">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
         <div className="border rounded-2xl px-5 pb-5">
-          <h3 className="font-bold text-xl mt-2 lg:text-[48px] font-oswald">
+          <h3 className="font-bold text-xl mt-2 lg:text-5xl font-oswald">
             {shapeDetails.name}
           </h3>
           <p className="text-[#323232] leading-relaxed mt-[10px] font-poppins">

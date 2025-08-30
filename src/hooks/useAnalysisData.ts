@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { secureUrl, sendEmail } from "@/lib/api";
+import axios from "axios";
+import { secureUrl } from "@/lib/api";
 import { BodyType } from "@/types";
 import { defaultUserData } from "@/lib/mock-data";
 
@@ -9,8 +10,7 @@ async function fetchData(endpoint: string) {
   console.log(`🔄 Fetching: ${fullUrl}`); // Debug log
 
   try {
-    const response = await fetch(fullUrl, {
-      method: "GET",
+    const response = await axios.get(fullUrl, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -18,11 +18,13 @@ async function fetchData(endpoint: string) {
 
     console.log(`📡 Response status: ${response.status} for ${endpoint}`); // Debug log
 
-    if (!response.ok) {
-      const errorText = await response.text();
+    if (response.status >= 200 && response.status < 300) {
+      console.log(`✅ Success fetching ${endpoint}:`, response.data); // Debug log
+      return response.data;
+    } else {
       console.error(
         `❌ HTTP Error ${response.status} for ${endpoint}:`,
-        errorText
+        response.data
       );
       if (response.status === 404) {
         throw new Error(
@@ -33,10 +35,6 @@ async function fetchData(endpoint: string) {
         "Kami mengalami masalah saat mengambil data. Mohon coba lagi dalam beberapa saat."
       );
     }
-
-    const data = await response.json();
-    console.log(`✅ Success fetching ${endpoint}:`, data); // Debug log
-    return data;
   } catch (error) {
     console.error(`💥 Fetch error for ${endpoint}:`, error);
     throw error;
@@ -331,69 +329,42 @@ export function useCelebrityData(celebrityId: string | null) {
 }
 
 export function useDownloadPdf() {
-  const searchParams =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search)
-      : new URLSearchParams();
-  const resultId = searchParams.get("result_id");
+  return useMutation({
+    mutationFn: async (data: { resultId: string; firstName?: string }) => {
+      const firstName = data.firstName || localStorage.getItem("firstName") || "User";
 
-  return useQuery({
-    queryKey: ["downloadPdf", resultId],
-    queryFn: async () => {
-      if (!resultId) {
-        throw new Error("ID Hasil diperlukan");
-      }
-
-      const firstName = localStorage.getItem("firstName") || "User"; 
-
-
-      const response = await fetch("/api/generate-pdf", {
-        method: "POST",
+      const response = await axios.post("/api/generate-pdf", {
+        resultId: data.resultId,
+        firstName
+      }, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ resultId, firstName }), 
+        responseType: "blob",
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Gagal membuat PDF");
-      }
-
-      return await response.blob();
+      return response.data;
     },
-    enabled: false, // This query will not run automatically
   });
 }
 
 export function useGenerateStory() {
-  const searchParams =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search)
-      : new URLSearchParams();
-  const resultId = searchParams.get("result_id");
-
-  return useQuery({
-    queryKey: ["generateStory", resultId],
-    queryFn: async () => {
+  return useMutation({
+    mutationFn: async (resultId: string) => {
       if (!resultId) {
         throw new Error("ID Hasil diperlukan");
       }
 
-      const response = await fetch(
+      const response = await axios.post(
         `/api/generate-story?result_id=${resultId}`,
+        {},
         {
-          method: "POST",
+          responseType: "blob",
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Gagal membuat gambar cerita");
-      }
-
-      return await response.blob();
+      return response.data;
     },
-    enabled: false, 
   });
 }
 
@@ -402,20 +373,15 @@ export const useBodyShapes = () => {
     queryKey: ["bodyShapes"],
     queryFn: async (): Promise<BodyType[]> => {
       console.log("🔄 Fetching body shapes...");
-      const response = await fetch(secureUrl(`/v1/body-shapes/`));
+      const response = await axios.get(secureUrl(`/v1/body-shapes/`));
 
-      if (!response.ok) {
-        throw new Error(`Kesalahan HTTP! status: ${response.status}`);
-      }
+      console.log("✅ Body shapes fetched:", response.data);
 
-      const data = await response.json();
-      console.log("✅ Body shapes fetched:", data);
-
-      if (!data || !Array.isArray(data) || data.length === 0) {
+      if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
         throw new Error("Tidak ada data bentuk tubuh ditemukan");
       }
 
-      return data;
+      return response.data;
     },
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -423,8 +389,26 @@ export const useBodyShapes = () => {
 };
 
 export function useSendEmail() {
-  return useMutation({
-    mutationFn: (data: { email: string; pdf: Blob; png: Blob }) =>
-      sendEmail(data),
+  const sendEmailMutation = useMutation({
+    mutationFn: async (data: { email: string; pdf: Blob; png: Blob }) => {
+      const formData = new FormData();
+      formData.append("to", data.email);
+      formData.append("subject", "Your Tiebymin Analysis Result");
+      formData.append(
+        "html",
+        "<p>Here are your analysis results, attached as a PDF and PNG.</p>"
+      );
+      formData.append("pdf", data.pdf, "analysis-result.pdf");
+      formData.append("png", data.png, "story-result.png");
+
+      const response = await axios.post("/api/send-mail", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    },
   });
+
+  return sendEmailMutation;
 }

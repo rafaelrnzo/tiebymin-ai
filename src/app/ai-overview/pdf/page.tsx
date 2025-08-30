@@ -277,11 +277,11 @@ function PdfPage() {
 
   return (
     <>
-      <div className="sticky bottom-0 bg-white shadow-lg p-4 z-50">
+      <div className="sticky bottom-0 bg-[#f0f0f0] shadow-lg p-4 z-50">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <Button
             onClick={goToPrevPage}
-            className="bg-gray-800 text-white hover:bg-gray-700"
+            className="bg-gray-800 text-[#f0f0f0] hover:bg-gray-700"
           >
             <ChevronLeft size={24} />
           </Button>
@@ -293,7 +293,7 @@ function PdfPage() {
           </div>
           <Button
             onClick={goToNextPage}
-            className="bg-gray-800 text-white hover:bg-gray-700"
+            className="bg-gray-800 text-[#f0f0f0] hover:bg-gray-700"
           >
             <ChevronRight size={24} />
           </Button>
@@ -301,14 +301,14 @@ function PdfPage() {
         <div className="flex justify-center mt-4 gap-4">
           <button
             onClick={shareToStory}
-            className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 transition"
+            className="bg-purple-500 text-[#f0f0f0] px-4 py-2 rounded-md hover:bg-purple-600 transition"
           >
             Bagikan ke Instagram
           </button>
           <button
             onClick={handleDownloadPDF}
             disabled={isGenerating}
-            className="bg-[#EF789B] text-white px-4 py-2 rounded-md hover:bg-[#E5679A] transition disabled:bg-gray-400"
+            className="bg-[#EF789B] text-[#f0f0f0] px-4 py-2 rounded-md hover:bg-[#E5679A] transition disabled:bg-gray-400"
           >
             {isGenerating ? "Downloading..." : "Download PDF"}
           </button>

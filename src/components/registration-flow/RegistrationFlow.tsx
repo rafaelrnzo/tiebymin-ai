@@ -188,7 +188,7 @@ export default function RegistrationFlow({
 
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="container mx-auto w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <LeftSideSection
           steps={getStepsForDisplay()}
           currentStepNumber={currentStepNumber}

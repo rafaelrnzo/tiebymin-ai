@@ -74,12 +74,12 @@ function FeedbackModal({
       <div className="absolute inset-0 bg-[#323232]/80" onClick={handleClose} />
 
       {/* Modal with mobile margins */}
-      <div className="relative mx-4 sm:mx-0 w-full sm:max-w-[420px] bg-[#323232] text-white rounded-2xl border-0 p-6">
+      <div className="relative mx-4 sm:mx-0 w-full sm:max-w-[420px] bg-[#323232] text-[#f0f0f0] rounded-2xl border-0 p-6">
         <div className="flex justify-start items-start mb-4">
           <h2 className="text-2xl font-bold text-start">Beri kami masukan</h2>
           <button
             onClick={handleClose}
-            className="ml-auto text-gray-400 hover:text-white"
+            className="ml-auto text-gray-400 hover:text-[#f0f0f0]"
           >
             ✕
           </button>
@@ -138,14 +138,14 @@ function FeedbackModal({
 
           <div className="flex gap-3 ">
             <button
-              className="border border-gray-500 text-white hover:bg-gray-700 py-2 px-4 rounded-lg transition-colors"
+              className="border border-gray-500 text-[#f0f0f0] hover:bg-gray-700 py-2 px-4 rounded-lg transition-colors"
               onClick={handleClose}
               disabled={isPending}
             >
               Batal
             </button>
             <button
-              className=" bg-pink-400 hover:bg-pink-500 text-white flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-colors"
+              className=" bg-pink-400 hover:bg-pink-500 text-[#f0f0f0] flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-colors"
               onClick={handleSubmit}
               disabled={isPending}
             >

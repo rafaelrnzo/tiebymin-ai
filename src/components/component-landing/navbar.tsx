@@ -39,8 +39,8 @@ export function Navbar() {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 w-full px-0 lg:px-8 xl:px-[200px] lg:pt-[25px] xl:pt-[50px]">
-      <header className="relative rounded-none lg:py-0 py-3 lg:rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
+    <div className=" fixed top-0 left-0 right-0 z-50 w-full xl:px-[190px] px-0 lg:pt-[60px]">
+      <header className="lg:container mx-0 w-full lg:mx-auto relative rounded-none lg:py-0 py-3 lg:rounded-full bg-[#333333] text-[#f0f0f0] shadow-lg backdrop-blur-md">
         {/* Desktop Navigation */}
         <div className="hidden xl:flex items-center justify-between py-3 px-8">
           <div className="flex-shrink-0">
@@ -84,7 +84,7 @@ export function Navbar() {
             <Link href="/ai-overview/profile">
               <Button
                 size="lg"
-                className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
+                className="rounded-full bg-[#f0f0f0] hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
               >
                 <User className="w-4 h-4 text-[#323232] fill-[#323232]" />
                 <span className="font-semibold text-[#323232]">Profile</span>
@@ -112,14 +112,14 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-gray-700 rounded-full p-1 sm:p-2"
+                  className="text-[#f0f0f0] hover:bg-gray-700 rounded-full p-1 sm:p-2"
                 >
                   <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent
                 side="left"
-                className="bg-[#333333] text-white border-gray-600 w-[250px] sm:w-[280px]"
+                className="bg-[#333333] text-[#f0f0f0] border-gray-600 w-[250px] sm:w-[280px]"
               >
                 <div className="flex flex-col space-y-4 sm:space-y-6 mt-6 sm:mt-8 ml-2 sm:ml-4">
                   {navLinks.map((link) => (
@@ -138,7 +138,7 @@ export function Navbar() {
                         size="default"
                         className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full px-4 py-2"
                       >
-                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#f0f0f0]" />
                         <span className="text-sm sm:text-base">
                           Coba Sekarang
                         </span>
@@ -147,7 +147,7 @@ export function Navbar() {
                     <Link href="/ai-overview/profile" onClick={closeSheet}>
                       <Button
                         size="default"
-                        className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 w-full px-4 py-2"
+                        className="rounded-full bg-[#f0f0f0] hover:bg-gray-300 flex items-center gap-2 w-full px-4 py-2"
                       >
                         <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
                         <span className="text-sm sm:text-base text-[#323232]">

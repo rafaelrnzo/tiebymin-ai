@@ -60,7 +60,7 @@ const InfoSection = ({
     </h3>
     {/* Split content berdasarkan baris baru (\n) untuk membuat paragraf terpisah */}
     {content?.split("\n").map((line, index) => (
-      <p className="text-center text-white text-sm" key={index}>
+      <p className="text-center text-[#f0f0f0] text-sm" key={index}>
         {line}
       </p>
     ))}
@@ -133,7 +133,10 @@ export const ColorTone = ({
             content={colorToneDetails?.karakteristik}
           />
         </div>
-        <Footer page="03" className="bg-transparent text-white mt-[12rem]" />
+        <Footer
+          page="03"
+          className="bg-transparent text-[#f0f0f0] mt-[12rem]"
+        />
       </div>
     </div>
   );

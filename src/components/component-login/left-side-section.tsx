@@ -130,7 +130,7 @@ export default function LeftSideSection({
       </div>
 
       {currentStep && (
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md">
+        <div className="bg-[#f0f0f0]/70 backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md">
           <span className="text-gray-700 font-medium font-poppins">
             Analisa
           </span>
@@ -146,7 +146,7 @@ export default function LeftSideSection({
           {title === "Pilih Bentuk Tubuh Kamu" && (
             <>
               <div
-                className={`bg-[#EF789B] hidden lg:block rounded-2xl p-6 text-white w-full max-w-sm mx-auto shadow-md ${
+                className={`bg-[#EF789B] hidden lg:block rounded-2xl p-6 text-[#f0f0f0] w-full max-w-sm mx-auto shadow-md ${
                   animateStep === 3 && previousStep !== 3
                     ? "pink-card-animation"
                     : ""
@@ -164,7 +164,7 @@ export default function LeftSideSection({
                     />
                   </div>
                 </div>
-                <p className="text-white/90 text-sm leading-relaxed">
+                <p className="text-[#f0f0f0]/90 text-sm leading-relaxed">
                   {description}
                 </p>
               </div>
@@ -185,7 +185,7 @@ export default function LeftSideSection({
             <>
               <div
                 className={
-                  "shadow-md hidden lg:flex bg-white rounded-2xl p-4 items-center justify-between transition-colors duration-300"
+                  "shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300"
                 }
               >
                 <span className="font-bold font-poppins">
@@ -196,7 +196,7 @@ export default function LeftSideSection({
                 </div>
               </div>
               <div
-                className={`bg-[#EF789B] hidden lg:block rounded-2xl p-6 text-white w-full max-w-sm mx-auto shadow-md ${
+                className={`bg-[#EF789B] hidden lg:block rounded-2xl p-6 text-[#f0f0f0] w-full max-w-sm mx-auto shadow-md ${
                   animateStep === 4 && previousStep !== 4
                     ? "pink-card-animation"
                     : ""
@@ -214,7 +214,7 @@ export default function LeftSideSection({
                     />
                   </div>
                 </div>
-                <p className="text-white/90 text-sm leading-relaxed">
+                <p className="text-[#f0f0f0]/90 text-sm leading-relaxed">
                   {description}
                 </p>
               </div>
@@ -250,13 +250,14 @@ export default function LeftSideSection({
                 }
 
                 if (isCurrent) {
-                  circleClasses += " bg-[#EF789B] text-white border-[#EF789B]";
+                  circleClasses +=
+                    " bg-[#EF789B] text-[#f0f0f0] border-[#EF789B]";
                   textClasses += "text-[#323232] font-bold";
                 } else if (isCompleted) {
-                  circleClasses += " bg-white text-[#323232]";
+                  circleClasses += " bg-[#f0f0f0] text-[#323232]";
                   textClasses += "text-[#323232]";
                 } else {
-                  circleClasses += " bg-white text-[#323232]";
+                  circleClasses += " bg-[#f0f0f0] text-[#323232]";
                   textClasses += "text-[#323232]";
                 }
 
@@ -329,7 +330,7 @@ export default function LeftSideSection({
                       }
 
                       if (isCurrent || isCompleted) {
-                        stepClasses += " bg-white text-[#323232] shadow-md";
+                        stepClasses += " bg-[#f0f0f0] text-[#323232] shadow-md";
                       } else {
                         stepClasses +=
                           " bg-transparent text-gray-600 border-2 border-[#323232]/50";
@@ -356,9 +357,9 @@ export default function LeftSideSection({
               {currentStepNumber && currentStepNumber >= 3 && (
                 <>
                   {/* Main Analisa step */}
-                  <div className="backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md bg-[#EF789B] text-white">
+                  <div className="backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md bg-[#EF789B] text-[#f0f0f0]">
                     <span className="font-poppins font-bold">Analisa</span>
-                    <div className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white">
+                    <div className="w-8 h-8 flex items-center justify-center text-sm font-bold text-[#f0f0f0]">
                       3
                     </div>
                   </div>
@@ -392,9 +393,9 @@ export default function LeftSideSection({
                       }
 
                       if (isCurrent) {
-                        stepClasses += " bg-[#EF789B] text-white shadow-md";
+                        stepClasses += " bg-[#EF789B] text-[#f0f0f0] shadow-md";
                       } else if (isCompleted) {
-                        stepClasses += " bg-white text-[#323232] shadow-md";
+                        stepClasses += " bg-[#f0f0f0] text-[#323232] shadow-md";
                       } else {
                         stepClasses +=
                           " bg-transparent text-gray-600 border-2 border-[#323232]/50";

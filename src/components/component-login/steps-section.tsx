@@ -17,7 +17,7 @@ export default function StepsSection({ steps }: StepsSectionProps) {
           key={step.number}
           className={`flex items-center justify-between p-3 sm:p-4 rounded-2xl border-2 transition-all ${
             step.active || step.completed
-              ? "bg-white/80 border-none shadow-sm font-extrabold"
+              ? "bg-[#f0f0f0]/80 border-none shadow-sm font-extrabold"
               : "bg-transparent border-[#323232]/20"
           }`}
         >

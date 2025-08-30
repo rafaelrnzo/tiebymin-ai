@@ -135,7 +135,7 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
                         <div
                           className={`absolute inset-0 transition-opacity duration-300 rounded-lg ${
                             selectedTypeId === type.id
-                              ? "opacity-100 bg-gradient-to-b from-white/90 to-transparent"
+                              ? "opacity-100 bg-gradient-to-b from-[#f0f0f0]/90 to-transparent"
                               : "opacity-0"
                           }`}
                         />
@@ -170,7 +170,7 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
                         <div
                           className={`absolute inset-0 transition-opacity duration-300 rounded-lg ${
                             selectedTypeId === type.id
-                              ? "opacity-100 bg-gradient-to-b from-white/90 to-transparent"
+                              ? "opacity-100 bg-gradient-to-b from-[#f0f0f0]/90 to-transparent"
                               : "opacity-0"
                           }`}
                         />
@@ -197,7 +197,7 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
               </div>
             )}
           </div>
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl h-[620px] py-6 sm:py-8 px-4 sm:px-6 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-2">
+          <div className="bg-[#f0f0f0]/70 backdrop-blur-sm rounded-2xl h-[620px] py-6 sm:py-8 px-4 sm:px-6 w-full max-w-xs md:max-w-sm mx-auto flex flex-col justify-between items-center lg:order-2">
             {isLoading || !selectedType ? (
               <div className="w-full animate-pulse space-y-4">
                 <BodyTypeSkeleton />
@@ -226,7 +226,7 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
                   </ul>
                 </div>
                 <Button
-                  className="w-full bg-[#323232] text-white rounded-xl py-3 font-bold hover:bg-gray-700"
+                  className="w-full bg-[#323232] text-[#f0f0f0] rounded-xl py-3 font-bold hover:bg-gray-700"
                   onClick={onNext}
                 >
                   Selanjutnya
@@ -238,7 +238,7 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
         </div>
       ) : (
         <div className="w-full mx-auto flex flex-col h-full">
-          <div className="bg-white lg:h-full lg:rounded-2xl rounded-t-2xl shadow-lg p-6 mt-4 lg:mt-0">
+          <div className="bg-[#f0f0f0] lg:h-full lg:rounded-2xl rounded-t-2xl shadow-lg p-6 mt-4 lg:mt-0">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-oswald font-bold mb-4">
               Pilih Bentuk Tubuh Kamu
             </h2>
@@ -301,7 +301,7 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
 
             <div className="mt-6">
               <Button
-                className="w-full h-14 bg-[#323232] text-white mb-10 rounded-xl py-3 font-bold hover:bg-gray-700"
+                className="w-full h-14 bg-[#323232] text-[#f0f0f0] mb-10 rounded-xl py-3 font-bold hover:bg-gray-700"
                 onClick={onNext}
               >
                 Selanjutnya

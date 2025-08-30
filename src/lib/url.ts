@@ -1,3 +1,3 @@
-const url = "https://tiebymin-be.withsummon.com"
+const url = "https://minecraft-server-tiebymin-be-production.dgrttk.easypanel.host"
 
 export default url

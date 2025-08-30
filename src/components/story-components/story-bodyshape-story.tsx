@@ -66,7 +66,7 @@ export const StoryBodyShape = ({
                 }}
               ></div>
             </div>
-            <div className="w-fit self-center text-center mt-4 bg-neutral-800 text-white text-sm px-3 py-1 rounded-md whitespace-nowrap">
+            <div className="w-fit self-center text-center mt-4 bg-neutral-800 text-[#f0f0f0] text-sm px-3 py-1 rounded-md whitespace-nowrap">
               {userData.bmi.value.toFixed(2)} {bmiCategoryDetails?.kategori}
             </div>
 

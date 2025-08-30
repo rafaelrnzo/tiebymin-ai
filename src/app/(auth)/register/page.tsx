@@ -9,12 +9,12 @@ import { useState, useEffect } from "react";
 import { RegistrationStep } from "@/components/registration-flow/RegistrationFlow";
 import { useStepsProgress } from "@/hooks/useStepsProgress";
 import { useRegistrationFlow } from "@/hooks/useLocalStorage";
+import { useUserData } from "@/hooks/useUserData";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register, isLoading } = useUserData();
   const [currentStep, setCurrentStep] = useState<RegistrationStep>("register");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -124,23 +124,17 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
 
     // Validasi form terlebih dahulu
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
       setErrorModalMessage(validationErrors.join(", "));
       setIsErrorModalOpen(true);
-      setIsLoading(false);
       return;
     }
 
     try {
       const uniqueGoogleId = generateUUID();
-
-      const endpoint = secureUrl(`/v1/auth/register`);
-      console.log("fetch endpoint:", endpoint);
 
       const nameParts = formData.fullName.trim().split(/\s+/);
       const firstName = nameParts[0] || "";
@@ -151,7 +145,7 @@ export default function RegisterPage() {
 
       const phoneNumber = formData.phone.replace(/\D/g, "");
 
-      const requestBody = {
+      await register({
         email: formData.email.trim().toLowerCase(),
         first_name: firstName,
         last_name: lastName || "",
@@ -159,112 +153,19 @@ export default function RegisterPage() {
         is_active: true,
         phone_number: parseInt(phoneNumber) || null,
         password: formData.password,
-      };
-
-      console.log("Request body:", requestBody);
-
-      let response;
-      try {
-        response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          redirect: "follow",
-          body: JSON.stringify(requestBody),
-        });
-      } catch (fetchErr) {
-        console.error("Fetch error:", fetchErr);
-        setErrorModalMessage(
-          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti."
-        );
-        setIsErrorModalOpen(true);
-        setIsLoading(false);
-        return;
-      }
-
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers);
-
-      if (!response.ok) {
-        let errorMsg =
-          "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
-        try {
-          const errorData = await response.json();
-          console.error("Error response:", errorData);
-
-          // Handle specific error messages dari backend
-          if (errorData.detail) {
-            if (Array.isArray(errorData.detail)) {
-              errorMsg = errorData.detail
-                .map((err: any) => `${err.loc?.join(".")}: ${err.msg}`)
-                .join(", ");
-            } else {
-              errorMsg = errorData.detail;
-            }
-          } else if (errorData.message) {
-            errorMsg = errorData.message;
-          } else if (errorData.error) {
-            errorMsg = errorData.error;
-          }
-        } catch (parseErr) {
-          console.error("Failed to parse error response:", parseErr);
-        }
-
-        setErrorModalMessage(errorMsg);
-        setIsErrorModalOpen(true);
-        setIsLoading(false);
-        return;
-      }
-
-      const result = await response.json();
-      console.log("Registration successful:", result);
-
-      if (result.id) {
-        localStorage.setItem("userId", result.id);
-        localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("firstName", result.first_name || "");
-        localStorage.setItem("lastName", result.last_name || "");
-        console.log(
-          "User ID saved to localStorage:",
-          result.id,
-          result.first_name,
-          result.last_name
-        );
-      }
+      });
 
       // Mark step 1 as completed and move to step 2
       markStepCompleted(1);
       setPersistedCurrentStep(2);
       setCurrentStep("measurements");
     } catch (err) {
-      console.error("Registration error:", err);
-      if (
-        err instanceof TypeError &&
-        err.message &&
-        err.message.toLowerCase().includes("failed to fetch")
-      ) {
-        setErrorModalMessage(
-          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau hubungi admin jika masalah berlanjut."
-        );
-        setIsErrorModalOpen(true);
-      } else {
-        if (
-          err instanceof Error &&
-          err.message.includes("user with this email already exists")
-        ) {
-          setErrorModalMessage("Email Anda sudah terdaftar");
-          setIsErrorModalOpen(true);
-        } else {
-          setErrorModalMessage(
-            "Maaf, terjadi kesalahan yang tidak terduga. Silakan coba lagi."
-          );
-          setIsErrorModalOpen(true);
-        }
-      }
-    } finally {
-      setIsLoading(false);
+      setErrorModalMessage(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat registrasi. Silakan coba lagi."
+      );
+      setIsErrorModalOpen(true);
     }
   };
 
@@ -283,7 +184,7 @@ export default function RegisterPage() {
     return (
       <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
         </div>
       </main>
     );
@@ -306,7 +207,7 @@ export default function RegisterPage() {
           showExtendedSteps={false}
         />
         <div className="w-full lg:flex-1 lg:max-w-[65%] lg:mr-[50px]">
-          <div className="bg-white/95 lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
+          <div className="bg-[#f0f0f0]/95 lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
               Buat Akun Baru
             </h2>
@@ -429,12 +330,12 @@ export default function RegisterPage() {
               <div className="flex flex-col gap-4">
                 <button
                   type="submit"
-                  className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
+                  className="w-full bg-[#323232] hover:bg-pink-400 hover:text-[#f0f0f0] text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <svg
-                      className="animate-spin h-5 w-5 text-white"
+                      className="animate-spin h-5 w-5 text-[#f0f0f0]"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -460,7 +361,7 @@ export default function RegisterPage() {
 
                 <button
                   type="button"
-                  className="w-full text-xs lg:text-lg bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
+                  className="w-full text-xs lg:text-lg bg-[#f0f0f0] hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
                   disabled={isLoading}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">

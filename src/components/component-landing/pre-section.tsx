@@ -53,7 +53,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   title,
   description,
 }) => (
-  <div className="bg-white rounded-xl p-4 flex flex-col gap-3 w-full">
+  <div className="bg-[#f0f0f0] rounded-xl p-4 flex flex-col gap-3 w-full">
     <Image
       width={200}
       height={100}
@@ -70,7 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 );
 
 const FaceShapeCard = () => (
-  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
+  <div className="bg-[#f0f0f0] rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
     <div className="flex items-center gap-4 font-semibold text-gray-700">
       <svg
         width="24"
@@ -116,7 +116,7 @@ const ColorToneCard = () => {
   ];
 
   return (
-    <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
+    <div className="bg-[#f0f0f0] rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
       <div className="flex items-center gap-4 font-semibold text-gray-700">
         <svg
           width="24"
@@ -145,7 +145,7 @@ const ColorToneCard = () => {
 };
 
 const BodyShapeCard = () => (
-  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
+  <div className="bg-[#f0f0f0] rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
     <div className="flex items-center gap-4 font-semibold text-gray-700">
       <svg
         width="18"
@@ -191,7 +191,7 @@ const BodyShapeCard = () => (
           left: `${Math.min(100, Math.max(0, (10 / 40) * 100))}%`,
         }}
       ></div>
-      <div className="absolute left-12 top-8 w-fit self-center text-center bg-[#323232] text-white text-sm px-3 py-1 rounded-md whitespace-nowrap">
+      <div className="absolute left-12 top-8 w-fit self-center text-center bg-[#323232] text-[#f0f0f0] text-sm px-3 py-1 rounded-md whitespace-nowrap">
         {45} {"Ideal"}
       </div>
     </div>
@@ -199,7 +199,7 @@ const BodyShapeCard = () => (
 );
 
 const CelebrityCard = () => (
-  <div className="bg-white rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
+  <div className="bg-[#f0f0f0] rounded-xl p-6 flex flex-col gap-[25px] border h-[500px] lg:h-full">
     <div className="flex items-center gap-4 font-semibold text-gray-700">
       <Crown className="h-5 w-5 fill-[#323232]" />
       <h3 className="font-handlee italic mt-2 text-xl">Selebriti serupa</h3>
@@ -254,12 +254,12 @@ const RecommendationContainer = () => {
   return (
     <div className="lg:col-span-2 flex flex-col gap-4 bg-[#323232] rounded-xl p-6">
       <div className="flex gap-4 mt-4">
-        <Handbag className="text-white" />
-        <p className="text-2xl font-handlee text-white italic">
+        <Handbag className="text-[#f0f0f0]" />
+        <p className="text-2xl font-handlee text-[#f0f0f0] italic">
           Rekomendasi Produk
         </p>
       </div>
-      <hr className="text-white" />
+      <hr className="text-[#f0f0f0]" />
       <div className="flex flex-col lg:flex-row gap-6 ">
         <div className="bg-[#FFC6C6] lg:w-[900px] rounded-xl p-6 flex flex-col font-poppins">
           <h3 className="text-xl font-bold text-start">Rekomendasi Produk</h3>
