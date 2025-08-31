@@ -108,7 +108,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
     <div className="font-sans max-w-6xl w-full mx-auto space-y-[50px]">
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-[20px] lg:gap-[50px]">
         <div className="lg:col-span-2 px-[25px] pt-[10px] pb-[18px] rounded-2xl border-[1px] border-neutral-600">
-          <h2 className="text-2xl lg:text-5xl font-bold font-oswald ">
+          <h2 className="text-2xl md:text-4xl sm:text-3xl lg:text-5xl font-bold font-oswald ">
             {colorData.name}
           </h2>
           <p className="mt-4 text-[#323232] font-poppins text-sm sm:text-base lg:text-xl">

@@ -6,12 +6,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Suspense } from "react";
 
 import AnalysisTabs from "@/components/sections/AnalysisTabs";
+import FeedbackModal from "@/components/sections/feedback-modal";
 import ProductRecommendationsSection from "@/components/sections/ProductRecommendationsSection";
 import UserProfileSection from "@/components/sections/UserProfileSection";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
 import { useProductRecommendations } from "@/hooks/useProductRecommendations";
-import { useRecommendations } from "@/hooks/useRecommendations";
 import { useToast } from "@/hooks/useToast";
 import { useUserData } from "@/hooks/useUserData";
 import { analysisTabs } from "@/lib/mock-data";
@@ -23,7 +23,6 @@ import CelebrityMatchSection from "../../components/sections/CelebrityMatchSecti
 import ColorToneSection from "../../components/sections/ColorToneSection";
 import ShapeSection from "../../components/sections/ShapeSection";
 import TipsSection from "../../components/sections/TipsSection";
-import FeedbackModal from "@/components/sections/feedback-modal";
 
 interface AnalysisData {
   face_shape_id?: string;
@@ -33,7 +32,7 @@ interface AnalysisData {
   celebrity_id?: string;
   analysis_details?: {
     bmi?: {
-      value: number;
+      bmi: number;
     };
   };
 }
@@ -89,8 +88,6 @@ function BeautyAnalysisPageInner() {
     },
   });
 
-  const { data: recommendationsData, isLoading: isLoadingRecommendations } =
-    useRecommendations(finalResultId);
   const { mutateAsync: generateStory } = useGenerateStory();
 
   const {
@@ -234,7 +231,7 @@ function BeautyAnalysisPageInner() {
               bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
               bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
               bmiResult={{
-                value: analysisData.analysis_details?.bmi?.value || 0,
+                value: analysisData.analysis_details?.bmi?.bmi || 0,
               }}
             />
           );
@@ -278,8 +275,8 @@ function BeautyAnalysisPageInner() {
     <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
 
-      <main className="container mx-auto w-full py-8 lg:py-4 pt-[80px] xl:px-[120px] lg:px-0">
-        <div className="flex flex-col lg:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 lg:gap-[50px] mt-3 md:mt-6 lg:mt-[160px]">
+      <main className="xl:container xl:mx-auto w-full py-8 lg:py-4 pt-[80px] xl:px-[120px] lg:px-[30px] px-[20px]">
+        <div className="flex flex-col tablet:flex-col lg:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 lg:gap-[50px] mt-3 md:mt-6 lg:mt-[160px]">
           <UserProfileSection
             userName={userName}
             userPhotoUrl={userPhotoUrl}
@@ -288,7 +285,7 @@ function BeautyAnalysisPageInner() {
             isGeneratingStory={isGeneratingStory}
           />
 
-          <div className="w-full lg:w-[70%]">
+          <div className="w-full">
             <AnalysisTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
             <div className="mt-[16px] lg:mt-[50px] relative overflow-hidden">

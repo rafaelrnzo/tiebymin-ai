@@ -1,7 +1,24 @@
+"use client";
 import { ArrowUpRight, Play } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export const SecondSection = () => {
+  // Check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("accessToken");
+      const userToken = localStorage.getItem("userToken");
+      setIsLoggedIn(
+        !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim())
+      );
+    }
+  }, []);
+
   return (
     <section
       id="tutorial"
@@ -27,7 +44,11 @@ export const SecondSection = () => {
 
           <div className="lg:col-span-2 flex flex-col gap-4 w-full">
             <div className="bg-[#FFC6C6] p-6 rounded-2xl flex flex-col gap-6 w-full">
-              <a href="/register">
+              <a
+                href={
+                  isLoggedIn ? "/register?startStep=measurements" : "/register"
+                }
+              >
                 <div className="bg-[#2C2C2E] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
                   <span className="text-[#FFC6C6] font-semibold text-base sm:text-lg">
                     Coba Sekarang Juga

@@ -63,7 +63,7 @@ export function useAnalysisData(
         console.log("🔄 Fetching analysis data and photos...");
         const [analysisData, photosData] = await Promise.all([
           fetchData(`/v1/user-analysis-results/${resultId}`),
-          fetchData(`/v1/user-photos/analysis-results/${resultId}/photos`),
+          fetchData(`/v1/user-photos/analysis/${resultId}`),
         ]);
 
         console.log("📋 Analysis data received:", analysisData);
@@ -290,6 +290,7 @@ export function useBodyShapeData(bodyShapeId: string | null) {
   return useQuery({
     queryKey: ["bodyShape", bodyShapeId],
     queryFn: async () => {
+      console.log(bodyShapeId)
       if (!bodyShapeId) {
         throw new Error("ID Bentuk Tubuh diperlukan");
       }

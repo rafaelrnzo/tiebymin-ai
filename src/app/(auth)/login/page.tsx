@@ -44,20 +44,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const googleLoginUrl = secureUrl(`/v1/auth/google/login`);
-      console.log("Google login URL:", googleLoginUrl);
-
-      // Redirect to Google OAuth
-      window.location.href = googleLoginUrl;
-    } catch (err) {
-      console.error("Google login error:", err);
-      setErrorModalMessage(
-        "Terjadi kesalahan saat login dengan Google. Silakan coba lagi."
-      );
-      setIsErrorModalOpen(true);
-    }
+  const handleGoogleLogin = () => {
+    // Directly redirect to the backend's Google OAuth endpoint
+    // This avoids CORS issues since it's not an AJAX request
+    window.location.href = secureUrl("/v1/auth/google/login");
   };
 
   const steps = [

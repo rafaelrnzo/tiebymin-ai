@@ -1,6 +1,8 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { useEffect, useState } from "react";
 
 const footerLinks = {
   marketPlace: [
@@ -18,6 +20,21 @@ const footerLinks = {
 };
 
 export default function Footer() {
+  // Check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("accessToken");
+      const userToken = localStorage.getItem("userToken");
+      setIsLoggedIn(
+        !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim())
+      );
+    }
+  }, []);
+
   return (
     <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[200px]">
       <div className="container mx-auto">
@@ -32,7 +49,9 @@ export default function Footer() {
             Butuh Satu Foto. <b>Tiebymin AI</b> Memberikan Rekomendasi Instan
             Tanpa Perlu Repot, Serta Hemat Waktu Dan Biaya.
           </p>
-          <a href="/register">
+          <a
+            href={isLoggedIn ? "/register?startStep=measurements" : "/register"}
+          >
             <Button
               size="lg"
               className="bg-[#323232] text-[#f0f0f0] font-semibold rounded-lg px-10 py-6 shadow-sm hover:bg-gray-100 transition-colors"

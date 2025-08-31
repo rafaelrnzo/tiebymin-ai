@@ -59,8 +59,8 @@ const BodySection: React.FC<BodySectionProps> = ({
     );
 
   return (
-    <div className="flex flex-col lg:flex-row w-full gap-5 lg:gap-[50px]">
-      <div className="flex-1 px-[20px] pt-[10px] rounded-2xl border">
+    <div className="flex flex-col tablet:flex-col lg:flex-row xl:flex-row w-full gap-5 lg:gap-[50px]">
+      <div className="flex flex-col flex-1 px-[20px] pt-[10px] rounded-2xl border">
         <h3 className="font-bold text-2xl sm:text-3xl lg:text-5xl font-oswald">
           {bodyDetails.name}
         </h3>
@@ -69,20 +69,20 @@ const BodySection: React.FC<BodySectionProps> = ({
             src={bodyDetails.link_picture}
             alt={`${bodyDetails.name} body type`}
             width={150}
-            height={280}
-            className="object-contain h-[180px] sm:h-[220px] lg:h-[280px]"
+            height={245}
+            className="object-contain h-[180px] sm:h-[220px] lg:h-[245px] xl:h-[245px]"
             priority
           />
         </div>
-        <p className="font-poppins text-sm sm:text-base lg:text-lg my-4 sm:mt-6">
+        <p className="font-poppins text-sm sm:text-base lg:text-lg lg:mt-0 mt-6">
           {bodyDetails.penjelasan_body_shape}
         </p>
       </div>
 
       <div className="flex-2 space-y-4 lg:space-y-6">
-        <div className="grid grid-cols-1 gap-4 lg:gap-12">
-          <div className="border border-neutral-600 w-full max-w-full rounded-2xl p-4 lg:p-8 text-[#323232]">
-            <h3 className="font-bold lg:text-center text-left text-lg sm:text-2xl lg:text-5xl font-oswald">
+        <div className="flex flex-col gap-4 lg:gap-12">
+          <div className="border border-[#323232] w-full max-w-full rounded-2xl p-4 text-[#323232]">
+            <h3 className="font-bold mt-3  text-[#323232] lg:text-center text-left text-lg sm:text-2xl lg:text-4xl xl:text-5xl font-oswald">
               BMI Analyst
             </h3>
             <hr className="my-[25px] border-[#323232]" />
@@ -90,7 +90,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
               <div className="flex-shrink-0">
                 <div className="rounded-full border-2 border-[#EC7498] p-1">
-                  <div className="rounded-full border border-neutral-600 w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 flex items-center justify-center">
+                  <div className="rounded-full border border-[#323232] w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 flex items-center justify-center">
                     <p className="text-sm sm:text-lg lg:text-xl font-bold">
                       {formatBmiValue(bmiResult?.value)}
                     </p>
@@ -112,7 +112,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             <h3 className="italic font-handlee mb-2 sm:mb-3 text-base sm:text-lg lg:text-xl text-center">
               Karakteristik
             </h3>
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1">
               {bodyDetails?.karakteristik
                 ?.split("-")
                 .filter((point: string) => point.trim() !== "")

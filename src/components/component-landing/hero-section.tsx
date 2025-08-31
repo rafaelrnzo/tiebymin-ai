@@ -1,3 +1,4 @@
+"use client";
 import {
   Gem,
   Hourglass,
@@ -7,6 +8,7 @@ import {
   UserRoundSearch,
 } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 type AnalysisCardProps = {
   icon: React.ReactNode;
@@ -64,6 +66,21 @@ const AnalysisCard = ({
 };
 
 export const HeroSection = () => {
+  // Check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("accessToken");
+      const userToken = localStorage.getItem("userToken");
+      setIsLoggedIn(
+        !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim())
+      );
+    }
+  }, []);
+
   return (
     <main className="relative w-full flex flex-col items-center justify-center overflow-hidden bg-cover bg-center bg-[url('/hero-bg.png')] min-h-screen">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-[200px] z-20 relative pt-16 xs:pt-20 sm:pt-24 md:pt-28 lg:pt-32 xl:pt-40">
@@ -144,7 +161,12 @@ export const HeroSection = () => {
                 title="Rekomendasi Produk"
                 subtitle="Saran Produk"
               />
-              <a href="/register" className="inline-block">
+              <a
+                href={
+                  isLoggedIn ? "/register?startStep=measurements" : "/register"
+                }
+                className="inline-block"
+              >
                 <AnalysisCard
                   isAnalytics={true}
                   icon={

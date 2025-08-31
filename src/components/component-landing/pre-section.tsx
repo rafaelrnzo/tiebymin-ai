@@ -350,6 +350,21 @@ const MobileCardsSlider: React.FC = () => {
   );
 };
 const AnalysisDashboard: React.FC = () => {
+  // Check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("accessToken");
+      const userToken = localStorage.getItem("userToken");
+      setIsLoggedIn(
+        !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim())
+      );
+    }
+  }, []);
+
   return (
     <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[190px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">

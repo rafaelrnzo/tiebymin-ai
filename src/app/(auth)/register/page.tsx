@@ -1,19 +1,21 @@
 "use client";
 
 import LeftSideSection from "@/components/component-login/left-side-section";
-import RegistrationFlow from "@/components/registration-flow/RegistrationFlow";
+import RegistrationFlow, {
+  RegistrationStep,
+} from "@/components/registration-flow/RegistrationFlow";
 import { ErrorModal } from "@/components/sections/error-modal";
 import { secureUrl } from "@/lib/api";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { RegistrationStep } from "@/components/registration-flow/RegistrationFlow";
-import { useStepsProgress } from "@/hooks/useStepsProgress";
 import { useRegistrationFlow } from "@/hooks/useLocalStorage";
+import { useStepsProgress } from "@/hooks/useStepsProgress";
 import { useUserData } from "@/hooks/useUserData";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const router = useRouter();
-  const { register, isLoading } = useUserData();
+  const searchParams = useSearchParams();
+  const { register, login, isLoading, userProfile } = useUserData();
   const [currentStep, setCurrentStep] = useState<RegistrationStep>("register");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
@@ -32,10 +34,32 @@ export default function RegisterPage() {
     setCurrentStep: setPersistedCurrentStep,
   } = useRegistrationFlow();
 
-  // Initialize step from localStorage only once on component mount
+  // Initialize step from localStorage and URL parameters only once on component mount
   useEffect(() => {
     if (!isInitialized) {
       try {
+        // Check for startStep URL parameter (for logged-in users)
+        const startStepParam = searchParams.get("startStep");
+        const accessToken = localStorage.getItem("accessToken");
+        const userToken = localStorage.getItem("userToken");
+        const isLoggedIn =
+          !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim());
+
+        if (isLoggedIn && startStepParam === "measurements") {
+          // Logged-in user wants to start at measurements step
+          setCurrentStep("measurements");
+          setPersistedCurrentStep(2);
+          setIsInitialized(true);
+          return;
+        }
+
+        // If user is already logged in but no startStep parameter, redirect to home
+        if (isLoggedIn && !startStepParam) {
+          router.push("/");
+          return;
+        }
+
         const savedStep = getCurrentStepFromStorage();
         const savedStepFromRegistration = persistedCurrentStep;
 
@@ -61,7 +85,14 @@ export default function RegisterPage() {
         setIsInitialized(true);
       }
     }
-  }, [isInitialized, getCurrentStepFromStorage, persistedCurrentStep]);
+  }, [
+    isInitialized,
+    getCurrentStepFromStorage,
+    persistedCurrentStep,
+    searchParams,
+    userProfile,
+    setPersistedCurrentStep,
+  ]);
 
   const generateUUID = () => {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -122,6 +153,12 @@ export default function RegisterPage() {
     return errors;
   };
 
+  const handleGoogleSignup = () => {
+    // Directly redirect to the backend's Google OAuth endpoint
+    // This avoids CORS issues since it's not an AJAX request
+    window.location.href = secureUrl("/v1/auth/google/login");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -152,6 +189,12 @@ export default function RegisterPage() {
         google_id: uniqueGoogleId,
         is_active: true,
         phone_number: parseInt(phoneNumber) || null,
+        password: formData.password,
+      });
+
+      // Automatically login the user after successful registration
+      await login({
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
 
@@ -200,7 +243,7 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="container mx-auto w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <LeftSideSection
           steps={steps}
           currentStepNumber={1}
@@ -361,6 +404,7 @@ export default function RegisterPage() {
 
                 <button
                   type="button"
+                  onClick={handleGoogleSignup}
                   className="w-full text-xs lg:text-lg bg-[#f0f0f0] hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
                   disabled={isLoading}
                 >
@@ -404,5 +448,21 @@ export default function RegisterPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
+          </div>
+        </main>
+      }
+    >
+      <RegisterPageContent />
+    </Suspense>
   );
 }

@@ -7,26 +7,65 @@ import { useAllTips } from "@/hooks/useAllTips";
 
 interface TipCardProps {
   category: string;
-  tip: string;
+  tip: string | null;
   icon: string;
   type?: boolean;
+  isBodyTip?: boolean;
 }
 
-const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
-  <div className="border-[1px] p-[20px] w-full border-neutral-600 rounded-2xl h-full">
-    <div className="flex flex-row items-center gap-[10px] lg:flex-col lg:items-start">
-      <div className="">
-        <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+const TipCard: React.FC<TipCardProps> = ({
+  category,
+  tip,
+  icon,
+  isBodyTip = false,
+}) => {
+  const formatTip = (tipText: string | null) => {
+    if (!tipText) {
+      console.log("tipText is null/undefined");
+      return (
+        <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-lg leading-relaxed">
+          Tips tidak tersedia.
+        </p>
+      );
+    }
+
+    if (isBodyTip && tipText.includes("-")) {
+      console.log("Formatting as bullet points for bodyTip");
+      const points = tipText
+        .split("-")
+        .filter((point: string) => point.trim() !== "")
+        .map((point: string, index: number) => (
+          <p
+            key={index}
+            className="text-xs sm:text-sm lg:text-lg text-[#323232] font-poppins leading-relaxed"
+          >
+            • {point.trim()}
+          </p>
+        ));
+      return <div className="flex flex-col">{points}</div>;
+    }
+
+    return (
+      <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-lg leading-relaxed">
+        {tipText}
+      </p>
+    );
+  };
+
+  return (
+    <div className="border-[1px] p-[20px] w-full border-neutral-600 rounded-2xl h-full">
+      <div className="flex flex-row items-center gap-[10px] lg:flex-col lg:items-start">
+        <div className="">
+          <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+        </div>
+        <h3 className="font-handlee italic text-[#323232] mt-1 text-base sm:text-xl">
+          {category}
+        </h3>
       </div>
-      <h3 className="font-handlee italic text-[#323232] mt-1 text-base sm:text-xl">
-        {category}
-      </h3>
+      <div className="mt-2">{formatTip(tip)}</div>
     </div>
-    <p className="text-[#323232] mt-2 font-poppins text-sm sm:text-base lg:text-lg leading-relaxed">
-      {tip}
-    </p>
-  </div>
-);
+  );
+};
 
 interface TipsSectionProps {
   analysisData: AnalysisData;
@@ -78,6 +117,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
         category="Tips untuk bentuk badan kamu"
         tip={allTips.bodyTip}
         icon="/overview-ai/icons/healthicons_body.svg"
+        isBodyTip={true}
       />
       <TipCard
         type

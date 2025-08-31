@@ -130,13 +130,6 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
         </div>
       </div>
 
-      {/* Face Shape Distribution - Full Width */}
-      <div className="w-full mt-[30px] lg:mt-[50px]">
-        <h1 className="font-oswald font-bold text-2xl lg:text-4xl w-full">
-          Face Shape Distribution
-        </h1>
-      </div>
-
       {gimmickChartData.length > 0 && (
         <FaceShapeAnalysis data={gimmickChartData} />
       )}

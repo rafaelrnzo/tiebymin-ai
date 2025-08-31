@@ -177,7 +177,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
   };
 
   return (
-    <div className="w-full lg:flex-1 lg:max-w-[60%] lg:mr-[50px]">
+    <div className="w-full lg:flex-1 lg:mr-[50px]">
       {/* CSS untuk Animasi Bintang */}
       <style jsx global>{`
         @keyframes rotate-sparkle {
