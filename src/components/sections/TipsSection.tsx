@@ -15,7 +15,7 @@ interface TipCardProps {
 
 const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => {
   return (
-    <div className="border-[1px] p-[20px] w-full border-neutral-600 rounded-2xl h-full">
+    <div className="border-[1px] p-[20px] w-full border-[#323232] rounded-2xl h-full">
       <div className="flex flex-row items-center gap-[10px] lg:flex-col lg:items-start">
         <div className="">
           <Image src={icon} width={32} height={32} alt={`${category} Icon`} />

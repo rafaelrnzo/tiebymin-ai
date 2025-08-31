@@ -83,7 +83,7 @@ export const HeroSection = () => {
 
   return (
     <main className="relative w-full flex flex-col items-center justify-center overflow-hidden bg-cover bg-center bg-[url('/hero-bg.png')] min-h-screen">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-[200px] z-20 relative pt-16 xs:pt-20 sm:pt-24 md:pt-28 lg:pt-32 xl:pt-40">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-[200px] z-20 relative pt-16 xs:pt-20 sm:pt-24 md:pt-24 lg:pt-28 xl:pt-32">
         {/* Teks Hero */}
         <div className="text-center relative lg:mb-12 xl:mb-16">
           <h1 className="font-oswald lg:text-[156px] md:text-[120px] sm:text-8xl text-[80px] font-medium text-[#323232] tracking-tight leading-[0.9] xs:leading-[0.85] sm:leading-tight">
@@ -98,7 +98,6 @@ export const HeroSection = () => {
 
         {/* Analysis Cards Layout */}
         <div className="relative w-full">
-          {/* Model Image - Positioned absolutely */}
           <div className="absolute w-full transform lg:-translate-y-1/3 -translate-y-[23rem] h-screen z-10">
             <Image
               src="/new-model-hero.png"
@@ -108,7 +107,6 @@ export const HeroSection = () => {
               quality={100}
               className="object-contain"
             />
-            {/* </div> */}
           </div>
 
           {/* Cards Container - Reduced padding untuk menaikkan posisi */}
@@ -116,14 +114,14 @@ export const HeroSection = () => {
             <div className="flex w-full justify-center gap-[5rem] lg:justify-between items-center px-0 xs:px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 relative">
               <AnalysisCard
                 icon={
-                  <Gem className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                  <Gem className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
                 }
                 title="Diamond"
                 subtitle="Hasil Analisa Wajah"
               />
               <AnalysisCard
                 icon={
-                  <Snowflake className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                  <Snowflake className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
                 }
                 title="Cool Winter"
                 subtitle="Hasil Analisa Kulit"
@@ -134,7 +132,7 @@ export const HeroSection = () => {
               <div className="transform -translate-x-4 xs:-translate-x-6 sm:-translate-x-8 md:-translate-x-12 lg:-translate-x-16 xl:-translate-x-20">
                 <AnalysisCard
                   icon={
-                    <Hourglass className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                    <Hourglass className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
                   }
                   title="Hourglass"
                   subtitle="Hasil Analisa Tubuh"
@@ -144,7 +142,7 @@ export const HeroSection = () => {
               <div className="transform translate-x-4 xs:translate-x-6 sm:translate-x-8 md:translate-x-12 lg:translate-x-16 xl:translate-x-20">
                 <AnalysisCard
                   icon={
-                    <UserRoundSearch className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                    <UserRoundSearch className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
                   }
                   title="Selebriti Yang Serupa"
                   subtitle="Kecocokan Analisa"
@@ -156,7 +154,7 @@ export const HeroSection = () => {
             <div className="flex w-full justify-center gap-[5rem] lg:justify-between items-center px-0 xs:px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 relative">
               <AnalysisCard
                 icon={
-                  <Package2 className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                  <Package2 className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
                 }
                 title="Rekomendasi Produk"
                 subtitle="Saran Produk"
