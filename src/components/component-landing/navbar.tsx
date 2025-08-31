@@ -6,15 +6,53 @@ import { Menu, Sparkles, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MouseEvent, useState } from "react";
+import { MouseEvent, useState, useEffect } from "react";
+import { useUserData } from "@/hooks/useUserData";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
+  // Check if user is logged in and get latest analysis result
+  const { userProfile, analysisHistory, fetchUserData } = useUserData();
+
+  // Check login status by localStorage tokens only (client-side only)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [latestAnalysisResult, setLatestAnalysisResult] = useState<{
+    analysis_id: string;
+  } | null>(null);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("accessToken");
+      const userToken = localStorage.getItem("userToken");
+      const loggedIn =
+        !!(accessToken && accessToken.trim()) ||
+        !!(userToken && userToken.trim());
+      setIsLoggedIn(loggedIn);
+
+      if (loggedIn) {
+        fetchUserData();
+      }
+    }
+  }, [fetchUserData]);
+
+  useEffect(() => {
+    if (analysisHistory.length > 0) {
+      setLatestAnalysisResult(analysisHistory[0]);
+    }
+  }, [analysisHistory]);
+
   const navLinks = [
-    { href: "/overview", label: "Overview AI" },
+    {
+      href:
+        isLoggedIn && latestAnalysisResult
+          ? `/ai-overview?result_id=${latestAnalysisResult.analysis_id}`
+          : "/overview",
+      label: "Overview AI",
+    },
     { href: "/#tutorial", label: "Tutorial" },
     { href: "/metodologi", label: "Metodologi" },
     { href: "/#testimoni", label: "Testimoni" },
@@ -39,8 +77,8 @@ export function Navbar() {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 w-full px-0 lg:px-8 xl:px-[200px] lg:pt-[25px] xl:pt-[50px]">
-      <header className="relative rounded-none lg:py-0 py-3 lg:rounded-full bg-[#333333] text-white shadow-lg backdrop-blur-md">
+    <div className=" fixed top-0 left-0 right-0 z-50 w-full xl:px-[190px] px-0 lg:pt-[60px]">
+      <header className="lg:container mx-0 w-full lg:mx-auto relative rounded-none lg:py-0 py-3 lg:rounded-full bg-[#333333] text-[#f0f0f0] shadow-lg backdrop-blur-md">
         {/* Desktop Navigation */}
         <div className="hidden xl:flex items-center justify-between py-3 px-8">
           <div className="flex-shrink-0">
@@ -70,7 +108,11 @@ export function Navbar() {
           </nav>
 
           <div className="flex gap-3">
-            <Link href="/register">
+            <Link
+              href={
+                isLoggedIn ? "/register?startStep=measurements" : "/register"
+              }
+            >
               <Button
                 size="lg"
                 className="rounded-full bg-[#FFC6C6] hover:bg-[#f9bfbf] flex items-center gap-2 px-6 py-3"
@@ -81,15 +123,17 @@ export function Navbar() {
                 </span>
               </Button>
             </Link>
-            <Link href="/profile">
-              <Button
-                size="lg"
-                className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
-              >
-                <User className="w-4 h-4 text-[#323232] fill-[#323232]" />
-                <span className="font-semibold text-[#323232]">Profile</span>
-              </Button>
-            </Link>
+            {isLoggedIn && (
+              <Link href="/ai-overview/profile">
+                <Button
+                  size="lg"
+                  className="rounded-full bg-[#f0f0f0] hover:bg-gray-300 flex items-center gap-2 px-6 py-3"
+                >
+                  <User className="w-4 h-4 text-[#323232] fill-[#323232]" />
+                  <span className="font-semibold text-[#323232]">Profile</span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -102,25 +146,24 @@ export function Navbar() {
               width={100}
               height={24}
               priority
-              className="h-8 w-auto" // Ukuran disesuaikan
+              className="h-8 w-auto"
             />
           </Link>
 
-          {/* 2. Ikon Menu di sebelah kanan */}
           <div>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-gray-700 rounded-full p-1 sm:p-2"
+                  className="text-[#f0f0f0] hover:bg-gray-700 rounded-full p-1 sm:p-2"
                 >
                   <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent
                 side="left"
-                className="bg-[#333333] text-white border-gray-600 w-[250px] sm:w-[280px]"
+                className="bg-[#333333] text-[#f0f0f0] border-gray-600 w-[250px] sm:w-[280px]"
               >
                 <div className="flex flex-col space-y-4 sm:space-y-6 mt-6 sm:mt-8 ml-2 sm:ml-4">
                   {navLinks.map((link) => (
@@ -133,29 +176,38 @@ export function Navbar() {
                       {link.label}
                     </Link>
                   ))}
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 pt-3 sm:pt-4">
-                    <Link href="/register" onClick={closeSheet}>
+                  <div className="flex flex-col gap-2 pt-3">
+                    <Link
+                      href={
+                        isLoggedIn
+                          ? "/register?startStep=measurements"
+                          : "/register"
+                      }
+                      onClick={closeSheet}
+                    >
                       <Button
                         size="default"
-                        className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full sm:w-auto px-4 py-2"
+                        className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full px-4 py-2"
                       >
-                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#f0f0f0]" />
                         <span className="text-sm sm:text-base">
                           Coba Sekarang
                         </span>
                       </Button>
                     </Link>
-                    <Link href="/profile" onClick={closeSheet}>
-                      <Button
-                        size="default"
-                        className="rounded-full bg-white hover:bg-gray-300 flex items-center gap-2 px-4 py-2 mt-2 sm:mt-0"
-                      >
-                        <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
-                        <span className="text-sm sm:text-base text-[#323232]">
-                          Profile
-                        </span>
-                      </Button>
-                    </Link>
+                    {isLoggedIn && (
+                      <Link href="/ai-overview/profile" onClick={closeSheet}>
+                        <Button
+                          size="default"
+                          className="rounded-full bg-[#f0f0f0] hover:bg-gray-300 flex items-center gap-2 w-full px-4 py-2"
+                        >
+                          <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
+                          <span className="text-sm sm:text-base text-[#323232]">
+                            Profile
+                          </span>
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </SheetContent>

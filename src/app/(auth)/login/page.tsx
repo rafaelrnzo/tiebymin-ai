@@ -5,10 +5,11 @@ import { ErrorModal } from "@/components/sections/error-modal";
 import { secureUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useUserData } from "@/hooks/useUserData";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading, error } = useUserData();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [formData, setFormData] = useState({
@@ -25,100 +26,28 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
     try {
-      const endpoint = secureUrl(`/v1/auth/login`);
-      console.log("Login endpoint:", endpoint);
-
-      let response;
-      try {
-        response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          redirect: "follow",
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
-      } catch (fetchErr) {
-        setErrorModalMessage(
-          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti."
-        );
-        setIsErrorModalOpen(true);
-        setIsLoading(false);
-        return;
-      }
-
-      if (!response.ok) {
-        let errorMsg = "Login gagal. Periksa email dan password Anda.";
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch {}
-        setErrorModalMessage(errorMsg);
-        setIsErrorModalOpen(true);
-        setIsLoading(false);
-        return;
-      }
-
-      const result = await response.json();
-      console.log("Login successful:", result);
-
-      // Save user data from API response
-      if (result.userId || result.id) {
-        localStorage.setItem("userId", result.userId || result.id);
-      }
-      if (result.email) {
-        localStorage.setItem("userEmail", result.email);
-      }
-      if (result.name || result.full_name) {
-        localStorage.setItem("userName", result.name || result.full_name);
-      }
-      if (result.token || result.access_token) {
-        localStorage.setItem("userToken", result.token || result.access_token);
-      }
-
-      // Also save individual name fields if available
-      if (result.first_name) {
-        localStorage.setItem("firstName", result.first_name);
-      }
-      if (result.last_name) {
-        localStorage.setItem("lastName", result.last_name);
-      }
-
-      console.log("User data saved to localStorage:", {
-        userId: result.userId || result.id,
-        email: result.email,
-        name: result.name || result.full_name,
-        token: result.token || result.access_token,
+      await login({
+        email: formData.email,
+        password: formData.password,
       });
 
-      router.push("/analyze/first");
+      router.push("/ai-overview/profile");
     } catch (err) {
-      console.error("Login error:", err);
-      if (
-        err instanceof TypeError &&
-        err.message &&
-        err.message.toLowerCase().includes("failed to fetch")
-      ) {
-        setErrorModalMessage(
-          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau hubungi admin jika masalah berlanjut."
-        );
-        setIsErrorModalOpen(true);
-      } else {
-        setErrorModalMessage(
-          "Terjadi kesalahan saat login. Silakan coba lagi."
-        );
-        setIsErrorModalOpen(true);
-      }
-    } finally {
-      setIsLoading(false);
+      setErrorModalMessage(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat login. Silakan coba lagi."
+      );
+      setIsErrorModalOpen(true);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    // Directly redirect to the backend's Google OAuth endpoint
+    // This avoids CORS issues since it's not an AJAX request
+    window.location.href = secureUrl("/v1/auth/google/login");
   };
 
   const steps = [
@@ -129,7 +58,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="lg:mx-10 container w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="container mx-auto w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <div className="w-full lg:flex-1 lg:max-w-[45%]">
           <LeftSideSection
             steps={steps}
@@ -138,7 +67,7 @@ export default function LoginPage() {
           />
         </div>
         <div className="w-full lg:flex-1 lg:max-w-[55%] lg:px-4">
-          <div className="bg-white lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
+          <div className="bg-[#f0f0f0] lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
               Login Akun
             </h2>
@@ -194,12 +123,12 @@ export default function LoginPage() {
               <div className="flex flex-col gap-4">
                 <button
                   type="submit"
-                  className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
+                  className="w-full bg-[#323232] hover:bg-pink-400 hover:text-[#f0f0f0] text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <svg
-                      className="animate-spin h-5 w-5 text-white"
+                      className="animate-spin h-5 w-5 text-[#f0f0f0]"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -225,7 +154,8 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  className="w-full text-xs lg:text-lg bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
+                  onClick={handleGoogleLogin}
+                  className="w-full text-xs lg:text-lg bg-[#f0f0f0] hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
                   disabled={isLoading}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">

@@ -1,3 +1,5 @@
+"use client";
+
 import { Navbar } from "@/components/component-landing/navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,6 +19,9 @@ import {
 } from "@/components/ui/table";
 import { Download, Share2 } from "lucide-react";
 import Image from "next/image";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUserData } from "@/hooks/useUserData";
 
 // Function to shorten month names
 const shortenMonth = (dateString: string) => {
@@ -35,18 +40,41 @@ const shortenMonth = (dateString: string) => {
     .replace("December", "Dec");
 };
 
-const testHistory = [
-  { date: "December 20, 2025" },
-  { date: "December 20, 2025" },
-  { date: "December 20, 2026" },
-  { date: "December 20, 2025" },
-];
-
 export default function DashboardPage() {
+  const router = useRouter();
+  const { userProfile, analysisHistory, isLoading, error, fetchUserData } =
+    useUserData();
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
+        <Navbar />
+        <main className="lg:px-[200px] px-4 mt-[20px] lg:mt-[50px] flex items-center justify-center">
+          <div className="animate-pulse">Loading...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
+        <Navbar />
+        <main className="lg:px-[200px] px-4 mt-[20px] lg:mt-[50px] flex items-center justify-center">
+          <div className="text-red-500">Error: {error}</div>
+        </main>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white min-h-screen w-full font-poppins text-[#323232]">
+    <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
       <Navbar />
-      <main className="lg:px-[200px] px-4 mt-[20px] lg:mt-[50px]">
+      <main className="container mx-auto lg:px-[200px] px-4 lg:pt-[190px]">
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-[20px] lg:gap-[50px] mb-[20px]">
           <Card className="lg:col-span-1 rounded-2xl border flex flex-col items-center justify-center text-center p-6">
             <Image
@@ -58,14 +86,14 @@ export default function DashboardPage() {
               loading="lazy"
             />
             <input
-              defaultValue="Winona Karamoy"
+              defaultValue={userProfile?.user_full_name || "User"}
               className="w-full text-center font-bold text-[24px] lg:text-[36px] border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
             />
             <div className="flex flex-row gap-4 items-center lg:flex-col w-full">
-              <button className="py-2 border w-full rounded-lg border-[#EF789B] text-[#EF789B] hover:bg-[#EF789B] hover:text-white">
+              <button className="py-2 border w-full rounded-lg border-[#EF789B] text-[#EF789B] hover:bg-[#EF789B] hover:text-[#f0f0f0]">
                 Reset Password
               </button>
-              <button className="w-full py-2 text-white font-bold font-poppins rounded-lg bg-[#EF789B] hover:bg-pink-500">
+              <button className="w-full py-2 text-[#f0f0f0] font-bold font-poppins rounded-lg bg-[#EF789B] hover:bg-pink-500">
                 Log Out
               </button>
             </div>
@@ -74,7 +102,7 @@ export default function DashboardPage() {
           <div className="w-full lg:col-span-2">
             <div className="flex flex-col w-full gap-[20px] lg:gap-[50px] h-full">
               <h1 className="hidden lg:block font-oswald text-4xl md:text-5xl font-bold text-[#323232]">
-                Selamat datang, Winona!
+                Selamat datang, {userProfile?.user_first_name || "User"}!
               </h1>
               <p className="hidden lg:block text-[#323232] text-xl font-poppins">
                 Temukan versi terbaik dirimu dengan sentuhan teknologi AI. Mulai
@@ -82,13 +110,13 @@ export default function DashboardPage() {
                 produk terbaik. Semuanya kami analisis untuk bantu kamu tampil
                 lebih percaya diri dalam setiap aktivitas kamu.
               </p>
-              <div className="bg-[#323232] bg-[url('/card-bg.png')] text-white rounded-2xl shadow-xl p-6 flex flex-col items-center justify-between gap-6 flex-1">
+              <div className="bg-[#323232] bg-[url('/card-bg.png')] text-[#f0f0f0] rounded-2xl shadow-xl p-6 flex flex-col items-center justify-between gap-6 flex-1">
                 <div className="text-center md:text-left">
                   <h3 className="font-handlee italic text-4xl md:text-5xl mt-5">
                     Mulai Analisis Kecantikan Kamu
                   </h3>
                 </div>
-                <Button className="bg-[#EF789B] hover:bg-pink-500 text-white font-bold rounded-lg text-lg w-full md:w-auto shrink-0 py-5 px-8 mb-5">
+                <Button className="bg-[#EF789B] hover:bg-pink-500 text-[#f0f0f0] font-bold rounded-lg text-lg w-full md:w-auto shrink-0 py-5 px-8 mb-5">
                   <div className="">
                     <svg
                       width="31"
@@ -140,53 +168,74 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {testHistory.map((item, index) => (
-                  <TableRow key={index} className="border-b-[#323232]/20">
-                    <TableCell className="font-medium py-4">
-                      {shortenMonth(item.date)}
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <Button
-                        variant="outline"
-                        className="rounded-lg border-gray-300"
-                      >
-                        <div>
-                          <svg
-                            width="21"
-                            height="25"
-                            viewBox="0 0 21 25"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M20.5 21.9875V8.5375C20.5 7.875 20.2375 7.2375 19.7625 6.775L13.725 0.7375C13.2625 0.2625 12.625 0 11.9625 0H3C1.625 0 0.5125 1.125 0.5125 2.5L0.5 22.5C0.5 23.875 1.6125 25 2.9875 25H18C18.5625 25 19.0625 24.8125 19.4875 24.5L13.95 18.9625C12.875 19.6625 11.5875 20.0625 10.2 19.9875C7.2375 19.85 4.7 17.5375 4.3 14.6C4.16799 13.6237 4.26805 12.63 4.59207 11.6995C4.91609 10.7691 5.45493 9.92822 6.16485 9.24509C6.87477 8.56196 7.73577 8.05584 8.67796 7.76784C9.62014 7.47983 10.617 7.41805 11.5875 7.5875C14.025 8 16.05 9.9 16.5875 12.3125C17 14.1375 16.6 15.8375 15.7125 17.1875L20.5 21.9875ZM6.75 13.75C6.75 15.825 8.425 17.5 10.5 17.5C12.575 17.5 14.25 15.825 14.25 13.75C14.25 11.675 12.575 10 10.5 10C8.425 10 6.75 11.675 6.75 13.75Z"
-                              fill="black"
-                            />
-                          </svg>
-                        </div>
-                        <p className="hidden sm:block">Lihat Hasil Analisa</p>
-                        <p className="sm:hidden">Lihat</p>
-                      </Button>
-                    </TableCell>
-                    <TableCell className="py-4">
-                      <div className="flex items-center gap-8">
-                        <Button className="bg-[#EF789B] hover:bg-pink-500 rounded-lg shadow-md">
-                          <Download className="h-4 w-4 text-white" />
-                          <p className="hidden sm:block text-white ml-2">
-                            Download
-                          </p>
-                        </Button>
+                {analysisHistory.length > 0 ? (
+                  analysisHistory.map((item, index) => (
+                    <TableRow
+                      key={item.analysis_id || index}
+                      className="border-b-[#323232]/20"
+                    >
+                      <TableCell className="font-medium py-4 pl-10">
+                        {item.analysis_date
+                          ? shortenMonth(item.analysis_date)
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell className="py-4">
                         <Button
                           variant="outline"
-                          size="icon"
                           className="rounded-lg border-gray-300"
+                          onClick={() =>
+                            router.push(
+                              `/ai-overview?result_id=${item.analysis_id}`
+                            )
+                          }
                         >
-                          <Share2 className="h-4 w-4" />
+                          <div>
+                            <svg
+                              width="21"
+                              height="25"
+                              viewBox="0 0 21 25"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M20.5 21.9875V8.5375C20.5 7.875 20.2375 7.2375 19.7625 6.775L13.725 0.7375C13.2625 0.2625 12.625 0 11.9625 0H3C1.625 0 0.5125 1.125 0.5125 2.5L0.5 22.5C0.5 23.875 1.6125 25 2.9875 25H18C18.5625 25 19.0625 24.8125 19.4875 24.5L13.95 18.9625C12.875 19.6625 11.5875 20.0625 10.2 19.9875C7.2375 19.85 4.7 17.5375 4.3 14.6C4.16799 13.6237 4.26805 12.63 4.59207 11.6995C4.91609 10.7691 5.45493 9.92822 6.16485 9.24509C6.87477 8.56196 7.73577 8.05584 8.67796 7.76784C9.62014 7.47983 10.617 7.41805 11.5875 7.5875C14.025 8 16.05 9.9 16.5875 12.3125C17 14.1375 16.6 15.8375 15.7125 17.1875L20.5 21.9875ZM6.75 13.75C6.75 15.825 8.425 17.5 10.5 17.5C12.575 17.5 14.25 15.825 14.25 13.75C14.25 11.675 12.575 10 10.5 10C8.425 10 6.75 11.675 6.75 13.75Z"
+                                fill="black"
+                              />
+                            </svg>
+                          </div>
+                          <p className="hidden sm:block">Lihat Hasil Analisa</p>
+                          <p className="sm:hidden">Lihat</p>
                         </Button>
-                      </div>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <div className="flex items-center gap-8">
+                          <Button className="bg-[#EF789B] hover:bg-pink-500 rounded-lg shadow-md">
+                            <Download className="h-4 w-4 text-[#f0f0f0]" />
+                            <p className="hidden sm:block text-[#f0f0f0] ml-2">
+                              Download
+                            </p>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="rounded-lg border-gray-300"
+                          >
+                            <Share2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={3}
+                      className="text-center py-8 text-gray-500"
+                    >
+                      Belum ada riwayat analisa
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
@@ -199,7 +248,7 @@ export default function DashboardPage() {
                 <PaginationLink
                   href="#"
                   isActive
-                  className="bg-[#EF789B] text-white border-0 hover:bg-[#EF789B]/90 hover:text-white rounded-md"
+                  className="bg-[#EF789B] text-[#f0f0f0] border-0 hover:bg-[#EF789B]/90 hover:text-[#f0f0f0] rounded-md"
                 >
                   1
                 </PaginationLink>
@@ -207,7 +256,7 @@ export default function DashboardPage() {
               <PaginationItem>
                 <PaginationLink
                   href="#"
-                  className="rounded-md bg-[#323232]/10 text-white"
+                  className="rounded-md bg-[#323232]/10 text-[#f0f0f0]"
                 >
                   2
                 </PaginationLink>
@@ -215,7 +264,7 @@ export default function DashboardPage() {
               <PaginationItem>
                 <PaginationLink
                   href="#"
-                  className="rounded-md bg-[#323232]/10 text-white"
+                  className="rounded-md bg-[#323232]/10 text-[#f0f0f0]"
                 >
                   3
                 </PaginationLink>

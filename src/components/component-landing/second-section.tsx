@@ -1,11 +1,28 @@
+"use client";
 import { ArrowUpRight, Play } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export const SecondSection = () => {
+  // Check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("accessToken");
+      const userToken = localStorage.getItem("userToken");
+      setIsLoggedIn(
+        !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim())
+      );
+    }
+  }, []);
+
   return (
     <section
       id="tutorial"
-      className="bg-white px-4 sm:px-10 lg:px-[200px] mb-[100px]"
+      className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[200px] mb-[100px]"
     >
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
@@ -19,20 +36,24 @@ export const SecondSection = () => {
             />
             <div className="absolute inset-0 bg-[#323232]/10"></div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="h-20 w-20 lg:h-24 lg:w-24 bg-[#FFC6C6] rounded-full flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110">
-                <Play className="h-10 w-10 lg:h-12 lg:w-12 fill-white ml-2" />
+              <div className="h-20 w-20 lg:h-24 lg:w-24 bg-[#FFC6C6] rounded-full flex items-center justify-center text-[#f0f0f0] shadow-lg transition-transform group-hover:scale-110">
+                <Play className="h-10 w-10 lg:h-12 lg:w-12 fill-[#f0f0f0] ml-2" />
               </div>
             </div>
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-4 w-full">
             <div className="bg-[#FFC6C6] p-6 rounded-2xl flex flex-col gap-6 w-full">
-              <a href="/register">
+              <a
+                href={
+                  isLoggedIn ? "/register?startStep=measurements" : "/register"
+                }
+              >
                 <div className="bg-[#2C2C2E] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
                   <span className="text-[#FFC6C6] font-semibold text-base sm:text-lg">
                     Coba Sekarang Juga
                   </span>
-                  <div className="bg-white/20 p-2 rounded-full border-2 border-[#FFC6C6]">
+                  <div className="bg-[#f0f0f0]/20 p-2 rounded-full border-2 border-[#FFC6C6]">
                     <ArrowUpRight className="h-6 w-6 text-[#FFC6C6]" />
                   </div>
                 </div>
@@ -62,7 +83,7 @@ export const SecondSection = () => {
                 <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
                   {"<"}2m
                 </p>
-                <p className="text-base sm:text-lg lg:text-xl text-white mt-1 text-center font-poppins">
+                <p className="text-base sm:text-lg lg:text-xl text-[#f0f0f0] mt-1 text-center font-poppins">
                   Hasil Selesai
                 </p>
               </div>
@@ -70,7 +91,7 @@ export const SecondSection = () => {
                 <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
                   100%
                 </p>
-                <p className="text-base sm:text-lg lg:text-xl text-white mt-1 text-center font-poppins">
+                <p className="text-base sm:text-lg lg:text-xl text-[#f0f0f0] mt-1 text-center font-poppins">
                   Buatan Lokal
                 </p>
               </div>

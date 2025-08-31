@@ -10,11 +10,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  useSendEmail,
-  useDownloadPdf,
-  useGenerateStory,
-} from "@/hooks/useAnalysisData";
+import { useDownloadPdf, useGenerateStory } from "@/hooks/useAnalysisData";
+import { useSendEmailWithAttachments } from "@/hooks/useEmail";
 import { useSearchParams } from "next/navigation";
 
 interface EmailModalProps {
@@ -27,18 +24,19 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
   const resultId = searchParams.get("result_id");
 
   const [email, setEmail] = useState("");
-  const { mutate: sendEmail, isPending: isSending } = useSendEmail();
-  const { refetch: downloadPdf, isFetching: isDownloadingPdf } =
+  const { mutateAsync: sendEmail, isPending: isSending } =
+    useSendEmailWithAttachments();
+  const { mutateAsync: downloadPdf, isPending: isDownloadingPdf } =
     useDownloadPdf();
-  const { refetch: generateStory, isFetching: isGeneratingStory } =
+  const { mutateAsync: generateStory, isPending: isGeneratingStory } =
     useGenerateStory();
 
   const handleSendEmail = async () => {
     if (email && resultId) {
       try {
         const [pdfResult, pngResult] = await Promise.all([
-          downloadPdf(),
-          generateStory(),
+          downloadPdf({ resultId }),
+          generateStory(resultId),
         ]);
 
         if (pdfResult.data && pngResult.data) {
@@ -67,7 +65,7 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white">
+      <DialogContent className="bg-[#f0f0f0]">
         <DialogHeader>
           <DialogTitle>Share via Email</DialogTitle>
         </DialogHeader>

@@ -45,23 +45,23 @@ const SectionTitle = ({
   info: string;
 }) => (
   <div className="flex items-center justify-between bg-[#323232] gap-3 py-8 px-6 rounded-2xl mb-[50px] mt-[100px]">
-    <h2 className="font-oswald text-3xl md:text-4xl font-bold text-white">
+    <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#f0f0f0]">
       {children}
     </h2>
     <div className="flex items-center gap-4">
-      <Info className="w-6 h-6 text-white" />
-      <p className="font-poppins font-bold text-xl text-white">{info}</p>
+      <Info className="w-6 h-6 text-[#f0f0f0]" />
+      <p className="font-poppins font-bold text-xl text-[#f0f0f0]">{info}</p>
     </div>
   </div>
 );
 
 export default function MethodologyPage() {
   return (
-    <div className="bg-white min-h-screen w-full font-poppins text-[#323232]">
+    <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
       <Navbar />
-      <main className="lg:px-[200px]">
-        <section className="mb-[50px] mt-[100px]">
-          <Card className="bg-[url('/card-bg.png')] bg-[#323232] h-[500px] text-white rounded-2xl shadow-xl p-8 md:p-12 text-center justify-center items-center">
+      <main className="container mx-auto">
+        <section className="mb-[50px] mt-[180px]">
+          <Card className="bg-[url('/card-bg.png')] bg-[#323232] h-[500px] text-[#f0f0f0] rounded-2xl shadow-xl p-8 md:p-12 text-center justify-center items-center">
             <h1 className="font-handlee italic text-4xl md:text-5xl text-[#FF7EA4]">
               Kenapa Analisis kami akurat dan personal?
             </h1>
@@ -86,7 +86,7 @@ export default function MethodologyPage() {
               {jenisAnalisaData.map((item, index) => (
                 <Card
                   key={index}
-                  className="bg-[#FFC6C6] h-[210px] rounded-2xl border-0 shadow-md p-6 flex flex-col text-start"
+                  className="bg-[#FFC6C6] rounded-2xl border-0 shadow-md p-6 flex flex-col text-start"
                 >
                   <p className="font-poppins font-bold">{item.title}</p>
                   <p className="font-poppins text-justify leading-relaxed hyphens-auto">
@@ -171,11 +171,11 @@ export default function MethodologyPage() {
         </section>
 
         <section>
-          <Card className="bg-[#EF789B] text-white rounded-2xl shadow-xl p-6 md:p-8 mt-[50px] border-0">
+          <Card className="bg-[#EF789B] text-[#f0f0f0] rounded-2xl shadow-xl p-6 md:p-8 mt-[50px] border-0">
             <div className="flex flex-col md:flex-row items-start gap-[50px]">
               {/* Bagian Kiri */}
               <div className="flex items-center gap-4 w-full md:w-1/4 shrink-0 justify-center mt-5">
-                <Star className="w-10 h-10 text-white fill-white" />
+                <Star className="w-10 h-10 text-[#f0f0f0] fill-[#f0f0f0]" />
                 <h3 className="font-oswald font-bold text-xl mt-auto">
                   Kelebihan Pendekatan Hybrid (AI + Manual)
                 </h3>
@@ -289,7 +289,7 @@ export default function MethodologyPage() {
 
         {/* Referensi Jurnal Section */}
         <section className="mb-[200px]">
-          <Card className="bg-[#323232] text-white rounded-2xl shadow-xl p-8 md:p-10">
+          <Card className="bg-[#323232] text-[#f0f0f0] rounded-2xl shadow-xl p-8 md:p-10">
             <h2 className="font-oswald text-3xl font-bold mb-6 text-center">
               Referensi Jurnal Ilmiah
             </h2>

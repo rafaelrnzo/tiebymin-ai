@@ -37,9 +37,15 @@ export const useAllTips = ({
       axios.get(secureUrl(`/v1/bmi-categories/${bmi_category_id}`)),
     ]);
 
+    console.log(faceRes)
+    console.log(bodyRes)
+    console.log(colorRes)
+    console.log(bmiRes)
+    console.log(colorRes)
+
     return {
       faceTip: faceRes.data.tips_bentuk_wajah,
-      bodyTip: bodyRes.data.body_tips_summary,
+      bodyTip: bodyRes.data.tips_body_shape,
       colorTip: colorRes.data.color_tips_summary,
       bmiTip: bmiRes.data.tips_fashion,
       makeupTip: colorRes.data.make_up_tips,

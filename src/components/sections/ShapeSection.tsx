@@ -27,7 +27,7 @@ const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
 
 const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
   <div className="w-full mt-[50px]">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-4">
       {data.map((shape) => (
         <ShapeBar key={shape.name} {...shape} />
       ))}
@@ -87,8 +87,8 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
   return (
     <div className="flex flex-col lg:h-full h-fit">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
-        <div className="border rounded-2xl px-5">
-          <h3 className="font-bold text-xl mt-2 lg:text-[48px] font-oswald">
+        <div className="border rounded-2xl px-5 pt-2.5 pb-5">
+          <h3 className="font-bold mt-2 text-xl sm:text-3xl lg:text-5xl font-oswald">
             {shapeDetails.name}
           </h3>
           <p className="text-[#323232] leading-relaxed mt-[10px] font-poppins">
@@ -119,19 +119,17 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .split("-")
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) => (
-                <li key={index} className="flex items-center">
-                  <span className="mr-2 text-[#323232] mb-1 text-xs lg:text-xl">
-                    •
-                  </span>
-                  <span className="text-xs lg:text-xl">{item.trim()}</span>
-                </li>
+                <p
+                  key={index}
+                  className="text-xs sm:text-sm lg:text-lg text-[#323232] font-poppins"
+                >
+                  • {item.trim()}
+                </p>
               ))}
           </ul>
         </div>
-        <h1 className="font-oswald font-bold text-4xl">
-          Face Shape Distribution
-        </h1>
       </div>
+
       {gimmickChartData.length > 0 && (
         <FaceShapeAnalysis data={gimmickChartData} />
       )}

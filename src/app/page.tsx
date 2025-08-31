@@ -7,7 +7,7 @@ import { SecondSection } from "@/components/component-landing/second-section";
 
 export default function Home() {
   return (
-    <div className="bg-white">
+    <div className="bg-[#f0f0f0]">
       <Navbar />
       <HeroSection />
       <AnalysisDashboard />

@@ -99,9 +99,9 @@ export const defaultUserData: UserData = {
 };
 
 export const analysisTabs = [
-  { id: "shape", text: "Face\nShape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
-  { id: "color", text: "Color\nTone", icon: "/overview-ai/icons/mdi_color.svg" },
-  { id: "body", text: "Body\nAnalysis", icon: "/overview-ai/icons/healthicons_body.svg" },
+  { id: "shape", text: "Shape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
+  { id: "color", text: "Color Tone", icon: "/overview-ai/icons/mdi_color.svg" },
+  { id: "body", text: "Body", icon: "/overview-ai/icons/healthicons_body.svg" },
   {
     id: "celebrity",
     text: "Celebrity\nMatch",

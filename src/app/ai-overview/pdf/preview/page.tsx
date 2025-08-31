@@ -1,5 +1,4 @@
 "use client";
-import { Navbar } from "@/components/component-landing/navbar";
 import { BackCover } from "@/components/pdf-components/backcover-pdf";
 import { BodyShape } from "@/components/pdf-components/bodyshape-pdf";
 import { CelebritiesMatch } from "@/components/pdf-components/celebrities-pdf";
@@ -21,26 +20,11 @@ import {
   useFaceShapeData,
 } from "@/hooks/useAnalysisData";
 import { defaultUserData } from "@/lib/mock-data";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState, useEffect } from "react";
+import { Suspense, useMemo, useState } from "react";
 
-// Hook useMediaQuery tidak berubah
-const useMediaQuery = (query: string) => {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const media = window.matchMedia(query);
-      if (media.matches !== matches) {
-        setMatches(media.matches);
-      }
-      const listener = () => setMatches(media.matches);
-      window.addEventListener("resize", listener);
-      return () => window.removeEventListener("resize", listener);
-    }
-  }, [matches, query]);
-  return matches;
-};
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface PdfPage {
   id: string;
@@ -217,13 +201,16 @@ function PreviewPdfPage() {
 
   return (
     <div className="bg-[#F0F0F0] min-h-screen flex flex-col">
-      <Navbar />
       <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-6">
-        <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-md lg:max-w-6xl flex flex-col overflow-hidden h-[85vh]">
-          <X
+        <div className="relative bg-[#f0f0f0] rounded-2xl shadow-lg w-full max-w-md lg:max-w-6xl flex flex-col overflow-hidden h-[85vh]">
+          <Button
             onClick={() => router.back()}
-            className="cursor-pointer absolute top-4 right-4 text-gray-500 hover:text-gray-800 z-20"
-          />
+            variant="ghost"
+            size="icon"
+            className="cursor-pointer absolute top-4 left-4 text-gray-500 hover:text-gray-800 z-20 bg-[#f0f0f0]/80 backdrop-blur-sm rounded-full"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
 
           <div className="relative flex-grow overflow-x-auto overflow-y-hidden">
             {isDesktop ? (
@@ -231,7 +218,7 @@ function PreviewPdfPage() {
                 {pdfPages.map(({ id, Component }) => (
                   <div key={id} className="w-[340px] h-[570px] flex-shrink-0">
                     <div className="transform scale-[0.5] origin-top-left">
-                      <div className="w-[680px] h-[1140px] shadow-lg rounded-lg overflow-hidden bg-white">
+                      <div className="w-[680px] h-[1140px] shadow-lg rounded-lg overflow-hidden bg-[#f0f0f0]">
                         {Component}
                       </div>
                     </div>
@@ -241,7 +228,7 @@ function PreviewPdfPage() {
             ) : (
               <div className="h-full w-full flex items-center justify-center">
                 <div className="transform scale-[0.45] sm:scale-[0.5]">
-                  <div className="w-[680px] h-[1140px] shadow-lg rounded-lg overflow-hidden bg-white">
+                  <div className="w-[680px] h-[1140px] shadow-lg rounded-lg overflow-hidden bg-[#f0f0f0]">
                     {pdfPages[currentPage].Component}
                   </div>
                 </div>
@@ -250,38 +237,40 @@ function PreviewPdfPage() {
           </div>
 
           {isDesktop ? (
-            <div className="bg-white p-4 flex gap-4 justify-start border-t border-gray-200">
+            <div className="bg-[#f0f0f0] p-4 flex gap-4 justify-start border-t border-gray-200">
               <Button
                 onClick={handleDownloadPDF}
                 className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
                 disabled={isDownloading}
               >
-                <span className="text-white font-poppins font-bold">
+                <span className="text-[#f0f0f0] font-poppins font-bold">
                   {isDownloading ? "Downloading..." : "Download PDF"}
                 </span>
                 {!isDownloading && (
-                  <ChevronRight className="text-white w-5 h-5" />
+                  <ChevronRight className="text-[#f0f0f0] w-5 h-5" />
                 )}
               </Button>
               <Button
                 onClick={() => setIsEmailModalOpen(true)}
                 className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
               >
-                <span className="text-white font-poppins font-bold">Share</span>
+                <span className="text-[#f0f0f0] font-poppins font-bold">
+                  Share
+                </span>
               </Button>
             </div>
           ) : (
-            <div className="bg-white p-4 flex justify-between items-center border-t border-gray-200">
+            <div className="bg-[#f0f0f0] p-4 flex justify-between items-center border-t border-gray-200">
               <Button
                 onClick={handleDownloadPDF}
                 className="bg-[#323232] hover:bg-[#404040] rounded-lg px-6 py-2.5 flex items-center justify-center gap-2"
                 disabled={isDownloading}
               >
-                <span className="text-white font-poppins font-bold text-sm">
+                <span className="text-[#f0f0f0] font-poppins font-bold text-sm">
                   {isDownloading ? "Downloading..." : "Download PDF"}
                 </span>
                 {!isDownloading && (
-                  <ChevronRight className="text-white w-4 h-4" />
+                  <ChevronRight className="text-[#f0f0f0] w-4 h-4" />
                 )}
               </Button>
 

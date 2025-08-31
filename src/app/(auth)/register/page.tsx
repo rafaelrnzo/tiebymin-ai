@@ -1,17 +1,25 @@
 "use client";
 
 import LeftSideSection from "@/components/component-login/left-side-section";
+import RegistrationFlow, {
+  RegistrationStep,
+} from "@/components/registration-flow/RegistrationFlow";
 import { ErrorModal } from "@/components/sections/error-modal";
 import { secureUrl } from "@/lib/api";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRegistrationFlow } from "@/hooks/useLocalStorage";
+import { useStepsProgress } from "@/hooks/useStepsProgress";
+import { useUserData } from "@/hooks/useUserData";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const { register, login, isLoading, userProfile } = useUserData();
+  const [currentStep, setCurrentStep] = useState<RegistrationStep>("register");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -19,6 +27,72 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+
+  const { markStepCompleted, getCurrentStepFromStorage } = useStepsProgress(1);
+  const {
+    currentStep: persistedCurrentStep,
+    setCurrentStep: setPersistedCurrentStep,
+  } = useRegistrationFlow();
+
+  // Initialize step from localStorage and URL parameters only once on component mount
+  useEffect(() => {
+    if (!isInitialized) {
+      try {
+        // Check for startStep URL parameter (for logged-in users)
+        const startStepParam = searchParams.get("startStep");
+        const accessToken = localStorage.getItem("accessToken");
+        const userToken = localStorage.getItem("userToken");
+        const isLoggedIn =
+          !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim());
+
+        if (isLoggedIn && startStepParam === "measurements") {
+          // Logged-in user wants to start at measurements step
+          setCurrentStep("measurements");
+          setPersistedCurrentStep(2);
+          setIsInitialized(true);
+          return;
+        }
+
+        // If user is already logged in but no startStep parameter, redirect to home
+        if (isLoggedIn && !startStepParam) {
+          router.push("/");
+          return;
+        }
+
+        const savedStep = getCurrentStepFromStorage();
+        const savedStepFromRegistration = persistedCurrentStep;
+
+        // Use the higher step value between the two storage mechanisms
+        const stepToUse = Math.max(savedStep, savedStepFromRegistration);
+
+        if (stepToUse > 1) {
+          // Convert numeric step to RegistrationStep
+          const stepMap: { [key: number]: RegistrationStep } = {
+            1: "register",
+            2: "measurements",
+            3: "body-shape",
+            4: "body-shape",
+            5: "face-scan",
+          };
+          const savedRegistrationStep = stepMap[stepToUse] || "register";
+          setCurrentStep(savedRegistrationStep);
+        }
+
+        setIsInitialized(true);
+      } catch (error) {
+        console.error("Error initializing step from storage:", error);
+        setIsInitialized(true);
+      }
+    }
+  }, [
+    isInitialized,
+    getCurrentStepFromStorage,
+    persistedCurrentStep,
+    searchParams,
+    userProfile,
+    setPersistedCurrentStep,
+  ]);
 
   const generateUUID = () => {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -38,32 +112,40 @@ export default function RegisterPage() {
     }));
   };
 
-  // Tambahkan validasi form sebelum submit
+  const handleStepChange = (step: RegistrationStep) => {
+    setCurrentStep(step);
+
+    // Also update the persisted step
+    const stepNumberMap: { [key in RegistrationStep]: number } = {
+      register: 1,
+      measurements: 2,
+      "body-shape": 4,
+      "face-scan": 5,
+    };
+
+    setPersistedCurrentStep(stepNumberMap[step]);
+  };
+
   const validateForm = () => {
     const errors = [];
 
-    // Validasi nama lengkap (minimal 2 karakter)
     if (!formData.fullName.trim() || formData.fullName.trim().length < 2) {
       errors.push("Nama lengkap minimal 2 karakter");
     }
 
-    // Validasi email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       errors.push("Format email tidak valid");
     }
 
-    // Validasi nomor telepon
     if (!formData.phone || formData.phone.length < 10) {
       errors.push("Nomor telepon minimal 10 digit");
     }
 
-    // Validasi password
     if (formData.password.length < 6) {
       errors.push("Password minimal 6 karakter");
     }
 
-    // Validasi konfirmasi password
     if (formData.password !== formData.confirmPassword) {
       errors.push("Password dan konfirmasi password tidak sama");
     }
@@ -71,25 +153,25 @@ export default function RegisterPage() {
     return errors;
   };
 
+  const handleGoogleSignup = () => {
+    // Directly redirect to the backend's Google OAuth endpoint
+    // This avoids CORS issues since it's not an AJAX request
+    window.location.href = secureUrl("/v1/auth/google/login");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
 
     // Validasi form terlebih dahulu
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
       setErrorModalMessage(validationErrors.join(", "));
       setIsErrorModalOpen(true);
-      setIsLoading(false);
       return;
     }
 
     try {
       const uniqueGoogleId = generateUUID();
-
-      const endpoint = secureUrl(`/v1/users/`);
-      console.log("fetch endpoint:", endpoint);
 
       const nameParts = formData.fullName.trim().split(/\s+/);
       const firstName = nameParts[0] || "";
@@ -100,7 +182,7 @@ export default function RegisterPage() {
 
       const phoneNumber = formData.phone.replace(/\D/g, "");
 
-      const requestBody = {
+      await register({
         email: formData.email.trim().toLowerCase(),
         first_name: firstName,
         last_name: lastName || "",
@@ -108,128 +190,67 @@ export default function RegisterPage() {
         is_active: true,
         phone_number: parseInt(phoneNumber) || null,
         password: formData.password,
-      };
+      });
 
-      console.log("Request body:", requestBody);
+      // Automatically login the user after successful registration
+      await login({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      });
 
-      let response;
-      try {
-        response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          redirect: "follow",
-          body: JSON.stringify(requestBody),
-        });
-      } catch (fetchErr) {
-        console.error("Fetch error:", fetchErr);
-        setErrorModalMessage(
-          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau coba lagi nanti."
-        );
-        setIsErrorModalOpen(true);
-        setIsLoading(false);
-        return;
-      }
-
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers);
-
-      if (!response.ok) {
-        let errorMsg =
-          "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
-        try {
-          const errorData = await response.json();
-          console.error("Error response:", errorData);
-
-          // Handle specific error messages dari backend
-          if (errorData.detail) {
-            if (Array.isArray(errorData.detail)) {
-              errorMsg = errorData.detail
-                .map((err: any) => `${err.loc?.join(".")}: ${err.msg}`)
-                .join(", ");
-            } else {
-              errorMsg = errorData.detail;
-            }
-          } else if (errorData.message) {
-            errorMsg = errorData.message;
-          } else if (errorData.error) {
-            errorMsg = errorData.error;
-          }
-        } catch (parseErr) {
-          console.error("Failed to parse error response:", parseErr);
-        }
-
-        setErrorModalMessage(errorMsg);
-        setIsErrorModalOpen(true);
-        setIsLoading(false);
-        return;
-      }
-
-      const result = await response.json();
-      console.log("Registration successful:", result);
-
-      if (result.id) {
-        localStorage.setItem("userId", result.id);
-        localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("firstName", result.first_name || "");
-        localStorage.setItem("lastName", result.last_name || "");
-        console.log(
-          "User ID saved to localStorage:",
-          result.id,
-          result.first_name,
-          result.last_name
-        );
-      }
-
-      router.push("/analyze/first");
+      // Mark step 1 as completed and move to step 2
+      markStepCompleted(1);
+      setPersistedCurrentStep(2);
+      setCurrentStep("measurements");
     } catch (err) {
-      console.error("Registration error:", err);
-      if (
-        err instanceof TypeError &&
-        err.message &&
-        err.message.toLowerCase().includes("failed to fetch")
-      ) {
-        setErrorModalMessage(
-          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil atau hubungi admin jika masalah berlanjut."
-        );
-        setIsErrorModalOpen(true);
-      } else {
-        if (
-          err instanceof Error &&
-          err.message.includes("user with this email already exists")
-        ) {
-          setErrorModalMessage("Email Anda sudah terdaftar");
-          setIsErrorModalOpen(true);
-        } else {
-          setErrorModalMessage(
-            "Maaf, terjadi kesalahan yang tidak terduga. Silakan coba lagi."
-          );
-          setIsErrorModalOpen(true);
-        }
-      }
-    } finally {
-      setIsLoading(false);
+      setErrorModalMessage(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat registrasi. Silakan coba lagi."
+      );
+      setIsErrorModalOpen(true);
     }
   };
+
+  // Show registration flow for steps after register
+  if (currentStep !== "register") {
+    return (
+      <RegistrationFlow
+        currentStep={currentStep}
+        onStepChange={handleStepChange}
+      />
+    );
+  }
+
+  // Don't render the registration form until we've checked localStorage
+  if (!isInitialized) {
+    return (
+      <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
+        </div>
+      </main>
+    );
+  }
 
   const steps = [
     { number: "01", title: "Buat Akun", active: true },
     { number: "02", title: "Lengkapi Data", active: false },
     { number: "03", title: "Analisa", active: false },
+    { number: "04", title: "Pilih Bentuk Tubuh Kamu", active: false },
+    { number: "05", title: "Scan Wajah Kamu", active: false },
   ];
 
   return (
     <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <LeftSideSection
           steps={steps}
           currentStepNumber={1}
           showExtendedSteps={false}
         />
         <div className="w-full lg:flex-1 lg:max-w-[65%] lg:mr-[50px]">
-          <div className="bg-white/95 lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
+          <div className="bg-[#f0f0f0]/95 lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
               Buat Akun Baru
             </h2>
@@ -352,12 +373,12 @@ export default function RegisterPage() {
               <div className="flex flex-col gap-4">
                 <button
                   type="submit"
-                  className="w-full bg-[#323232] hover:bg-pink-400 hover:text-white text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
+                  className="w-full bg-[#323232] hover:bg-pink-400 hover:text-[#f0f0f0] text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <svg
-                      className="animate-spin h-5 w-5 text-white"
+                      className="animate-spin h-5 w-5 text-[#f0f0f0]"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -383,7 +404,8 @@ export default function RegisterPage() {
 
                 <button
                   type="button"
-                  className="w-full text-xs lg:text-lg bg-white hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
+                  onClick={handleGoogleSignup}
+                  className="w-full text-xs lg:text-lg bg-[#f0f0f0] hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
                   disabled={isLoading}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -415,7 +437,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     className="text-[#ED80A7] hover:text-pink-600 font-medium transition-colors"
-                    onClick={() => console.log("login")}
+                    onClick={() => router.push("/login")}
                   >
                     Masuk
                   </button>
@@ -426,5 +448,21 @@ export default function RegisterPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
+          </div>
+        </main>
+      }
+    >
+      <RegisterPageContent />
+    </Suspense>
   );
 }

@@ -36,8 +36,8 @@ const PricingCard = ({
     transition={{ duration: 0.5, type: "spring", stiffness: 300, damping: 30 }}
     className={`w-full rounded-2xl p-8 flex flex-col ${className} ${
       isFeatured
-        ? "bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] text-white scale-105 z-10 shadow-2xl"
-        : "bg-white border border-gray-300 text-[#323232] scale-95 opacity-80"
+        ? "bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] text-[#f0f0f0] scale-105 z-10 shadow-2xl"
+        : "bg-[#f0f0f0] border border-gray-300 text-[#323232] scale-95 opacity-80"
     }`}
   >
     <div className="flex items-center gap-4">
@@ -75,8 +75,8 @@ const PricingCard = ({
           <Check
             className={
               isFeatured
-                ? "text-pink-300 bg-white rounded-full w-6 h-6 p-1 font-bold"
-                : "text-white bg-[#323232] rounded-full w-6 h-6 p-1 font-bold"
+                ? "text-pink-300 bg-[#f0f0f0] rounded-full w-6 h-6 p-1 font-bold"
+                : "text-[#f0f0f0] bg-[#323232] rounded-full w-6 h-6 p-1 font-bold"
             }
           />
           <span className="text-sm">{feature}</span>
@@ -87,8 +87,8 @@ const PricingCard = ({
       onClick={onButtonClick}
       className={`flex items-center justify-center gap-4 w-full mt-auto py-4 rounded-lg font-semibold transition-colors ${
         isFeatured
-          ? "bg-white text-[#323232] hover:bg-gray-200"
-          : "bg-[#323232] text-white hover:bg-black"
+          ? "bg-[#f0f0f0] text-[#323232] hover:bg-gray-200"
+          : "bg-[#323232] text-[#f0f0f0] hover:bg-black"
       }`}
     >
       <svg
@@ -374,7 +374,7 @@ export default function PaymentPage() {
                     onClick={() => setPlan("promo")}
                     className={`w-1/2 py-2 rounded-full text-sm font-semibold transition-colors ${
                       plan === "promo"
-                        ? "bg-[#323232] text-white"
+                        ? "bg-[#323232] text-[#f0f0f0]"
                         : "text-gray-500"
                     }`}
                   >
@@ -384,7 +384,7 @@ export default function PaymentPage() {
                     onClick={() => setPlan("normal")}
                     className={`w-1/2 py-2 rounded-full text-sm font-semibold transition-colors ${
                       plan === "normal"
-                        ? "bg-[#323232] text-white"
+                        ? "bg-[#323232] text-[#f0f0f0]"
                         : "text-gray-500"
                     }`}
                   >
@@ -468,7 +468,7 @@ export default function PaymentPage() {
                     placeholder="masukan kode promo"
                     className="flex-grow border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#EF789B]"
                   />
-                  <button className="bg-[#323232] text-white font-semibold px-6 rounded-lg hover:bg-black shadow-md">
+                  <button className="bg-[#323232] text-[#f0f0f0] font-semibold px-6 rounded-lg hover:bg-black shadow-md">
                     Gunakan
                   </button>
                 </div>
@@ -485,7 +485,7 @@ export default function PaymentPage() {
                     <p className="text-[#323232]/30">-Rp 6,000</p>
                   </div>
                 </div>
-                <div className="mt-8 pt-4 border-t flex justify-between items-center bg-[#EF789B] text-white p-4 rounded-lg">
+                <div className="mt-8 pt-4 border-t flex justify-between items-center bg-[#EF789B] text-[#f0f0f0] p-4 rounded-lg">
                   <span className="font-semibold">Total Pembayaran</span>
                   <span className="text-2xl font-bold">Rp 10,000</span>
                 </div>
@@ -539,7 +539,7 @@ export default function PaymentPage() {
                 <button
                   onClick={handlePayNow}
                   disabled={isAnalysisLoading}
-                  className="w-full mt-8 bg-[#323232] text-white font-semibold py-4 rounded-lg hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full mt-8 bg-[#323232] text-[#f0f0f0] font-semibold py-4 rounded-lg hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isAnalysisLoading
                     ? "Memproses Analisis..."

@@ -1,32 +1,37 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
-import { AnalysisData } from "@/types";
 import { useAllTips } from "@/hooks/useAllTips";
+import { AnalysisData } from "@/types";
+import Image from "next/image";
+import React from "react";
 
 interface TipCardProps {
   category: string;
-  tip: string;
+  tip: string | null;
   icon: string;
   type?: boolean;
+  isBodyTip?: boolean;
 }
 
-const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => (
-  <div className="border-[1px] p-[20px] w-full border-neutral-600 rounded-2xl h-full">
-    <div className="flex flex-row items-center gap-[10px] lg:flex-col lg:items-start">
-      <div className="">
-        <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => {
+  return (
+    <div className="border-[1px] p-[20px] w-full border-[#323232] rounded-2xl h-full">
+      <div className="flex flex-row items-center gap-[10px] lg:flex-col lg:items-start">
+        <div className="">
+          <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+        </div>
+        <h3 className="font-handlee italic text-[#323232] mt-1 text-base sm:text-xl">
+          {category}
+        </h3>
       </div>
-      <h3 className="font-handlee italic text-[#323232] mt-1 text-base sm:text-xl">
-        {category}
-      </h3>
+      <div className="mt-2">
+        <div className="mt-2 font-poppins text-[#323232]">
+          {tip?.replace(/^-+/gm, "").trim()}
+        </div>
+      </div>
     </div>
-    <p className="text-[#323232] mt-2 font-poppins text-sm sm:text-base lg:text-lg leading-relaxed">
-      {tip}
-    </p>
-  </div>
-);
+  );
+};
 
 interface TipsSectionProps {
   analysisData: AnalysisData;
@@ -78,6 +83,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
         category="Tips untuk bentuk badan kamu"
         tip={allTips.bodyTip}
         icon="/overview-ai/icons/healthicons_body.svg"
+        isBodyTip={true}
       />
       <TipCard
         type
@@ -102,12 +108,8 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
           Rekap Cepat Tips Kamu
         </h3>
         <div className="text-[#323232] text-sm sm:text-base lg:text-lg leading-relaxed">
-          <div className="text">
-            <strong>Makeup:</strong> {allTips.makeupTip}
-          </div>
-          <div className="text mt-2">
-            <strong>Gaya Sesuai BMI:</strong> {allTips.bmiTip}
-          </div>
+          {allTips.makeupTip}
+          {allTips.bmiTip}
         </div>
       </div>
     </div>

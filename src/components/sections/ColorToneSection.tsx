@@ -36,7 +36,7 @@ const ColorCircle: React.FC<ColorCircleProps> = ({ color, className }) => (
 
 const ColorGroup: React.FC<ColorGroupProps> = ({ title, colors }) => (
   <div className="text-center">
-    <h3 className="font-poppins lg:text-lg font-bold text-[#323232]">
+    <h3 className="font-poppins lg:text-lg font-bold text-[#323232] mx-1">
       {title}
     </h3>
     <div className="mt-2 grid grid-cols-3 grid-rows-2 gap-3">
@@ -107,11 +107,11 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   return (
     <div className="font-sans max-w-6xl w-full mx-auto space-y-[50px]">
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-[20px] lg:gap-[50px]">
-        <div className="lg:col-span-2 px-[25px] pt-[10px] pb-[18px] rounded-2xl border-[1px] border-neutral-600">
-          <h2 className="text-2xl sm:text-3xl lg:text-[48px] font-bold font-oswald ">
+        <div className="lg:col-span-2 px-[25px] rounded-2xl border-[1px] border-neutral-600">
+          <h2 className="text-2xl md:text-4xl sm:text-3xl lg:text-5xl font-bold font-oswald pt-2.5">
             {colorData.name}
           </h2>
-          <p className="mt-4 text-[#323232] font-poppins text-sm sm:text-base lg:text-xl">
+          <p className="pt-2 pb-4 text-[#323232] font-poppins text-sm sm:text-base lg:text-xl">
             {colorData.penjelasan_color_analysis}
           </p>
         </div>
@@ -172,21 +172,53 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
                 colors={colorData.neutral_colour || []}
               />
             </div>
-            <div className="flex items-center gap-2 lg:gap-0 lg:space-x-4 border border-[#323232] rounded-2xl p-2">
-              <span className="font-bold text-sm text-[#323232] lg:pl-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0 sm:space-x-4 border border-[#323232] rounded-2xl p-3 sm:p-2">
+              <span className="font-bold text-sm text-[#323232] sm:pl-2 flex-shrink-0">
                 Combination
               </span>
-              <div className="flex items-center lg:gap-x-6 justify-center">
-                {(colorData.best_colour_combination || []).map(
-                  (colorPair: string[], index: number) =>
-                    Array.isArray(colorPair) &&
-                    colorPair.length === 2 && (
-                      <div key={index} className="flex flex-shrink-0">
-                        <ColorCircle color={colorPair[0]} />
-                        <ColorCircle color={colorPair[1]} className="-ml-4" />
-                      </div>
-                    )
-                )}
+
+              {/* Mobile Layout - Colors below text */}
+              <div className="block sm:hidden w-full">
+                <div className="flex items-center gap-x-2 justify-start overflow-x-auto pb-1">
+                  {(colorData.best_colour_combination || []).map(
+                    (colorPair: string[], index: number) =>
+                      Array.isArray(colorPair) &&
+                      colorPair.length === 2 && (
+                        <div key={index} className="flex flex-shrink-0">
+                          <ColorCircle
+                            color={colorPair[0]}
+                            className="w-6 h-6"
+                          />
+                          <ColorCircle
+                            color={colorPair[1]}
+                            className="w-6 h-6 -ml-2"
+                          />
+                        </div>
+                      )
+                  )}
+                </div>
+              </div>
+
+              {/* Desktop Layout - Colors inline with text */}
+              <div className="hidden sm:flex sm:flex-col items-center justify-center flex-1 min-w-0">
+                <div className="flex items-center gap-x-2 md:gap-x-3 min-w-0">
+                  {(colorData.best_colour_combination || []).map(
+                    (colorPair: string[], index: number) =>
+                      Array.isArray(colorPair) &&
+                      colorPair.length === 2 && (
+                        <div key={index} className="flex flex-shrink-0">
+                          <ColorCircle
+                            color={colorPair[0]}
+                            className="w-6 h-6 md:w-7 md:h-7"
+                          />
+                          <ColorCircle
+                            color={colorPair[1]}
+                            className="w-6 h-6 md:w-7 md:h-7 -ml-2"
+                          />
+                        </div>
+                      )
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -63,12 +63,12 @@ const MainContent = ({
                 target.src = "/placeholder.png";
               }}
             />
-            <div className="absolute bottom-3 left-3 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-xs font-bold">
+            <div className="absolute bottom-3 left-3 bg-black bg-opacity-60 text-[#f0f0f0] px-3 py-1 rounded-full text-xs font-bold">
               {Math.round((product.total_compatibility_score || 0) * 10)}% Match
             </div>
           </div>
           {/* Card Deskripsi */}
-          <div className="w-1/2 bg-[#323232] text-white p-6 flex flex-col justify-center h-full rounded-r-lg">
+          <div className="w-1/2 bg-[#323232] text-[#f0f0f0] p-6 flex flex-col justify-center h-full rounded-r-lg">
             <h2
               className="text-3xl font-oswald mb-2 truncate"
               title={product.name || "Product"}

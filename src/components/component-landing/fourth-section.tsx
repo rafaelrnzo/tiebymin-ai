@@ -38,7 +38,7 @@ const faqItems = [
 
 const FaqSection = () => {
   return (
-    <section className="bg-white px-4 sm:px-10 lg:px-[200px]">
+    <section className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[200px]">
       <div className="container mx-auto">
         <hr className="mb-[100px]" />
         <div className="grid grid-cols-1 xl:grid-cols-2 lg:gap-24 gap-6 items-center">
@@ -80,9 +80,9 @@ const FaqSection = () => {
             <a href="/metodologi">
               <Button
                 size="lg"
-                className="bg-[#323232] w-full text-white font-semibold rounded-xl py-5 sm:py-7 self-start text-base"
+                className="bg-[#323232] w-full text-[#f0f0f0] font-semibold rounded-xl py-5 sm:py-7 self-start text-base"
               >
-                <Clipboard className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                <Clipboard className="h-6 w-6 sm:h-8 sm:w-8 text-[#f0f0f0]" />
                 Lihat Metodologi
               </Button>
             </a>

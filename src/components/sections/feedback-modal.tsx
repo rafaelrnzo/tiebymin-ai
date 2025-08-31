@@ -1,17 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+import { useSubmitFeedback } from "@/hooks/useSubmitFeedback";
 import { Send, Star } from "lucide-react";
 import { useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useSubmitFeedback } from "@/hooks/useSubmitFeedback";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -20,62 +11,82 @@ interface FeedbackModalProps {
   analysisResultId: string;
 }
 
-export const FeedbackModal: React.FC<FeedbackModalProps> = ({
+function FeedbackModal({
   isOpen,
   onClose,
   userId,
   analysisResultId,
-}) => {
+}: FeedbackModalProps) {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const { mutate: submitFeedback, isPending } = useSubmitFeedback();
-
   const handleStarClick = (newRating: number) => {
     setRating(newRating);
   };
 
   const handleSubmit = () => {
-    submitFeedback(
-      {
-        user_id: userId,
-        analysis_result_id: analysisResultId,
-        feedback_type: "accurate",
-        feedback_comment: feedback,
-        user_rating: rating,
+    // Validate required fields
+    if (rating === 0) {
+      alert("Silakan pilih rating terlebih dahulu");
+      return;
+    }
+
+    if (!userId) {
+      alert("User ID tidak ditemukan. Silakan refresh halaman dan coba lagi.");
+      console.error("User ID is missing:", { userId, analysisResultId });
+      return;
+    }
+
+    const feedbackData = {
+      user_id: userId,
+      analysis_result_id: analysisResultId,
+      feedback_type: "accurate",
+      feedback_comment: feedback || "", // Allow empty feedback
+      user_rating: rating,
+    };
+
+    console.log("Submitting feedback:", feedbackData); // Debug log
+
+    submitFeedback(feedbackData, {
+      onSuccess: () => {
+        console.log("Feedback submitted successfully");
+        localStorage.setItem("feedbackDismissed", "true");
+
+        onClose();
       },
-      {
-        onSuccess: () => {
-          if (dontShowAgain) {
-            localStorage.setItem("feedbackDismissed", "true");
-          }
-          onClose();
-        },
-        onError: (error) => {
-          console.error("Error submitting feedback:", error);
-        },
-      }
-    );
+      onError: (error) => {
+        console.error("Error submitting feedback:", error);
+        alert("Terjadi kesalahan saat mengirim feedback. Silakan coba lagi.");
+      },
+    });
   };
 
   const handleClose = () => {
-    if (dontShowAgain) {
-      localStorage.setItem("feedbackDismissed", "true");
-    }
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[420px] bg-[#1E1E1E] text-white rounded-2xl border-0">
-        <DialogHeader className="flex justify-start items-start">
-          <DialogTitle className="font-oswald text-2xl font-bold text-start">
-            Beri kami masukan
-          </DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-[#323232]/80" onClick={handleClose} />
+
+      {/* Modal with mobile margins */}
+      <div className="relative mx-4 sm:mx-0 w-full sm:max-w-[420px] bg-[#323232] text-[#f0f0f0] rounded-2xl border-0 p-6">
+        <div className="flex justify-start items-start mb-4">
+          <h2 className="text-2xl font-bold text-start">Beri kami masukan</h2>
+          <button
+            onClick={handleClose}
+            className="ml-auto text-gray-400 hover:text-[#f0f0f0]"
+          >
+            ✕
+          </button>
+        </div>
 
         <div className="flex flex-col gap-2">
-          <p className="text-start text-sm mb-3 font-poppins">
+          <p className="text-start text-sm mb-3">
             Seberapa puas anda dengan hasilnya?
           </p>
           <div className="mb-4">
@@ -86,20 +97,18 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   className={`w-8 h-8 cursor-pointer transition-colors duration-200 ${
                     star <= rating
                       ? "text-yellow-400 fill-yellow-400"
-                      : " fill-[#F0F0F0]"
+                      : "text-gray-400 fill-gray-400"
                   }`}
-                  fill={star <= rating ? "currentColor" : "none"}
                   onClick={() => handleStarClick(star)}
                 />
               ))}
             </div>
           </div>
+
           <div className="mb-4">
-            <p className="text-sm mb-4 font-poppins">
-              Apa saran anda untuk kami?
-            </p>
-            <Textarea
-              className="bg-[#F0F0F0] text-[#323232] placeholder-gray-400 resize-none h-[150px]"
+            <p className="text-sm mb-4">Apa saran anda untuk kami?</p>
+            <textarea
+              className="w-full bg-gray-100 text-gray-800 placeholder-gray-400 resize-none h-[150px] rounded-lg p-3 border-0"
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Tuliskan masukan anda disini..."
@@ -108,33 +117,35 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
           </div>
 
           <div className="flex items-center space-x-2 mb-3">
-            <Checkbox
+            <input
+              type="checkbox"
               id="dontShowAgain"
               checked={dontShowAgain}
-              onCheckedChange={(checked) =>
-                setDontShowAgain(checked as boolean)
-              }
+              onChange={(e) => {
+                const isChecked = (e.target as HTMLInputElement).checked;
+                setDontShowAgain(isChecked);
+                if (isChecked) {
+                  localStorage.setItem("feedbackDismissed", "true");
+                  onClose();
+                }
+              }}
+              className="rounded"
             />
-            <label
-              htmlFor="dontShowAgain"
-              className="text-xs cursor-pointer font-poppins"
-            >
+            <label htmlFor="dontShowAgain" className="text-xs cursor-pointer">
               Jangan tampilkan lagi
             </label>
           </div>
 
-          {/* Buttons */}
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="border-gray-500 text-white hover:bg-gray-700"
+          <div className="flex gap-3 ">
+            <button
+              className="border border-gray-500 text-[#f0f0f0] hover:bg-gray-700 py-2 px-4 rounded-lg transition-colors"
               onClick={handleClose}
               disabled={isPending}
             >
               Batal
-            </Button>
-            <Button
-              className="bg-[#EF789B] hover:bg-pink-400 text-white flex items-center gap-2"
+            </button>
+            <button
+              className=" bg-pink-400 hover:bg-pink-500 text-[#f0f0f0] flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-colors"
               onClick={handleSubmit}
               disabled={isPending}
             >
@@ -142,13 +153,16 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 "Mengirim..."
               ) : (
                 <>
-                  <Send /> Kirim
+                  <Send />
+                  <span>Kirim</span>
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
-};
+}
+
+export default FeedbackModal;
