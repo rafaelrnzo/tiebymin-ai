@@ -8,18 +8,14 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        // Default Tailwind breakpoints:
-        // sm: '640px'
-        // md: '768px' 
-        // lg: '1024px'
-        // xl: '1280px'
-        // 2xl: '1536px'
-        
-        // Custom breakpoints
-        'tablet': '1024px',
-        // Atau jika Anda ingin breakpoint yang berbeda:
-        // 'tablet': '900px',
-      },
+      'xs': '480px',  // Extra small devices
+      'sm': '640px',  // Small devices
+      'md': '768px',  // Medium devices
+      'tablet': '1024px', // Large devices
+      'xl': '1280px', // Extra large devices
+      '2xl': '1536px', // 2X large devices
+      '3xl': '1920px', // Custom breakpoint
+    },
       fontFamily: {
         oswald: ['var(--font-oswald)'],
         handlee: ['var(--font-handlee)'],

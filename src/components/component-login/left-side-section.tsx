@@ -110,6 +110,8 @@ export default function LeftSideSection({
           transition: all 0.3s ease-in-out;
         }
       `}</style>
+
+      {/* Logo */}
       <div className="flex justify-center w-[120px] lg:w-full mt-[40px] lg:mt-0">
         <Image
           src="/vector/tie-by-min-logo.svg"
@@ -129,6 +131,7 @@ export default function LeftSideSection({
         </h3>
       </div>
 
+      {/* Current Step Indicator */}
       {currentStep && (
         <div className="bg-[#f0f0f0]/70 backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md">
           <span className="text-gray-700 font-medium font-poppins">
@@ -168,11 +171,7 @@ export default function LeftSideSection({
                   {description}
                 </p>
               </div>
-              <div
-                className={
-                  "shadow-md hidden lg:flex border rounded-2xl p-4 items-center justify-between transition-colors duration-300"
-                }
-              >
+              <div className="shadow-md hidden lg:flex border rounded-2xl p-4 items-center justify-between transition-colors duration-300">
                 <span className="font-bold font-poppins">Scan Wajah Kamu</span>
                 <div className="w-6 h-6 rounded flex items-center justify-center">
                   <Sparkles fill="black" />
@@ -183,11 +182,7 @@ export default function LeftSideSection({
 
           {title === "Scan Wajah Kamu" && (
             <>
-              <div
-                className={
-                  "shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300"
-                }
-              >
+              <div className="shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300">
                 <span className="font-bold font-poppins">
                   Pilih bentuk Tubuh Kamu
                 </span>
@@ -296,14 +291,14 @@ export default function LeftSideSection({
         </div>
       )}
 
-      {/* Desktop steps - show when steps exist and not on special title steps */}
+      {/* Desktop Steps Cards */}
       {steps &&
         !(
           title === "Pilih Bentuk Tubuh Kamu" || title === "Scan Wajah Kamu"
         ) && (
           <div className="hidden lg:block w-full max-w-sm mx-auto">
-            <div className="space-y-5">
-              {/* Show main steps (1-3) when not in analysis phase */}
+            <div className="flex flex-col gap-5">
+              {/* Steps 1-3 untuk currentStepNumber < 3 */}
               {(!currentStepNumber || currentStepNumber < 3) && (
                 <>
                   {steps
@@ -353,10 +348,10 @@ export default function LeftSideSection({
                 </>
               )}
 
-              {/* Show expanded analysis steps when in analysis phase */}
+              {/* Step 3 dan substeps untuk currentStepNumber >= 3 */}
               {currentStepNumber && currentStepNumber >= 3 && (
                 <>
-                  {/* Main Analisa step */}
+                  {/* Main Analisa Card */}
                   <div className="backdrop-blur-sm rounded-2xl px-6 py-4 flex items-center justify-between w-full max-w-sm mx-auto shadow-md bg-[#EF789B] text-[#f0f0f0]">
                     <span className="font-poppins font-bold">Analisa</span>
                     <div className="w-8 h-8 flex items-center justify-center text-sm font-bold text-[#f0f0f0]">
@@ -364,11 +359,11 @@ export default function LeftSideSection({
                     </div>
                   </div>
 
-                  {/* Sub-steps for analysis */}
+                  {/* Sub-steps 4 dan 5 */}
                   {steps
                     .filter((step) => {
                       const stepNumber = parseInt(step.number, 10);
-                      return stepNumber === 4 || stepNumber === 5; // Pilih Bentuk Tubuh and Scan Wajah
+                      return stepNumber === 4 || stepNumber === 5;
                     })
                     .map((step, index) => {
                       const stepNumber = parseInt(step.number, 10);

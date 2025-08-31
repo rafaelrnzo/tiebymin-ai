@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
-import { AnalysisData } from "@/types";
 import { useAllTips } from "@/hooks/useAllTips";
+import { AnalysisData } from "@/types";
+import Image from "next/image";
+import React from "react";
 
 interface TipCardProps {
   category: string;
@@ -13,45 +13,7 @@ interface TipCardProps {
   isBodyTip?: boolean;
 }
 
-const TipCard: React.FC<TipCardProps> = ({
-  category,
-  tip,
-  icon,
-  isBodyTip = false,
-}) => {
-  const formatTip = (tipText: string | null) => {
-    if (!tipText) {
-      console.log("tipText is null/undefined");
-      return (
-        <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-lg leading-relaxed">
-          Tips tidak tersedia.
-        </p>
-      );
-    }
-
-    if (isBodyTip && tipText.includes("-")) {
-      console.log("Formatting as bullet points for bodyTip");
-      const points = tipText
-        .split("-")
-        .filter((point: string) => point.trim() !== "")
-        .map((point: string, index: number) => (
-          <p
-            key={index}
-            className="text-xs sm:text-sm lg:text-lg text-[#323232] font-poppins leading-relaxed"
-          >
-            • {point.trim()}
-          </p>
-        ));
-      return <div className="flex flex-col">{points}</div>;
-    }
-
-    return (
-      <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-lg leading-relaxed">
-        {tipText}
-      </p>
-    );
-  };
-
+const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => {
   return (
     <div className="border-[1px] p-[20px] w-full border-neutral-600 rounded-2xl h-full">
       <div className="flex flex-row items-center gap-[10px] lg:flex-col lg:items-start">
@@ -62,7 +24,11 @@ const TipCard: React.FC<TipCardProps> = ({
           {category}
         </h3>
       </div>
-      <div className="mt-2">{formatTip(tip)}</div>
+      <div className="mt-2">
+        <div className="mt-2 font-poppins text-[#323232]">
+          {tip?.replace(/^-+/gm, "").trim()}
+        </div>
+      </div>
     </div>
   );
 };
@@ -142,12 +108,8 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
           Rekap Cepat Tips Kamu
         </h3>
         <div className="text-[#323232] text-sm sm:text-base lg:text-lg leading-relaxed">
-          <div className="text">
-            <strong>Makeup:</strong> {allTips.makeupTip}
-          </div>
-          <div className="text mt-2">
-            <strong>Gaya Sesuai BMI:</strong> {allTips.bmiTip}
-          </div>
+          {allTips.makeupTip}
+          {allTips.bmiTip}
         </div>
       </div>
     </div>
