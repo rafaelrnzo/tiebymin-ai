@@ -36,7 +36,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[200px]">
+    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[100px]">
       <div className="container mx-auto">
         <div className="container mx-auto bg-[#F0F0F0] rounded-2xl mt-12 sm:mt-16 py-12 sm:py-20 text-center shadow-md">
           <h2 className="font-handlee text-4xl sm:text-5xl lg:text-6xl font-bold text-[#323232] leading-tight">

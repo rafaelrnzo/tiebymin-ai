@@ -366,7 +366,7 @@ const AnalysisDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[190px]">
+    <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[80px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
         <MobileCardsSlider />
 

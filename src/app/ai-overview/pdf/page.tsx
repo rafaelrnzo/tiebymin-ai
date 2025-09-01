@@ -119,7 +119,8 @@ function PdfPage() {
     };
   }, [analysisResult, isPrintMode, userNameFromUrl]);
 
-  const { refetch: downloadPdf, isLoading: isGenerating } = useDownloadPdf();
+  const { mutateAsync: downloadPdf, isPending: isGenerating } =
+    useDownloadPdf();
 
   const [error, setError] = useState<string | null>(null);
 
@@ -160,7 +161,7 @@ function PdfPage() {
 
     try {
       setError(null);
-      const result = await downloadPdf();
+      const result = await downloadPdf({ resultId });
 
       if (result.data) {
         const url = window.URL.createObjectURL(result.data);

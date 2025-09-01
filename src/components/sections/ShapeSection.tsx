@@ -99,7 +99,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
                 index === 0 ? (
                   <span key={index}>
                     <span className="block text-xs lg:text-xl">
-                      {item.trim()}
+                      {item.trim()}kokokoko
                     </span>
                   </span>
                 ) : (

@@ -61,7 +61,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, text }) => (
     <h4 className="font-handlee text-sm sm:text-base lg:text-xl italic text-[#323232] font-oswald">
       {title}
     </h4>
-    <p className="mt-1 text-sm sm:text-base lg:text-lg text-[#323232] font-poppins">
+    <p className="mt-1 text-xs lg:text-xl text-[#323232] font-poppins">
       {text}
     </p>
   </div>
@@ -111,7 +111,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           <h2 className="text-2xl md:text-4xl sm:text-3xl lg:text-5xl font-bold font-oswald pt-2.5">
             {colorData.name}
           </h2>
-          <p className="pt-2 pb-4 text-[#323232] font-poppins text-xl lg:text-base md:text-base xl:text-xl">
+          <p className="pt-2 pb-4 text-[#323232] font-poppins text-xs lg:text-xl">
             {colorData.penjelasan_color_analysis}
           </p>
         </div>
@@ -143,20 +143,19 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
                 )
               )}
             </MobileColorRow>
-            <div className="mb-10">
-              <MobileColorRow title="Combination">
-                {(colorData.best_colour_combination || []).map(
-                  (colorPair: string[], index: number) =>
-                    Array.isArray(colorPair) &&
-                    colorPair.length === 2 && (
-                      <div key={index} className="flex flex-shrink-0 pb-10">
-                        <ColorCircle color={colorPair[0]} />
-                        <ColorCircle color={colorPair[1]} className="-ml-4" />
-                      </div>
-                    )
-                )}
-              </MobileColorRow>
-            </div>
+            <MobileColorRow title="Combination">
+              {(colorData.best_colour_combination || []).map(
+                (colorPair: string[], index: number) =>
+                  Array.isArray(colorPair) &&
+                  colorPair.length === 2 && (
+                    <div key={index} className="flex flex-shrink-0">
+                      <ColorCircle color={colorPair[0]} />
+                      <ColorCircle color={colorPair[1]} className="-ml-4" />
+                    </div>
+                  )
+              )}
+            </MobileColorRow>
+            ={" "}
           </div>
 
           <div className="hidden lg:block lg:space-y-10">

@@ -81,7 +81,7 @@ function PreviewPdfPage() {
     isError: tipsError,
   } = useAllTips({ analysisData: rawAnalysisData, enabled: !!rawAnalysisData });
 
-  const { refetch: downloadPdf } = useDownloadPdf();
+  const { mutateAsync: downloadPdf } = useDownloadPdf();
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -92,7 +92,7 @@ function PreviewPdfPage() {
     setIsDownloading(true);
     try {
       setError(null);
-      const result = await downloadPdf();
+      const result = await downloadPdf({ resultId });
 
       if (result.data) {
         const url = window.URL.createObjectURL(result.data);

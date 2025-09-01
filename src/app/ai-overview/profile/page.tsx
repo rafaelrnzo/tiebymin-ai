@@ -42,8 +42,14 @@ const shortenMonth = (dateString: string) => {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { userProfile, analysisHistory, isLoading, error, fetchUserData } =
-    useUserData();
+  const {
+    userProfile,
+    analysisHistory,
+    isLoading,
+    error,
+    fetchUserData,
+    logout,
+  } = useUserData();
 
   useEffect(() => {
     fetchUserData();
@@ -74,7 +80,7 @@ export default function DashboardPage() {
   return (
     <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
       <Navbar />
-      <main className="container mx-auto lg:px-[200px] px-4 lg:pt-[190px]">
+      <main className="container mx-auto px-4 pt-[100px] lg:pt-[190px]">
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-[20px] lg:gap-[50px] mb-[20px]">
           <Card className="lg:col-span-1 rounded-2xl border flex flex-col items-center justify-center text-center p-6">
             <Image
@@ -93,7 +99,10 @@ export default function DashboardPage() {
               <button className="py-2 border w-full rounded-lg border-[#EF789B] text-[#EF789B] hover:bg-[#EF789B] hover:text-[#f0f0f0]">
                 Reset Password
               </button>
-              <button className="w-full py-2 text-[#f0f0f0] font-bold font-poppins rounded-lg bg-[#EF789B] hover:bg-pink-500">
+              <button
+                onClick={() => logout()}
+                className="w-full py-2 text-[#f0f0f0] font-bold font-poppins rounded-lg bg-[#EF789B] hover:bg-pink-500"
+              >
                 Log Out
               </button>
             </div>
@@ -209,7 +218,14 @@ export default function DashboardPage() {
                       </TableCell>
                       <TableCell className="py-4">
                         <div className="flex items-center gap-8">
-                          <Button className="bg-[#EF789B] hover:bg-pink-500 rounded-lg shadow-md">
+                          <Button
+                            className="bg-[#EF789B] hover:bg-pink-500 rounded-lg shadow-md"
+                            onClick={() =>
+                              router.push(
+                                `/ai-overview/pdf/preview?result_id=${item.analysis_id}`
+                              )
+                            }
+                          >
                             <Download className="h-4 w-4 text-[#f0f0f0]" />
                             <p className="hidden sm:block text-[#f0f0f0] ml-2">
                               Download

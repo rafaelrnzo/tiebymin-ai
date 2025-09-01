@@ -4,12 +4,25 @@ import LeftSideSection from "@/components/component-login/left-side-section";
 import { ErrorModal } from "@/components/sections/error-modal";
 import { secureUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUserData } from "@/hooks/useUserData";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading, error } = useUserData();
+
+  // Check if user is already logged in and redirect to profile
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const userToken = localStorage.getItem("userToken");
+    const isLoggedIn =
+      !!(accessToken && accessToken.trim()) ||
+      !!(userToken && userToken.trim());
+
+    if (isLoggedIn) {
+      router.push("/ai-overview/profile");
+    }
+  }, [router]);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [formData, setFormData] = useState({

@@ -123,8 +123,10 @@ export default function LeftSideSection({
         />
       </div>
 
-      {/* Description text for all steps */}
-      {title === "Pilih Bentuk Tubuh Kamu" || "Scan Wajah Kamu" ? null : (
+      {/* Description text for all steps except body-shape and face-scan */}
+      {!(
+        title === "Pilih Bentuk Tubuh Kamu" || title === "Scan Wajah Kamu"
+      ) && (
         <div className="w-full max-w-sm mx-auto">
           <h3 className="text-center font-poppins text-gray-800 mb-4">
             Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami yang

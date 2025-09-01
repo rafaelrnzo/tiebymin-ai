@@ -58,7 +58,7 @@ function StoryPage() {
     data?.rawAnalysisData.face_shape_id
   );
 
-  const { refetch: generateStory } = useGenerateStory();
+  const { mutateAsync: generateStory } = useGenerateStory();
 
   if (isLoading) {
     return (

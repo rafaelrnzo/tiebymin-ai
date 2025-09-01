@@ -77,7 +77,7 @@ export function Navbar() {
   };
 
   return (
-    <div className=" fixed top-0 left-0 right-0 z-50 w-full xl:px-[190px] px-0 lg:pt-[60px]">
+    <div className=" fixed top-0 left-0 right-0 z-50 w-full px-0 lg:pt-[60px]">
       <header className="lg:container mx-0 w-full lg:mx-auto relative rounded-none lg:py-0 py-3 lg:rounded-full bg-[#333333] text-[#f0f0f0] shadow-lg backdrop-blur-md">
         {/* Desktop Navigation */}
         <div className="hidden xl:flex items-center justify-between py-3 px-8">

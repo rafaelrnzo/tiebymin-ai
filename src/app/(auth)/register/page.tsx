@@ -54,11 +54,7 @@ function RegisterPageContent() {
           return;
         }
 
-        // If user is already logged in but no startStep parameter, redirect to home
-        if (isLoggedIn && !startStepParam) {
-          router.push("/");
-          return;
-        }
+        // Allow logged-in users to access register page (no redirect)
 
         const savedStep = getCurrentStepFromStorage();
         const savedStepFromRegistration = persistedCurrentStep;

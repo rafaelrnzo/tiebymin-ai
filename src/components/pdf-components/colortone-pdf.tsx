@@ -75,13 +75,11 @@ export const ColorTone = ({
   colorToneDetails?: ColorToneType;
 }) => {
   return (
-    // PERUBAHAN 1: Hapus wrapper dan ganti `h-screen` menjadi `h-full`
     <div className="bg-[#F0F0F0] w-full h-full flex flex-col">
       <div className="px-10">
         <PageHeader width={100} name={userData.name} />
       </div>
 
-      {/* Bagian Atas (Konten Terang) */}
       <div className="px-10 py-6">
         <h1 className="text-2xl mb-2 font-oswald">
           Color tone kamu {userData.colorTone}
@@ -112,9 +110,7 @@ export const ColorTone = ({
         </div>
       </div>
 
-      {/* PERUBAHAN 2: Bagian Bawah (Konten Gelap) yang Mengisi Sisa Ruang */}
       <div className="bg-[#323232] p-10 mt-10 flex-grow flex flex-col">
-        {/* Konten akan berada di atas */}
         <div className="grid grid-cols-2 gap-10">
           <InfoSection
             title="Make Up Tips"
@@ -133,10 +129,7 @@ export const ColorTone = ({
             content={colorToneDetails?.karakteristik}
           />
         </div>
-        <Footer
-          page="03"
-          className="bg-transparent text-[#f0f0f0] mt-[12rem]"
-        />
+        <Footer page="03" className="bg-transparent text-white mt-[12rem]" />
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ export const SecondSection = () => {
   return (
     <section
       id="tutorial"
-      className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[200px] mb-[100px]"
+      className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[100px] mb-[100px]"
     >
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">

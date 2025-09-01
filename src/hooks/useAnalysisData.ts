@@ -3,9 +3,10 @@ import axios from "axios";
 import { secureUrl } from "@/lib/api";
 import { BodyType } from "@/types";
 import { defaultUserData } from "@/lib/mock-data";
+import { useRouter } from "next/navigation";
 
 
-async function fetchData(endpoint: string) {
+async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
   console.log(`🔄 Fetching: ${fullUrl}`); // Debug log
       const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
@@ -28,6 +29,18 @@ async function fetchData(endpoint: string) {
         `❌ HTTP Error ${response.status} for ${endpoint}:`,
         response.data
       );
+      if (response.status === 401) {
+        console.log("🚪 Unauthorized access, redirecting to login");
+        if (onUnauthorized) {
+          onUnauthorized();
+        } else {
+          // Fallback: redirect to login if no callback provided
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+        }
+        throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+      }
       if (response.status === 404) {
         throw new Error(
           "Kami tidak dapat menemukan data yang Anda cari. Mohon periksa ID dan coba lagi."
@@ -37,8 +50,21 @@ async function fetchData(endpoint: string) {
         "Kami mengalami masalah saat mengambil data. Mohon coba lagi dalam beberapa saat."
       );
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`💥 Fetch error for ${endpoint}:`, error);
+    // Handle axios error responses
+    const axiosError = error as { response?: { status?: number } };
+    if (axiosError.response?.status === 401) {
+      console.log("🚪 Unauthorized access (catch), redirecting to login");
+      if (onUnauthorized) {
+        onUnauthorized();
+      } else {
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+      }
+      throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+    }
     throw error;
   }
 }
@@ -49,6 +75,12 @@ export function useAnalysisData(
   options?: { onError?: (error: Error) => void }
 ) {
   console.log("🚀 useAnalysisData called with resultId:", resultId); // Debug log
+
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
 
   return useQuery({
     queryKey: ["analysisData", resultId],
@@ -64,8 +96,8 @@ export function useAnalysisData(
         // Fetch analysis data dan photos secara parallel
         console.log("🔄 Fetching analysis data and photos...");
         const [analysisData, photosData] = await Promise.all([
-          fetchData(`/v1/user-analysis-results/${resultId}`),
-          fetchData(`/v1/user-photos/analysis/${resultId}`),
+          fetchData(`/v1/user-analysis-results/${resultId}`, handleUnauthorized),
+          fetchData(`/v1/user-photos/analysis/${resultId}`, handleUnauthorized),
         ]);
 
         console.log("📋 Analysis data received:", analysisData);
@@ -84,19 +116,19 @@ export function useAnalysisData(
         console.log("🔄 Fetching additional data...");
         const additionalDataPromises = [
           analysisData.face_shape_id
-            ? fetchData(`/v1/face-shapes/${analysisData.face_shape_id}`)
+            ? fetchData(`/v1/face-shapes/${analysisData.face_shape_id}`, handleUnauthorized)
             : Promise.resolve(null),
           analysisData.color_analysis_id
-            ? fetchData(`/v1/color-analysis/${analysisData.color_analysis_id}`)
+            ? fetchData(`/v1/color-analysis/${analysisData.color_analysis_id}`, handleUnauthorized)
             : Promise.resolve(null),
           analysisData.body_shape_id
-            ? fetchData(`/v1/body-shapes/${analysisData.body_shape_id}`)
+            ? fetchData(`/v1/body-shapes/${analysisData.body_shape_id}`, handleUnauthorized)
             : Promise.resolve(null),
           analysisData.bmi_category_id
-            ? fetchData(`/v1/bmi-categories/${analysisData.bmi_category_id}`)
+            ? fetchData(`/v1/bmi-categories/${analysisData.bmi_category_id}`, handleUnauthorized)
             : Promise.resolve(null),
           analysisData.celebrity_id
-            ? fetchData(`/v1/celebrities/${analysisData.celebrity_id}`)
+            ? fetchData(`/v1/celebrities/${analysisData.celebrity_id}`, handleUnauthorized)
             : Promise.resolve(null),
         ];
 
@@ -261,13 +293,19 @@ export function useAnalysisData(
 }
 
 export function useFaceShapeData(faceShapeId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
   return useQuery({
     queryKey: ["faceShape", faceShapeId],
     queryFn: async () => {
       if (!faceShapeId) {
         throw new Error("ID Bentuk Wajah diperlukan");
       }
-      return fetchData(`/v1/face-shapes/${faceShapeId}`);
+      return fetchData(`/v1/face-shapes/${faceShapeId}`, handleUnauthorized);
     },
     enabled: !!faceShapeId,
     retry: 2,
@@ -275,13 +313,19 @@ export function useFaceShapeData(faceShapeId: string | null) {
 }
 
 export function useColorToneData(colorAnalysisId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
   return useQuery({
     queryKey: ["colorTone", colorAnalysisId],
     queryFn: async () => {
       if (!colorAnalysisId) {
         throw new Error("ID Analisis Warna diperlukan");
       }
-      return fetchData(`/v1/color-analysis/${colorAnalysisId}`);
+      return fetchData(`/v1/color-analysis/${colorAnalysisId}`, handleUnauthorized);
     },
     enabled: !!colorAnalysisId,
     retry: 2,
@@ -289,6 +333,12 @@ export function useColorToneData(colorAnalysisId: string | null) {
 }
 
 export function useBodyShapeData(bodyShapeId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
   return useQuery({
     queryKey: ["bodyShape", bodyShapeId],
     queryFn: async () => {
@@ -296,7 +346,7 @@ export function useBodyShapeData(bodyShapeId: string | null) {
       if (!bodyShapeId) {
         throw new Error("ID Bentuk Tubuh diperlukan");
       }
-      return fetchData(`/v1/body-shapes/${bodyShapeId}`);
+      return fetchData(`/v1/body-shapes/${bodyShapeId}`, handleUnauthorized);
     },
     enabled: !!bodyShapeId,
     retry: 2,
@@ -304,13 +354,19 @@ export function useBodyShapeData(bodyShapeId: string | null) {
 }
 
 export function useBmiCategoryData(bmiCategoryId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
   return useQuery({
     queryKey: ["bmiCategory", bmiCategoryId],
     queryFn: async () => {
       if (!bmiCategoryId) {
         throw new Error("ID Kategori BMI diperlukan");
       }
-      return fetchData(`/v1/bmi-categories/${bmiCategoryId}`);
+      return fetchData(`/v1/bmi-categories/${bmiCategoryId}`, handleUnauthorized);
     },
     enabled: !!bmiCategoryId,
     retry: 2,
@@ -318,13 +374,19 @@ export function useBmiCategoryData(bmiCategoryId: string | null) {
 }
 
 export function useCelebrityData(celebrityId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
   return useQuery({
     queryKey: ["celebrity", celebrityId],
     queryFn: async () => {
       if (!celebrityId) {
         return null;
       }
-      return fetchData(`/v1/celebrities/${celebrityId}`);
+      return fetchData(`/v1/celebrities/${celebrityId}`, handleUnauthorized);
     },
     enabled: !!celebrityId,
     retry: 2,
@@ -372,6 +434,12 @@ export function useGenerateStory() {
 }
 
 export const useBodyShapes = () => {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
   return useQuery({
     queryKey: ["bodyShapes"],
     queryFn: async (): Promise<BodyType[]> => {
@@ -379,20 +447,30 @@ export const useBodyShapes = () => {
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
       console.log("🔄 Fetching body shapes...");
-      const response = await axios.get(secureUrl(`/v1/body-shapes/`), {
-        headers:{
-          "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+      try {
+        const response = await axios.get(secureUrl(`/v1/body-shapes/`), {
+          headers:{
+            "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+          }
+        });
+
+        console.log("✅ Body shapes fetched:", response.data);
+
+        if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
+          throw new Error("Tidak ada data bentuk tubuh ditemukan");
         }
-      });
 
-      console.log("✅ Body shapes fetched:", response.data);
-
-      if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
-        throw new Error("Tidak ada data bentuk tubuh ditemukan");
+        return response.data;
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401) {
+          console.log("🚪 Unauthorized access in useBodyShapes, redirecting to login");
+          handleUnauthorized();
+          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+        }
+        throw error;
       }
-
-      return response.data;
     },
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes

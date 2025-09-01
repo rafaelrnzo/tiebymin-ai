@@ -152,14 +152,26 @@ export const useUserData = () => {
         throw new Error("No access token found");
       }
 
-      const response = await axios.get(secureUrl(`/v1/user-profile/user-info`), {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      try {
+        const response = await axios.get(secureUrl(`/v1/user-profile/user-info`), {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      return response.data as UserProfile;
+        return response.data as UserProfile;
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401) {
+          console.log("🚪 Unauthorized access in userProfileQuery, redirecting to login");
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+        }
+        throw error;
+      }
     },
     enabled: false, // Manual trigger
     retry: 2,
@@ -174,17 +186,87 @@ export const useUserData = () => {
         throw new Error("No access token found");
       }
 
-      const response = await axios.get(secureUrl(`/v1/user-profile/analysis-history`), {
+      try {
+        const response = await axios.get(secureUrl(`/v1/user-profile/analysis-history`), {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        return response.data as AnalysisHistoryResponse;
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401) {
+          console.log("🚪 Unauthorized access in analysisHistoryQuery, redirecting to login");
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+        }
+        throw error;
+      }
+    },
+    enabled: false, // Manual trigger
+    retry: 2,
+  });
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+      if (!token) {
+        throw new Error("No access token found");
+      }
+
+      const response = await axios.post(secureUrl(`/v1/auth/logout`), {}, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
 
-      return response.data as AnalysisHistoryResponse;
+      return response.data;
     },
-    enabled: false, // Manual trigger
-    retry: 2,
+    onSuccess: () => {
+      console.log("Logout successful");
+
+      // Clear all auth-related data from localStorage
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("firstName");
+      localStorage.removeItem("lastName");
+      localStorage.removeItem("analysisResultId");
+
+      // Clear user state
+      setUserName("");
+      setUserId("");
+
+      // Redirect to home page
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
+    },
+    onError: (error) => {
+      console.error("Logout error:", error);
+      // Even if logout API fails, clear local data and redirect
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("firstName");
+      localStorage.removeItem("lastName");
+      localStorage.removeItem("analysisResultId");
+
+      setUserName("");
+      setUserId("");
+
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
+    },
   });
 
   return {
@@ -195,12 +277,13 @@ export const useUserData = () => {
     // Queries
     userProfile: userProfileQuery.data,
     analysisHistory: analysisHistoryQuery.data?.items || [],
-    isLoading: loginMutation.isPending || registerMutation.isPending || userProfileQuery.isLoading || analysisHistoryQuery.isLoading,
-    error: loginMutation.error?.message || registerMutation.error?.message || userProfileQuery.error?.message || analysisHistoryQuery.error?.message,
+    isLoading: loginMutation.isPending || registerMutation.isPending || userProfileQuery.isLoading || analysisHistoryQuery.isLoading || logoutMutation.isPending,
+    error: loginMutation.error?.message || registerMutation.error?.message || userProfileQuery.error?.message || analysisHistoryQuery.error?.message || logoutMutation.error?.message,
 
     // Mutations
     login: loginMutation.mutateAsync,
     register: registerMutation.mutateAsync,
+    logout: logoutMutation.mutateAsync,
 
     // Query triggers
     fetchUserProfile: userProfileQuery.refetch,
