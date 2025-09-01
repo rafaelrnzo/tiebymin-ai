@@ -269,10 +269,14 @@ export default function PaymentPage() {
       // Call analysis API
       const endpoint = secureUrl(`/v1/analysis/full-analysis`);
       console.log("Calling analysis API endpoint:", endpoint);
+      const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
 
       const response = await axios.post(endpoint, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       });
 

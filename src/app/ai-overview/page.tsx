@@ -31,8 +31,8 @@ interface AnalysisData {
   bmi_category_id?: string;
   celebrity_id?: string;
   analysis_details?: {
-    bmi?: {
-      bmi: number;
+    bmi: {
+      bmi_value: number;
     };
   };
 }
@@ -231,7 +231,7 @@ function BeautyAnalysisPageInner() {
               bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
               bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
               bmiResult={{
-                value: analysisData.analysis_details?.bmi?.bmi || 0,
+                value: analysisData.analysis_details?.bmi?.bmi_value || 0,
               }}
             />
           );
@@ -275,8 +275,8 @@ function BeautyAnalysisPageInner() {
     <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
 
-      <main className="xl:container xl:mx-auto w-full py-8 lg:py-4 pt-[80px] xl:px-[100px] px-[20px]">
-        <div className="flex flex-col md:flex-col lg:flex-row xl:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
+      <main className="xl:container xl:mx-auto w-full py-8 lg:py-4 pt-[80px] px-[20px]">
+        <div className="flex flex-col md:flex-col xl:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
           <UserProfileSection
             userName={userName}
             userPhotoUrl={userPhotoUrl}

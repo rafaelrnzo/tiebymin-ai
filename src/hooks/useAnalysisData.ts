@@ -375,8 +375,16 @@ export const useBodyShapes = () => {
   return useQuery({
     queryKey: ["bodyShapes"],
     queryFn: async (): Promise<BodyType[]> => {
+        const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
       console.log("🔄 Fetching body shapes...");
-      const response = await axios.get(secureUrl(`/v1/body-shapes/`));
+      const response = await axios.get(secureUrl(`/v1/body-shapes/`), {
+        headers:{
+          "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+        }
+      });
 
       console.log("✅ Body shapes fetched:", response.data);
 

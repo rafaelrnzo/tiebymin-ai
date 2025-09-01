@@ -49,7 +49,7 @@ export const SecondSection = () => {
                   isLoggedIn ? "/register?startStep=measurements" : "/register"
                 }
               >
-                <div className="bg-[#2C2C2E] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
+                <div className="bg-[#323232] px-4 py-2 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
                   <span className="text-[#FFC6C6] font-semibold text-base sm:text-lg">
                     Coba Sekarang Juga
                   </span>
@@ -59,19 +59,24 @@ export const SecondSection = () => {
                 </div>
               </a>
 
-              <div className="flex flex-col lg:space-y-4">
+              <div className="flex flex-col lg:space-y-2">
                 <h2 className="font-oswald text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
-                  Cuman
+                  Hanya Dengan
                 </h2>
-                <h2 className="font-oswald font-bold text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
-                  Rp 10 Ribuan
-                </h2>
+                <div className="flex items-center w-full gap-2">
+                  <h2 className="font-oswald font-bold text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
+                    Rp 9,999
+                  </h2>
+                  <h2 className="text-[#323232]/30 text-3xl font-oswald line-through">
+                    Rp 20,000
+                  </h2>
+                </div>
               </div>
 
-              <p className="text-[#4F4F4F] text-base sm:text-lg leading-relaxed">
+              <p className="text-[#323232] text-base sm:text-lg leading-relaxed font-poppins">
                 Nggak perlu mahal! Cukup dengan{" "}
                 <strong className="font-bold text-[#2C2C2E]">
-                  10 Ribuan Aja
+                  9 Ribuan Aja
                 </strong>
                 , kamu udah bisa buka semua hasil analisa AI, lengkap dan
                 rekomendasi.

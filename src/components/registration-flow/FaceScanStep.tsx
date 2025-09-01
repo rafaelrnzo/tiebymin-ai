@@ -63,6 +63,9 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       formData.append("umur", data.analysisData.umur);
       formData.append("body_shape_id", data.analysisData.body_shape_id);
       formData.append("foto_wajah", data.imageBlob, data.imageName);
+      const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
 
       const response = await axios.post(
         secureUrl("/v1/analysis/full-analysis"),
@@ -70,6 +73,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
           },
         }
       );

@@ -74,7 +74,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             priority
           />
         </div>
-        <p className="font-poppins text-sm sm:text-base lg:text-lg lg:mt-0 mt-6 mb-4">
+        <p className="font-poppins text-sm sm:text-base lg:text-xl lg:mt-0 mt-6 mb-4">
           {bodyDetails.penjelasan_body_shape}
         </p>
       </div>
@@ -98,10 +98,10 @@ const BodySection: React.FC<BodySectionProps> = ({
                 </div>
               </div>
               <div className="flex flex-col text-left">
-                <span className="font-bold text-sm sm:text-base lg:text-lg">
+                <span className="font-bold text-sm sm:text-base lg:text-xl">
                   {bmiCategoryDetails.kategori}
                 </span>
-                <p className="text-[#323232] text-xs sm:text-sm lg:text-lg leading-relaxed font-poppins">
+                <p className="text-[#323232] text-sm sm:text-base lg:text-xl leading-relaxed font-poppins">
                   {bmiCategoryDetails.tips_fashion}
                 </p>
               </div>
@@ -119,7 +119,7 @@ const BodySection: React.FC<BodySectionProps> = ({
                 .map((point: string, index: number) => (
                   <p
                     key={index}
-                    className="text-xs sm:text-sm lg:text-lg text-[#323232] font-poppins"
+                    className="text-sm sm:text-base lg:text-xl text-[#323232] font-poppins"
                   >
                     • {point.trim()}
                   </p>

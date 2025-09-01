@@ -111,12 +111,12 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           <h2 className="text-2xl md:text-4xl sm:text-3xl lg:text-5xl font-bold font-oswald pt-2.5">
             {colorData.name}
           </h2>
-          <p className="pt-2 pb-4 text-[#323232] font-poppins text-sm sm:text-base lg:text-xl">
+          <p className="pt-2 pb-4 text-[#323232] font-poppins text-xl lg:text-base md:text-base xl:text-xl">
             {colorData.penjelasan_color_analysis}
           </p>
         </div>
 
-        <div className="lg:col-span-4 px-[25px] pb-5 justify-between rounded-2xl border-[1px] border-[#323232] h-full">
+        <div className="lg:col-span-4 px-[25px] pb- justify-between rounded-2xl border-[1px] border-[#323232] h-full">
           <h2 className="text-center mt-[25px] italic font-handlee text-lg sm:text-xl text-[#323232]">
             Color Guide Line
           </h2>
@@ -143,18 +143,20 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
                 )
               )}
             </MobileColorRow>
-            <MobileColorRow title="Combination">
-              {(colorData.best_colour_combination || []).map(
-                (colorPair: string[], index: number) =>
-                  Array.isArray(colorPair) &&
-                  colorPair.length === 2 && (
-                    <div key={index} className="flex flex-shrink-0">
-                      <ColorCircle color={colorPair[0]} />
-                      <ColorCircle color={colorPair[1]} className="-ml-4" />
-                    </div>
-                  )
-              )}
-            </MobileColorRow>
+            <div className="mb-10">
+              <MobileColorRow title="Combination">
+                {(colorData.best_colour_combination || []).map(
+                  (colorPair: string[], index: number) =>
+                    Array.isArray(colorPair) &&
+                    colorPair.length === 2 && (
+                      <div key={index} className="flex flex-shrink-0 pb-10">
+                        <ColorCircle color={colorPair[0]} />
+                        <ColorCircle color={colorPair[1]} className="-ml-4" />
+                      </div>
+                    )
+                )}
+              </MobileColorRow>
+            </div>
           </div>
 
           <div className="hidden lg:block lg:space-y-10">
@@ -172,7 +174,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
                 colors={colorData.neutral_colour || []}
               />
             </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0 sm:space-x-4 border border-[#323232] rounded-2xl p-3 sm:p-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0 sm:space-x-4 border border-[#323232] rounded-2xl p-3 sm:p-2 mb-10">
               <span className="font-bold text-sm text-[#323232] sm:pl-2 flex-shrink-0">
                 Combination
               </span>

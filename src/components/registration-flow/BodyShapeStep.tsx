@@ -73,8 +73,17 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
     const fetchAllBodyShapes = async () => {
       setIsLoading(true);
       setError(null);
+      const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
+
       try {
-        const response = await axios.get(secureUrl(`/v1/body-shapes/`));
+        const response = await axios.get(secureUrl(`/v1/body-shapes/`), {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.data && response.data.length > 0) {
           setAllBodyTypes(response.data);
           if (!analysisData.body_shape_id) {

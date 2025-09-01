@@ -124,12 +124,14 @@ export default function LeftSideSection({
       </div>
 
       {/* Description text for all steps */}
-      <div className="w-full max-w-sm mx-auto">
-        <h3 className="text-center font-poppins text-gray-800 mb-4">
-          Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami yang
-          berikan saran terbaik untuk kamu
-        </h3>
-      </div>
+      {title === "Pilih Bentuk Tubuh Kamu" || "Scan Wajah Kamu" ? null : (
+        <div className="w-full max-w-sm mx-auto">
+          <h3 className="text-center font-poppins text-gray-800 mb-4">
+            Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami yang
+            berikan saran terbaik untuk kamu
+          </h3>
+        </div>
+      )}
 
       {/* Current Step Indicator */}
       {currentStep && (
@@ -148,6 +150,10 @@ export default function LeftSideSection({
         <div className="flex flex-col gap-8">
           {title === "Pilih Bentuk Tubuh Kamu" && (
             <>
+              <div className="shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300">
+                <p className="font-bold font-poppins">Analisa</p>
+                <p className="font-poppins font-bold">03</p>
+              </div>
               <div
                 className={`bg-[#EF789B] hidden lg:block rounded-2xl p-6 text-[#f0f0f0] w-full max-w-sm mx-auto shadow-md ${
                   animateStep === 3 && previousStep !== 3
@@ -182,6 +188,10 @@ export default function LeftSideSection({
 
           {title === "Scan Wajah Kamu" && (
             <>
+              <div className="shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300">
+                <p className="font-bold font-poppins">Analisa</p>
+                <p className="font-poppins font-bold">03</p>
+              </div>
               <div className="shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300">
                 <span className="font-bold font-poppins">
                   Pilih bentuk Tubuh Kamu

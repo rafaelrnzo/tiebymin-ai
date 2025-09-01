@@ -121,7 +121,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
               .map((item: string, index: number) => (
                 <p
                   key={index}
-                  className="text-xs sm:text-sm lg:text-lg text-[#323232] font-poppins"
+                  className="block text-xs lg:text-xl text-[#323232] font-poppins"
                 >
                   • {item.trim()}
                 </p>
