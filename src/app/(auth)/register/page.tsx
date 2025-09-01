@@ -1,19 +1,105 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import LeftSideSection from "@/components/component-login/left-side-section";
-import { Button } from "@/components/ui/button";
+import RegistrationFlow, {
+  RegistrationStep,
+} from "@/components/registration-flow/RegistrationFlow";
+import { ErrorModal } from "@/components/sections/error-modal";
+import { secureUrl } from "@/lib/api";
+import { useRegistrationFlow } from "@/hooks/useLocalStorage";
+import { useStepsProgress } from "@/hooks/useStepsProgress";
+import { useUserData } from "@/hooks/useUserData";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
-export default function LoginPage() {
+function RegisterPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { register, login, isLoading, userProfile } = useUserData();
+  const [currentStep, setCurrentStep] = useState<RegistrationStep>("register");
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phoneNumber: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
+
+  const { markStepCompleted, getCurrentStepFromStorage } = useStepsProgress(1);
+  const {
+    currentStep: persistedCurrentStep,
+    setCurrentStep: setPersistedCurrentStep,
+  } = useRegistrationFlow();
+
+  // Initialize step from localStorage and URL parameters only once on component mount
+  useEffect(() => {
+    if (!isInitialized) {
+      try {
+        // Check for startStep URL parameter (for logged-in users)
+        const startStepParam = searchParams.get("startStep");
+        const accessToken = localStorage.getItem("accessToken");
+        const userToken = localStorage.getItem("userToken");
+        const isLoggedIn =
+          !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim());
+
+        if (isLoggedIn && startStepParam === "measurements") {
+          // Logged-in user wants to start at measurements step
+          setCurrentStep("measurements");
+          setPersistedCurrentStep(2);
+          setIsInitialized(true);
+          return;
+        }
+
+        // Allow logged-in users to access register page (no redirect)
+
+        const savedStep = getCurrentStepFromStorage();
+        const savedStepFromRegistration = persistedCurrentStep;
+
+        // Use the higher step value between the two storage mechanisms
+        const stepToUse = Math.max(savedStep, savedStepFromRegistration);
+
+        if (stepToUse > 1) {
+          // Convert numeric step to RegistrationStep
+          const stepMap: { [key: number]: RegistrationStep } = {
+            1: "register",
+            2: "measurements",
+            3: "body-shape",
+            4: "body-shape",
+            5: "face-scan",
+          };
+          const savedRegistrationStep = stepMap[stepToUse] || "register";
+          setCurrentStep(savedRegistrationStep);
+        }
+
+        setIsInitialized(true);
+      } catch (error) {
+        console.error("Error initializing step from storage:", error);
+        setIsInitialized(true);
+      }
+    }
+  }, [
+    isInitialized,
+    getCurrentStepFromStorage,
+    persistedCurrentStep,
+    searchParams,
+    userProfile,
+    setPersistedCurrentStep,
+  ]);
+
+  const generateUUID = () => {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -22,40 +108,162 @@ export default function LoginPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form data submitted:", formData);
-    // Navigate to step 2
-    router.push("/step2");
+  const handleStepChange = (step: RegistrationStep) => {
+    setCurrentStep(step);
+
+    // Also update the persisted step
+    const stepNumberMap: { [key in RegistrationStep]: number } = {
+      register: 1,
+      measurements: 2,
+      "body-shape": 4,
+      "face-scan": 5,
+    };
+
+    setPersistedCurrentStep(stepNumberMap[step]);
   };
+
+  const validateForm = () => {
+    const errors = [];
+
+    if (!formData.fullName.trim() || formData.fullName.trim().length < 2) {
+      errors.push("Nama lengkap minimal 2 karakter");
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      errors.push("Format email tidak valid");
+    }
+
+    if (!formData.phone || formData.phone.length < 10) {
+      errors.push("Nomor telepon minimal 10 digit");
+    }
+
+    if (formData.password.length < 6) {
+      errors.push("Password minimal 6 karakter");
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      errors.push("Password dan konfirmasi password tidak sama");
+    }
+
+    return errors;
+  };
+
+  const handleGoogleSignup = () => {
+    // Directly redirect to the backend's Google OAuth endpoint
+    // This avoids CORS issues since it's not an AJAX request
+    window.location.href = secureUrl("/v1/auth/google/login");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validasi form terlebih dahulu
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      setErrorModalMessage(validationErrors.join(", "));
+      setIsErrorModalOpen(true);
+      return;
+    }
+
+    try {
+      const uniqueGoogleId = generateUUID();
+
+      const nameParts = formData.fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || "";
+      const lastName =
+        nameParts.length > 1
+          ? nameParts.slice(1).join(" ")
+          : nameParts[0] || "";
+
+      const phoneNumber = formData.phone.replace(/\D/g, "");
+
+      await register({
+        email: formData.email.trim().toLowerCase(),
+        first_name: firstName,
+        last_name: lastName || "",
+        google_id: uniqueGoogleId,
+        is_active: true,
+        phone_number: parseInt(phoneNumber) || null,
+        password: formData.password,
+      });
+
+      // Automatically login the user after successful registration
+      await login({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      });
+
+      // Mark step 1 as completed and move to step 2
+      markStepCompleted(1);
+      setPersistedCurrentStep(2);
+      setCurrentStep("measurements");
+    } catch (err) {
+      setErrorModalMessage(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat registrasi. Silakan coba lagi."
+      );
+      setIsErrorModalOpen(true);
+    }
+  };
+
+  // Show registration flow for steps after register
+  if (currentStep !== "register") {
+    return (
+      <RegistrationFlow
+        currentStep={currentStep}
+        onStepChange={handleStepChange}
+      />
+    );
+  }
+
+  // Don't render the registration form until we've checked localStorage
+  if (!isInitialized) {
+    return (
+      <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
+        </div>
+      </main>
+    );
+  }
 
   const steps = [
     { number: "01", title: "Buat Akun", active: true },
     { number: "02", title: "Lengkapi Data", active: false },
     { number: "03", title: "Analisa", active: false },
+    { number: "04", title: "Pilih Bentuk Tubuh Kamu", active: false },
+    { number: "05", title: "Scan Wajah Kamu", active: false },
   ];
 
   return (
-    <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center p-4">
-      <div className="w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
-        {/* Left Side - Branding and Steps */}
-        <LeftSideSection steps={steps} />
-
-        {/* Right Side - Registration Form */}
-        <div className="w-full lg:flex-1 lg:max-w-[65%]">
-          <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border-0 py-8 px-4 sm:py-12 sm:px-6 md:px-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-center lg:text-left">
-              Daftarkan Akun
+    <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+      <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+        <LeftSideSection
+          steps={steps}
+          currentStepNumber={1}
+          showExtendedSteps={false}
+        />
+        <div className="w-full lg:flex-1 lg:max-w-[65%] lg:mr-[50px]">
+          <div className="bg-[#f0f0f0]/95 lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
+              Buat Akun Baru
             </h2>
 
+            <ErrorModal
+              isOpen={isErrorModalOpen}
+              onClose={() => setIsErrorModalOpen(false)}
+              errorMessage={errorModalMessage}
+            />
+
             <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* Full Name */}
               <div className="space-y-2">
                 <label
                   htmlFor="fullName"
-                  className="block text-gray-600 font-medium text-sm"
+                  className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Full Name
+                  Full Name *
                 </label>
                 <input
                   id="fullName"
@@ -64,8 +272,10 @@ export default function LoginPage() {
                   onChange={(e) =>
                     handleInputChange("fullName", e.target.value)
                   }
-                  className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                  placeholder=""
+                  className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                  placeholder="Masukkan nama lengkap (minimal 2 karakter)"
+                  required
+                  minLength={2}
                 />
               </div>
 
@@ -73,51 +283,53 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="email"
-                  className="block text-gray-600 font-medium text-sm"
+                  className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Email
+                  Email *
                 </label>
                 <input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                  placeholder=""
+                  className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                  placeholder="Masukkan email"
+                  required
                 />
               </div>
 
               {/* Phone Number */}
               <div className="space-y-2">
                 <label
-                  htmlFor="phoneNumber"
-                  className="block text-gray-600 font-medium text-sm"
+                  htmlFor="phone"
+                  className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Phone Number
+                  Nomor Telepon *
                 </label>
-                <div className="flex items-center">
-                  <span className="text-gray-600 font-bold mr-4">+62</span>
+                <div className="flex items-center border-gray-300 focus-within:border-gray-600 transition-colors">
+                  <span className="text-gray-700 pl-1 text-xs lg:text-sm">
+                    +62
+                  </span>
                   <input
-                    id="phoneNumber"
+                    id="phone"
                     type="tel"
-                    value={formData.phoneNumber}
-                    onChange={(e) =>
-                      handleInputChange("phoneNumber", e.target.value)
-                    }
-                    className="flex-1 border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                    placeholder=""
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    className="w-full text-xs lg:text-sm border-b-gray-300 border-b-2 bg-transparent px-2 py-2 focus:outline-none focus:ring-0"
+                    placeholder="81234567890 (minimal 10 digit)"
+                    required
+                    minLength={10}
                   />
                 </div>
               </div>
 
-              {/* Password Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="flex flex-row w-full justify-center gap-4">
+                <div className="space-y-2 w-full">
                   <label
                     htmlFor="password"
-                    className="block text-gray-600 font-medium text-sm"
+                    className="block text-gray-600 font-medium text-xs lg:text-sm"
                   >
-                    Password
+                    Password *
                   </label>
                   <input
                     id="password"
@@ -126,16 +338,19 @@ export default function LoginPage() {
                     onChange={(e) =>
                       handleInputChange("password", e.target.value)
                     }
-                    className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                    placeholder=""
+                    className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                    placeholder="Minimal 6 karakter"
+                    required
+                    minLength={6}
                   />
                 </div>
-                <div className="space-y-2">
+
+                <div className="space-y-2 w-full sm:mt-0">
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-gray-600 font-medium text-sm"
+                    className="block text-gray-600 font-medium text-xs lg:text-sm"
                   >
-                    Confirm Password
+                    Konfirmasi Password *
                   </label>
                   <input
                     id="confirmPassword"
@@ -144,23 +359,50 @@ export default function LoginPage() {
                     onChange={(e) =>
                       handleInputChange("confirmPassword", e.target.value)
                     }
-                    className="w-full border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
-                    placeholder=""
+                    className="w-full text-xs lg:text-sm border-0 border-b-2 border-gray-300 rounded-none bg-transparent px-0 py-2 focus:border-gray-600 focus:outline-none focus:ring-0"
+                    placeholder="Konfirmasi password"
+                    required
                   />
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] py-3 rounded-lg font-bold mt-8 transition-colors"
-              >
-                Daftar Sekarang
-              </Button>
+              <div className="flex flex-col gap-4">
+                <button
+                  type="submit"
+                  className="w-full bg-[#323232] hover:bg-pink-400 hover:text-[#f0f0f0] text-[#ffc6c6] lg:h-[50px] h-[40px] rounded-lg font-bold transition-colors text-xs lg:text-xl flex items-center justify-center"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-[#f0f0f0]"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    "Daftar Sekarang"
+                  )}
+                </button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
-                <Button
+                <button
                   type="button"
-                  className="flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                  onClick={handleGoogleSignup}
+                  className="w-full text-xs lg:text-lg bg-[#f0f0f0] hover:bg-gray-50 text-[#323232] border-2 border-gray-300 py-3 h-[40px] lg:h-[50px] rounded-lg font-poppins transition-colors flex items-center justify-center gap-3"
+                  disabled={isLoading}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -180,41 +422,43 @@ export default function LoginPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">
-                    Sign up with Google
-                  </span>
-                </Button>
-                <Button
-                  type="button"
-                  className="flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                  </svg>
-                  <span className="text-sm text-gray-700">
-                    Sign up with Apple
-                  </span>
-                </Button>
+                  Sign up with Google
+                </button>
               </div>
 
-              {/* Login Link */}
-              <p className="text-center text-gray-500 text-sm mt-6">
-                Sudah punya akun?{" "}
-                <a
-                  href="/login"
-                  className="text-gray-800 ml-1 font-extrabold underline"
-                >
-                  Masuk
-                </a>
-              </p>
+              {/* Already have account text */}
+              <div className="text-center mt-6">
+                <p className="text-gray-600 text-sm font-poppins">
+                  Sudah punya akun?{" "}
+                  <button
+                    type="button"
+                    className="text-[#ED80A7] hover:text-pink-600 font-medium transition-colors"
+                    onClick={() => router.push("/login")}
+                  >
+                    Masuk
+                  </button>
+                </p>
+              </div>
             </form>
           </div>
         </div>
       </div>
     </main>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
+          </div>
+        </main>
+      }
+    >
+      <RegisterPageContent />
+    </Suspense>
   );
 }

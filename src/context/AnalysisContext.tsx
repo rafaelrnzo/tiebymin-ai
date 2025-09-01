@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useState, useContext, ReactNode, Dispatch, SetStateAction, useEffect } from 'react';
+import {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+} from "react";
 
 // Tipe data tidak berubah
 interface AnalysisData {
@@ -16,39 +25,49 @@ interface AnalysisContextType {
   setAnalysisData: Dispatch<SetStateAction<AnalysisData>>;
 }
 
-const AnalysisContext = createContext<AnalysisContextType | undefined>(undefined);
+const AnalysisContext = createContext<AnalysisContextType | undefined>(
+  undefined
+);
 
 // Nama key untuk localStorage
-const LOCAL_STORAGE_KEY = 'tiebymin-analysis-data';
+const LOCAL_STORAGE_KEY = "tiebymin-analysis-data";
 
 export function AnalysisProvider({ children }: { children: ReactNode }) {
   // Inisialisasi state dari localStorage hanya di client
   const [analysisData, setAnalysisData] = useState<AnalysisData>({
-    tinggi: '',
-    berat: '',
-    umur: '',
-    body_shape_id: '',
+    tinggi: "",
+    berat: "",
+    umur: "",
+    body_shape_id: "",
   });
+
+  const hasLoadedRef = useRef(false);
 
   // Ambil data dari localStorage saat komponen mount (hanya di client)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       try {
         const item = window.localStorage.getItem(LOCAL_STORAGE_KEY);
         if (item) {
-          setAnalysisData(JSON.parse(item));
+          const parsed = JSON.parse(item);
+          setAnalysisData(parsed);
         }
+        hasLoadedRef.current = true;
       } catch (error) {
         console.error("Failed to parse analysis data from localStorage", error);
+        hasLoadedRef.current = true;
       }
     }
   }, []); // hanya dijalankan sekali saat mount
 
-  // Simpan ke localStorage setiap analysisData berubah
+  // Simpan ke localStorage setiap analysisData berubah, tapi hanya setelah data dimuat
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined" && hasLoadedRef.current) {
       try {
-        window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(analysisData));
+        window.localStorage.setItem(
+          LOCAL_STORAGE_KEY,
+          JSON.stringify(analysisData)
+        );
       } catch (error) {
         console.error("Failed to save analysis data to localStorage", error);
       }
@@ -66,7 +85,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 export function useAnalysis() {
   const context = useContext(AnalysisContext);
   if (context === undefined) {
-    throw new Error('useAnalysis must be used within an AnalysisProvider');
+    throw new Error("useAnalysis must be used within an AnalysisProvider");
   }
   return context;
 }

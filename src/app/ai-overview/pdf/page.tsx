@@ -1,41 +1,126 @@
 "use client";
-import { useSearchParams } from "next/navigation";
-import React, { Suspense, useState } from "react";
-import Image from "next/image";
+import { BackCover } from "@/components/pdf-components/backcover-pdf";
+import { BodyShape } from "@/components/pdf-components/bodyshape-pdf";
+import { CelebritiesMatch } from "@/components/pdf-components/celebrities-pdf";
+import { ColorTone } from "@/components/pdf-components/colortone-pdf";
+import { Conclusion } from "@/components/pdf-components/conclusion-pdf";
+import { Cover } from "@/components/pdf-components/cover-pdf";
+import { FaceShape } from "@/components/pdf-components/faceshape-pdf";
 import { Button } from "@/components/ui/button";
-
-import { useAnalysisData, useDownloadPdf, UserData, defaultUserData } from "@/hooks/useAnalysisData";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  BackCover,
-  BodyShape,
-  CelebritiesMatch,
-  ColorTone,
-  Conclusion,
-  Cover,
-  FaceShape,
-  PageFooter,
-} from "@/components/pdf-components";
+  useAnalysisData,
+  useBmiCategoryData,
+  useBodyShapeData,
+  useCelebrityData,
+  useColorToneData,
+  useDownloadPdf,
+  useFaceShapeData,
+} from "@/hooks/useAnalysisData";
+import { useAllTips } from "@/hooks/useAllTips";
+import { defaultUserData } from "@/lib/mock-data";
+import {
+  AllTips,
+  BmiCategory,
+  BodyShapeData,
+  Celebrity,
+  ColorAnalysis as ColorToneType,
+  FaceShape as FaceShapeType,
+  UserData,
+} from "@/types";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import React, { Suspense, useMemo, useState } from "react";
+import { ProductRecommendation } from "@/components/pdf-components/product-recommendation-pdf";
+
+interface PageProps {
+  userData: UserData;
+  userPhotoUrl?: string | null;
+  bodyDetails?: BodyShapeData;
+  faceShapeDetails?: FaceShapeType;
+  colorToneDetails?: ColorToneType;
+  celebrityDetails?: Celebrity;
+  bmiCategoryDetails?: BmiCategory;
+  faceTip?: AllTips["faceTip"];
+  bodyTip?: AllTips["bodyTip"];
+  colorTip?: AllTips["colorTip"];
+  isLoading?: boolean;
+  isError?: boolean;
+}
 
 function PdfPage() {
   const searchParams = useSearchParams();
   const resultId = searchParams.get("result_id");
   const isPrintMode = searchParams.get("print") === "true";
 
-  // Fetch analysis data using the custom hook
+  const userNameFromUrl = searchParams.get("userName");
+
   const {
-    data,
+    data: analysisResult,
     isLoading,
     error: fetchError,
   } = useAnalysisData(resultId);
+  const { rawAnalysisData } = analysisResult || {
+    rawAnalysisData: null,
+  };
+  const analysisData = rawAnalysisData;
 
-  const { userData = defaultUserData, userPhotoUrl } = data || {};
+  const { data: bodyDetails } = useBodyShapeData(
+    analysisData?.body_shape_id?.toString()
+  );
 
-  // Download PDF query
+  const { data: faceShapeDetails } = useFaceShapeData(
+    analysisData?.face_shape_id?.toString()
+  );
+
+  const { data: colorToneDetails } = useColorToneData(
+    analysisData?.color_analysis_id?.toString()
+  );
+
+  const { data: celebrityDetails } = useCelebrityData(
+    analysisData?.celebrity_id?.toString()
+  );
+
+  const { data: bmiCategoryDetails } = useBmiCategoryData(
+    analysisData?.bmi_category_id?.toString()
+  );
+
   const {
-    refetch: downloadPdf,
-    isLoading: isGenerating,
-    // error: pdfError, // Removed unused variable
-  } = useDownloadPdf();
+    data: tips,
+    isLoading: tipsLoading,
+    isError: tipsError,
+  } = useAllTips({
+    analysisData: rawAnalysisData,
+    enabled: !!rawAnalysisData,
+  });
+
+  const { userData = defaultUserData, userPhotoUrl } = analysisResult || {};
+  const finalUserData = useMemo(() => {
+    if (!analysisResult?.userData) {
+      return defaultUserData;
+    }
+
+    let displayName: string;
+
+    if (isPrintMode && userNameFromUrl) {
+      displayName = userNameFromUrl;
+    } else if (typeof window !== "undefined") {
+      displayName =
+        localStorage.getItem("firstName") || analysisResult.userData.name;
+    } else {
+      displayName = analysisResult.userData.name;
+    }
+
+    return {
+      ...analysisResult.userData,
+      username: displayName,
+      name: displayName,
+      firstName: displayName,
+    };
+  }, [analysisResult, isPrintMode, userNameFromUrl]);
+
+  const { mutateAsync: downloadPdf, isPending: isGenerating } =
+    useDownloadPdf();
 
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +140,6 @@ function PdfPage() {
       animation: slideIn 0.3s ease;
     `;
 
-    // Add slide animation
     const style = document.createElement("style");
     style.textContent = `
       @keyframes slideIn {
@@ -69,7 +153,7 @@ function PdfPage() {
     setTimeout(() => {
       toast.remove();
       style.remove();
-    }, 4000);
+    }, 2000);
   };
 
   const handleDownloadPDF = async () => {
@@ -77,25 +161,17 @@ function PdfPage() {
 
     try {
       setError(null);
-      // Memanggil downloadPdf tanpa parameter
-      const result = await downloadPdf();
-      
+      const result = await downloadPdf({ resultId });
+
       if (result.data) {
-        // Create download link
         const url = window.URL.createObjectURL(result.data);
         const link = document.createElement("a");
         link.href = url;
         link.download = `hasil-analisa-lengkap-${Date.now()}.pdf`;
-
-        // Trigger download
         document.body.appendChild(link);
         link.click();
-
-        // Cleanup
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-
-        // Show success message
         showToast("PDF berhasil didownload!", "success");
       }
     } catch (error) {
@@ -110,7 +186,6 @@ function PdfPage() {
   };
 
   const shareToStory = () => {
-    // Redirect ke halaman story dengan parameter result_id
     if (resultId) {
       window.location.href = `/ai-overview/story?result_id=${resultId}`;
     } else {
@@ -118,39 +193,64 @@ function PdfPage() {
     }
   };
 
-  // Define page components
   const pages: {
-    [key: string]: React.ComponentType<{
-      userData: UserData;
-      userPhotoUrl?: string | null;
-    }>;
+    [key: string]: React.ComponentType<PageProps>;
   } = {
-    Cover,
-    FaceShape,
-    ColorTone,
-    BodyShape,
-    CelebritiesMatch,
-    Conclusion,
-    BackCover,
+    Cover: (props) => <Cover {...props} />,
+    FaceShape: (props) => <FaceShape {...props} />,
+    ColorTone: (props) => <ColorTone {...props} />,
+    BodyShape: (props) => <BodyShape {...props} />,
+    CelebritiesMatch: (props) => <CelebritiesMatch {...props} />,
+    Conclusion: (props) => <Conclusion {...props} />,
+    ProductRecommendation: (props) => (
+      <ProductRecommendation {...props} resultId={resultId as string} />
+    ),
+    BackCover: () => <BackCover />,
   };
+
   const pageOrder = Object.keys(pages) as (keyof typeof pages)[];
 
   const [activePage, setActivePage] = useState<keyof typeof pages>("Cover");
 
+  const activePageIndex = pageOrder.indexOf(activePage);
+
+  const goToNextPage = () => {
+    const nextPageIndex = (activePageIndex + 1) % pageOrder.length;
+    setActivePage(pageOrder[nextPageIndex]);
+  };
+
+  const goToPrevPage = () => {
+    const prevPageIndex =
+      (activePageIndex - 1 + pageOrder.length) % pageOrder.length;
+    setActivePage(pageOrder[prevPageIndex]);
+  };
+
   if (isPrintMode) {
     return (
       <main id="pdf-content">
-        {pageOrder.map((pageKey) => {
+        {pageOrder.map((pageKey, index) => {
           const ComponentToPrint = pages[pageKey];
+          const isNotLastPage = index < pageOrder.length - 1;
+
           return (
             <section
               key={pageKey}
               className="pdf-page"
-              style={{ pageBreakAfter: "always" }}
+              style={{ pageBreakAfter: isNotLastPage ? "always" : "auto" }}
             >
               <ComponentToPrint
-                userData={userData}
+                userData={finalUserData}
                 userPhotoUrl={userPhotoUrl}
+                bodyDetails={bodyDetails}
+                faceShapeDetails={faceShapeDetails}
+                colorToneDetails={colorToneDetails}
+                celebrityDetails={celebrityDetails}
+                bmiCategoryDetails={bmiCategoryDetails}
+                faceTip={tips?.faceTip}
+                bodyTip={tips?.bodyTip}
+                colorTip={tips?.colorTip}
+                isLoading={tipsLoading}
+                isError={tipsError}
               />
             </section>
           );
@@ -162,12 +262,10 @@ function PdfPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
-        <Image
-          src="/tie-by-min-logo-light.png"
-          alt="Logo Tie By Min"
-          width={180}
-          height={80}
-        />
+        <div className="space-y-4">
+          <Skeleton className="h-96 w-96" />
+          <Skeleton className="h-8 w-96" />
+        </div>
       </div>
     );
   }
@@ -179,50 +277,73 @@ function PdfPage() {
   const ActiveComponent = pages[activePage];
 
   return (
-    <div className="bg-gray-100">
-      <nav className="p-2 sm:p-4 bg-white shadow-md sticky top-0 z-50 flex flex-wrap justify-center gap-1 sm:gap-2 overflow-x-auto">
-        <div className="flex flex-nowrap overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto justify-start sm:justify-center">
-          {pageOrder.map((page) => (
-            <Button
-              key={page}
-              onClick={() => setActivePage(page)}
-              className={`px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-colors whitespace-nowrap mr-1 sm:mr-0 ${
-                activePage === page
-                  ? "bg-gray-800 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {page}
-            </Button>
-          ))}
+    <>
+      <div className="sticky bottom-0 bg-[#f0f0f0] shadow-lg p-4 z-50">
+        <div className="flex justify-between items-center max-w-6xl mx-auto">
+          <Button
+            onClick={goToPrevPage}
+            className="bg-gray-800 text-[#f0f0f0] hover:bg-gray-700"
+          >
+            <ChevronLeft size={24} />
+          </Button>
+          <div className="text-center">
+            <p className="font-bold text-lg">{activePage}</p>
+            <p className="text-sm text-gray-500">
+              Page {activePageIndex + 1} of {pageOrder.length}
+            </p>
+          </div>
+          <Button
+            onClick={goToNextPage}
+            className="bg-gray-800 text-[#f0f0f0] hover:bg-gray-700"
+          >
+            <ChevronRight size={24} />
+          </Button>
         </div>
-        <div className="flex w-full sm:w-auto justify-center mt-2 sm:mt-0">
+        <div className="flex justify-center mt-4 gap-4">
           <button
             onClick={shareToStory}
-            className="bg-purple-500 text-white px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm rounded-md hover:bg-purple-600 transition mr-2"
+            className="bg-purple-500 text-[#f0f0f0] px-4 py-2 rounded-md hover:bg-purple-600 transition"
           >
             Bagikan ke Instagram
           </button>
           <button
             onClick={handleDownloadPDF}
             disabled={isGenerating}
-            className="bg-pink-500 text-white px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm rounded-md hover:bg-pink-600 transition disabled:bg-gray-400"
+            className="bg-[#EF789B] text-[#f0f0f0] px-4 py-2 rounded-md hover:bg-[#E5679A] transition disabled:bg-gray-400"
           >
             {isGenerating ? "Downloading..." : "Download PDF"}
           </button>
         </div>
-      </nav>
-      <div className="w-full">
-        <ActiveComponent userData={userData} userPhotoUrl={userPhotoUrl} />
       </div>
-      <PageFooter pageNumber="" />
-    </div>
+      <div className="max-w-full self-center mx-auto">
+        <ActiveComponent
+          userData={finalUserData}
+          userPhotoUrl={userPhotoUrl}
+          bodyDetails={bodyDetails}
+          faceShapeDetails={faceShapeDetails}
+          colorToneDetails={colorToneDetails}
+          celebrityDetails={celebrityDetails}
+          bmiCategoryDetails={bmiCategoryDetails}
+          faceTip={tips?.faceTip}
+          bodyTip={tips?.bodyTip}
+          colorTip={tips?.colorTip}
+          isLoading={tipsLoading}
+          isError={tipsError}
+        />
+      </div>
+    </>
   );
 }
 
 export default function App() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
+          <Skeleton className="h-96 w-96" />
+        </div>
+      }
+    >
       <PdfPage />
     </Suspense>
   );

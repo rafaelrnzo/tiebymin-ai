@@ -3,10 +3,36 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  return await generatePdf(req);
+}
+
+export async function GET(req: NextRequest) {
+  return await generatePdf(req);
+}
+
+async function generatePdf(req: NextRequest) {
   try {
-    // Get result_id from request body instead of URL params
-    const body = await req.json();
-    const { resultId } = body;
+    let resultId, firstName;
+    
+    // Cek metode request
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json();
+        resultId = body.resultId;
+        firstName = body.firstName;
+      } catch (e) {
+        console.error('Error parsing JSON body:', e);
+      }
+    }
+    
+    // Jika tidak ada data dari body atau metode GET, coba ambil dari URL query
+    if (!resultId) {
+      resultId = req.nextUrl.searchParams.get('resultId');
+    }
+    
+    if (!firstName) {
+      firstName = req.nextUrl.searchParams.get('firstName');
+    }
 
     const pdfUrl = new URL("/ai-overview/pdf", req.nextUrl.origin);
     pdfUrl.searchParams.set("print", "true");
@@ -14,7 +40,9 @@ export async function POST(req: NextRequest) {
       pdfUrl.searchParams.set("result_id", resultId);
     }
 
-    // Determine if running on Vercel
+    const userName = firstName || "User";
+    pdfUrl.searchParams.set("userName", userName); 
+
     const isVercel = !!process.env.VERCEL_ENV;
     let puppeteer;
     let launchOptions: {
@@ -25,7 +53,6 @@ export async function POST(req: NextRequest) {
       headless: true,
     };
 
-    // Use different puppeteer setup based on environment
     if (isVercel) {
       const chromium = (await import("@sparticuz/chromium")).default;
       puppeteer = await import("puppeteer-core");
@@ -38,23 +65,20 @@ export async function POST(req: NextRequest) {
       puppeteer = await import("puppeteer");
     }
 
-    // Launch puppeteer
     const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
 
     await page.setViewport({
-      width: 1200,
+      width: 800,
       height: 1600,
-      deviceScaleFactor: 2,
+      deviceScaleFactor: 1,
     });
 
-    // Navigate to the page and wait for content to load
     await page.goto(pdfUrl.toString(), {
       waitUntil: ["networkidle0", "domcontentloaded"],
-      timeout: 30000, // Add timeout
+      timeout: 30000, 
     });
 
-    // Wait for specific content to ensure everything is loaded
     try {
       await page.waitForSelector("#pdf-content", { timeout: 10000 });
     } catch (error) {
@@ -63,23 +87,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate PDF with high quality settings
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: {
-        top: "20px",
-        right: "20px",
-        bottom: "20px",
-        left: "20px",
-      },
+      width: '210mm',
+      height: '297mm',
       preferCSSPageSize: true,
     });
 
     await browser.close();
 
     // Return PDF as response
-    return new NextResponse(pdf, {
+    return new NextResponse(Buffer.from(pdf), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": "attachment; filename=hasil-analisa-lengkap.pdf",
@@ -92,7 +111,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(
       JSON.stringify({
         error: "Failed to generate PDF",
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       }),
       {
         status: 500,

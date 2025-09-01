@@ -1,20 +1,8 @@
 "use client";
 
+import { useBmiCategoryData, useBodyShapeData } from "@/hooks/useAnalysisData";
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import url from "@/lib/url";
-import { BodyShape, BmiCategory } from "@/types";
-
-const ALL_BODY_TYPES_PREVIEW = [
-  { id: "diamond", img: "/body-select/diamond.png", name: "Diamond" },
-  { id: "pear", img: "/body-select/pear.png", name: "Pear" },
-  { id: "hourglass", img: "/body-select/hourglass.png", name: "Hourglass" },
-  { id: "triangle", img: "/body-select/triangle.png", name: "Triangle" },
-  { id: "square", img: "/body-select/square.png", name: "Square" },
-  { id: "oval", img: "/body-select/oval.png", name: "Oval" },
-];
+import React from "react";
 
 interface BodySectionProps {
   bodyShapeId: string;
@@ -27,148 +15,117 @@ const BodySection: React.FC<BodySectionProps> = ({
   bmiResult,
   bmiCategoryId,
 }) => {
-  const [bodyDetails, setBodyDetails] = useState<BodyShape | null>(null);
-  const [bmiCategoryDetails, setBmiCategoryDetails] =
-    useState<BmiCategory | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: bodyDetails,
+    isLoading: isLoadingBody,
+    error: errorBody,
+  } = useBodyShapeData(bodyShapeId);
+  const {
+    data: bmiCategoryDetails,
+    isLoading: isLoadingBmi,
+    error: errorBmi,
+  } = useBmiCategoryData(bmiCategoryId || null);
 
-  useEffect(() => {
-    if (!bodyShapeId || !bmiCategoryId) {
-      setError("Data ID untuk tubuh atau BMI tidak lengkap.");
-      setIsLoading(false);
-      return;
-    }
+  const isLoading = isLoadingBody || isLoadingBmi;
+  const error = errorBody || errorBmi;
 
-    const fetchAllBodyData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [bodyShapeResponse, bmiCategoryResponse] = await Promise.all([
-          axios.get(`${url}/v1/body-shapes/${bodyShapeId}`),
-          axios.get(`${url}/v1/bmi-categories/${bmiCategoryId}`),
-        ]);
-        setBodyDetails(bodyShapeResponse.data);
-        setBmiCategoryDetails(bmiCategoryResponse.data);
-      } catch (err) {
-        setError("Gagal memuat detail tubuh atau BMI.");
-        console.error("Fetch error in BodySection:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllBodyData();
-  }, [bodyShapeId, bmiCategoryId]);
-
-  // Fungsi untuk membersihkan dan memformat nilai BMI
   const formatBmiValue = (value: number | string | undefined): string => {
     if (value === undefined || value === null) {
       return "0.00";
     }
-    // 1. Ubah ke string untuk memastikan .replace() aman digunakan
     const stringValue = String(value);
-    // 2. Ganti koma dengan titik
     const sanitizedValue = stringValue.replace(",", ".");
-    // 3. Konversi ke Angka dan format
     const numberValue = Number(sanitizedValue);
-    // 4. Periksa apakah hasilnya NaN, jika ya, kembalikan 0
     return isNaN(numberValue) ? "0.00" : numberValue.toFixed(2);
   };
 
   if (isLoading)
-    return <div className="text-center p-8">Loading body information...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
+    return (
+      <div className="text-center p-8 text-base sm:text-lg">
+        Loading body information...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="text-center p-8 text-red-500 text-base sm:text-lg">
+        {error.message || "An error occurred"}
+      </div>
+    );
   if (!bodyDetails || !bmiCategoryDetails)
-    return <div className="text-center p-8">Data tubuh tidak ditemukan.</div>;
+    return (
+      <div className="text-center p-8 text-base sm:text-lg">
+        Data tubuh tidak ditemukan.
+      </div>
+    );
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6">
-        <h3 className="font-bold text-5xl font-oswald">{bodyDetails.name}</h3>
-        <div className="flex justify-center my-6">
+    <div className="flex flex-col tablet:flex-col lg:flex-row xl:flex-row w-full gap-5 lg:gap-[50px]">
+      <div className="flex flex-col flex-1 px-[20px] pt-[10px] rounded-2xl border">
+        <h3 className="font-bold text-2xl sm:text-3xl lg:text-5xl font-oswald">
+          {bodyDetails.name}
+        </h3>
+        <div className="flex justify-center my-4 sm:my-6 flex-shrink-0">
           <Image
-            src={bodyDetails.link_picture || "/body-select/pear.png"}
+            src={bodyDetails.link_picture}
             alt={`${bodyDetails.name} body type`}
-            width={100}
-            height={220}
-            className="w-[100px] h-[220px] object-contain"
+            width={150}
+            height={245}
+            className="object-contain h-[180px] sm:h-[220px] lg:h-[245px] xl:h-[245px]"
             priority
           />
         </div>
-        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mt-4">
+        <p className="font-poppins text-xs lg:text-xl lg:mt-0 mt-6 mb-4">
           {bodyDetails.penjelasan_body_shape}
         </p>
-        <div className="flex gap-2 justify-center mt-6">
-          {ALL_BODY_TYPES_PREVIEW.map((bt) => (
-            <Button
-              key={bt.id}
-              type="button"
-              className={`rounded-lg p-1 border transition-all ${
-                bt.name === bodyDetails.name
-                  ? "border-[#EF789B] bg-[#FCE9EC]"
-                  : "border-transparent hover:border-gray-300"
-              }`}
-              tabIndex={-1}
-              aria-label={bt.name}
-            >
-              <Image
-                src={bt.img}
-                alt={bt.name}
-                width={36}
-                height={80}
-                className="w-9 h-16 object-contain"
-                style={{ opacity: bt.name === bodyDetails.name ? 1 : 0.5 }}
-              />
-            </Button>
-          ))}
-        </div>
       </div>
-      <div className="flex flex-col gap-6">
-        <div className="border border-neutral-600 rounded-2xl p-6 sm:p-8 text-black">
-          {/* Judul */}
-          <h3 className="font-bold text-4xl sm:text-5xl font-oswald">
-            BMI Analyst
-          </h3>
-          <hr className="my-4 border-neutral-300" />
 
-          <div className="flex items-center gap-4">
-            {/* Lingkaran BMI */}
-            <div className="flex items-center justify-center">
-              <div className="rounded-full border-2 border-[#EC7498] p-1">
-                <div className="rounded-full border border-neutral-600 w-24 h-24 flex items-center justify-center">
-                  <p className="text-lg font-bold">
-                    {formatBmiValue(bmiResult?.value)}
-                  </p>
+      <div className="flex-2 space-y-4 lg:space-y-6">
+        <div className="flex flex-col gap-4 lg:gap-12">
+          <div className="border border-[#323232] w-full max-w-full rounded-2xl p-4 text-[#323232]">
+            <h3 className="font-bold mt-3  text-[#323232] lg:text-center text-left text-lg sm:text-2xl lg:text-4xl xl:text-5xl font-oswald">
+              BMI Analyst
+            </h3>
+            <hr className="my-[25px] border-[#323232]" />
+
+            <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
+              <div className="flex-shrink-0">
+                <div className="rounded-full border-2 border-[#EC7498] p-1">
+                  <div className="rounded-full border border-[#323232] w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 flex items-center justify-center">
+                    <p className="text-sm sm:text-lg lg:text-xl font-bold">
+                      {formatBmiValue(bmiResult?.value)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Teks Keterangan */}
-            <div className="flex flex-col">
-              <span className="font-bold text-base sm:text-lg">
-                {bmiCategoryDetails.kategori}
-              </span>
-              <p className="text-neutral-600 text-sm sm:text-base leading-relaxed font-poppins">
-                {bmiCategoryDetails.tips_fashion
-                  .split(" ")
-                  .slice(0, 12)
-                  .join(" ") +
-                  (bmiCategoryDetails.tips_fashion.split(" ").length > 12
-                    ? "..."
-                    : "")}
-              </p>
+              <div className="flex flex-col text-left">
+                <span className="font-bold text-xs lg:text-xl">
+                  {bmiCategoryDetails.kategori}
+                </span>
+                <p className="text-[#323232] text-xs lg:text-xl leading-relaxed font-poppins">
+                  {bmiCategoryDetails.tips_fashion}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-pink-100 rounded-2xl px-4 py-14 sm:p-6">
-          <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg text-left">
-            Karakteristik
-          </h3>
-          <span className="font-poppins text-sm">
-            {bodyDetails.penjelasan_body_shape}
-          </span>
+          <div className="bg-[#FFC6C6] shadow-md rounded-2xl p-4 lg:p-6 w-full max-w-full">
+            <h3 className="italic font-handlee mb-2 sm:mb-3 text-base sm:text-lg lg:text-xl md:text-left xl:text-center lg:text-center text-left">
+              Karakteristik
+            </h3>
+            <div className="grid grid-cols-1">
+              {bodyDetails?.karakteristik
+                ?.split("-")
+                .filter((point: string) => point.trim() !== "")
+                .map((point: string, index: number) => (
+                  <p
+                    key={index}
+                    className="text-xs lg:text-xl text-[#323232] font-poppins"
+                  >
+                    • {point.trim()}
+                  </p>
+                ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,492 +1,352 @@
 "use client";
 
 import { Navbar } from "@/components/component-landing/navbar";
-import Image from "next/image";
-import { Suspense, useEffect, useState } from "react";
+import { ErrorModal } from "@/components/sections/error-modal";
+import { AnimatePresence, motion } from "framer-motion";
+import { Suspense } from "react";
 
-import { Button } from "@/components/ui/button";
-import url from "@/lib/url";
-import { AnalysisData as GlobalAnalysisData } from "@/types";
-import axios from "axios";
-import { useRouter, useSearchParams } from "next/navigation";
+import AnalysisTabs from "@/components/sections/AnalysisTabs";
+import FeedbackModal from "@/components/sections/feedback-modal";
+import ProductRecommendationsSection from "@/components/sections/ProductRecommendationsSection";
+import UserProfileSection from "@/components/sections/UserProfileSection";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
+import { useProductRecommendations } from "@/hooks/useProductRecommendations";
+import { useToast } from "@/hooks/useToast";
+import { useUserData } from "@/hooks/useUserData";
+import { analysisTabs } from "@/lib/mock-data";
+import { UserData } from "@/types";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import BodySection from "../../components/sections/BodySection";
 import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
 import ColorToneSection from "../../components/sections/ColorToneSection";
 import ShapeSection from "../../components/sections/ShapeSection";
 import TipsSection from "../../components/sections/TipsSection";
 
-const analysisTabs = [
-  { id: "shape", text: "Shape", icon: "/overview-ai/icons/ri_shape-fill.svg" },
-  { id: "color", text: "Color Tone", icon: "/overview-ai/icons/mdi_color.svg" },
-  { id: "body", text: "Body", icon: "/overview-ai/icons/healthicons_body.svg" },
-  {
-    id: "celebrity",
-    text: "Celebrity Match",
-    icon: "/overview-ai/icons/material-symbols_crown-rounded.svg",
-  },
-  {
-    id: "tips",
-    text: "Tips & Trick",
-    icon: "/overview-ai/icons/ic_baseline-tips-and-updates.svg",
-  },
-];
-
-const hijabProducts = [
-  {
-    id: 1,
-    image: "/hijab-1.png",
-    match: "67% Match",
-    matchIcon: "/overview-ai/icons/ai-generate.svg",
-    matchAlt: "Heart",
-    star: 4.6,
-    starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-    title: "Fay Hijab Sporty",
-    price: "Rp49.000",
-    oldPrice: "Rp99.000",
-    heartIcon: "/overview-ai/icons/mdi_heart.svg",
-    heartAlt: "Heart",
-    reviews: 432,
-    colorRecommendations: [
-      { color: "bg-purple-600", border: "border-2 border-gray-300" },
-      { color: "bg-blue-900" },
-      { color: "bg-gray-800" },
-    ],
-    size: "XS-XXL",
-    reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
-  },
-  {
-    id: 2,
-    image: "/overview-ai/model-hijab.png",
-    match: "67% Match",
-    matchIcon: "/overview-ai/icons/ai-generate.svg",
-    matchAlt: "Heart",
-    star: 4.6,
-    starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-    title: "Alana Bergo Jersey",
-    price: "Rp75.000",
-    oldPrice: "Rp99.000",
-    heartIcon: "/overview-ai/icons/mdi_heart.svg",
-    heartAlt: "Heart",
-    reviews: 432,
-    colorRecommendations: [
-      { color: "bg-blue-900", border: "border-2 border-gray-300" },
-      { color: "bg-purple-600" },
-      { color: "bg-gray-800" },
-    ],
-    size: "XS-XXL",
-    reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
-  },
-  {
-    id: 3,
-    image: "/hijab-3.png",
-    match: "67% Match",
-    matchIcon: "/overview-ai/icons/ai-generate.svg",
-    matchAlt: "Heart",
-    star: 4.6,
-    starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-    title: "Hijab Bergo",
-    price: "Rp55.000",
-    oldPrice: "Rp99.000",
-    heartIcon: "/overview-ai/icons/mdi_heart.svg",
-    heartAlt: "Heart",
-    reviews: 432,
-    colorRecommendations: [
-      { color: "bg-teal-600", border: "border-2 border-gray-300" },
-      { color: "bg-blue-900" },
-      { color: "bg-gray-800" },
-    ],
-    size: "XS-XXL",
-    reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
-  },
-  {
-    id: 4,
-    image: "/hijab-5.jpg",
-    match: "67% Match",
-    matchIcon: "/overview-ai/icons/ai-generate.svg",
-    matchAlt: "Heart",
-    star: 4.6,
-    starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-    title: "Hijab Bergo",
-    price: "Rp55.000",
-    oldPrice: "Rp99.000",
-    heartIcon: "/overview-ai/icons/mdi_heart.svg",
-    heartAlt: "Heart",
-    reviews: 432,
-    colorRecommendations: [
-      { color: "bg-teal-600", border: "border-2 border-gray-300" },
-      { color: "bg-blue-900" },
-      { color: "bg-gray-800" },
-    ],
-    size: "XS-XXL",
-    reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
-  },
-  {
-    id: 5,
-    image: "/hijab-8.jpg",
-    match: "67% Match",
-    matchIcon: "/overview-ai/icons/ai-generate.svg",
-    matchAlt: "Heart",
-    star: 4.6,
-    starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-    title: "Hijab Bergo",
-    price: "Rp55.000",
-    oldPrice: "Rp99.000",
-    heartIcon: "/overview-ai/icons/mdi_heart.svg",
-    heartAlt: "Heart",
-    reviews: 432,
-    colorRecommendations: [
-      { color: "bg-teal-600", border: "border-2 border-gray-300" },
-      { color: "bg-blue-900" },
-      { color: "bg-gray-800" },
-    ],
-    size: "XS-XXL",
-    reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
-  },
-  {
-    id: 6,
-    image: "/hijab-6.png",
-    match: "67% Match",
-    matchIcon: "/overview-ai/icons/ai-generate.svg",
-    matchAlt: "Heart",
-    star: 4.6,
-    starIcon: "/overview-ai/icons/material-symbols_star-rounded.svg",
-    title: "Hijab Bergo",
-    price: "Rp55.000",
-    oldPrice: "Rp99.000",
-    heartIcon: "/overview-ai/icons/mdi_heart.svg",
-    heartAlt: "Heart",
-    reviews: 432,
-    colorRecommendations: [
-      { color: "bg-teal-600", border: "border-2 border-gray-300" },
-      { color: "bg-blue-900" },
-      { color: "bg-gray-800" },
-    ],
-    size: "XS-XXL",
-    reason: "Perfect untuk bentuk wajah kotak dengan warna cool undertone",
-  },
-];
-
-interface AnalysisData extends GlobalAnalysisData {
-  celebrity_id: number | null;
-  analysis_details: {
+interface AnalysisData {
+  face_shape_id?: string;
+  color_analysis_id?: string;
+  body_shape_id?: string;
+  bmi_category_id?: string;
+  celebrity_id?: string;
+  analysis_details?: {
     bmi: {
-      value: string | number;
+      bmi_value: number;
     };
   };
 }
-
-interface PhotoData {
-  is_processed: boolean;
-  file_path: string;
-  photo_type: "face_original" | "face_processed" | string;
+interface AnalysisResult {
+  userData: UserData | null;
+  userPhotoUrl: string | null;
+  rawAnalysisData: AnalysisData | null;
 }
 
 function BeautyAnalysisPageInner() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState("shape");
+  const [activeTab, setActiveTab] = useState(0);
   const searchParams = useSearchParams();
+  const [visitedTabs, setVisitedTabs] = useState(new Set<string>());
+  const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+  const [storyError, setStoryError] = useState<string | null>(null);
 
-  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
-  const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
+  // Custom hooks
+  const { userName, userId } = useUserData();
+  const { showToast } = useToast();
 
-  const [recommendedProducts, setRecommendedProducts] = useState<
-    typeof hijabProducts
-  >([]);
+  console.log("Page component - userId:", userId, "userName:", userName);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const resultId = searchParams.get("result_id");
+  console.log("ai-overview page - resultId from URL:", resultId);
+  console.log(
+    "ai-overview page - full search params:",
+    Object.fromEntries(searchParams.entries())
+  );
 
-  useEffect(() => {
-    const shuffled = [...hijabProducts].sort(() => 0.5 - Math.random());
-    setRecommendedProducts(shuffled.slice(0, 3));
+  // Fallback: try to get resultId from localStorage if not in URL
+  const fallbackResultId = resultId || localStorage.getItem("analysisResultId");
+  const finalResultId = fallbackResultId;
 
-    if (!resultId) {
-      setError("Analysis Result ID tidak ditemukan di URL.");
-      setIsLoading(false);
-      return;
-    }
+  console.log(
+    "ai-overview page - final resultId (URL or localStorage):",
+    finalResultId
+  );
 
-    const fetchAllData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [analysisResponse, photosResponse] = await Promise.all([
-          axios.get(`${url}/v1/user-analysis-results/${resultId}`),
-          axios.get(
-            `${url}/v1/user-photos/analysis-results/${resultId}/photos`
-          ),
-        ]);
+  const {
+    data: analysisResult,
+    isLoading,
+    error,
+    isError,
+  } = useAnalysisData(finalResultId, {
+    onError: (err) => {
+      console.error("useAnalysisData error:", err);
+      setErrorModalMessage(err.message);
+      setIsErrorModalOpen(true);
+    },
+  });
 
-        setAnalysisData(analysisResponse.data);
+  const { mutateAsync: generateStory } = useGenerateStory();
 
-        const processedPhoto = photosResponse.data.find(
-          (photo: PhotoData) => photo.is_processed === true
-        );
-        if (processedPhoto) {
-          setUserPhotoUrl(processedPhoto.file_path);
-        } else {
-          const originalPhoto = photosResponse.data.find(
-            (photo: PhotoData) => photo.photo_type === "face_original"
-          );
-          if (originalPhoto) setUserPhotoUrl(originalPhoto.file_path);
-        }
-      } catch (err) {
-        setError("Gagal memuat data analisa lengkap. Silakan coba lagi.");
-        console.error("Fetch error:", err);
-      } finally {
-        setIsLoading(false);
-      }
+  const {
+    sortedProducts,
+    topProductScores,
+    recommendationFilter,
+    handleFilterChange,
+  } = useProductRecommendations(finalResultId);
+
+  const { userData, userPhotoUrl, rawAnalysisData }: AnalysisResult =
+    analysisResult || {
+      userData: null,
+      userPhotoUrl: null,
+      rawAnalysisData: null,
     };
 
-    fetchAllData();
-  }, [searchParams, resultId]);
+  const handleDownloadStory = async () => {
+    if (!finalResultId) return;
+    setIsGeneratingStory(true);
+    try {
+      setStoryError(null);
+      const result = await generateStory(finalResultId);
+      if (result.data) {
+        const imageData = result.data;
+        const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
+          type: "image/png",
+        });
 
-  const renderContent = () => {
-    if (isLoading)
-      return <div className="text-center p-8">Loading analysis data...</div>;
-    if (error)
-      return <div className="text-center p-8 text-red-500">{error}</div>;
-    if (!analysisData)
-      return <div className="text-center p-8">No analysis data found.</div>;
-
-    switch (activeTab) {
-      case "shape":
-        return <ShapeSection shapeId={analysisData.face_shape_id.toString()} />;
-      case "color":
-        return (
-          <ColorToneSection
-            colorAnalysisId={analysisData.color_analysis_id.toString()}
-          />
-        );
-      case "body":
-        return (
-          <BodySection
-            bodyShapeId={analysisData.body_shape_id.toString()}
-            bmiCategoryId={analysisData.bmi_category_id.toString()}
-            bmiResult={{ value: analysisData.analysis_details.bmi.value }}
-          />
-        );
-      case "celebrity":
-        return (
-          <CelebrityMatchSection
-            celebrityId={
-              analysisData.celebrity_id
-                ? analysisData.celebrity_id.toString()
-                : null
-            }
-          />
-        );
-      case "tips":
-        return (
-          <TipsSection
-            analysisData={{
-              ...analysisData,
-              face_shape_id: analysisData.face_shape_id.toString(),
-              color_analysis_id: analysisData.color_analysis_id.toString(),
-              body_shape_id: analysisData.body_shape_id.toString(),
-              bmi_category_id: analysisData.bmi_category_id.toString(),
-            }}
-          />
-        );
-      default:
-        return <ShapeSection shapeId={analysisData.face_shape_id.toString()} />;
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: "Tie By Min Story",
+              text: "Coba AI Fashion Analysis aku!",
+            });
+            showToast("Story berhasil dibagikan!", "success");
+          } catch (shareError) {
+            console.warn("Share failed, falling back to download:", shareError);
+            const url = URL.createObjectURL(file);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = file.name;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast("Story berhasil diunduh!", "success");
+          }
+        } else {
+          console.log("Web Share API not supported, using direct download");
+          const url = URL.createObjectURL(file);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = file.name;
+          link.click();
+          URL.revokeObjectURL(url);
+          showToast("Story berhasil diunduh!", "success");
+        }
+      } else {
+        throw new Error("No story data received");
+      }
+    } catch (error) {
+      console.error("Error generating story:", error);
+      setStoryError("Gagal membuat story");
+      showToast("Gagal membuat story", "error");
+    } finally {
+      setIsGeneratingStory(false);
     }
   };
 
+  useEffect(() => {
+    if (activeTab !== null) {
+      const currentTabId = analysisTabs[activeTab]?.id;
+      if (currentTabId) {
+        setVisitedTabs((prev) => new Set(prev).add(currentTabId));
+      }
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    const feedbackSubmitted = localStorage.getItem("feedbackSubmitted");
+    const feedbackDismissed = localStorage.getItem("feedbackDismissed");
+    if (
+      visitedTabs.size === analysisTabs.length &&
+      !feedbackSubmitted &&
+      !feedbackDismissed
+    ) {
+      setFeedbackModalOpen(true);
+    }
+  }, [visitedTabs]);
+
+  useEffect(() => {
+    const feedbackDismissed = localStorage.getItem("feedbackDismissed");
+    if (feedbackDismissed === "true") {
+      setFeedbackModalOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsLockedModalOpen(false);
+  }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
+
+  // Clear localStorage data after successful loading
+  useEffect(() => {
+    if (!isLoading && !isError && userData && resultId) {
+      // Clear analysis-related data after successful load
+      const clearDataTimer = setTimeout(() => {
+        localStorage.removeItem("tiebymin-analysis-data");
+        localStorage.removeItem("uploadedFaceImage");
+        localStorage.removeItem("capturedImage");
+        localStorage.removeItem("registration-steps-progress");
+        localStorage.removeItem("registration-current-step");
+        console.log("LocalStorage data cleared after successful analysis load");
+      }, 2000); // Clear after 2 seconds to ensure data is fully loaded
+
+      return () => clearTimeout(clearDataTimer);
+    }
+  }, [isLoading, isError, userData, resultId]);
+
+  const renderContent = (tabId: string) => {
+    const analysisData = rawAnalysisData;
+    if (!analysisData) return null;
+
+    const content = (() => {
+      switch (tabId) {
+        case "shape":
+          return (
+            <ShapeSection
+              shapeId={analysisData.face_shape_id?.toString() || "1"}
+            />
+          );
+        case "color":
+          return (
+            <ColorToneSection
+              colorAnalysisId={
+                analysisData.color_analysis_id?.toString() || "1"
+              }
+            />
+          );
+        case "body":
+          return (
+            <BodySection
+              bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
+              bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
+              bmiResult={{
+                value: analysisData.analysis_details?.bmi?.bmi_value || 0,
+              }}
+            />
+          );
+        case "celebrity":
+          return (
+            <CelebrityMatchSection
+              celebrityId={
+                analysisData.celebrity_id
+                  ? analysisData.celebrity_id.toString()
+                  : null
+              }
+            />
+          );
+        case "tips":
+          return (
+            <TipsSection
+              analysisData={{
+                ...analysisData,
+                face_shape_id: analysisData.face_shape_id?.toString() || "1",
+                color_analysis_id:
+                  analysisData.color_analysis_id?.toString() || "1",
+                body_shape_id: analysisData.body_shape_id?.toString() || "1",
+                bmi_category_id:
+                  analysisData.bmi_category_id?.toString() || "1",
+              }}
+            />
+          );
+        default:
+          return (
+            <ShapeSection
+              shapeId={analysisData.face_shape_id?.toString() || "1"}
+            />
+          );
+      }
+    })();
+
+    return content;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 bg-[url('/bg-pattern.png')] bg-repeat">
+    <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="flex flex-col lg:flex-row justify-between w-full gap-6 sm:gap-8 mb-10 sm:mb-16">
-          <div className="bg-[#2D2D2D] h-[670px] w-full lg:w-[35%] rounded-3xl p-5 sm:p-8 text-white flex flex-col">
-            <div className="mb-4 sm:mb-6">
-              <Image
-                src={userPhotoUrl || "/overview-ai/person.png"}
-                alt="Analysis Result"
-                width={450}
-                height={280}
-                className="h-[250px] w-[450px] object-cover rounded-xl"
-              />
-            </div>
-            <h2 className="text-4xl font-bold mb-3 sm:mb-4 font-handlee text-[#F8B4C4] italic">
-              Hi Yasmin, Ini Dia
-              <br />
-              Hasil Analisa Kamu
-            </h2>
-            <p className="text-gray-300 text-lg mb-6 sm:mb-8 leading-relaxed font-poppins">
-              Dapatkan insight mendalam tentang fashion terbaik untuk kamu
-              dengan teknologi AI kami dengan rekomendasi personal yang akurat.
-            </p>
-            <div className="mt-auto mb-2 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-              <Button
-                onClick={() =>
-                  router.push(`/ai-overview/story?result_id=${resultId}`)
-                }
-                className="bg-white text-xs sm:text-sm text-[#2D2D2D] px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 not-last:transition hover:bg-gray-200"
-              >
-                <Image
-                  src="/overview-ai/icons/material-symbols_share.svg"
-                  width={16}
-                  height={16}
-                  alt="Bagikan Hasil"
-                />
-                <span>Bagikan Hasil</span>
-              </Button>
-              <Button
-                onClick={() =>
-                  router.push(`/ai-overview/pdf?result_id=${resultId}`)
-                }
-                className="bg-[#FFC6C6] text-black px-4 sm:px-6 py-2 rounded-full flex items-center justify-center gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"
-              >
-                <Image
-                  src="/overview-ai/icons/ic_round-download.svg"
-                  width={16}
-                  height={16}
-                  alt="Unduh Hasil"
-                />
-                <span>Unduh Hasil</span>
-              </Button>
-            </div>
-          </div>
+      <main className="xl:container xl:mx-auto w-full py-8 lg:py-4 pt-[80px] px-[20px]">
+        <div className="flex flex-col md:flex-col xl:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
+          <UserProfileSection
+            userName={userName}
+            userPhotoUrl={userPhotoUrl}
+            resultId={finalResultId}
+            onDownloadStory={handleDownloadStory}
+            isGeneratingStory={isGeneratingStory}
+          />
 
-          <div className="w-full lg:w-[70%]">
-            <div className="flex border-b border-gray-300">
-              {analysisTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-poppins transition-all -mb-px ${
-                    activeTab === tab.id
-                      ? "text-black font-bold"
-                      : "text-gray-500 hover:text-black"
-                  }`}
+          <div className="w-full">
+            <AnalysisTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+            <div className="mt-[16px] lg:mt-[50px] relative overflow-hidden">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeTab}
+                  initial={{ x: "100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "-100%" }}
+                  transition={{
+                    type: "tween",
+                    ease: "easeInOut",
+                    duration: 0.3,
+                  }}
+                  className="w-full"
                 >
-                  <Image
-                    src={tab.icon || "/placeholder.svg"}
-                    width={20}
-                    height={20}
-                    alt={tab.text}
-                    className={`${activeTab !== tab.id && "opacity-60"}`}
-                  />
-                  <span>{tab.text}</span>
-                </button>
-              ))}
+                  {renderContent(analysisTabs[activeTab].id)}
+                </motion.div>
+              </AnimatePresence>
             </div>
-
-            <div className="mt-6">{renderContent()}</div>
           </div>
         </div>
 
-        <section>
-          <h1 className="text-4xl lg:text-5xl font-oswald font-bold text-[#333333] mb-10">
-            Rekomendasi Produk
-          </h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {recommendedProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition-shadow duration-300"
-              >
-                <div className="relative p-2">
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.title}
-                    width={400}
-                    height={400}
-                    className="w-full h-72 object-cover rounded-xl"
-                  />
-                  <span className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
-                    <Image
-                      src={product.matchIcon || "/placeholder.svg"}
-                      width={14}
-                      height={14}
-                      alt="Match"
-                      className="object-cover"
-                    />
-                    {product.match}
-                  </span>
-                  <span className="absolute bottom-4 right-4 bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
-                    <Image
-                      src={product.starIcon || "/placeholder.svg"}
-                      width={16}
-                      height={16}
-                      alt="Star"
-                      className="object-cover"
-                    />
-                    {product.star}
-                  </span>
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="font-bold text-gray-800 text-lg">
-                    {product.title}
-                  </h3>
-                  <div className="flex items-baseline my-2">
-                    <span className="text-gray-800 font-extrabold text-2xl">
-                      {product.price}
-                    </span>
-                    <span className="text-gray-400 text-sm ml-2 line-through">
-                      {product.oldPrice}
-                    </span>
-                  </div>
-                  <div className="mb-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-                      <div className="flex flex-col items-start">
-                        <p className="text-xs sm:text-sm text-gray-600 mr-2">
-                          Rekomendasi Warna:
-                        </p>
-                        <div className="flex space-x-2 mt-2">
-                          {product.colorRecommendations.map((color, i) => (
-                            <div
-                              key={i}
-                              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full ${
-                                color.color
-                              } ${color.border ? color.border : ""}`}
-                            ></div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-start">
-                        <span className="text-xs sm:text-sm text-gray-600 mr-1">
-                          Ukuran:
-                        </span>
-                        <span className="text-xs sm:text-sm font-medium mt-2">
-                          {product.size}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="border border-gray-200 p-3 rounded-lg my-3">
-                    <p className="text-sm">
-                      <span className="text-gray-900 font-bold">
-                        Kenapa Cocok:
-                      </span>
-                      <span className="text-gray-600"> {product.reason}</span>
-                    </p>
-                  </div>
-                  <Button className="mt-auto bg-[#ED80A7] w-full py-3 px-4 font-bold rounded-lg text-white flex items-center justify-center gap-3 text-base hover:bg-pink-500 transition-colors">
-                    Beli Sekarang
-                    <Image
-                      src="/overview-ai/icons/mynaui_cart-solid.svg"
-                      width={20}
-                      height={20}
-                      alt="Shopping Cart"
-                    />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <ProductRecommendationsSection
+          sortedProducts={sortedProducts}
+          topProductScores={topProductScores}
+          recommendationFilter={recommendationFilter}
+          onFilterChange={handleFilterChange}
+        />
       </main>
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
+        userId={userId}
+        analysisResultId={finalResultId || ""}
+      />
+      <ErrorModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        errorMessage={errorModalMessage}
+      />
     </div>
   );
 }
 
 export default function BeautyAnalysisPage() {
   return (
-    <Suspense fallback={<div className="text-center p-8">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 p-8">
+          <Skeleton className="h-16 w-full mb-8" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <Skeleton className="h-[700px] w-full rounded-3xl" />
+            <div className="lg:col-span-2 space-y-4">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-96 w-full" />
+            </div>
+          </div>
+        </div>
+      }
+    >
       <BeautyAnalysisPageInner />
     </Suspense>
   );

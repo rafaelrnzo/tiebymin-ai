@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import axios from "axios";
-import { useAnalysis } from "@/context/AnalysisContext";
-import { useRive } from "@rive-app/react-canvas";
+import { ErrorModal } from "@/components/sections/error-modal";
 import { Button } from "@/components/ui/button";
-import url from "@/lib/url";
-import { Camera, Check } from "lucide-react";
+import { secureUrl } from "@/lib/api";
+import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
+import axios from "axios";
+import { Camera, Check, File, RotateCw } from "lucide-react";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -33,7 +33,13 @@ const Spinner = () => (
   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-pink-800"></div>
 );
 
-type AppState = "CAMERA" | "CONFIRM" | "ANALYZING" | "RESULTS" | "API_ERROR";
+type AppState =
+  | "CAMERA"
+  | "CONFIRM"
+  | "ANALYZING"
+  | "LOADING_UI"
+  | "COMPLETION_MODAL"
+  | "API_ERROR";
 
 const LOADING_STEPS = [
   {
@@ -75,10 +81,16 @@ const RiveLoadingAnimation = () => {
     src: "/animations/Loading.riv",
     stateMachines: "State Machine 1",
     autoplay: true,
+    layout: new Layout({
+      fit: Fit.Cover,
+      alignment: Alignment.Center,
+    }),
   });
 
   return (
-    <div className="w-48 h-48 mx-auto">
+    <div
+      className={`w-80 h-[10rem] sm:w-96 sm:h-[10rem] lg:w-[30rem] lg:h-[20rem] xl:w-[35rem] xl:h-[15rem] flex justify-center items-center`}
+    >
       <RiveComponent />
     </div>
   );
@@ -86,59 +98,112 @@ const RiveLoadingAnimation = () => {
 
 function HalamanKameraWajahContent() {
   const router = useRouter();
-  const { analysisData, setAnalysisData } = useAnalysis();
+  const searchParams = useSearchParams();
+  const fromGallery = searchParams.get("fromGallery") === "true";
+  const skipCamera = searchParams.get("skipCamera") === "true";
   const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [appState, setAppState] = useState<AppState>("CAMERA");
+  const getInitialState = (): AppState => {
+    if (fromGallery && skipCamera) {
+      return "LOADING_UI";
+    }
+    return "CAMERA";
+  };
+
+  const [appState, setAppState] = useState<AppState>(getInitialState());
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string>("");
-  const [apiError, setApiError] = useState<string>("");
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
   const [isApiLoading, setIsApiLoading] = useState(false);
-  const [completedAnalyses, setCompletedAnalyses] = useState(0);
-  const totalAnalyses = 4;
-
   const [loadingStep, setLoadingStep] = useState(0);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+
+  const handleCameraSwitch = () => {
+    setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
+  };
+
+  useEffect(() => {
+    if (fromGallery && skipCamera && appState === "LOADING_UI") {
+      const storedResultId = localStorage.getItem("analysisResultId");
+      const uploadedImage = localStorage.getItem("uploadedFaceImage");
+
+      if (storedResultId) {
+        console.log("Found stored analysis result ID:", storedResultId);
+        setAnalysisResultId(storedResultId);
+
+        if (uploadedImage) {
+          setCapturedImage(uploadedImage);
+        }
+      } else {
+        console.error("No analysis result ID found in localStorage");
+        setErrorModalMessage(
+          "Hasil analisis tidak ditemukan. Silakan coba lagi."
+        );
+        setIsErrorModalOpen(true);
+        setTimeout(() => {
+          router.push("/analyze/take-face");
+        }, 2000);
+        return;
+      }
+    }
+  }, [fromGallery, skipCamera, appState, router]);
 
   useEffect(() => {
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
+
     let currentStream: MediaStream | null = null;
+
     const startCamera = async () => {
       try {
+        if (videoRef.current && videoRef.current.srcObject) {
+          (videoRef.current.srcObject as MediaStream)
+            .getTracks()
+            .forEach((track) => track.stop());
+        }
+
         const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: "user",
+            facingMode: facingMode,
             width: { ideal: 1920 },
             height: { ideal: 1080 },
           },
         });
+
         currentStream = mediaStream;
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
         }
       } catch {
-        setError(
+        setErrorModalMessage(
           "Kamera tidak dapat diakses. Mohon izinkan akses kamera di browser Anda."
         );
+        setIsErrorModalOpen(true);
       }
     };
-    startCamera();
+
+    if (!fromGallery || !skipCamera) {
+      startCamera();
+    }
+
     return () => {
       if (currentStream)
         currentStream.getTracks().forEach((track) => track.stop());
     };
-  }, [appState]);
+  }, [fromGallery, skipCamera, appState, facingMode]);
 
   useEffect(() => {
-    if (appState === "ANALYZING") {
+    if (appState === "LOADING_UI") {
+      console.log("Starting loading UI animation...");
       setLoadingStep(0);
       setProgress(0);
+
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 4000 + stepCount * 1200;
-      const stepDuration = 1200;
+      const totalDuration = 45000; // 45 seconds
+      const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
         setLoadingStep((prev) => (prev < stepCount - 1 ? prev + 1 : prev));
@@ -149,8 +214,9 @@ function HalamanKameraWajahContent() {
       }, Math.max(20, totalDuration / 100));
 
       const finishTimer = setTimeout(() => {
+        console.log("Loading UI completed, showing completion modal...");
         setProgress(100);
-        setAppState("RESULTS");
+        setAppState("COMPLETION_MODAL");
       }, totalDuration);
 
       return () => {
@@ -159,41 +225,8 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState]);
+  }, [appState, analysisResultId, router, fromGallery, skipCamera]);
 
-  useEffect(() => {
-    if (appState === "RESULTS") {
-      const animationTimer = setInterval(() => {
-        setCompletedAnalyses((prev) =>
-          prev >= totalAnalyses ? prev : prev + 1
-        );
-      }, 700);
-      return () => clearInterval(animationTimer);
-    }
-  }, [appState]);
-
-  useEffect(() => {
-    if (completedAnalyses >= totalAnalyses && analysisResultId) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("tiebymin-analysis-data");
-        setAnalysisData({ tinggi: "", berat: "", umur: "", body_shape_id: "" });
-      }
-
-      const redirectTimer = setTimeout(() => {
-        router.push(`/ai-overview?result_id=${analysisResultId}`);
-      }, 1000);
-
-      return () => clearTimeout(redirectTimer);
-    }
-  }, [
-    completedAnalyses,
-    analysisResultId,
-    totalAnalyses,
-    router,
-    setAnalysisData,
-  ]);
-
-  // Helper function to convert data URL to Blob
   const dataURLtoBlob = (dataurl: string) => {
     const arr = dataurl.split(",");
     if (arr.length < 2) return null;
@@ -229,146 +262,212 @@ function HalamanKameraWajahContent() {
   const handleRetake = () => {
     setCapturedImage(null);
     setProgress(0);
-    setCompletedAnalyses(0);
     setAppState("CAMERA");
-    setApiError("");
+    setErrorModalMessage("");
+    setIsErrorModalOpen(false);
   };
 
-  const handleFullAnalysis = async () => {
-    const { tinggi, berat, umur, body_shape_id } = analysisData;
-
-    console.log("MENGIRIM PAYLOAD KE API:", {
-      tinggi,
-      berat,
-      umur,
-      body_shape_id,
-      foto_wajah: "ada",
-    });
-
-    if (!capturedImage) {
-      setApiError(
-        "Informasi tidak lengkap. Foto atau tipe tubuh tidak ditemukan."
-      );
-      setAppState("API_ERROR");
-      return;
-    }
-
-    const imageBlob = dataURLtoBlob(capturedImage);
-    if (!imageBlob) {
-      setApiError("Gagal memproses gambar.");
-      setAppState("API_ERROR");
-      return;
-    }
-
-    const tinggiParse = parseFloat(tinggi);
-    const beratParse = parseFloat(berat);
-    const umurParse = parseInt(umur, 10);
-
-    const formData = new FormData();
-    formData.append("user_id", "8a40ef18-1335-479e-8465-b63cdc3ebc88");
-    formData.append("tinggi_badan", String(tinggiParse));
-    formData.append("berat_badan", String(beratParse));
-    formData.append("umur", String(umurParse));
-    formData.append("body_shape_id", body_shape_id);
-    formData.append("foto_wajah", imageBlob, "face-photo.png");
-
+  const handleFullAnalysis = async (
+    imageBlobFromGallery: Blob | null = null,
+    imageNameFromGallery: string | null = null
+  ) => {
     setIsApiLoading(true);
-    setApiError("");
+
     try {
-      const response = await axios.post(
-        `${url}/v1/analysis/full-analysis`,
-        formData
-      );
+      const storedData = localStorage.getItem("tiebymin-analysis-data");
+      if (!storedData) {
+        setErrorModalMessage(
+          "Data analisis tidak ditemukan. Silakan kembali ke halaman analisis dan lengkapi data Anda."
+        );
+        setIsErrorModalOpen(true);
+        setIsApiLoading(false);
+        return;
+      }
+
+      const analysisData = JSON.parse(storedData);
+      const { tinggi, berat, umur, body_shape_id } = analysisData;
+
+      if (!tinggi || !berat || !umur || !body_shape_id) {
+        setErrorModalMessage(
+          "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
+        );
+        setIsErrorModalOpen(true);
+        setIsApiLoading(false);
+        return;
+      }
+
+      console.log("MENYIAPKAN DATA UNTUK ANALISIS:", {
+        tinggi,
+        berat,
+        umur,
+        body_shape_id,
+        foto_wajah: imageBlobFromGallery
+          ? "ada dari galeri"
+          : "ada dari kamera",
+      });
+
+      let imageToUpload: Blob | null = null;
+      let imageFileName: string = "face-photo.png";
+
+      if (imageBlobFromGallery && imageNameFromGallery) {
+        imageToUpload = imageBlobFromGallery;
+        imageFileName = imageNameFromGallery;
+      } else if (capturedImage) {
+        imageToUpload = dataURLtoBlob(capturedImage);
+      }
+
+      if (!imageToUpload) {
+        setErrorModalMessage(
+          "Informasi tidak lengkap. Foto atau tipe tubuh tidak ditemukan."
+        );
+        setIsErrorModalOpen(true);
+        setIsApiLoading(false);
+        return;
+      }
+
+      if (capturedImage) {
+        localStorage.setItem("capturedImage", capturedImage);
+      }
+
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
+        setIsErrorModalOpen(true);
+        setIsApiLoading(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("user_id", userId);
+      formData.append("tinggi_badan", tinggi);
+      formData.append("berat_badan", berat);
+      formData.append("umur", umur);
+      formData.append("body_shape_id", body_shape_id);
+      formData.append("foto_wajah", imageToUpload, imageFileName);
+
+      // Call analysis API
+      const endpoint = secureUrl("/v1/analysis/full-analysis");
+      console.log("Calling analysis API endpoint:", endpoint);
+      const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
+
+      const response = await axios.post(endpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.status >= 200 && response.status < 300) {
         const resultId = response.data.analysis_result_id;
+
         if (resultId) {
+          console.log("Analysis completed successfully, result ID:", resultId);
           setAnalysisResultId(resultId);
-          setAppState("ANALYZING");
+          setIsApiLoading(false);
+
+          // After API analysis completes, show loading UI
+          setAppState("LOADING_UI");
         } else {
-          throw new Error("API berhasil tapi tidak mengembalikan result ID.");
+          throw new Error("Gagal mendapatkan ID hasil analisis.");
         }
       } else {
         throw new Error(
-          response.data?.message || `HTTP error! status: ${response.status}`
+          response.data?.message ||
+            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
         );
       }
-
-      setAppState("ANALYZING");
     } catch (error) {
+      console.error("Analysis error:", error);
       const err = error as Error;
-      console.error("API Error:", err);
-      setApiError(
+      setErrorModalMessage(
         err.message ||
-          "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
+          "Terjadi kesalahan saat memulai analisis. Silakan coba lagi."
       );
-      setAppState("API_ERROR");
-    } finally {
+      setIsErrorModalOpen(true);
       setIsApiLoading(false);
     }
   };
 
-  const handleAnalyze = () => {
-    handleFullAnalysis();
+  const handleAnalyze = async () => {
+    console.log("Starting API analysis...");
+    await handleFullAnalysis();
   };
 
-  if (appState === "ANALYZING") {
+  if (appState === "LOADING_UI") {
     const step =
       LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
     return (
-      <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
-        <div className="text-center max-w-lg mx-auto">
+      <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <RiveLoadingAnimation />
-          <p className="text-2xl font-bold mt-4">
-            {progress < 100 ? `${progress}%` : "99%"}
-          </p>
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold mb-2">{step.title}</h2>
-            <p className="text-gray-600 text-base">{step.desc}</p>
+          <div className="flex flex-col items-center justify-center text-center">
+            <p className="text-2xl font-bold mb-4">
+              {progress < 100 ? `${progress}%` : "99%"}
+            </p>
+            <div className="flex flex-col items-center justify-center text-center">
+              <h2 className="text-base sm:text-lg font-semibold mb-2 text-center">
+                {step.title}
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base text-center max-w-md">
+                {step.desc}
+              </p>
+            </div>
           </div>
         </div>
       </main>
     );
   }
 
-  if (appState === "RESULTS") {
-    const analysesList = [
-      "Analisa bentuk wajahmu",
-      "Analisa tone kulitmu",
-      "Analisa kecocokan gaya selebriti",
-      "Rekomendasi hijab personal",
-    ];
+  if (appState === "COMPLETION_MODAL") {
     return (
-      <main className="flex flex-col items-center justify-center h-screen w-screen bg-pink-100 text-gray-800 p-4 transition-colors duration-500">
-        <div className="text-center">
-          <RiveLoadingAnimation />
-          <p className="text-2xl font-bold mt-4">99%</p>
-        </div>
-        <div className="mt-12 w-full max-w-sm flex flex-col gap-3">
-          {analysesList.map((label, index) => {
-            const isCompleted = index < completedAnalyses;
-            return (
-              <Button
-                key={index}
-                className={`w-full p-3 font-semibold rounded-xl flex items-center justify-between transition-all duration-500
-                  ${
-                    isCompleted
-                      ? "bg-gray-800 text-white"
-                      : "bg-white text-gray-500 border border-gray-200"
-                  }
-                `}
-              >
-                <span>{label}</span>
-                {isCompleted ? (
-                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                    <Check className="text-gray-800" />
-                  </div>
-                ) : (
-                  <AnalysisIcon className="stroke-gray-400" />
-                )}
-              </Button>
-            );
-          })}
+      <main className="relative h-screen w-screen overflow-hidden bg-pink-200">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-[#323232] rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-xl text-left flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-[#f0f0f0] w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                <Check className="w-7 h-7 text-[#323232]" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl text-[#f0f0f0] font-oswald font-bold">
+                Analisa Selesai!
+              </h1>
+            </div>
+
+            <p className="text-gray-300 text-base font-poppins leading-relaxed">
+              Klik Tombol{" "}
+              <span className="font-bold text-[#E97099]">
+                &ldquo;Lihat Hasil&rdquo;
+              </span>{" "}
+              Untuk Membuka Laporan Personal Yang Telah Kami Siapkan Khusus
+              Untukmu.
+            </p>
+
+            <Button
+              onClick={() => {
+                const resultIdToUse =
+                  fromGallery && skipCamera
+                    ? analysisResultId
+                    : analysisResultId;
+
+                if (resultIdToUse) {
+                  router.push(`/ai-overview?result_id=${resultIdToUse}`);
+                } else {
+                  console.error(
+                    "No analysis result ID available for navigation"
+                  );
+                  setErrorModalMessage(
+                    "Hasil analisis tidak ditemukan. Silakan coba lagi."
+                  );
+                  setIsErrorModalOpen(true);
+                }
+              }}
+              className="bg-[#E97099] w-full text-[#f0f0f0] font-bold py-7 px-6 rounded-xl hover:bg-[#d8668c] transition-colors text-lg flex items-center justify-center gap-3"
+            >
+              <File />
+              Lihat Hasil
+            </Button>
+          </div>
         </div>
       </main>
     );
@@ -376,23 +475,16 @@ function HalamanKameraWajahContent() {
 
   if (appState === "API_ERROR") {
     return (
-      <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 p-4">
-        <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
-          <h2 className="text-2xl font-bold text-red-600">Analisa Gagal</h2>
-          <p className="text-gray-600 mt-2 mb-6">{apiError}</p>
-          <Button
-            onClick={handleRetake}
-            className="w-full py-3 px-4 bg-gray-700 text-white font-semibold rounded-xl hover:bg-gray-800"
-          >
-            Coba Lagi
-          </Button>
-        </div>
-      </div>
+      <ErrorModal
+        isOpen={isErrorModalOpen}
+        onClose={handleRetake}
+        errorMessage={errorModalMessage}
+      />
     );
   }
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-black">
+    <main className="relative h-screen w-screen overflow-hidden bg-[#323232]">
       <video
         ref={videoRef}
         autoPlay
@@ -404,7 +496,7 @@ function HalamanKameraWajahContent() {
 
       {appState === "CAMERA" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between p-6">
-          <div className="relative z-20 text-center flex items-center gap-3 text-black bg-[#FFC6C6] mt-18 py-4 px-6 rounded-2xl">
+          <div className="relative z-20 text-center flex items-center gap-3 text-[#323232] bg-[#FFC6C6] mt-18 py-4 px-6 rounded-2xl">
             <Image
               src="/si_warning-fill.svg"
               alt="si-warning"
@@ -420,18 +512,30 @@ function HalamanKameraWajahContent() {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] max-w-sm aspect-[3/4] border-4 sm:border-[6px] border-dashed border-green-400 rounded-[50%/60%] animate-pulse pointer-events-none"
             style={{ animationDuration: "3s" }}
           ></div>
-          <Button
-            onClick={handleCapture}
-            className="relative z-20 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
-          >
-            <Camera className="text-white size-12 fill-black" />
-          </Button>
+          <div className="relative z-20 w-full max-w-sm flex justify-center items-center gap-12">
+            {/* Tombol Ganti Kamera */}
+            <Button
+              onClick={handleCameraSwitch}
+              className="w-16 h-16 -ml-12 bg-[#f0f0f0]/30 mr-2 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-[#f0f0f0]/50 focus:outline-none focus:ring-2 focus:ring-[#f0f0f0]"
+              aria-label="Ganti Kamera"
+            >
+              <RotateCw className="text-[#f0f0f0] size-8" />
+            </Button>
+
+            {/* Tombol Ambil Gambar */}
+            <Button
+              onClick={handleCapture}
+              className="w-20 h-20 -ml-12 bg-[#f0f0f0] rounded-full flex items-center justify-center shadow-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-green-400"
+            >
+              <Camera className="text-[#f0f0f0] size-12 fill-[#323232]" />
+            </Button>
+          </div>
         </div>
       )}
 
       {appState === "CONFIRM" && capturedImage && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-lg">
-          <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#323232]/50 backdrop-blur-lg">
+          <div className="bg-[#f0f0f0] rounded-2xl p-6 shadow-2xl w-full max-w-sm text-center flex flex-col items-center mx-4">
             <h2 className="font-oswald text-2xl font-bold text-gray-800">
               Gunakan Gambar Ini
             </h2>
@@ -454,7 +558,7 @@ function HalamanKameraWajahContent() {
               </Button>
               <Button
                 onClick={handleAnalyze}
-                className="w-full py-3 px-4 bg-[#FFC6C6] text-black font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
                 disabled={isApiLoading}
               >
                 {isApiLoading ? (
@@ -462,7 +566,7 @@ function HalamanKameraWajahContent() {
                 ) : (
                   <>
                     <span className="font-poppins">Mulai Analisa</span>{" "}
-                    <AnalysisIcon className="stroke-black" />
+                    <AnalysisIcon className="stroke-[#323232]" />
                   </>
                 )}
               </Button>
@@ -471,11 +575,11 @@ function HalamanKameraWajahContent() {
         </div>
       )}
 
-      {error && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 p-4">
-          <p className="text-center text-red-400">{error}</p>
-        </div>
-      )}
+      <ErrorModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        errorMessage={errorModalMessage}
+      />
     </main>
   );
 }
@@ -484,8 +588,8 @@ export default function HalamanKameraWajah() {
   return (
     <Suspense
       fallback={
-        <div className="h-screen w-screen flex items-center justify-center bg-black text-white">
-          Loading...
+        <div className="h-screen w-screen flex items-center justify-center bg-[#323232] text-[#f0f0f0]">
+          <div className="animate-pulse rounded-full h-16 w-16 bg-gray-700"></div>
         </div>
       }
     >

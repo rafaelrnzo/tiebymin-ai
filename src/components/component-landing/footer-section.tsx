@@ -1,22 +1,15 @@
-import React from "react";
-import Link from "next/link";
+"use client";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { Button } from "../ui/button";
+import { useEffect, useState } from "react";
 
-// --- Data untuk link di footer ---
 const footerLinks = {
-  navigasi: [
-    { href: "/", label: "Home" },
-    { href: "/cara-penggunaan", label: "Cara Penggunaan" },
-    { href: "/hubungi-kami", label: "Hubungi Kami" },
-    { href: "/faq", label: "FAQ" },
-  ],
   marketPlace: [
-    { href: "#", label: "Shopee" },
-    { href: "#", label: "Tokopedia" },
-    { href: "#", label: "Lazada" },
-    { href: "#", label: "Tiktokshop" },
+    { href: "https://shopee.co.id/", label: "Shopee" },
+    { href: "https://www.tokopedia.com/", label: "Tokopedia" },
+    { href: "https://www.tiktok.com/shop", label: "TikTok Shop" },
+    { href: "https://www.lazada.co.id/", label: "Lazada" },
   ],
   sumberDaya: [
     { href: "/testimoni", label: "Testimoni" },
@@ -27,111 +20,156 @@ const footerLinks = {
 };
 
 export default function Footer() {
+  // Check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("accessToken");
+      const userToken = localStorage.getItem("userToken");
+      setIsLoggedIn(
+        !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim())
+      );
+    }
+  }, []);
+
   return (
-    <>
-      {/* === Seksi CTA === */}
-      <section className="bg-[#EEA0B5] py-12 px-4">
-        <div className="container mx-auto bg-[#FAD9E6] rounded-2xl p-8 lg:p-16 text-center">
-          <h2 className="font-serif text-4xl lg:text-5xl font-bold text-[#D44A87] leading-tight">
+    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[100px]">
+      <div className="container mx-auto">
+        <div className="container mx-auto bg-[#F0F0F0] rounded-2xl mt-12 sm:mt-16 py-12 sm:py-20 text-center shadow-md">
+          <h2 className="font-handlee text-4xl sm:text-5xl lg:text-6xl font-bold text-[#323232] leading-tight">
             Siap Jadi Yang Paling Stylish
             <br />
             Dibandingkan Yang Lain
           </h2>
-          <p className="max-w-3xl mx-auto mt-4 text-[#AA5770]">
+          <p className="max-w-3xl mx-auto my-8 sm:my-12 text-[#323232] font-poppins text-base sm:text-lg lg:text-xl">
             Temukan Fashion Yang Sesuai Untukmu Dengan Cara Yang Cerdas. Hanya
-            Butuh Satu Foto. Tiebymin AI Memberikan Rekomendasi Instan Tanpa
-            Perlu Repot, Serta Hemat Waktu Dan Biaya.
+            Butuh Satu Foto. <b>Tiebymin AI</b> Memberikan Rekomendasi Instan
+            Tanpa Perlu Repot, Serta Hemat Waktu Dan Biaya.
           </p>
-          <Button
-            size="lg"
-            className="mt-8 bg-white text-pink-600 font-semibold rounded-full px-6 py-3 shadow-sm hover:bg-gray-100 transition-colors"
+          <a
+            href={isLoggedIn ? "/register?startStep=measurements" : "/register"}
           >
-            Coba Analisis
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+            <Button
+              size="lg"
+              className="bg-[#323232] text-[#f0f0f0] font-semibold rounded-lg px-10 py-6 shadow-sm hover:bg-gray-100 transition-colors"
+            >
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 30 30"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M21.317 1.84371C21.0105 2.41585 20.6998 3.00085 20.0848 3.61585C19.4698 4.23085 18.8848 4.54157 18.3105 4.848C17.9034 5.06228 17.5027 5.27657 17.0998 5.59371C16.9227 5.73133 16.7793 5.90761 16.6807 6.10909C16.5821 6.31056 16.5309 6.5319 16.5309 6.75621C16.5309 6.98052 16.5821 7.20186 16.6807 7.40334C16.7793 7.60481 16.9227 7.78109 17.0998 7.91871C17.5027 8.23585 17.9034 8.45014 18.3105 8.66657C18.8848 8.97085 19.472 9.28157 20.087 9.89657C20.702 10.5116 21.0127 11.0966 21.317 11.6709C21.5312 12.078 21.7455 12.4787 22.0627 12.8816C22.2003 13.0591 22.3767 13.2028 22.5783 13.3016C22.78 13.4005 23.0016 13.4519 23.2262 13.4519C23.4508 13.4519 23.6725 13.4005 23.8742 13.3016C24.0758 13.2028 24.2522 13.0591 24.3898 12.8816C24.707 12.4787 24.9191 12.078 25.1355 11.6709C25.4398 11.0966 25.7505 10.5116 26.3655 9.89657C26.9805 9.28157 27.5655 8.97085 28.1398 8.66657C28.547 8.45014 28.9498 8.238 29.3527 7.91871C29.5298 7.78109 29.6731 7.60481 29.7717 7.40334C29.8703 7.20186 29.9216 6.98052 29.9216 6.75621C29.9216 6.5319 29.8703 6.31056 29.7717 6.10909C29.6731 5.90761 29.5298 5.73133 29.3527 5.59371C28.9722 5.30828 28.5662 5.05865 28.1398 4.848C27.5655 4.54157 26.9827 4.23085 26.3655 3.61585C25.7484 3.00085 25.4398 2.41585 25.1355 1.84157C24.9191 1.43443 24.707 1.03371 24.3898 0.630855C24.2522 0.45333 24.0758 0.309642 23.8742 0.210791C23.6725 0.11194 23.4508 0.0605469 23.2262 0.0605469C23.0016 0.0605469 22.78 0.11194 22.5783 0.210791C22.3767 0.309642 22.2003 0.45333 22.0627 0.630855C21.7455 1.03371 21.5334 1.43657 21.317 1.84371ZM15.4455 10.023C14.9001 9.59843 14.4698 9.04394 14.1939 8.41019C13.918 7.77644 13.8054 7.08365 13.8662 6.39514C13.2047 6.35851 12.5423 6.33993 11.8798 6.33943C9.92982 6.33943 8.03124 6.51728 6.2291 6.71871C4.74908 6.88811 3.37037 7.55482 2.31856 8.60974C1.26675 9.66466 0.604125 11.0453 0.439102 12.5259C0.246244 14.3194 0.0791016 16.203 0.0791016 18.1401C0.0791016 20.0751 0.246244 21.9587 0.439102 23.7523C0.604125 25.2328 1.26675 26.6135 2.31856 27.6684C3.37037 28.7233 4.74908 29.39 6.2291 29.5594C8.0291 29.7609 9.92767 29.9387 11.8798 29.9387C13.8298 29.9387 15.7284 29.7609 17.5305 29.5594C19.0106 29.39 20.3893 28.7233 21.4411 27.6684C22.4929 26.6135 23.1555 25.2328 23.3205 23.7523C23.5134 21.9587 23.6784 20.0751 23.6784 18.138C23.677 17.4551 23.6584 16.7794 23.6227 16.1109C22.9286 16.1785 22.2288 16.0696 21.5881 15.7943C20.9475 15.5189 20.3869 15.086 19.9584 14.5359C19.5633 14.0143 19.2169 13.4577 18.9234 12.873L18.827 12.693C18.6658 12.3593 18.4516 12.0539 18.1927 11.7887C17.9252 11.5325 17.6203 11.3187 17.2884 11.1544L17.1062 11.058C16.5223 10.7644 15.9664 10.4179 15.4455 10.023ZM16.2705 23.9301C17.1577 24.6544 17.8477 25.5844 18.2848 26.6301C17.9491 26.773 17.5962 26.8659 17.2262 26.9087C15.4477 27.1059 13.6691 27.2709 11.8712 27.2709C10.0755 27.2709 8.29696 27.1059 6.51839 26.9066C6.15961 26.8659 5.80832 26.775 5.47482 26.6366C5.92482 25.5951 6.6191 24.6351 7.48267 23.928C8.72254 22.915 10.2744 22.3616 11.8755 22.3616C13.4766 22.3616 15.0285 22.915 16.2684 23.928M11.8755 20.0859C14.3398 20.0859 15.7284 18.6994 15.7284 16.2351C15.7284 13.7709 14.342 12.3844 11.8777 12.3844C9.41339 12.3844 8.02696 13.7709 8.02696 16.2351C8.02696 18.6994 9.41339 20.0859 11.8777 20.0859"
+                  fill="#F0F0F0"
+                />
+              </svg>
+              <p className="font-poppins text-xl font-bold">Coba Analisis</p>
+            </Button>
+          </a>
         </div>
-      </section>
-
-      {/* === Footer Utama === */}
-      <footer className="bg-[#EEA0B5] text-white pt-16 pb-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-            {/* Kolom Brand */}
-            <div className="lg:col-span-2">
-              <h3 className="text-3xl font-serif">tiebymin</h3>
-              <p className="mt-4 text-sm max-w-xs">
-                Hanya Butuh Satu Foto, Tiebymin AI Memberikan Rekomendasi Akurat
-                Tanpa Perlu Repot.
-              </p>
-              <div className="flex space-x-4 mt-6">
-                <Link href="#" className="hover:opacity-80 transition-opacity">
-                  <Image
-                    src="/tiktok-icon.png"
-                    alt="TikTok Icon"
-                    width={24}
-                    height={24}
+        <div className="flex flex-col lg:flex-row justify-between gap-10 mt-16 sm:mt-24">
+          <div className="flex flex-col">
+            <Link href="/" className="inline-block">
+              <Image
+                src="/vector/tie-by-min-logo.svg"
+                alt="Tiebymin Logo"
+                width={150}
+                height={50}
+                className="h-auto"
+              />
+            </Link>
+            <p className="my-6 text-justify text-base sm:text-lg max-w-md text-[#323232]/50 font-poppins">
+              Tiebymin Adalah Grup Yang Menaungi Brand Gaya Hidup Remaja
+              Muslimah Nomer 1 Di Indonesia Dari Fashion Hingga Kecantikan.
+              Desain Simple Dan Elegan Menjadi Ciri Khas Sekaligus Menebar
+              Inspirasi Sukses Di Dunia Dan Akhirat, kami Bermimpi Dalam Setiap
+              Hela Nafas Bisa Menumbuhkan Sejuta Kemanfaatan Untuk Negeri
+              Tercinta Indonesia.
+            </p>
+            <div className="flex space-x-4 mt-6">
+              <Link
+                href="https://www.tiktok.com/@tiebymin"
+                target="_blank"
+                className="hover:opacity-80 transition-opacity"
+              >
+                <svg
+                  width="28"
+                  height="31"
+                  viewBox="0 0 28 31"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M21.6664 5.12969C20.5274 3.8289 19.8996 2.15869 19.8998 0.429688H14.7498V21.0964C14.7109 22.215 14.239 23.2748 13.4336 24.0522C12.6283 24.8296 11.5524 25.2637 10.4331 25.263C8.06644 25.263 6.09977 23.3297 6.09977 20.9297C6.09977 18.063 8.86644 15.913 11.7164 16.7964V11.5297C5.96644 10.763 0.933105 15.2297 0.933105 20.9297C0.933105 26.4797 5.53311 30.4297 10.4164 30.4297C15.6498 30.4297 19.8998 26.1797 19.8998 20.9297V10.4464C21.9881 11.9461 24.4954 12.7508 27.0664 12.7464V7.59635C27.0664 7.59635 23.9331 7.74635 21.6664 5.12969Z"
+                    fill="#323232"
                   />
-                </Link>
-                <Link href="#" className="hover:opacity-80 transition-opacity">
-                  <Image
-                    src="/instagram-icon.png"
-                    alt="Instagram Icon"
-                    width={24}
-                    height={24}
+                </svg>
+              </Link>
+              <Link
+                href="https://www.instagram.com/tiebymin/"
+                target="_blank"
+                className="hover:opacity-80 transition-opacity fill-[#323232]"
+              >
+                <svg
+                  width="34"
+                  height="35"
+                  viewBox="0 0 34 35"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M10.0002 0.763672H24.0002C29.3335 0.763672 33.6668 5.09701 33.6668 10.4303V24.4303C33.6668 26.9941 32.6484 29.4529 30.8355 31.2657C29.0227 33.0786 26.5639 34.097 24.0002 34.097H10.0002C4.66683 34.097 0.333496 29.7637 0.333496 24.4303V10.4303C0.333496 7.86658 1.35195 5.40782 3.1648 3.59497C4.97765 1.78212 7.4364 0.763672 10.0002 0.763672ZM9.66683 4.09701C8.07553 4.09701 6.54941 4.72915 5.42419 5.85436C4.29897 6.97958 3.66683 8.50571 3.66683 10.097V24.7637C3.66683 28.0803 6.35016 30.7637 9.66683 30.7637H24.3335C25.9248 30.7637 27.4509 30.1315 28.5761 29.0063C29.7014 27.8811 30.3335 26.355 30.3335 24.7637V10.097C30.3335 6.78034 27.6502 4.09701 24.3335 4.09701H9.66683ZM25.7502 6.597C26.3027 6.597 26.8326 6.8165 27.2233 7.2072C27.614 7.5979 27.8335 8.1278 27.8335 8.68034C27.8335 9.23287 27.614 9.76278 27.2233 10.1535C26.8326 10.5442 26.3027 10.7637 25.7502 10.7637C25.1976 10.7637 24.6677 10.5442 24.277 10.1535C23.8863 9.76278 23.6668 9.23287 23.6668 8.68034C23.6668 8.1278 23.8863 7.5979 24.277 7.2072C24.6677 6.8165 25.1976 6.597 25.7502 6.597ZM17.0002 9.097C19.2103 9.097 21.3299 9.97498 22.8927 11.5378C24.4555 13.1006 25.3335 15.2202 25.3335 17.4303C25.3335 19.6405 24.4555 21.7601 22.8927 23.3229C21.3299 24.8857 19.2103 25.7637 17.0002 25.7637C14.79 25.7637 12.6704 24.8857 11.1076 23.3229C9.5448 21.7601 8.66683 19.6405 8.66683 17.4303C8.66683 15.2202 9.5448 13.1006 11.1076 11.5378C12.6704 9.97498 14.79 9.097 17.0002 9.097ZM17.0002 12.4303C15.6741 12.4303 14.4023 12.9571 13.4646 13.8948C12.5269 14.8325 12.0002 16.1043 12.0002 17.4303C12.0002 18.7564 12.5269 20.0282 13.4646 20.9659C14.4023 21.9036 15.6741 22.4303 17.0002 22.4303C18.3262 22.4303 19.598 21.9036 20.5357 20.9659C21.4734 20.0282 22.0002 18.7564 22.0002 17.4303C22.0002 16.1043 21.4734 14.8325 20.5357 13.8948C19.598 12.9571 18.3262 12.4303 17.0002 12.4303Z"
+                    fill="#323232"
                   />
-                </Link>
-              </div>
-            </div>
-
-            {/* Kolom Navigasi */}
-            <div>
-              <h4 className="font-bold">Navigasi</h4>
-              <ul className="mt-4 space-y-3 text-sm">
-                {footerLinks.navigasi.map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="hover:underline">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Kolom Market Place */}
-            <div>
-              <h4 className="font-bold">Market Place</h4>
-              <ul className="mt-4 space-y-3 text-sm">
-                {footerLinks.marketPlace.map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="hover:underline">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Kolom Sumber Daya */}
-            <div>
-              <h4 className="font-bold">Sumber Daya</h4>
-              <ul className="mt-4 space-y-3 text-sm">
-                {footerLinks.sumberDaya.map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="hover:underline">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+                </svg>
+              </Link>
             </div>
           </div>
 
-          {/* Garis pemisah dan Hak Cipta */}
-          <div className="border-t border-white/20 mt-12 pt-6 text-sm">
-            <p>© 2025, Tiebymin AI</p>
+          <div className="flex flex-col">
+            <h4 className="font-bold font-poppins tracking-wide">
+              Market Place
+            </h4>
+            <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
+              {footerLinks.marketPlace.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="hover:underline">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Kolom Sumber Daya */}
+          <div className="flex flex-col">
+            <h4 className="font-bold font-poppins tracking-wide">
+              Sumber Daya
+            </h4>
+            <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
+              {footerLinks.sumberDaya.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="hover:underline">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </footer>
-    </>
+
+        {/* Garis pemisah dan Hak Cipta */}
+        <div className="pt-6 text-base text-[#323232]/30">
+          <p>© 2025, Tiebymin AI</p>
+        </div>
+      </div>
+    </footer>
   );
 }

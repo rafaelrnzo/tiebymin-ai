@@ -1,104 +1,9 @@
 "use client";
 
+import { ChevronDown, ChevronUp, MinusCircle, PlusCircle } from "lucide-react";
 import React from "react";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
-// Komponen baru untuk input angka dengan tombol kontrol
-interface NumberInputWithControlsProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  unit?: string; // Satuan seperti 'cm' atau 'kg' (opsional)
-  id: string;
-}
-
-function NumberInputWithControls({
-  label,
-  value,
-  onChange,
-  unit,
-  id,
-}: NumberInputWithControlsProps) {
-  const handleIncrement = () => {
-    const currentValue = parseInt(value, 10) || 0;
-    onChange((currentValue + 1).toString());
-  };
-
-  const handleDecrement = () => {
-    const currentValue = parseInt(value, 10) || 0;
-    if (currentValue > 0) {
-      onChange((currentValue - 1).toString());
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-x-3 flex-grow basis-0 p-2 rounded-lg hover:bg-gray-50 transition">
-      <label
-        htmlFor={id}
-        className="text-gray-700 font-medium whitespace-nowrap text-xs sm:text-sm md:text-base flex-shrink-0"
-      >
-        {label}
-      </label>
-      <Input
-        id={id}
-        type="number"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-16 text-center border border-gray-300 rounded-md h-10 focus:ring-2 focus:ring-gray-800 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-      />
-      {unit && (
-        <span className="text-gray-300 font-medium w-4 sm:w-4 md:w-5 flex-shrink-0">
-          {unit}
-        </span>
-      )}
-      <div className="flex flex-col items-center justify-center flex-shrink-0">
-        <Button
-          onClick={handleIncrement}
-          className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
-        >
-          {/* SVG untuk panah atas */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
-            className="w-3 h-3 sm:w-3.5 sm:h-3.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m18 15-6-6-6 6" />
-          </svg>
-        </Button>
-        <Button
-          onClick={handleDecrement}
-          className="w-5 sm:w-6 h-4 sm:h-5 flex items-center justify-center text-gray-600 rounded-sm hover:bg-gray-100 p-0"
-        >
-          {/* SVG untuk panah bawah */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
-            className="w-3 h-3 sm:w-3.5 sm:h-3.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-// Komponen Form Utama yang telah diperbarui untuk hanya berisi form
 interface BodyMeasurementsFormProps {
   formData: {
     tinggi: string;
@@ -114,39 +19,204 @@ export default function BodyMeasurementsForm({
   onFormDataChange,
   onSubmit,
 }: BodyMeasurementsFormProps) {
-  return (
-    // Komponen sekarang hanya me-render elemen form
-    <>
-      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-y-4 md:gap-x-4 mb-8 w-full">
-        <NumberInputWithControls
-          label="Tinggi Badan"
-          id="tinggi-input"
-          value={formData.tinggi}
-          onChange={(value) => onFormDataChange("tinggi", value)}
-          unit="cm"
-        />
-        <NumberInputWithControls
-          label="Berat Badan"
-          id="berat-input"
-          value={formData.berat}
-          onChange={(value) => onFormDataChange("berat", value)}
-          unit="kg"
-        />
-        <NumberInputWithControls
-          label="Umur"
-          id="umur-input"
-          value={formData.umur}
-          onChange={(value) => onFormDataChange("umur", value)}
-        />
-      </div>
+  React.useEffect(() => {
+    console.log("BodyMeasurementsForm formData updated:", formData);
+  }, [formData]);
 
-      {/* Tombol Submit */}
-      <Button
-        onClick={onSubmit}
-        className="w-full h-14 bg-gray-800 hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
-      >
-        Selanjutnya
-      </Button>
-    </>
+  const handleInputChange = (field: string, value: string) => {
+    console.log(`Input changed: ${field} = ${value}`);
+    onFormDataChange(field, value);
+  };
+
+  return (
+    <div className="bg-[#f0f0f0] lg:min-h-full min-h-[73vh] backdrop-blur-sm shadow-xl rounded-t-2xl lg:rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#323232] mb-6 font-oswald text-left">
+        Lengkapi Data Diri
+      </h2>
+      <p className="mb-4 font-poppins">
+        Semakin lengkap data kamu akan membuat hasil analisa kami jauh lebih
+        tepat, jangan lupa di isi ya....
+      </p>
+      <hr className="bg-[#323232] lg:hidden block my-4" />
+      <div className="mb-32 lg:mb-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 lg:justify-between items-center gap-x-2 gap-y-4 mb-8 w-full">
+          {/* new compo tinggi badan */}
+          <div className="grid grid-cols-7 items-center">
+            <p className="col-span-3">Tinggi Badan</p>
+            <Input
+              className="col-span-1 lg:col-span-2"
+              type="number"
+              value={formData.tinggi}
+              onChange={(e) => handleInputChange("tinggi", e.target.value)}
+              placeholder="0"
+            />
+            <p className="col-span-1 text-center">cm</p>
+            <div className="flex col-span-2 lg:hidden justify-end gap-2">
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.tinggi, 10) || 0;
+                  handleInputChange("tinggi", (currentValue + 1).toString());
+                }}
+                className="text-[#323232] hover:text-gray-600"
+              >
+                <PlusCircle size={20} />
+              </button>
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.tinggi, 10) || 0;
+                  if (currentValue > 0) {
+                    handleInputChange("tinggi", (currentValue - 1).toString());
+                  }
+                }}
+                className="text-[#323232] hover:text-gray-600"
+              >
+                <MinusCircle size={20} />
+              </button>
+            </div>
+            <div className="lg:flex hidden flex-col col-span-1 items-center gap-1">
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.tinggi, 10) || 0;
+                  handleInputChange("tinggi", (currentValue + 1).toString());
+                }}
+                className="text-[#323232] hover:text-gray-600 p-1"
+              >
+                <ChevronUp size={16} />
+              </button>
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.tinggi, 10) || 0;
+                  if (currentValue > 0) {
+                    handleInputChange("tinggi", (currentValue - 1).toString());
+                  }
+                }}
+                className="text-[#323232] hover:text-gray-600 p-1"
+              >
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
+          {/* new compo berat badan */}
+          <div className="grid grid-cols-7 items-center">
+            <p className="col-span-3">Berat Badan</p>
+            <Input
+              className="col-span-1 lg:col-span-2"
+              type="number"
+              value={formData.berat}
+              onChange={(e) => handleInputChange("berat", e.target.value)}
+              placeholder="0"
+            />
+            <p className="col-span-1 text-center">kg</p>
+            <div className="flex col-span-2 lg:hidden justify-end gap-2">
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.berat, 10) || 0;
+                  handleInputChange("berat", (currentValue + 1).toString());
+                }}
+                className="text-[#323232] hover:text-gray-600"
+              >
+                <PlusCircle size={20} />
+              </button>
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.berat, 10) || 0;
+                  if (currentValue > 0) {
+                    handleInputChange("berat", (currentValue - 1).toString());
+                  }
+                }}
+                className="text-[#323232] hover:text-gray-600"
+              >
+                <MinusCircle size={20} />
+              </button>
+            </div>
+            <div className="lg:flex hidden flex-col col-span-1 items-center gap-1">
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.berat, 10) || 0;
+                  handleInputChange("berat", (currentValue + 1).toString());
+                }}
+                className="text-[#323232] hover:text-gray-600 p-1"
+              >
+                <ChevronUp size={16} />
+              </button>
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.berat, 10) || 0;
+                  if (currentValue > 0) {
+                    handleInputChange("berat", (currentValue - 1).toString());
+                  }
+                }}
+                className="text-[#323232] hover:text-gray-600 p-1"
+              >
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
+          {/* new compo umur */}
+          <div className="grid grid-cols-7 items-center justify-between">
+            <p className="col-span-3">Umur</p>
+            <Input
+              className="col-span-1 lg:col-span-2"
+              type="number"
+              value={formData.umur}
+              onChange={(e) => handleInputChange("umur", e.target.value)}
+              placeholder="0"
+            />
+            <p className="col-span-1"></p>
+            <div className="flex col-span-2 lg:hidden justify-end gap-2">
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.umur, 10) || 0;
+                  handleInputChange("umur", (currentValue + 1).toString());
+                }}
+                className="text-[#323232] hover:text-gray-600"
+              >
+                <PlusCircle size={20} />
+              </button>
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.umur, 10) || 0;
+                  if (currentValue > 0) {
+                    handleInputChange("umur", (currentValue - 1).toString());
+                  }
+                }}
+                className="text-[#323232] hover:text-gray-600"
+              >
+                <MinusCircle size={20} />
+              </button>
+            </div>
+            <div className="lg:flex hidden flex-col col-span-1 items-center gap-1">
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.umur, 10) || 0;
+                  handleInputChange("umur", (currentValue + 1).toString());
+                }}
+                className="text-[#323232] hover:text-gray-600 p-1"
+              >
+                <ChevronUp size={16} />
+              </button>
+              <button
+                onClick={() => {
+                  const currentValue = parseInt(formData.umur, 10) || 0;
+                  if (currentValue > 0) {
+                    handleInputChange("umur", (currentValue - 1).toString());
+                  }
+                }}
+                className="text-[#323232] hover:text-gray-600 p-1"
+              >
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={onSubmit}
+          className="w-full h-14 bg-[#323232] hover:bg-gray-700 text-[#ffc6c6] font-bold text-lg rounded-xl transition-colors"
+        >
+          Selanjutnya
+        </button>
+      </div>
+    </div>
   );
 }

@@ -3,6 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  return await generateStory(req);
+}
+
+export async function GET(req: NextRequest) {
+  return await generateStory(req);
+}
+
+async function generateStory(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const resultId = url.searchParams.get("result_id");
@@ -13,10 +21,8 @@ export async function POST(req: NextRequest) {
     }
     storyUrl.searchParams.set("print", "true");
     
-    // Determine if running on Vercel
     const isVercel = !!process.env.VERCEL_ENV;
     let puppeteer;
-    // Define launch options with proper typing
     let launchOptions: { 
       headless: boolean; 
       args?: string[];
@@ -25,7 +31,6 @@ export async function POST(req: NextRequest) {
       headless: true,
     };
     
-    // Use different puppeteer setup based on environment
     if (isVercel) {
       const chromium = (await import("@sparticuz/chromium")).default;
       puppeteer = await import("puppeteer-core");

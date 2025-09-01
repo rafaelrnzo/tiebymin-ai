@@ -1,386 +1,503 @@
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import url from '@/lib/url';
-import { AnalysisData as GlobalAnalysisData } from '@/types';
+import { useQuery, useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { secureUrl } from "@/lib/api";
+import { BodyType } from "@/types";
+import { defaultUserData } from "@/lib/mock-data";
+import { useRouter } from "next/navigation";
 
-// Interfaces for API data
-interface AnalysisData extends GlobalAnalysisData {
-  user_name?: string;
-  celebrity_id: number | null;
-  analysis_details: {
-    bmi: {
-      value: string | number;
-    };
-  };
+
+async function fetchData(endpoint: string, onUnauthorized?: () => void) {
+  const fullUrl = secureUrl(endpoint);
+  console.log(`🔄 Fetching: ${fullUrl}`); // Debug log
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+
+  try {
+    const response = await axios.get(fullUrl, {
+      headers: {
+        "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log(`📡 Response status: ${response.status} for ${endpoint}`); // Debug log
+
+    if (response.status >= 200 && response.status < 300) {
+      console.log(`✅ Success fetching ${endpoint}:`, response.data); // Debug log
+      return response.data;
+    } else {
+      console.error(
+        `❌ HTTP Error ${response.status} for ${endpoint}:`,
+        response.data
+      );
+      if (response.status === 401) {
+        console.log("🚪 Unauthorized access, redirecting to login");
+        if (onUnauthorized) {
+          onUnauthorized();
+        } else {
+          // Fallback: redirect to login if no callback provided
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+        }
+        throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+      }
+      if (response.status === 404) {
+        throw new Error(
+          "Kami tidak dapat menemukan data yang Anda cari. Mohon periksa ID dan coba lagi."
+        );
+      }
+      throw new Error(
+        "Kami mengalami masalah saat mengambil data. Mohon coba lagi dalam beberapa saat."
+      );
+    }
+  } catch (error: unknown) {
+    console.error(`💥 Fetch error for ${endpoint}:`, error);
+    // Handle axios error responses
+    const axiosError = error as { response?: { status?: number } };
+    if (axiosError.response?.status === 401) {
+      console.log("🚪 Unauthorized access (catch), redirecting to login");
+      if (onUnauthorized) {
+        onUnauthorized();
+      } else {
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+      }
+      throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+    }
+    throw error;
+  }
 }
 
-interface PhotoData {
-  is_processed: boolean;
-  file_path: string;
-  photo_type: "face_original" | "face_processed" | string;
-}
+// Hook untuk fetching analysis data dengan debugging yang lebih baik
+export function useAnalysisData(
+  resultId: string | null,
+  options?: { onError?: (error: Error) => void }
+) {
+  console.log("🚀 useAnalysisData called with resultId:", resultId); // Debug log
 
-interface FaceShapeData {
-  name: string;
-  description: string;
-  characteristics: string[];
-}
-
-interface ColorToneData {
-  name: string;
-  description: string;
-  best_colors: string[];
-  neutral_colors: string[];
-  worst_colors: string[];
-  combination_colors: string[];
-  tips?: {
-    makeup: string[];
-    outfit: string[];
-    personality: string[];
-    characteristics: string[];
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
   };
-}
 
-interface BodyShapeData {
-  name: string;
-  description: string;
-  characteristics: string[];
-}
-
-// Interface tidak digunakan, dikomentari untuk menghindari peringatan linter
-// interface BMICategoryData {
-//   name: string;
-//   description: string;
-// }
-
-interface CelebrityData {
-  name: string;
-  match_percentage: number;
-  reason: string;
-  image_url?: string;
-}
-
-// Transformed data structure for components
-export interface UserData {
-  name: string;
-  faceShape: string;
-  bodyShape: string;
-  colorTone: string;
-  bmi: number | string;
-  celebrityMatch: {
-    name: string;
-    matchPercentage: number;
-    imageUrl: string;
-    reason: string[];
-  };
-  faceShapeAnalysis: {
-    uniqueFact: string;
-    characteristics: string[];
-  };
-  bodyShapeAnalysis: {
-    description: string;
-    characteristics: string[];
-    imageUrl: string;
-  };
-  colorToneAnalysis: {
-    description: string;
-    bestColors: string[];
-    neutralColors: string[];
-    worstColors: string[];
-    combination: string[];
-    tips: {
-      makeup: string[];
-      outfit: string[];
-      personality: string[];
-      characteristics: string[];
-    };
-  };
-  conclusionTips: {
-    face: string[];
-    body: string[];
-    color: string[];
-    quickRecap: string[];
-  };
-}
-
-// Default fallback data
-export const defaultUserData: UserData = {
-  name: "Yasmin Azizah",
-  faceShape: "Kotak",
-  bodyShape: "Hourglass",
-  colorTone: "Cool Winter",
-  bmi: 52.2,
-  celebrityMatch: {
-    name: "Cut Syifa",
-    matchPercentage: 88,
-    imageUrl: "https://placehold.co/400/f0f0f0/333?text=Selebriti",
-    reason: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
-  },
-  faceShapeAnalysis: {
-    uniqueFact:
-      "Bentuk wajah kamu itu kotak! Kamu punya garis rahang yang tegas dan dahi nggak terlalu lebar atau sempit.",
-    characteristics: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
-  },
-  bodyShapeAnalysis: {
-    imageUrl: "https://placehold.co/250x500/FFFFFF/CCCCCC?text=Bentuk+Tubuh",
-    description:
-      "Bagian Tengah Tubuhmu Lebih Dominan, Dengan Bagian Tengah Yang Lebih Menonjol Dan Bahu Yang Lebar Serta Bagian Dada Yang Penuh.",
-    characteristics: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
-  },
-  colorToneAnalysis: {
-    description:
-      "Ini berarti kulitmu memiliki undertone dingin dengan hint biru atau pink yang memberikan kesan elegan.",
-    bestColors: [
-      "#C7D2FE",
-      "#BFDBFE",
-      "#E0E7FF",
-      "#E5E7EB",
-      "#F472B6",
-      "#60A5FA",
-    ],
-    neutralColors: [
-      "#A3A3A3",
-      "#6B7280",
-      "#9CA3AF",
-      "#D1D5DB",
-      "#F59E0B",
-      "#FACC15",
-    ],
-    worstColors: [
-      "#F59E0B",
-      "#FACC15",
-      "#FEF08A",
-      "#FDE68A",
-      "#C7D2FE",
-      "#BFDBFE",
-    ],
-    combination: [
-      "#F472B6",
-      "#60A5FA",
-      "#3B82F6",
-      "#1E3A8A",
-      "#C7D2FE",
-      "#BFDBFE",
-    ],
-    tips: {
-      makeup: [
-        "Kamu punya Rahang tegas dan kuat",
-        "Dahi dan rahang memiliki lebar yang hampir sama",
-        "Panjang dan lebar wajah hampir seimbang",
-      ],
-      outfit: [
-        "Kamu punya Rahang tegas dan kuat",
-        "Dahi dan rahang memiliki lebar yang hampir sama",
-        "Panjang dan lebar wajah hampir seimbang",
-      ],
-      personality: [
-        "Kamu punya Rahang tegas dan kuat",
-        "Dahi dan rahang memiliki lebar yang hampir sama",
-        "Panjang dan lebar wajah hampir seimbang",
-      ],
-      characteristics: [
-        "Kamu punya Rahang tegas dan kuat",
-        "Dahi dan rahang memiliki lebar yang hampir sama",
-        "Panjang dan lebar wajah hampir seimbang",
-      ],
-    },
-  },
-  conclusionTips: {
-    face: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
-    body: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
-    color: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
-    quickRecap: [
-      "Kamu punya Rahang tegas dan kuat",
-      "Dahi dan rahang memiliki lebar yang hampir sama",
-      "Panjang dan lebar wajah hampir seimbang",
-    ],
-  },
-};
-
-// Hook for fetching analysis data
-export function useAnalysisData(resultId: string | null) {
   return useQuery({
-    queryKey: ['analysisData', resultId],
+    queryKey: ["analysisData", resultId],
     queryFn: async () => {
       if (!resultId) {
-        throw new Error('Result ID is required');
+        console.warn("⚠️ Result ID is required but not provided");
+        throw new Error("ID Hasil diperlukan");
       }
 
+      console.log("📊 Starting analysis data fetch for resultId:", resultId);
+
       try {
-        // Fetch analysis data and photos in parallel
-        const [analysisResponse, photosResponse] = await Promise.all([
-          axios.get(`${url}/v1/user-analysis-results/${resultId}`),
-          axios.get(`${url}/v1/user-photos/analysis-results/${resultId}/photos`)
+        // Fetch analysis data dan photos secara parallel
+        console.log("🔄 Fetching analysis data and photos...");
+        const [analysisData, photosData] = await Promise.all([
+          fetchData(`/v1/user-analysis-results/${resultId}`, handleUnauthorized),
+          fetchData(`/v1/user-photos/analysis/${resultId}`, handleUnauthorized),
         ]);
 
-        const analysisData: AnalysisData = analysisResponse.data;
+        console.log("📋 Analysis data received:", analysisData);
+        console.log("🖼️ Photos data received:", photosData);
 
-        // Fetch additional data based on IDs from analysis result
-        const [faceShapeResponse, colorToneResponse, bodyShapeResponse, /* bmiCategoryResponse tidak digunakan */, celebrityResponse] = 
-          await Promise.all([
-            axios.get(`${url}/v1/face-shapes/${analysisData.face_shape_id}`),
-            axios.get(`${url}/v1/color-analysis/${analysisData.color_analysis_id}`),
-            axios.get(`${url}/v1/body-shapes/${analysisData.body_shape_id}`),
-            axios.get(`${url}/v1/bmi-categories/${analysisData.bmi_category_id}`),
-            analysisData.celebrity_id 
-              ? axios.get(`${url}/v1/celebrities/${analysisData.celebrity_id}`) 
-              : Promise.resolve({ data: null })
-          ]);
-
-        const faceShapeData: FaceShapeData = faceShapeResponse.data;
-        const colorToneData: ColorToneData = colorToneResponse.data;
-        const bodyShapeData: BodyShapeData = bodyShapeResponse.data;
-        // const bmiCategoryData: BMICategoryData = bmiCategoryResponse.data; // Removed unused variable
-        const celebrityData: CelebrityData | null = celebrityResponse.data;
-
-        // Find user photo
-        const processedPhoto = photosResponse.data.find(
-          (photo: PhotoData) => photo.is_processed === true
-        );
-        
-        let userPhotoUrl = null;
-        if (processedPhoto) {
-          userPhotoUrl = processedPhoto.file_path;
-        } else {
-          const originalPhoto = photosResponse.data.find(
-            (photo: PhotoData) => photo.photo_type === "face_original"
-          );
-          if (originalPhoto) userPhotoUrl = originalPhoto.file_path;
+        if (analysisData?.user_id && typeof window !== "undefined") {
+          localStorage.setItem("userId", analysisData.user_id);
         }
 
-        // Transform data for components
-        const transformedData: UserData = {
+        // Validasi data yang diperlukan
+        if (!analysisData) {
+          throw new Error("Data analisis kosong atau tidak terdefinisi");
+        }
+
+        // Fetch additional data berdasarkan IDs dari analysis result
+        console.log("🔄 Fetching additional data...");
+        const additionalDataPromises = [
+          analysisData.face_shape_id
+            ? fetchData(`/v1/face-shapes/${analysisData.face_shape_id}`, handleUnauthorized)
+            : Promise.resolve(null),
+          analysisData.color_analysis_id
+            ? fetchData(`/v1/color-analysis/${analysisData.color_analysis_id}`, handleUnauthorized)
+            : Promise.resolve(null),
+          analysisData.body_shape_id
+            ? fetchData(`/v1/body-shapes/${analysisData.body_shape_id}`, handleUnauthorized)
+            : Promise.resolve(null),
+          analysisData.bmi_category_id
+            ? fetchData(`/v1/bmi-categories/${analysisData.bmi_category_id}`, handleUnauthorized)
+            : Promise.resolve(null),
+          analysisData.celebrity_id
+            ? fetchData(`/v1/celebrities/${analysisData.celebrity_id}`, handleUnauthorized)
+            : Promise.resolve(null),
+        ];
+
+        const [
+          faceShapeData,
+          colorToneData,
+          bodyShapeData,
+          bmiCategoryData,
+          celebrityData,
+        ] = await Promise.all(additionalDataPromises);
+
+        console.log("📊 Additional data received:", {
+          faceShapeData,
+          colorToneData,
+          bodyShapeData,
+          bmiCategoryData,
+          celebrityData,
+        });
+
+        // Find user photo
+        let userPhotoUrl = null;
+        if (Array.isArray(photosData)) {
+          const processedPhoto = photosData.find(
+            (photo: { is_processed: boolean }) => photo.is_processed === true
+          );
+
+          if (processedPhoto) {
+            userPhotoUrl = processedPhoto.file_path;
+          } else {
+            const originalPhoto = photosData.find(
+              (photo: { photo_type: string }) =>
+                photo.photo_type === "face_original"
+            );
+            if (originalPhoto) userPhotoUrl = originalPhoto.file_path;
+          }
+        }
+
+        // Calculate BMI value dengan null checking
+        let bmiValue = 0;
+        if (analysisData.analysis_details?.bmi?.value) {
+          bmiValue =
+            typeof analysisData.analysis_details.bmi.value === "string"
+              ? parseFloat(analysisData.analysis_details.bmi.value)
+              : Number(analysisData.analysis_details.bmi.value);
+        }
+
+        const transformedData = {
           name: analysisData.user_name || "User",
           faceShape: faceShapeData?.name || defaultUserData.faceShape,
           bodyShape: bodyShapeData?.name || defaultUserData.bodyShape,
           colorTone: colorToneData?.name || defaultUserData.colorTone,
-          bmi: typeof analysisData.analysis_details.bmi.value === "string"
-            ? parseFloat(analysisData.analysis_details.bmi.value)
-            : Number(analysisData.analysis_details.bmi.value),
+          bmi: {
+            value: bmiValue || defaultUserData.bmi.value,
+            category: bmiCategoryData?.name || defaultUserData.bmi.category,
+            desc: bmiCategoryData?.description || defaultUserData.bmi.desc,
+          },
           celebrityMatch: {
             name: celebrityData?.name || defaultUserData.celebrityMatch.name,
-            matchPercentage: celebrityData?.match_percentage || defaultUserData.celebrityMatch.matchPercentage,
-            imageUrl: celebrityData?.image_url || defaultUserData.celebrityMatch.imageUrl,
-            reason: celebrityData?.reason ? [celebrityData.reason] : defaultUserData.celebrityMatch.reason,
+            matchPercentage:
+              celebrityData?.match_percentage ||
+              defaultUserData.celebrityMatch.matchPercentage,
+            imageUrl:
+              celebrityData?.picture_url ||
+              defaultUserData.celebrityMatch.imageUrl,
+            reason: celebrityData?.similarity_text
+              ? [celebrityData.similarity_text]
+              : defaultUserData.celebrityMatch.reason,
+            description: celebrityData?.description,
           },
           faceShapeAnalysis: {
-            uniqueFact: faceShapeData?.description || defaultUserData.faceShapeAnalysis.uniqueFact,
-            characteristics: faceShapeData?.characteristics || defaultUserData.faceShapeAnalysis.characteristics,
+            uniqueFact:
+              faceShapeData?.description ||
+              defaultUserData.faceShapeAnalysis.uniqueFact,
+            karakteristik:
+              faceShapeData?.karakteristik ||
+              defaultUserData.faceShapeAnalysis.karakteristik,
           },
           bodyShapeAnalysis: {
-            description: bodyShapeData?.description || defaultUserData.bodyShapeAnalysis.description,
-            characteristics: bodyShapeData?.characteristics || defaultUserData.bodyShapeAnalysis.characteristics,
+            description:
+              bodyShapeData?.description ||
+              defaultUserData.bodyShapeAnalysis.description,
+            karakteristik:
+              bodyShapeData?.karakteristik ||
+              defaultUserData.bodyShapeAnalysis.karakteristik,
             imageUrl: defaultUserData.bodyShapeAnalysis.imageUrl,
           },
           colorToneAnalysis: {
-            description: colorToneData?.description || defaultUserData.colorToneAnalysis.description,
-            bestColors: colorToneData?.best_colors || defaultUserData.colorToneAnalysis.bestColors,
-            neutralColors: colorToneData?.neutral_colors || defaultUserData.colorToneAnalysis.neutralColors,
-            worstColors: colorToneData?.worst_colors || defaultUserData.colorToneAnalysis.worstColors,
-            combination: colorToneData?.combination_colors || defaultUserData.colorToneAnalysis.combination,
-            tips: colorToneData?.tips || defaultUserData.colorToneAnalysis.tips,
+            description:
+              colorToneData?.description,
+            bestColors:
+              colorToneData?.best_colors,
+            neutralColors:
+              colorToneData?.neutral_colors,
+            worstColors:
+              colorToneData?.worst_colors,
+            combination:
+              colorToneData?.combination_colors,
+            tips: {
+              makeup: colorToneData?.make_up_tips
+                ? [colorToneData.make_up_tips]
+                : defaultUserData.colorToneAnalysis.tips.makeup,
+              outfit: colorToneData?.tips_warna_kulit_pakaian
+                ? [colorToneData.tips_warna_kulit_pakaian]
+                : defaultUserData.colorToneAnalysis.tips.outfit,
+              personality: colorToneData?.personality
+                ? [colorToneData.personality]
+                : defaultUserData.colorToneAnalysis.tips.personality,
+              karakteristik: colorToneData?.karakteristik
+                ? [colorToneData.karakteristik]
+                : defaultUserData.colorToneAnalysis.tips.karakteristik,
+            },
           },
           conclusionTips: {
-            face: faceShapeData?.characteristics || defaultUserData.conclusionTips.face,
-            body: bodyShapeData?.characteristics || defaultUserData.conclusionTips.body,
-            color: colorToneData?.best_colors?.map(color => `Gunakan warna ${color}`) || defaultUserData.conclusionTips.color,
+            face:
+              faceShapeData?.karakteristik ||
+              defaultUserData.conclusionTips.face,
+            body:
+              bodyShapeData?.karakteristik ||
+              defaultUserData.conclusionTips.body,
+            color:
+              colorToneData?.best_colors?.map(
+                (color: string) => `Gunakan warna ${color}`
+              ) || defaultUserData.conclusionTips.color,
             quickRecap: [
-              `Bentuk wajah kamu adalah ${faceShapeData?.name || defaultUserData.faceShape}`,
-              `Bentuk tubuh kamu adalah ${bodyShapeData?.name || defaultUserData.bodyShape}`,
-              `Tone warna kamu adalah ${colorToneData?.name || defaultUserData.colorTone}`,
+              `Bentuk wajah kamu adalah ${
+                faceShapeData?.name || defaultUserData.faceShape
+              }`,
+              `Bentuk tubuh kamu adalah ${
+                bodyShapeData?.name || defaultUserData.bodyShape
+              }`,
+              `Tone warna kamu adalah ${
+                colorToneData?.name || defaultUserData.colorTone
+              }`,
             ],
           },
         };
 
-        return { userData: transformedData, userPhotoUrl };
-      } catch (error) {
-        console.error('Error fetching analysis data:', error);
-        return { userData: defaultUserData, userPhotoUrl: null };
+        console.log("✅ Transformed data:", transformedData);
+
+        return {
+          userData: transformedData,
+          userPhotoUrl,
+          rawAnalysisData: analysisData, // Tambahkan ini
+        };
+      } catch (error: unknown) {
+        console.error("💥 Error fetching analysis data:", error);
+        if (options?.onError) {
+          options.onError(error instanceof Error ? error : new Error(String(error)));
+        }
+        throw new Error(
+          error instanceof Error
+            ? error.message
+            : "Terjadi kesalahan saat mengambil data analisis. Mohon coba lagi."
+        );
       }
     },
     enabled: !!resultId,
+    retry: 3, // Retry 3 kali jika gagal
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000, // Data dianggap fresh selama 5 menit
   });
 }
 
-// Hook for downloading PDF
+export function useFaceShapeData(faceShapeId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
+  return useQuery({
+    queryKey: ["faceShape", faceShapeId],
+    queryFn: async () => {
+      if (!faceShapeId) {
+        throw new Error("ID Bentuk Wajah diperlukan");
+      }
+      return fetchData(`/v1/face-shapes/${faceShapeId}`, handleUnauthorized);
+    },
+    enabled: !!faceShapeId,
+    retry: 2,
+  });
+}
+
+export function useColorToneData(colorAnalysisId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
+  return useQuery({
+    queryKey: ["colorTone", colorAnalysisId],
+    queryFn: async () => {
+      if (!colorAnalysisId) {
+        throw new Error("ID Analisis Warna diperlukan");
+      }
+      return fetchData(`/v1/color-analysis/${colorAnalysisId}`, handleUnauthorized);
+    },
+    enabled: !!colorAnalysisId,
+    retry: 2,
+  });
+}
+
+export function useBodyShapeData(bodyShapeId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
+  return useQuery({
+    queryKey: ["bodyShape", bodyShapeId],
+    queryFn: async () => {
+      console.log(bodyShapeId)
+      if (!bodyShapeId) {
+        throw new Error("ID Bentuk Tubuh diperlukan");
+      }
+      return fetchData(`/v1/body-shapes/${bodyShapeId}`, handleUnauthorized);
+    },
+    enabled: !!bodyShapeId,
+    retry: 2,
+  });
+}
+
+export function useBmiCategoryData(bmiCategoryId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
+  return useQuery({
+    queryKey: ["bmiCategory", bmiCategoryId],
+    queryFn: async () => {
+      if (!bmiCategoryId) {
+        throw new Error("ID Kategori BMI diperlukan");
+      }
+      return fetchData(`/v1/bmi-categories/${bmiCategoryId}`, handleUnauthorized);
+    },
+    enabled: !!bmiCategoryId,
+    retry: 2,
+  });
+}
+
+export function useCelebrityData(celebrityId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
+  return useQuery({
+    queryKey: ["celebrity", celebrityId],
+    queryFn: async () => {
+      if (!celebrityId) {
+        return null;
+      }
+      return fetchData(`/v1/celebrities/${celebrityId}`, handleUnauthorized);
+    },
+    enabled: !!celebrityId,
+    retry: 2,
+  });
+}
+
 export function useDownloadPdf() {
-  // Using URLSearchParams to get resultId from URL
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
-  const resultId = searchParams.get('result_id');
+  return useMutation({
+    mutationFn: async (data: { resultId: string; firstName?: string }) => {
+      const firstName = data.firstName || localStorage.getItem("firstName") || "User";
 
-  return useQuery({
-    queryKey: ['downloadPdf', resultId],
-    queryFn: async () => {
-      if (!resultId) {
-        throw new Error('Result ID is required');
-      }
-
-      const response = await fetch('/api/generate-pdf', {
-        method: 'POST',
+      const response = await axios.post("/api/generate-pdf", {
+        resultId: data.resultId,
+        firstName
+      }, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ resultId }),
+        responseType: "blob",
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate PDF');
-      }
-
-      return await response.blob();
+      return response.data;
     },
-    enabled: false, // This query will not run automatically
   });
 }
 
-// Hook for generating story image
 export function useGenerateStory() {
-  // Using URLSearchParams to get resultId from URL
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
-  const resultId = searchParams.get('result_id');
+  return useMutation({
+    mutationFn: async (resultId: string) => {
+      if (!resultId) {
+        throw new Error("ID Hasil diperlukan");
+      }
+
+      const response = await axios.post(
+        `/api/generate-story?result_id=${resultId}`,
+        {},
+        {
+          responseType: "blob",
+        }
+      );
+
+      return response.data;
+    },
+  });
+}
+
+export const useBodyShapes = () => {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
 
   return useQuery({
-    queryKey: ['generateStory', resultId],
-    queryFn: async () => {
-      if (!resultId) {
-        throw new Error('Result ID is required');
+    queryKey: ["bodyShapes"],
+    queryFn: async (): Promise<BodyType[]> => {
+        const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
+      console.log("🔄 Fetching body shapes...");
+      try {
+        const response = await axios.get(secureUrl(`/v1/body-shapes/`), {
+          headers:{
+            "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+          }
+        });
+
+        console.log("✅ Body shapes fetched:", response.data);
+
+        if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
+          throw new Error("Tidak ada data bentuk tubuh ditemukan");
+        }
+
+        return response.data;
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401) {
+          console.log("🚪 Unauthorized access in useBodyShapes, redirecting to login");
+          handleUnauthorized();
+          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+        }
+        throw error;
       }
-
-      const response = await fetch(`/api/generate-story?result_id=${resultId}`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate story image');
-      }
-
-      return await response.blob();
     },
-    enabled: false, // This query will not run automatically
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+};
+
+export function useSendEmail() {
+  const sendEmailMutation = useMutation({
+    mutationFn: async (data: { email: string; pdf: Blob; png: Blob }) => {
+      const formData = new FormData();
+      formData.append("to", data.email);
+      formData.append("subject", "Your Tiebymin Analysis Result");
+      formData.append(
+        "html",
+        "<p>Here are your analysis results, attached as a PDF and PNG.</p>"
+      );
+      formData.append("pdf", data.pdf, "analysis-result.pdf");
+      formData.append("png", data.png, "story-result.png");
+
+      const response = await axios.post("/api/send-mail", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    },
+  });
+
+  return sendEmailMutation;
 }

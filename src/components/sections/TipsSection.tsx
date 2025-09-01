@@ -1,148 +1,118 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useAllTips } from "@/hooks/useAllTips";
+import { AnalysisData } from "@/types";
 import Image from "next/image";
-import axios from "axios";
-import url from "@/lib/url";
-import { AllTips, AnalysisData } from "@/types";
+import React from "react";
 
 interface TipCardProps {
   category: string;
-  tip: string;
+  tip: string | null;
   icon: string;
   type?: boolean;
+  isBodyTip?: boolean;
 }
 
-const TipCard: React.FC<TipCardProps> = ({ category, tip, icon, type }) => (
-  <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6 h-full">
-    <div className="mb-3">
-      <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => {
+  return (
+    <div className="border-[1px] p-[20px] w-full border-[#323232] rounded-2xl h-full">
+      <div className="flex flex-row items-center gap-[10px] lg:flex-col lg:items-start">
+        <div className="">
+          <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+        </div>
+        <h3 className="font-handlee italic text-[#323232] mt-1 text-base sm:text-xl">
+          {category}
+        </h3>
+      </div>
+      <div className="mt-2">
+        <div className="mt-2 font-poppins text-[#323232] text-xs lg:text-xl">
+          {tip?.replace(/^-+/gm, "").trim()}
+        </div>
+      </div>
     </div>
-    <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg sm:text-xl">
-      {category}
-    </h3>
-    {type ? (
-      <ul className="text-gray-600 text-sm leading-relaxed space-y-2">
-        {tip
-          .split("-")
-          .filter((item) => item.trim() !== "")
-          .map((item, index) => (
-            <li key={index} className="flex items-center">
-              <span className="mr-3 mt-1 text-gray-500 mb-1">•</span>
-              <span>{item.trim()}</span>
-            </li>
-          ))}
-      </ul>
-    ) : (
-      <span className="text-gray-600 text-sm leading-relaxed space-y-2">
-        {tip}
-      </span>
-    )}
-  </div>
-);
+  );
+};
 
 interface TipsSectionProps {
   analysisData: AnalysisData;
 }
 
 const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
-  const [allTips, setAllTips] = useState<AllTips | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: allTips,
+    isLoading,
+    error,
+    isError,
+  } = useAllTips({
+    analysisData,
+  });
 
-  useEffect(() => {
-    const { face_shape_id, color_analysis_id, body_shape_id, bmi_category_id } =
-      analysisData;
-
-    if (
-      !face_shape_id ||
-      !color_analysis_id ||
-      !body_shape_id ||
-      !bmi_category_id
-    ) {
-      setError("Data ID tidak lengkap untuk merangkum semua tips.");
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchAllTips = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [faceRes, colorRes, bodyRes, bmiRes] = await Promise.all([
-          axios.get(`${url}/v1/face-shapes/${face_shape_id}`),
-          axios.get(`${url}/v1/color-analysis/${color_analysis_id}`),
-          axios.get(`${url}/v1/body-shapes/${body_shape_id}`),
-          axios.get(`${url}/v1/bmi-categories/${bmi_category_id}`),
-        ]);
-
-        setAllTips({
-          faceTip: faceRes.data.tips_bentuk_wajah,
-          bodyTip: bodyRes.data.tips_body_shape,
-          colorTip: colorRes.data.tips_warna_kulit_pakaian,
-          makeupTip: colorRes.data.make_up_tips,
-          bmiTip: bmiRes.data.tips_fashion,
-        });
-      } catch (err) {
-        setError("Gagal memuat rangkuman tips.");
-        console.error("Fetch error in TipsSection:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllTips();
-  }, [analysisData]);
-
-  if (isLoading)
+  if (isLoading) {
     return (
-      <div className="text-center p-8">Merangkum tips terbaik untukmu...</div>
+      <div className="text-center p-8 text-sm sm:text-base">
+        Merangkum tips terbaik untukmu...
+      </div>
     );
-  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
-  if (!allTips)
+  }
+
+  if (isError || error) {
     return (
-      <div className="text-center p-8">
+      <div className="text-center p-8 text-red-500 text-sm sm:text-base">
+        {error?.message || "Gagal memuat rangkuman tips."}
+      </div>
+    );
+  }
+
+  if (!allTips) {
+    return (
+      <div className="text-center p-8 text-sm sm:text-base">
         Tidak ada tips yang bisa ditampilkan.
       </div>
     );
+  }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
       <TipCard
-        category="Tips Bentuk Wajah"
+        category="Tips untuk bentuk wajah kamu"
         tip={allTips.faceTip}
         icon="/overview-ai/icons/ri_shape-fill.svg"
       />
       <TipCard
         type
-        category="Tips Bentuk Tubuh"
+        category="Tips untuk bentuk badan kamu"
         tip={allTips.bodyTip}
         icon="/overview-ai/icons/healthicons_body.svg"
+        isBodyTip={true}
       />
       <TipCard
         type
-        category="Tips Warna Pakaian"
+        category="Tips untuk Tone Warna Kamu"
         tip={allTips.colorTip}
         icon="/overview-ai/icons/mdi_color.svg"
       />
-      <div className="bg-pink-100 rounded-2xl p-4 sm:p-6">
-        <div className="mb-3">
-          <Image
-            src="/overview-ai/icons/ic_baseline-tips-and-updates.svg"
-            width={32}
-            height={32}
-            alt="Tips & Trick Icon"
-          />
+      <div className="bg-[#FFC6C6] p-[20px] rounded-2xl shadow-md flex flex-col gap-[10px]">
+        <div className="flex flex-row lg:flex-col xl:flex-col items-center lg:items-start gap-3">
+          <svg
+            width="26"
+            height="28"
+            viewBox="0 0 26 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9.38461 4.81C10.1321 2.6225 13.1546 2.55625 14.0409 4.61125L14.1159 4.81125L15.1246 7.76125C15.3558 8.43779 15.7294 9.05689 16.2202 9.57678C16.7109 10.0967 17.3075 10.5053 17.9696 10.775L18.2409 10.8762L21.1909 11.8838C23.3784 12.6313 23.4446 15.6537 21.3909 16.54L21.1909 16.615L18.2409 17.6238C17.5641 17.8548 16.9447 18.2283 16.4246 18.7191C15.9045 19.2099 15.4957 19.8065 15.2259 20.4688L15.1246 20.7388L14.1171 23.69C13.3696 25.8775 10.3471 25.9438 9.46211 23.89L9.38461 23.69L8.37711 20.74C8.14609 20.0632 7.77258 19.4439 7.28179 18.9238C6.791 18.4037 6.19435 17.9949 5.53211 17.725L5.26211 17.6238L2.31211 16.6162C0.123363 15.8687 0.0571129 12.8462 2.11211 11.9612L2.31211 11.8838L5.26211 10.8762C5.93865 10.6451 6.55775 10.2715 7.07764 9.78071C7.59753 9.28993 8.00613 8.69336 8.27586 8.03125L8.37711 7.76125L9.38461 4.81ZM21.7509 0.5C21.9847 0.5 22.2139 0.565598 22.4123 0.689339C22.6107 0.813081 22.7705 0.990003 22.8734 1.2L22.9334 1.34625L23.3709 2.62875L24.6546 3.06625C24.889 3.14587 25.0944 3.29327 25.2449 3.48977C25.3954 3.68627 25.4842 3.92302 25.5 4.17003C25.5158 4.41703 25.4579 4.66316 25.3336 4.87723C25.2094 5.0913 25.0244 5.26367 24.8021 5.3725L24.6546 5.4325L23.3721 5.87L22.9346 7.15375C22.8549 7.38804 22.7073 7.59337 22.5108 7.74374C22.3142 7.89411 22.0774 7.98274 21.8304 7.9984C21.5834 8.01407 21.3373 7.95606 21.1233 7.83172C20.9093 7.70739 20.7371 7.52233 20.6284 7.3L20.5684 7.15375L20.1309 5.87125L18.8471 5.43375C18.6128 5.35413 18.4073 5.20673 18.2568 5.01023C18.1063 4.81373 18.0176 4.57698 18.0018 4.32997C17.986 4.08297 18.0439 3.83684 18.1681 3.62277C18.2923 3.4087 18.4773 3.23633 18.6996 3.1275L18.8471 3.0675L20.1296 2.63L20.5671 1.34625C20.6514 1.09928 20.8109 0.884886 21.0232 0.733124C21.2354 0.581361 21.4899 0.499843 21.7509 0.5Z"
+              fill="#323232"
+            />
+          </svg>
+          <h3 className="font-handlee italic text-[#323232] text-base sm:text-xl mt-1">
+            Rekap Cepat Tips Kamu
+          </h3>
         </div>
-        <h3 className="font-bold font-handlee text-gray-800 mb-3 text-lg sm:text-xl">
-          Tips Makeup & BMI
-        </h3>
-        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
-          <strong>Makeup:</strong> {allTips.makeupTip}
-          <br />
-          <br />
-          <strong>Gaya Sesuai BMI:</strong> {allTips.bmiTip}
-        </p>
+        <div className="text-[#323232] text-xs lg:text-xl font-poppins leading-relaxed">
+          {allTips.makeupTip}
+          {allTips.bmiTip}
+        </div>
       </div>
     </div>
   );

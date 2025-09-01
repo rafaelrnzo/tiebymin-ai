@@ -10,9 +10,9 @@ export default function BrandLogo({
   height = 180,
 }: BrandLogoProps) {
   return (
-    <div className="mb-8 w-full sm:w-[320px] h-auto sm:h-[200px] flex justify-center">
+    <div className="mb-8 w-full lg:w-[320px] h-auto lg:h-[200px] flex justify-center">
       <Image
-        src="/tie-by-min-logo.png"
+        src="/vector/tie-by-min-logo.svg"
         alt="tiebyminlogo"
         width={width}
         height={height}

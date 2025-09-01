@@ -1,16 +1,32 @@
-// components/component-landing/second-section.tsx
-
+"use client";
+import { ArrowUpRight, Play } from "lucide-react";
 import Image from "next/image";
-import { Play, ArrowUpRight } from "lucide-react";
-import { Button } from "../ui/button"; // Pastikan path ini benar
+import { useEffect, useState } from "react";
 
 export const SecondSection = () => {
+  // Check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== "undefined") {
+      const accessToken = localStorage.getItem("accessToken");
+      const userToken = localStorage.getItem("userToken");
+      setIsLoggedIn(
+        !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim())
+      );
+    }
+  }, []);
+
   return (
-    <section className="bg-white py-16 sm:py-24">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Kolom Video (3/4 dari lebar) */}
-          <div className="lg:col-span-3 relative w-full aspect-video rounded-md overflow-hidden shadow-xl cursor-pointer group">
+    <section
+      id="tutorial"
+      className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[100px] mb-[100px]"
+    >
+      <div className="container mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
+          <div className="lg:col-span-5 relative w-full h-full sm:h-80 md:h-full rounded-xl overflow-hidden shadow-xl cursor-pointer group">
             <Image
               src="/video-thumbnail.png"
               alt="Video thumbnail of fashion analysis"
@@ -18,60 +34,69 @@ export const SecondSection = () => {
               objectFit="cover"
               className="group-hover:scale-105 transition-transform duration-300"
             />
-            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="absolute inset-0 bg-[#323232]/10"></div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="h-20 w-20 lg:h-24 lg:w-24 bg-pink-500 rounded-full flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110">
-                <Play className="h-10 w-10 lg:h-12 lg:w-12 fill-white ml-2" />
+              <div className="h-20 w-20 lg:h-24 lg:w-24 bg-[#FFC6C6] rounded-full flex items-center justify-center text-[#f0f0f0] shadow-lg transition-transform group-hover:scale-110">
+                <Play className="h-10 w-10 lg:h-12 lg:w-12 fill-[#f0f0f0] ml-2" />
               </div>
             </div>
           </div>
 
-          {/* Kolom Konten (1/4 dari lebar) */}
-          <div className="lg:col-span-1 flex flex-col gap-4">
-            {/* Kartu Promo */}
-            <div className="bg-[#EC7498] p-6 rounded-md flex flex-col">
-              <div className="flex gap-4">
-                <Button
-                  variant="outline"
-                  className="flex-grow px-4 py-3 rounded-full text-white font-semibold border border-white bg-transparent hover:bg-white hover:text-[#EC7498] transition-colors"
-                >
-                  <span>Coba Sekarang!</span>
-                </Button>
-                <ArrowUpRight className="h-14 w-14 bg-white p-1 rounded-full text-[#EC7498]" />
+          <div className="lg:col-span-2 flex flex-col gap-4 w-full">
+            <div className="bg-[#FFC6C6] p-6 rounded-2xl flex flex-col gap-6 w-full">
+              <a
+                href={
+                  isLoggedIn ? "/register?startStep=measurements" : "/register"
+                }
+              >
+                <div className="bg-[#323232] px-4 py-2 rounded-xl flex justify-between items-center cursor-pointer transition-transform hover:scale-105 shadow-md">
+                  <span className="text-[#FFC6C6] font-semibold text-base sm:text-lg">
+                    Coba Sekarang Juga
+                  </span>
+                  <div className="bg-[#f0f0f0]/20 p-2 rounded-full border-2 border-[#FFC6C6]">
+                    <ArrowUpRight className="h-6 w-6 text-[#FFC6C6]" />
+                  </div>
+                </div>
+              </a>
+
+              <div className="flex flex-col lg:space-y-2">
+                <h2 className="font-oswald text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
+                  Hanya Dengan
+                </h2>
+                <div className="flex items-center w-full gap-2">
+                  <h2 className="font-oswald font-bold text-4xl sm:text-5xl text-[#2C2C2E] tracking-tight">
+                    Rp 9,999
+                  </h2>
+                  <h2 className="text-[#323232]/30 text-3xl font-oswald line-through">
+                    Rp 20,000
+                  </h2>
+                </div>
               </div>
 
-              <div className="flex flex-col">
-                <h2 className="mt-4 text-[60px] font-serif font-bold text-white">
-                  Cuman
-                </h2>
-                <h2 className="text-[70px] font-serif font-bold text-white">
-                  Rp 10k
-                </h2>
-              </div>
-
-              <p className="mt-4 text-white text-[20px]">
-                Nggak perlu mahal! Dengan cuma{" "}
-                <strong className="font-bold text-white">10 Ribuan Aja</strong>{" "}
-                kamu udah bisa buka semua Hasil analisa AI, lengkap dan
+              <p className="text-[#323232] text-base sm:text-lg leading-relaxed font-poppins">
+                Nggak perlu mahal! Cukup dengan{" "}
+                <strong className="font-bold text-[#2C2C2E]">
+                  9 Ribuan Aja
+                </strong>
+                , kamu udah bisa buka semua hasil analisa AI, lengkap dan
                 rekomendasi.
               </p>
             </div>
 
-            {/* Dua Kartu Statistik */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#FFE5ED] p-4 rounded-md flex flex-col justify-center items-center aspect-square">
-                <p className="font-serif text-3xl lg:text-[48px] font-bold text-[#EF789B]">
+            <div className="grid grid-cols-2 gap-4 mt-5 lg:mt-0">
+              <div className="bg-[#323232] p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
+                <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
                   {"<"}2m
                 </p>
-                <p className="text-[22px] text-[#EF789B] mt-1 text-center">
+                <p className="text-base sm:text-lg lg:text-xl text-[#f0f0f0] mt-1 text-center font-poppins">
                   Hasil Selesai
                 </p>
               </div>
-              <div className="bg-[#FFE5ED] p-4 rounded-md flex flex-col justify-center items-center aspect-square">
-                <p className="font-serif text-3xl lg:text-[48px] font-bold text-[#EF789B]">
+              <div className="bg-[#323232] p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
+                <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
                   100%
                 </p>
-                <p className="text-[22px] text-[#EF789B] mt-1 text-center">
+                <p className="text-base sm:text-lg lg:text-xl text-[#f0f0f0] mt-1 text-center font-poppins">
                   Buatan Lokal
                 </p>
               </div>

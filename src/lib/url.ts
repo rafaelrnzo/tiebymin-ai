@@ -1,2 +1,3 @@
-const url = "http://localhost:8000"
+const url = "https://minecraft-server-tiebymin-be-production.dgrttk.easypanel.host"
+
 export default url
