@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { secureUrl } from "@/lib/api";
 import { Product } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 interface RecommendationsResponse {
   hijab: Product[];
@@ -11,11 +11,18 @@ interface RecommendationsResponse {
 const fetchRecommendations = async (
   analysisResultId: string | null
 ): Promise<RecommendationsResponse> => {
+        const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+
   if (!analysisResultId) {
     throw new Error("Analysis Result ID is required");
   }
   const response = await axios.get(
-    secureUrl(`/v1/recommendations/${analysisResultId}`)
+    secureUrl(`/v1/recommendations/${analysisResultId}`),{
+      headers:{
+        "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+      }
+    }
   );
   return response.data;
 };

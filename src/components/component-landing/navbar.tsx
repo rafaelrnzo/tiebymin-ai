@@ -138,7 +138,6 @@ export function Navbar() {
         </div>
 
         <div className="xl:hidden flex items-center justify-between py-2 sm:py-3 px-3 sm:px-4">
-          {/* 1. Logo di sebelah kiri */}
           <Link href="/">
             <Image
               src="/tie-by-min-logo-light.png" // Menggunakan logo terang agar kontras

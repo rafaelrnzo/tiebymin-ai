@@ -31,7 +31,7 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   } = useImageHandling(userPhotoUrl);
 
   return (
-    <div className="bg-[#323232] lg:w-[500px] md:w-full md:h-[250px] lg:h-[700px] rounded-3xl p-5 text-[#f0f0f0] flex flex-col md:flex-row gap-x-[20px] lg:gap-x-0 xl:flex-col lg:flex-col">
+    <div className="bg-[#323232] xl:w-[500px] md:w-full md:h-[250px] xl:h-[630px] rounded-3xl p-5 text-[#f0f0f0] flex flex-col md:flex-row gap-x-[20px] lg:gap-x-5 xl:flex-col lg:flex-col lg:mt-[130px] xl:mt-0">
       <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full mb-4 sm:mb-6 bg-gray-200 rounded-xl overflow-hidden">
         {userPhotoUrl ? (
           <>
@@ -102,7 +102,7 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
           <br />
           Hasil Analisa Kamu
         </h2>
-        <p className="text-[#f0f0f0] text-xs lg:text-xl leading-relaxed font-poppins">
+        <p className="text-[#f0f0f0] text-xs lg:text-base xl:text-xl leading-relaxed font-poppins">
           Dapatkan insight mendalam tentang fashion terbaik untuk kamu dengan
           teknologi AI kami dengan rekomendasi personal yang akurat.
         </p>

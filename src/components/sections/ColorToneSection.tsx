@@ -107,7 +107,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
   return (
     <div className="font-sans max-w-6xl w-full mx-auto space-y-[50px]">
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-[20px] lg:gap-[50px]">
-        <div className="lg:col-span-2 px-[25px] rounded-2xl border-[1px] border-neutral-600">
+        <div className="lg:col-span-2 px-[25px] rounded-2xl border-[1px] border-[#323232]">
           <h2 className="text-2xl md:text-4xl sm:text-3xl lg:text-5xl font-bold font-oswald pt-2.5">
             {colorData.name}
           </h2>
@@ -116,7 +116,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
           </p>
         </div>
 
-        <div className="lg:col-span-4 px-[25px] justify-between rounded-2xl border-[1px] border-neutral-600 h-full">
+        <div className="lg:col-span-4 px-[25px] pb-5 justify-between rounded-2xl border-[1px] border-[#323232] h-full">
           <h2 className="text-center mt-[25px] italic font-handlee text-lg sm:text-xl text-[#323232]">
             Color Guide Line
           </h2>
