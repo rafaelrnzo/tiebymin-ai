@@ -27,7 +27,7 @@ const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
 
 const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
   <div className="w-full mt-[50px]">
-    <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-x-12 gap-y-4">
       {data.map((shape) => (
         <ShapeBar key={shape.name} {...shape} />
       ))}

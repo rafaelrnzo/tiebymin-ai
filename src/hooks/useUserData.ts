@@ -152,7 +152,7 @@ export const useUserData = () => {
         throw new Error("No access token found");
       }
 
-      const response = await axios.get(secureUrl(`/v1/user-profile/user-info?token=${token}`), {
+      const response = await axios.get(secureUrl(`/v1/user-profile/user-info`), {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -174,7 +174,7 @@ export const useUserData = () => {
         throw new Error("No access token found");
       }
 
-      const response = await axios.get(secureUrl(`/v1/user-profile/analysis-history?token=${token}`), {
+      const response = await axios.get(secureUrl(`/v1/user-profile/analysis-history`), {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

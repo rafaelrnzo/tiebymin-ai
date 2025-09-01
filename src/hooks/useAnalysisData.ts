@@ -8,11 +8,13 @@ import { defaultUserData } from "@/lib/mock-data";
 async function fetchData(endpoint: string) {
   const fullUrl = secureUrl(endpoint);
   console.log(`🔄 Fetching: ${fullUrl}`); // Debug log
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
   try {
     const response = await axios.get(fullUrl, {
       headers: {
         "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
       },
     });
 

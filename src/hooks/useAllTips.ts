@@ -29,12 +29,33 @@ export const useAllTips = ({
     ) {
       throw new Error("Data ID tidak lengkap untuk merangkum semua tips.");
     }
+        const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
     const [faceRes, colorRes, bodyRes, bmiRes] = await Promise.all([
-      axios.get(secureUrl(`/v1/face-shapes/${face_shape_id}`)),
-      axios.get(secureUrl(`/v1/color-analysis/${color_analysis_id}`)),
-      axios.get(secureUrl(`/v1/body-shapes/${body_shape_id}`)),
-      axios.get(secureUrl(`/v1/bmi-categories/${bmi_category_id}`)),
+      axios.get(secureUrl(`/v1/face-shapes/${face_shape_id}`), {
+        headers:{
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      }),
+      axios.get(secureUrl(`/v1/color-analysis/${color_analysis_id}`), {
+        headers:{
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      }),
+      axios.get(secureUrl(`/v1/body-shapes/${body_shape_id}`), {
+        headers:{
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      }),
+      axios.get(secureUrl(`/v1/bmi-categories/${bmi_category_id}`), {
+        headers:{
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      }),
     ]);
 
     console.log(faceRes)
