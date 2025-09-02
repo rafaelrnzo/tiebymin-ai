@@ -99,6 +99,11 @@ export const useUserData = () => {
       if (result.access_token) {
         localStorage.setItem("accessToken", result.access_token);
         localStorage.setItem("userToken", result.access_token); // For backward compatibility
+
+        // Set cookie for middleware
+        if (typeof window !== 'undefined') {
+          document.cookie = `auth=${result.access_token}; path=/; max-age=86400`;
+        }
       }
     },
     onError: (error) => {
@@ -240,6 +245,11 @@ export const useUserData = () => {
       localStorage.removeItem("lastName");
       localStorage.removeItem("analysisResultId");
 
+      // Clear cookie
+      if (typeof window !== 'undefined') {
+        document.cookie = 'auth=; path=/; max-age=0';
+      }
+
       // Clear user state
       setUserName("");
       setUserId("");
@@ -259,6 +269,11 @@ export const useUserData = () => {
       localStorage.removeItem("firstName");
       localStorage.removeItem("lastName");
       localStorage.removeItem("analysisResultId");
+
+      // Clear cookie
+      if (typeof window !== 'undefined') {
+        document.cookie = 'auth=; path=/; max-age=0';
+      }
 
       setUserName("");
       setUserId("");
