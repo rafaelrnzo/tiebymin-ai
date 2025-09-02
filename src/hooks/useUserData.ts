@@ -164,6 +164,7 @@ export const useUserData = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log("Validating token with backend...");
         const tes = await axios.get(secureUrl(`/v1/auth/validate-token`), {
           headers: {
             "Content-Type": "application/json",
@@ -171,9 +172,9 @@ export const useUserData = () => {
           },
         });
 
-        localStorage.setItem("userId",tes.data.user_id)
-
-        console.log(tes.data)
+        console.log("Validate token response:", tes.data);
+        localStorage.setItem("userId", tes.data.user_id);
+        console.log("User ID stored in localStorage:", tes.data.user_id);
 
         return response.data as UserProfile;
       } catch (error: unknown) {
@@ -264,6 +265,9 @@ export const useUserData = () => {
 
       // Clear all auth-related data from localStorage
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("registration-current-step");
+      localStorage.removeItem("registration-steps-progress");
+      localStorage.removeItem("tiebymin-analysis-data");
       localStorage.removeItem("userToken");
       localStorage.removeItem("userId");
       localStorage.removeItem("userEmail");
