@@ -98,19 +98,20 @@ export const HeroSection = () => {
 
         {/* Analysis Cards Layout */}
         <div className="relative w-full">
-          <div className="absolute w-full transform lg:-translate-y-1/3 -translate-y-[23rem] h-screen z-10">
+          {/* Desktop Image - Original positioning */}
+          <div className="absolute w-[115%] lg:w-full md:w-full left-0 right-0 transform lg:-translate-y-1/3 -translate-y-[14rem] lg:block h-screen z-10">
             <Image
               src="/new-model-hero.png"
               alt="AI Fashion Model"
               fill
               priority
               quality={100}
-              className="object-contain"
+              className="lg:object-contain object-cover"
             />
           </div>
 
-          {/* Cards Container - Reduced padding untuk menaikkan posisi */}
-          <div className="relative flex flex-col items-center gap-4 xs:gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
+          {/* Cards Container */}
+          <div className="relative flex flex-col lg:mt-0 mt-[5rem] md:mt-0 items-center gap-4 xs:gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
             <div className="flex w-full justify-center gap-[5rem] lg:justify-between items-center px-0 xs:px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 relative">
               <AnalysisCard
                 icon={

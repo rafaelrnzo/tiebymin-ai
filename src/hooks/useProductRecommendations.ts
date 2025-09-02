@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRecommendations } from "./useRecommendations";
+import { useProductCompatibility } from "./useProductCompatibility";
 
 interface Product {
   id: string;
@@ -14,11 +15,29 @@ interface Product {
   product_link: string;
 }
 
-export const useProductRecommendations = (resultId: string | null) => {
+export const useProductRecommendations = (
+  resultId: string | null,
+  bodyShapeId?: string,
+  faceShapeId?: string
+) => {
   const [recommendationFilter, setRecommendationFilter] = useState<"hijab" | "clothes">("hijab");
   const [topProductScores, setTopProductScores] = useState<Map<string, number>>(new Map());
 
   const { data: recommendationsData, isLoading: isLoadingRecommendations } = useRecommendations(resultId);
+
+  const { data: compatibilityData, isLoading: isLoadingCompatibility } = useProductCompatibility(
+    resultId,
+    recommendationFilter,
+    bodyShapeId,
+    faceShapeId
+  );
+
+  // Debug logging
+  console.log("useProductRecommendations - Compatibility Data:", compatibilityData);
+  console.log("useProductRecommendations - Is Loading Compatibility:", isLoadingCompatibility);
+  console.log("useProductRecommendations - Body Shape ID:", bodyShapeId);
+  console.log("useProductRecommendations - Face Shape ID:", faceShapeId);
+  console.log("useProductRecommendations - Filter:", recommendationFilter);
 
   const handleFilterChange = (filter: "hijab" | "clothes") => {
     setRecommendationFilter(filter);
@@ -65,6 +84,8 @@ export const useProductRecommendations = (resultId: string | null) => {
     filteredProducts,
     sortedProducts,
     topProductScores,
+    compatibilityData,
     isLoadingRecommendations,
+    isLoadingCompatibility,
   };
 };

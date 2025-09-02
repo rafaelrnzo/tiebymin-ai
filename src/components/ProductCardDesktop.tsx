@@ -66,18 +66,33 @@ interface ProductCardDesktopProps {
   product: Product;
   topProductScores: Map<string, number>;
   sortedProducts: Product[];
+  compatibilityData?: {
+    [productId: string]: {
+      compatibility_score: number;
+      compatibility_reason: string;
+    };
+  };
 }
 
 const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
   product,
   topProductScores,
   sortedProducts,
+  compatibilityData,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
+
+  // Debug logging
+  console.log("ProductCardDesktop - Product ID:", product.id);
+  console.log("ProductCardDesktop - Compatibility Data:", compatibilityData);
+  console.log(
+    "ProductCardDesktop - Product compatibility:",
+    compatibilityData?.[product.id]
+  );
 
   return (
     <div className="product-flip-container h-[650px] w-full">
@@ -228,11 +243,8 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
               </p>
             </div>
             <p className="text-[#f0f0f0] text-start text-lg font-poppins">
-              Produk ini sangat cocok untuk kamu karena analisis AI kami
-              menunjukkan kesesuaian tinggi dengan bentuk wajah, warna kulit,
-              dan preferensi fashion kamu. Rekomendasi ini didasarkan pada data
-              analisis mendalam untuk memberikan hasil yang paling akurat dan
-              personal.
+              {compatibilityData?.[product.id]?.compatibility_reason ||
+                "Produk ini sangat cocok untuk kamu karena analisis AI kami menunjukkan kesesuaian tinggi dengan bentuk wajah, warna kulit, dan preferensi fashion kamu. Rekomendasi ini didasarkan pada data analisis mendalam untuk memberikan hasil yang paling akurat dan personal."}
             </p>
           </div>
         </div>

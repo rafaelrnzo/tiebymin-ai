@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Download, Share2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserData } from "@/hooks/useUserData";
 
@@ -41,6 +41,8 @@ const shortenMonth = (dateString: string) => {
 };
 
 export default function DashboardPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const router = useRouter();
   const {
     userProfile,
@@ -79,7 +81,6 @@ export default function DashboardPage() {
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("userToken", accessToken); // For backward compatibility
 
-        // Set cookie for middleware
         document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
 
         // Clean the URL (remove query params and hash)
@@ -162,7 +163,12 @@ export default function DashboardPage() {
                     Mulai Analisis Kecantikan Kamu
                   </h3>
                 </div>
-                <Button className="bg-[#EF789B] hover:bg-pink-500 text-[#f0f0f0] font-bold rounded-lg text-lg w-full md:w-auto shrink-0 py-5 px-8 mb-5">
+                <Button
+                  onClick={() =>
+                    router.push("/register?startStep=measurements")
+                  }
+                  className="bg-[#EF789B] hover:bg-pink-500 text-[#f0f0f0] font-bold rounded-lg text-lg w-full md:w-auto shrink-0 py-5 px-8 mb-5"
+                >
                   <div className="">
                     <svg
                       width="31"

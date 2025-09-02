@@ -90,19 +90,35 @@ function BeautyAnalysisPageInner() {
 
   const { mutateAsync: generateStory } = useGenerateStory();
 
-  const {
-    sortedProducts,
-    topProductScores,
-    recommendationFilter,
-    handleFilterChange,
-  } = useProductRecommendations(finalResultId);
-
   const { userData, userPhotoUrl, rawAnalysisData }: AnalysisResult =
     analysisResult || {
       userData: null,
       userPhotoUrl: null,
       rawAnalysisData: null,
     };
+
+  // Debug logging
+  console.log("ai-overview page - Raw Analysis Data:", rawAnalysisData);
+  console.log(
+    "ai-overview page - Body Shape ID:",
+    rawAnalysisData?.body_shape_id
+  );
+  console.log(
+    "ai-overview page - Face Shape ID:",
+    rawAnalysisData?.face_shape_id
+  );
+
+  const {
+    sortedProducts,
+    topProductScores,
+    recommendationFilter,
+    handleFilterChange,
+    compatibilityData,
+  } = useProductRecommendations(
+    finalResultId,
+    rawAnalysisData?.body_shape_id?.toString(),
+    rawAnalysisData?.face_shape_id?.toString()
+  );
 
   const handleDownloadStory = async () => {
     if (!finalResultId) return;
@@ -314,6 +330,7 @@ function BeautyAnalysisPageInner() {
           topProductScores={topProductScores}
           recommendationFilter={recommendationFilter}
           onFilterChange={handleFilterChange}
+          compatibilityData={compatibilityData}
         />
       </main>
       <FeedbackModal

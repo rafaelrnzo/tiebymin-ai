@@ -24,6 +24,12 @@ interface ProductRecommendationsSectionProps {
   topProductScores: Map<string, number>;
   recommendationFilter: "hijab" | "clothes";
   onFilterChange: (filter: "hijab" | "clothes") => void;
+  compatibilityData?: {
+    [productId: string]: {
+      compatibility_score: number;
+      compatibility_reason: string;
+    };
+  };
 }
 
 const ProductRecommendationsSection: React.FC<
@@ -33,6 +39,7 @@ const ProductRecommendationsSection: React.FC<
   topProductScores,
   recommendationFilter,
   onFilterChange,
+  compatibilityData,
 }) => {
   return (
     <section className="pt-8 lg:pt-16">
@@ -99,6 +106,7 @@ const ProductRecommendationsSection: React.FC<
                     product={product}
                     topProductScores={topProductScores}
                     sortedProducts={sortedProducts}
+                    compatibilityData={compatibilityData}
                   />
                 ))}
               </div>
