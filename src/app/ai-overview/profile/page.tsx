@@ -55,6 +55,30 @@ export default function DashboardPage() {
     fetchUserData();
   }, [fetchUserData]);
 
+  // Handle OAuth redirect with access_token in hash
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash.includes("access_token")) {
+        const params = new URLSearchParams(hash.substring(1));
+        const accessToken = params.get("access_token");
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("userToken", accessToken); // For backward compatibility
+
+          // Set cookie for middleware
+          document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+
+          // Clean the URL
+          window.history.replaceState(null, "", window.location.pathname);
+
+          // Refetch user data with new token
+          fetchUserData();
+        }
+      }
+    }
+  }, [fetchUserData]);
+
   if (isLoading) {
     return (
       <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
