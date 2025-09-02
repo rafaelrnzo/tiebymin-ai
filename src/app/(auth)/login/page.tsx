@@ -6,6 +6,7 @@ import { useUserData } from "@/hooks/useUserData";
 import { secureUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,35 +19,59 @@ export default function LoginPage() {
     password: "",
   });
 
-  // Handle OAuth redirect if user ends up on login page with token
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const hash = window.location.hash;
+    const handleOAuthRedirect = async () => {
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hash = window.location.hash;
 
-      let accessToken = null;
+        let accessToken = null;
 
-      // Check for access_token in query parameters
-      if (urlParams.has("access_token")) {
-        accessToken = urlParams.get("access_token");
+        // Check for access_token in query parameters
+        if (urlParams.has("access_token")) {
+          accessToken = urlParams.get("access_token");
+        }
+        // Check for access_token in hash
+        else if (hash.includes("access_token")) {
+          const hashParams = new URLSearchParams(hash.substring(1));
+          accessToken = hashParams.get("access_token");
+        }
+
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("userToken", accessToken);
+          document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+
+          try {
+            const response = await axios.get(
+              secureUrl(`/v1/auth/validate-token`),
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              }
+            );
+
+            if (response.data) {
+              if (response.data.user_id) {
+                localStorage.setItem("userId", response.data.user_id);
+              }
+              if (response.data.email) {
+                localStorage.setItem("userEmail", response.data.email);
+              }
+            }
+          } catch (error) {
+            console.error("Failed to validate token:", error);
+          }
+
+          window.history.replaceState(null, "", "/login");
+          router.push("/ai-overview/profile");
+        }
       }
-      // Check for access_token in hash
-      else if (hash.includes("access_token")) {
-        const hashParams = new URLSearchParams(hash.substring(1));
-        accessToken = hashParams.get("access_token");
-      }
+    };
 
-      if (accessToken) {
-        // Store token and redirect to profile
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("userToken", accessToken);
-        document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
-
-        // Clean URL and redirect
-        window.history.replaceState(null, "", "/login");
-        router.push("/ai-overview/profile");
-      }
-    }
+    handleOAuthRedirect();
   }, [router]);
 
   const handleInputChange = (field: string, value: string) => {

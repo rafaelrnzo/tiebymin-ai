@@ -24,19 +24,28 @@ export function Navbar() {
   } | null>(null);
 
   useEffect(() => {
-    // Only access localStorage on client side
-    if (typeof window !== "undefined") {
-      const accessToken = localStorage.getItem("accessToken");
-      const userToken = localStorage.getItem("userToken");
-      const loggedIn =
-        !!(accessToken && accessToken.trim()) ||
-        !!(userToken && userToken.trim());
-      setIsLoggedIn(loggedIn);
+    const checkLogin = async () => {
+      // Only access localStorage on client side
+      if (typeof window !== "undefined") {
+        const accessToken = localStorage.getItem("accessToken");
+        const userToken = localStorage.getItem("userToken");
+        const loggedIn =
+          !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim());
+        setIsLoggedIn(loggedIn);
 
-      if (loggedIn) {
-        fetchUserData();
+        if (loggedIn) {
+          try {
+            await fetchUserData();
+          } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            setIsLoggedIn(false);
+          }
+        }
       }
-    }
+    };
+
+    checkLogin();
   }, [fetchUserData]);
 
   useEffect(() => {
@@ -145,7 +154,7 @@ export function Navbar() {
               width={100}
               height={24}
               priority
-              className="h-8 w-8"
+              className="h-8 w-auto"
             />
           </Link>
 

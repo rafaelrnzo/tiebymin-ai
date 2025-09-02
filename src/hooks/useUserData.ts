@@ -164,14 +164,30 @@ export const useUserData = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        const tes = await axios.get(secureUrl(`/v1/auth/validate-token`), {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log(tes.data)
 
         return response.data as UserProfile;
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          console.log("🚪 Unauthorized access in userProfileQuery, redirecting to login");
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
+          console.log("🚪 Unauthorized access in userProfileQuery, clearing tokens");
+          // Clear invalid tokens
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("userToken");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userEmail");
+          localStorage.removeItem("firstName");
+          localStorage.removeItem("lastName");
+          // Clear cookie
+          if (typeof window !== 'undefined') {
+            document.cookie = 'auth=; path=/; max-age=0';
           }
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
@@ -203,9 +219,17 @@ export const useUserData = () => {
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          console.log("🚪 Unauthorized access in analysisHistoryQuery, redirecting to login");
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
+          console.log("🚪 Unauthorized access in analysisHistoryQuery, clearing tokens");
+          // Clear invalid tokens
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("userToken");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userEmail");
+          localStorage.removeItem("firstName");
+          localStorage.removeItem("lastName");
+          // Clear cookie
+          if (typeof window !== 'undefined') {
+            document.cookie = 'auth=; path=/; max-age=0';
           }
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
