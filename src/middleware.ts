@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
 
   // Skip middleware for static files
   if (pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|avif|css|js|woff|woff2|ttf|eot)$/)) {
@@ -11,6 +11,11 @@ export function middleware(request: NextRequest) {
 
   // Allow public routes
   if (pathname === '/' || pathname === '/login' || pathname === '/register') {
+    return NextResponse.next();
+  }
+
+  // Allow access to profile page if it has access_token parameter (OAuth redirect)
+  if (pathname === '/ai-overview/profile' && searchParams.has('access_token')) {
     return NextResponse.next();
   }
 
