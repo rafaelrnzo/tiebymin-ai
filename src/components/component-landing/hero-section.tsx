@@ -82,7 +82,7 @@ export const HeroSection = () => {
   }, []);
 
   return (
-    <main className="relative w-full flex flex-col items-center justify-center overflow-hidden bg-cover bg-center bg-[url('/hero-bg.png')] min-h-screen">
+    <main className="relative w-full flex flex-col items-center justify-center overflow-hidden bg-cover bg-center bg-[url('/hero-bg.webp')] min-h-screen">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-[200px] z-20 relative pt-16 xs:pt-20 sm:pt-24 md:pt-24 lg:pt-28 xl:pt-32">
         {/* Teks Hero */}
         <div className="text-center relative lg:mb-12 xl:mb-16">

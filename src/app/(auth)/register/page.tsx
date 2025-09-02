@@ -221,7 +221,7 @@ function RegisterPageContent() {
   // Don't render the registration form until we've checked localStorage
   if (!isInitialized) {
     return (
-      <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+      <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
         </div>
@@ -238,7 +238,7 @@ function RegisterPageContent() {
   ];
 
   return (
-    <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+    <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
       <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <LeftSideSection
           steps={steps}
@@ -451,7 +451,7 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+        <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
           </div>

@@ -89,7 +89,7 @@ export default function LoginPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[url('/login-bg.png')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+    <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
       <div className="container mx-auto w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
         <div className="w-full lg:flex-1 lg:max-w-[45%]">
           <LeftSideSection

@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow access to profile page if it has access_token parameter (OAuth redirect)
+  // Allow access to profile page ONLY during OAuth redirect (with access_token)
   if (pathname === '/ai-overview/profile' && searchParams.has('access_token')) {
     return NextResponse.next();
   }

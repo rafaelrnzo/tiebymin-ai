@@ -45,7 +45,6 @@ export default function BodyMeasurementsForm({
             <p className="col-span-3">Tinggi Badan</p>
             <Input
               className="col-span-1 lg:col-span-2"
-              type="number"
               value={formData.tinggi}
               onChange={(e) => handleInputChange("tinggi", e.target.value)}
               placeholder="0"
@@ -101,7 +100,6 @@ export default function BodyMeasurementsForm({
             <p className="col-span-3">Berat Badan</p>
             <Input
               className="col-span-1 lg:col-span-2"
-              type="number"
               value={formData.berat}
               onChange={(e) => handleInputChange("berat", e.target.value)}
               placeholder="0"
@@ -157,7 +155,6 @@ export default function BodyMeasurementsForm({
             <p className="col-span-3">Umur</p>
             <Input
               className="col-span-1 lg:col-span-2"
-              type="number"
               value={formData.umur}
               onChange={(e) => handleInputChange("umur", e.target.value)}
               placeholder="0"
