@@ -171,6 +171,8 @@ export const useUserData = () => {
           },
         });
 
+        localStorage.setItem("userId",tes.data.user_id)
+
         console.log(tes.data)
 
         return response.data as UserProfile;
