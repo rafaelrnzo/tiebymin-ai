@@ -55,26 +55,36 @@ export default function DashboardPage() {
     fetchUserData();
   }, [fetchUserData]);
 
-  // Handle OAuth redirect with access_token in hash
+  // Handle OAuth redirect with access_token in query params or hash
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
       const hash = window.location.hash;
-      if (hash.includes("access_token")) {
-        const params = new URLSearchParams(hash.substring(1));
-        const accessToken = params.get("access_token");
-        if (accessToken) {
-          localStorage.setItem("accessToken", accessToken);
-          localStorage.setItem("userToken", accessToken); // For backward compatibility
 
-          // Set cookie for middleware
-          document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+      let accessToken = null;
 
-          // Clean the URL
-          window.history.replaceState(null, "", window.location.pathname);
+      // Check for access_token in query parameters (from backend redirect)
+      if (urlParams.has("access_token")) {
+        accessToken = urlParams.get("access_token");
+      }
+      // Fallback: check for access_token in hash
+      else if (hash.includes("access_token")) {
+        const hashParams = new URLSearchParams(hash.substring(1));
+        accessToken = hashParams.get("access_token");
+      }
 
-          // Refetch user data with new token
-          fetchUserData();
-        }
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("userToken", accessToken); // For backward compatibility
+
+        // Set cookie for middleware
+        document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+
+        // Clean the URL (remove query params and hash)
+        window.history.replaceState(null, "", window.location.pathname);
+
+        // Refetch user data with new token
+        fetchUserData();
       }
     }
   }, [fetchUserData]);
