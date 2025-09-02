@@ -24,19 +24,28 @@ export function Navbar() {
   } | null>(null);
 
   useEffect(() => {
-    // Only access localStorage on client side
-    if (typeof window !== "undefined") {
-      const accessToken = localStorage.getItem("accessToken");
-      const userToken = localStorage.getItem("userToken");
-      const loggedIn =
-        !!(accessToken && accessToken.trim()) ||
-        !!(userToken && userToken.trim());
-      setIsLoggedIn(loggedIn);
+    const checkLogin = async () => {
+      // Only access localStorage on client side
+      if (typeof window !== "undefined") {
+        const accessToken = localStorage.getItem("accessToken");
+        const userToken = localStorage.getItem("userToken");
+        const loggedIn =
+          !!(accessToken && accessToken.trim()) ||
+          !!(userToken && userToken.trim());
+        setIsLoggedIn(loggedIn);
 
-      if (loggedIn) {
-        fetchUserData();
+        if (loggedIn) {
+          try {
+            await fetchUserData();
+          } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            setIsLoggedIn(false);
+          }
+        }
       }
-    }
+    };
+
+    checkLogin();
   }, [fetchUserData]);
 
   useEffect(() => {
@@ -164,16 +173,33 @@ export function Navbar() {
                 side="left"
                 className="bg-[#333333] text-[#f0f0f0] border-gray-600 w-[250px] sm:w-[280px]"
               >
-                <div className="flex flex-col space-y-4 sm:space-y-6 mt-6 sm:mt-8 ml-2 sm:ml-4">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="text-base sm:text-lg font-medium hover:text-gray-300 transition-colors"
-                      onClick={(e) => handleLinkClick(e, link.href)}
-                    >
-                      {link.label}
-                    </Link>
+                {/* Logo in mobile sheet header */}
+                <div className="flex items-center justify-between mt-4 ml-4 mb-4">
+                  <Image
+                    src="/tie-by-min-logo-light.png"
+                    alt="Tiebymin Logo"
+                    width={80}
+                    height={20}
+                    priority
+                    className="h-6 w-auto"
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-4 sm:space-y-6 ml-2 sm:ml-4">
+                  {navLinks.map((link, index) => (
+                    <div key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-base sm:text-lg font-medium hover:text-gray-300 transition-colors"
+                        onClick={(e) => handleLinkClick(e, link.href)}
+                      >
+                        {link.label}
+                      </Link>
+                      {/* Don't show hr below Testimoni link */}
+                      {link.label !== "Testimoni" && (
+                        <hr className="text-[#f0f0f0]/20 mt-4 mr-4" />
+                      )}
+                    </div>
                   ))}
                   <div className="flex flex-col gap-2 pt-3">
                     <Link
@@ -184,29 +210,34 @@ export function Navbar() {
                       }
                       onClick={closeSheet}
                     >
-                      <Button
-                        size="default"
-                        className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full px-4 py-2"
-                      >
-                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#f0f0f0]" />
-                        <span className="text-sm sm:text-base">
-                          Coba Sekarang
-                        </span>
-                      </Button>
-                    </Link>
-                    {isLoggedIn && (
-                      <Link href="/ai-overview/profile" onClick={closeSheet}>
+                      <div className="flex flex-col gap-4 mr-4">
                         <Button
                           size="default"
-                          className="rounded-full bg-[#f0f0f0] hover:bg-gray-300 flex items-center gap-2 w-full px-4 py-2"
+                          className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full px-4 py-2"
                         >
-                          <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
-                          <span className="text-sm sm:text-base text-[#323232]">
-                            Profile
+                          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#f0f0f0] fill-[#f0f0f0]" />
+                          <span className="text-sm sm:text-base">
+                            Coba Sekarang
                           </span>
                         </Button>
-                      </Link>
-                    )}
+                        {isLoggedIn && (
+                          <Link
+                            href="/ai-overview/profile"
+                            onClick={closeSheet}
+                          >
+                            <Button
+                              size="default"
+                              className="rounded-full bg-[#f0f0f0] hover:bg-gray-300 flex items-center gap-2 w-full px-4 py-2"
+                            >
+                              <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
+                              <span className="text-sm sm:text-base text-[#323232]">
+                                Profile
+                              </span>
+                            </Button>
+                          </Link>
+                        )}
+                      </div>
+                    </Link>
                   </div>
                 </div>
               </SheetContent>

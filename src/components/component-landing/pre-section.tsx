@@ -350,11 +350,9 @@ const MobileCardsSlider: React.FC = () => {
   );
 };
 const AnalysisDashboard: React.FC = () => {
-  // Check if user is logged in
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Only access localStorage on client side
     if (typeof window !== "undefined") {
       const accessToken = localStorage.getItem("accessToken");
       const userToken = localStorage.getItem("userToken");

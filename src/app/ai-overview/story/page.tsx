@@ -1,7 +1,4 @@
 "use client";
-import { useSearchParams } from "next/navigation";
-import React, { Suspense, useMemo, useState } from "react";
-import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAnalysisData,
@@ -9,8 +6,10 @@ import {
   useBodyShapeData,
   useColorToneData,
   useFaceShapeData,
-  useGenerateStory,
 } from "@/hooks/useAnalysisData";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useMemo } from "react";
 
 import StoryPoster from "@/components/story-components/story-poster-story";
 import { defaultUserData } from "@/lib/mock-data";
@@ -57,8 +56,6 @@ function StoryPage() {
   const { data: faceShapeDetails } = useFaceShapeData(
     data?.rawAnalysisData.face_shape_id
   );
-
-  const { mutateAsync: generateStory } = useGenerateStory();
 
   if (isLoading) {
     return (
