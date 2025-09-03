@@ -1,15 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { secureUrl } from "@/lib/api";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import { Camera, ImageIcon } from "lucide-react";
 import Image from "next/image";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { secureUrl } from "@/lib/api";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { ChangeEvent, useRef, useState } from "react";
 import { ErrorModal } from "../sections/error-modal";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { useMutation } from "@tanstack/react-query";
 
 const INSTRUCTION_CARDS = [
   {
@@ -37,7 +37,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
-
+  const [isChecked, setIsChecked] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -267,8 +267,9 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
           <div className="w-full space-y-6">
             <div className="space-y-4">
               <Button
-                className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#323232]"
                 onClick={handleTakePhoto}
+                disabled={!isChecked}
               >
                 <Camera className="size-[26px] fill-[#f0f0f0] text-[#323232]" />
                 <span className="text-[16px] font-poppins">
@@ -276,8 +277,9 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
                 </span>
               </Button>
               <Button
-                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
+                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#323232] disabled:hover:border-[#323232]"
                 onClick={handleUploadFromGallery}
+                disabled={!isChecked}
               >
                 <ImageIcon className="transition-colors group-hover:text-[#f0f0f0] size-[26px]" />
                 <span className="text-[16px] font-poppins">
@@ -287,24 +289,31 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
             </div>
 
             {/* Privacy Policy Section - Improved Layout */}
-            <div className="rounded-xl p-4 mt-6">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center ">
+              <div className="flex items-center space-x-3">
                 <input
                   type="checkbox"
                   id="privacy-policy"
-                  className="mt-1 w-4 h-4 text-[#EF789B] bg-gray-100 border-gray-300 rounded focus:ring-[#EF789B] focus:ring-2"
+                  checked={isChecked}
+                  onChange={() => setIsChecked(!isChecked)}
+                  // Styling untuk checkbox agar lebih terlihat
+                  className="h-5 w-5 cursor-pointer rounded border-gray-400 bg-gray-100 text-blue-600 accent-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="font-poppins text-md text-gray-600 leading-relaxed mt-2">
-                  Dengan melanjutkan, saya menyetujui
-                  <button className="text-[#EF789B] hover:text-pink-600 underline font-medium mx-1">
+                <label
+                  htmlFor="privacy-policy"
+                  // Menerapkan font Poppins dan warna dinamis berdasarkan state isChecked
+                  className={`font-poppins cursor-pointer select-none text-base ${
+                    isChecked ? "text-[#323232]/50" : "text-[#323232]"
+                  } transition-colors`}
+                >
+                  Saya telah membaca dan menyetujui{" "}
+                  <a
+                    href="/kebijakan-privasi"
+                    className="font-semibold underline hover:text-blue-600"
+                  >
                     Kebijakan Privasi
-                  </button>
-                  dan
-                  <button className="text-[#EF789B] hover:text-pink-600 underline font-medium ml-1">
-                    Syarat & Ketentuan
-                  </button>
-                  yang berlaku untuk penggunaan data pribadi saya.
-                </p>
+                  </a>
+                </label>
               </div>
             </div>
           </div>
@@ -403,15 +412,17 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
           {/* Tombol Aksi */}
           <div className="w-full space-y-4">
             <Button
-              className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3"
+              className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#323232]"
               onClick={handleTakePhoto}
+              disabled={!isChecked}
             >
               <Camera className="size-[20px] fill-[#f0f0f0] text-[#323232]" />
               <span className="text-sm font-poppins">Ambil Foto Sekarang</span>
             </Button>
             <Button
-              className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3"
+              className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#323232] disabled:hover:border-[#323232]"
               onClick={handleUploadFromGallery}
+              disabled={!isChecked}
             >
               <ImageIcon className="transition-colors group-hover:text-[#f0f0f0] size-[20px]" />
               <span className="text-sm font-poppins">Upload dari Galeri</span>
@@ -422,12 +433,16 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
           <div className="mt-4 flex items-start gap-3">
             <input
               type="checkbox"
-              id="privacy-policy"
-              className="mt-1 w-4 h-4 text-[#EF789B] bg-gray-100 border-gray-300 rounded focus:ring-[#EF789B] focus:ring-2"
+              id="privacy-policy-mobile"
+              checked={isChecked}
+              onChange={() => setIsChecked(!isChecked)}
+              className="mt-1 w-4 h-4 text-[#EF789B] bg-gray-100 border-gray-300 rounded focus:ring-[#EF789B] focus:ring-2 cursor-pointer"
             />
             <label
-              htmlFor="privacy-policy"
-              className="text-xs text-gray-600 leading-relaxed mt-1 mb-14"
+              htmlFor="privacy-policy-mobile"
+              className={`text-xs leading-relaxed mt-1 mb-14 cursor-pointer select-none ${
+                isChecked ? "text-gray-600/50" : "text-gray-600"
+              } transition-colors`}
             >
               Saya menyetujui
               <button className="text-[#EF789B] hover:text-pink-600 underline font-medium">

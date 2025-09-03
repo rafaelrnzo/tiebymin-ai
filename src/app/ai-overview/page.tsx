@@ -52,10 +52,27 @@ function BeautyAnalysisPageInner() {
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
   const [storyError, setStoryError] = useState<string | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   // Custom hooks
   const { userName, userId } = useUserData();
   const { showToast } = useToast();
+
+  // Check authentication
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const userToken = localStorage.getItem("userToken");
+    const isLoggedIn =
+      !!(accessToken && accessToken.trim()) ||
+      !!(userToken && userToken.trim());
+
+    setIsAuthChecking(false);
+
+    if (!isLoggedIn) {
+      window.location.href = "/register";
+      return;
+    }
+  }, []);
 
   console.log("Page component - userId:", userId, "userName:", userName);
 
@@ -90,19 +107,34 @@ function BeautyAnalysisPageInner() {
 
   const { mutateAsync: generateStory } = useGenerateStory();
 
-  const {
-    sortedProducts,
-    topProductScores,
-    recommendationFilter,
-    handleFilterChange,
-  } = useProductRecommendations(finalResultId);
-
   const { userData, userPhotoUrl, rawAnalysisData }: AnalysisResult =
     analysisResult || {
       userData: null,
       userPhotoUrl: null,
       rawAnalysisData: null,
     };
+
+  // Debug logging
+  console.log("ai-overview page - Raw Analysis Data:", rawAnalysisData);
+  console.log(
+    "ai-overview page - Body Shape ID:",
+    rawAnalysisData?.body_shape_id
+  );
+  console.log(
+    "ai-overview page - Face Shape ID:",
+    rawAnalysisData?.face_shape_id
+  );
+
+  const {
+    sortedProducts,
+    topProductScores,
+    recommendationFilter,
+    handleFilterChange,
+  } = useProductRecommendations(
+    finalResultId,
+    rawAnalysisData?.body_shape_id?.toString(),
+    rawAnalysisData?.face_shape_id?.toString()
+  );
 
   const handleDownloadStory = async () => {
     if (!finalResultId) return;
@@ -270,6 +302,17 @@ function BeautyAnalysisPageInner() {
 
     return content;
   };
+
+  // Show loading while checking authentication
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#323232]"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">

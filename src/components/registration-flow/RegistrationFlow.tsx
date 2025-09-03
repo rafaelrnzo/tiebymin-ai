@@ -9,6 +9,7 @@ import FaceScanStep from "./FaceScanStep";
 import { useAnalysis } from "@/context/AnalysisContext";
 import { useRegistrationFlow } from "@/hooks/useLocalStorage";
 import { useStepsProgress } from "@/hooks/useStepsProgress";
+import { useUserData } from "@/hooks/useUserData";
 
 export type RegistrationStep =
   | "register"
@@ -27,6 +28,23 @@ export default function RegistrationFlow({
 }: RegistrationFlowProps) {
   const router = useRouter();
   const { analysisData, setAnalysisData } = useAnalysis();
+  const { userProfile } = useUserData();
+
+  // Check authentication - redirect to register if not logged in
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const userToken = localStorage.getItem("userToken");
+    const isLoggedIn =
+      !!(accessToken && accessToken.trim()) ||
+      !!(userToken && userToken.trim());
+
+    setIsAuthChecking(false);
+
+    if (!isLoggedIn) {
+      router.push("/register");
+      return;
+    }
+  }, [router]);
   const {
     currentStep: persistedStep,
     setCurrentStep: setPersistedStep,
@@ -38,6 +56,7 @@ export default function RegistrationFlow({
   const [animateStep, setAnimateStep] = useState<number | undefined>();
   const [previousStep, setPreviousStep] = useState<number | undefined>();
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   const getCurrentStepNumber = () => {
     switch (currentStep) {
@@ -185,6 +204,17 @@ export default function RegistrationFlow({
         return null;
     }
   };
+
+  // Show loading while checking authentication
+  if (isAuthChecking) {
+    return (
+      <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">

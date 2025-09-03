@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Star, ThumbsUp, Search } from "lucide-react";
 import { Button } from "./ui/button";
+import { Product } from "@/types";
 
 // Add CSS for flip animation
 const flipStyles = `
@@ -49,19 +50,6 @@ if (typeof document !== "undefined") {
   }
 }
 
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  current_price: number;
-  original_price: number;
-  total_compatibility_score: number;
-  average_rating: number;
-  color_recommendations?: string[];
-  size_range: string;
-  product_link: string;
-}
-
 interface ProductCardDesktopProps {
   product: Product;
   topProductScores: Map<string, number>;
@@ -78,6 +66,13 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
+
+  // Debug logging
+  console.log("ProductCardDesktop - Product ID:", product.id);
+  console.log(
+    "ProductCardDesktop - Product compatibility reason:",
+    product.compatibility_reason
+  );
 
   return (
     <div className="product-flip-container h-[650px] w-full">
@@ -228,11 +223,7 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
               </p>
             </div>
             <p className="text-[#f0f0f0] text-start text-lg font-poppins">
-              Produk ini sangat cocok untuk kamu karena analisis AI kami
-              menunjukkan kesesuaian tinggi dengan bentuk wajah, warna kulit,
-              dan preferensi fashion kamu. Rekomendasi ini didasarkan pada data
-              analisis mendalam untuk memberikan hasil yang paling akurat dan
-              personal.
+              {product.compatibility_reason}
             </p>
           </div>
         </div>

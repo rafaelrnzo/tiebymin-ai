@@ -125,7 +125,7 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
   return (
     <div className="w-full lg:flex-1">
       {isDesktop ? (
-        <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="lg:order-1">
             {isLoading ? (
               <BodyTypeSkeleton

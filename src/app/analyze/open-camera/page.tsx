@@ -360,9 +360,9 @@ function HalamanKameraWajahContent() {
       });
 
       if (response.status >= 200 && response.status < 300) {
-        const resultId = response.data.analysis_result_id;
+        const resultId = String(response.data.analysis_result_id);
 
-        if (resultId) {
+        if (resultId && resultId !== "[object Object]") {
           console.log("Analysis completed successfully, result ID:", resultId);
           setAnalysisResultId(resultId);
           setIsApiLoading(false);

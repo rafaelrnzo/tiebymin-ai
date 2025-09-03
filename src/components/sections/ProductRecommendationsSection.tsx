@@ -5,19 +5,7 @@ import ProductCardMobile from "@/components/ProductCardMobile";
 import ProductCardDesktop from "@/components/ProductCardDesktop";
 import ResponsiveCarousel from "@/components/component-landing/carousel";
 import EmptyState from "./EmptyState";
-
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  current_price: number;
-  original_price: number;
-  total_compatibility_score: number;
-  average_rating: number;
-  color_recommendations?: string[];
-  size_range: string;
-  product_link: string;
-}
+import { Product } from "@/types";
 
 interface ProductRecommendationsSectionProps {
   sortedProducts: Product[];

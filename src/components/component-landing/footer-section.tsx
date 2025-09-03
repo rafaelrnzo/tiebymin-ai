@@ -85,7 +85,7 @@ export default function Footer() {
                 className="h-auto"
               />
             </Link>
-            <p className="my-6 text-justify text-base sm:text-lg max-w-md text-[#323232]/50 font-poppins">
+            <p className="my-6 text-base sm:text-lg max-w-md text-[#323232]/50 font-poppins">
               Tiebymin Adalah Grup Yang Menaungi Brand Gaya Hidup Remaja
               Muslimah Nomer 1 Di Indonesia Dari Fashion Hingga Kecantikan.
               Desain Simple Dan Elegan Menjadi Ciri Khas Sekaligus Menebar

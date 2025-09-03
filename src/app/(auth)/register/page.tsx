@@ -54,8 +54,26 @@ function RegisterPageContent() {
           return;
         }
 
-        // Allow logged-in users to access register page (no redirect)
+        // If not logged in and trying to access analysis steps, keep them at register
+        if (
+          !isLoggedIn &&
+          (startStepParam === "measurements" ||
+            startStepParam === "body-shape" ||
+            startStepParam === "face-scan")
+        ) {
+          setCurrentStep("register");
+          setIsInitialized(true);
+          return;
+        }
 
+        // For unauthenticated users, only allow access to register step
+        if (!isLoggedIn) {
+          setCurrentStep("register");
+          setIsInitialized(true);
+          return;
+        }
+
+        // Allow logged-in users to access saved steps
         const savedStep = getCurrentStepFromStorage();
         const savedStepFromRegistration = persistedCurrentStep;
 
@@ -245,7 +263,7 @@ function RegisterPageContent() {
           currentStepNumber={1}
           showExtendedSteps={false}
         />
-        <div className="w-full lg:flex-1 lg:max-w-[65%] lg:mr-[50px]">
+        <div className="w-full flex-1 xl:px-[4rem] lg:px-0 lg:mr-[50px] xl:mr-[50px]">
           <div className="bg-[#f0f0f0]/95 lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
               Buat Akun Baru
@@ -263,7 +281,7 @@ function RegisterPageContent() {
                   htmlFor="fullName"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Full Name *
+                  Full Name
                 </label>
                 <input
                   id="fullName"
@@ -285,7 +303,7 @@ function RegisterPageContent() {
                   htmlFor="email"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Email *
+                  Email
                 </label>
                 <input
                   id="email"
@@ -304,7 +322,7 @@ function RegisterPageContent() {
                   htmlFor="phone"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Nomor Telepon *
+                  Nomor Telepon
                 </label>
                 <div className="flex items-center border-gray-300 focus-within:border-gray-600 transition-colors">
                   <span className="text-gray-700 pl-1 text-xs lg:text-sm">
@@ -329,7 +347,7 @@ function RegisterPageContent() {
                     htmlFor="password"
                     className="block text-gray-600 font-medium text-xs lg:text-sm"
                   >
-                    Password *
+                    Password
                   </label>
                   <input
                     id="password"
@@ -350,7 +368,7 @@ function RegisterPageContent() {
                     htmlFor="confirmPassword"
                     className="block text-gray-600 font-medium text-xs lg:text-sm"
                   >
-                    Konfirmasi Password *
+                    Konfirmasi Password
                   </label>
                   <input
                     id="confirmPassword"

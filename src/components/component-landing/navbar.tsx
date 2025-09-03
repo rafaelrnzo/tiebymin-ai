@@ -14,10 +14,8 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Check if user is logged in and get latest analysis result
   const { userProfile, analysisHistory, fetchUserData } = useUserData();
 
-  // Check login status by localStorage tokens only (client-side only)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [latestAnalysisResult, setLatestAnalysisResult] = useState<{
     analysis_id: string;
