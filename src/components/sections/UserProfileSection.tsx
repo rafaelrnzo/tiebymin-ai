@@ -118,7 +118,9 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
               alt="Bagikan Hasil"
               loading="lazy"
             />
-            <span className="text-[12px] lg:text-[16px]">Bagikan Hasil</span>
+            <span className="text-[12px] lg:text-[16px] font-poppins text-[#323232]">
+              Bagikan Hasil
+            </span>
           </button>
           <button
             onClick={() =>
@@ -134,7 +136,9 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
               alt="Unduh Hasil"
               loading="lazy"
             />
-            <span className="text-[12px] lg:text-[16px]">Download Hasil</span>
+            <span className="text-[12px] lg:text-[16px] font-poppins text-[#323232]">
+              Download Hasil
+            </span>
           </button>
         </div>
       </div>

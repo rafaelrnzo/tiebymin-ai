@@ -3,19 +3,7 @@
 import Image from "next/image";
 import { Star, ThumbsUp } from "lucide-react";
 import { Button } from "./ui/button";
-
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  current_price: number;
-  original_price: number;
-  total_compatibility_score: number;
-  average_rating: number;
-  color_recommendations?: string[];
-  size_range: string;
-  product_link: string;
-}
+import { Product } from "@/types";
 
 interface ProductCardMobileProps {
   product: Product;

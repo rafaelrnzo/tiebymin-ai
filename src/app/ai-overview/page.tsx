@@ -52,10 +52,27 @@ function BeautyAnalysisPageInner() {
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
   const [storyError, setStoryError] = useState<string | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   // Custom hooks
   const { userName, userId } = useUserData();
   const { showToast } = useToast();
+
+  // Check authentication
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const userToken = localStorage.getItem("userToken");
+    const isLoggedIn =
+      !!(accessToken && accessToken.trim()) ||
+      !!(userToken && userToken.trim());
+
+    setIsAuthChecking(false);
+
+    if (!isLoggedIn) {
+      window.location.href = "/register";
+      return;
+    }
+  }, []);
 
   console.log("Page component - userId:", userId, "userName:", userName);
 
@@ -113,7 +130,6 @@ function BeautyAnalysisPageInner() {
     topProductScores,
     recommendationFilter,
     handleFilterChange,
-    compatibilityData,
   } = useProductRecommendations(
     finalResultId,
     rawAnalysisData?.body_shape_id?.toString(),
@@ -287,6 +303,17 @@ function BeautyAnalysisPageInner() {
     return content;
   };
 
+  // Show loading while checking authentication
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#323232]"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
@@ -330,7 +357,6 @@ function BeautyAnalysisPageInner() {
           topProductScores={topProductScores}
           recommendationFilter={recommendationFilter}
           onFilterChange={handleFilterChange}
-          compatibilityData={compatibilityData}
         />
       </main>
       <FeedbackModal

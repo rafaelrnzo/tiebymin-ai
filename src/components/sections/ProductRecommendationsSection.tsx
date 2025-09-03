@@ -5,31 +5,13 @@ import ProductCardMobile from "@/components/ProductCardMobile";
 import ProductCardDesktop from "@/components/ProductCardDesktop";
 import ResponsiveCarousel from "@/components/component-landing/carousel";
 import EmptyState from "./EmptyState";
-
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  current_price: number;
-  original_price: number;
-  total_compatibility_score: number;
-  average_rating: number;
-  color_recommendations?: string[];
-  size_range: string;
-  product_link: string;
-}
+import { Product } from "@/types";
 
 interface ProductRecommendationsSectionProps {
   sortedProducts: Product[];
   topProductScores: Map<string, number>;
   recommendationFilter: "hijab" | "clothes";
   onFilterChange: (filter: "hijab" | "clothes") => void;
-  compatibilityData?: {
-    [productId: string]: {
-      compatibility_score: number;
-      compatibility_reason: string;
-    };
-  };
 }
 
 const ProductRecommendationsSection: React.FC<
@@ -39,7 +21,6 @@ const ProductRecommendationsSection: React.FC<
   topProductScores,
   recommendationFilter,
   onFilterChange,
-  compatibilityData,
 }) => {
   return (
     <section className="pt-8 lg:pt-16">
@@ -106,7 +87,6 @@ const ProductRecommendationsSection: React.FC<
                     product={product}
                     topProductScores={topProductScores}
                     sortedProducts={sortedProducts}
-                    compatibilityData={compatibilityData}
                   />
                 ))}
               </div>

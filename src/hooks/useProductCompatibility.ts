@@ -31,7 +31,6 @@ export const useProductCompatibility = (
       if (!resultId) return {};
 
       const userShapeId = filter === "clothes" ? bodyShapeId : faceShapeId;
-      if (!userShapeId) return {};
 
       const endpoint = filter === "clothes"
         ? `${secureUrl("/v1/product-body-shape-compatibility/")}`
@@ -49,29 +48,20 @@ export const useProductCompatibility = (
         });
         const data: CompatibilityData[] = response.data;
 
-        // Filter data berdasarkan body_shape_id atau face_shape_id user
-        const filteredData = data.filter((item) => {
-          if (filter === "clothes") {
-            return item.body_shape_id === userShapeId;
-          } else {
-            return item.face_shape_id === userShapeId;
-          }
-        });
-
         console.log("useProductCompatibility - Debug Info:");
         console.log("Filter:", filter);
         console.log("User Shape ID:", userShapeId);
         console.log("Total data from API:", data.length);
-        console.log("Filtered data:", filteredData.length);
-        console.log("Filtered items:", filteredData);
 
-        // Transform data into a map keyed by product_id
+        // Transform data into a map keyed by product_id, taking the first compatibility for each product
         const compatibilityMap: ProductCompatibility = {};
-        filteredData.forEach((item) => {
-          compatibilityMap[item.product_id] = {
-            compatibility_score: item.compatibility_score,
-            compatibility_reason: item.compatibility_reason,
-          };
+        data.forEach((item) => {
+          if (!compatibilityMap[item.product_id]) {
+            compatibilityMap[item.product_id] = {
+              compatibility_score: item.compatibility_score,
+              compatibility_reason: item.compatibility_reason,
+            };
+          }
         });
 
         console.log("Final compatibility map:", compatibilityMap);
@@ -82,6 +72,6 @@ export const useProductCompatibility = (
         return {};
       }
     },
-    enabled: !!resultId && !!(filter === "clothes" ? bodyShapeId : faceShapeId),
+    enabled: !!resultId,
   });
 };

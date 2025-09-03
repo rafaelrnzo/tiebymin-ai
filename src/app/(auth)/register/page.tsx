@@ -54,8 +54,26 @@ function RegisterPageContent() {
           return;
         }
 
-        // Allow logged-in users to access register page (no redirect)
+        // If not logged in and trying to access analysis steps, keep them at register
+        if (
+          !isLoggedIn &&
+          (startStepParam === "measurements" ||
+            startStepParam === "body-shape" ||
+            startStepParam === "face-scan")
+        ) {
+          setCurrentStep("register");
+          setIsInitialized(true);
+          return;
+        }
 
+        // For unauthenticated users, only allow access to register step
+        if (!isLoggedIn) {
+          setCurrentStep("register");
+          setIsInitialized(true);
+          return;
+        }
+
+        // Allow logged-in users to access saved steps
         const savedStep = getCurrentStepFromStorage();
         const savedStepFromRegistration = persistedCurrentStep;
 
