@@ -91,7 +91,7 @@ export function Navbar() {
           <div className="flex-shrink-0">
             <Link href="/">
               <Image
-                src="/tie-by-min-logo-light.png"
+                src="/tie-by-min-logo-light.webp"
                 alt="Tiebymin Logo"
                 width={120}
                 height={28}
@@ -147,7 +147,7 @@ export function Navbar() {
         <div className="xl:hidden flex items-center justify-between py-2 sm:py-3 px-3 sm:px-4">
           <Link href="/">
             <Image
-              src="/tie-by-min-logo-light.png" // Menggunakan logo terang agar kontras
+              src="/tie-by-min-logo-light.webp" // Menggunakan logo terang agar kontras
               alt="Tiebymin Logo"
               width={100}
               height={24}
@@ -174,7 +174,7 @@ export function Navbar() {
                 {/* Logo in mobile sheet header */}
                 <div className="flex items-center justify-between mt-4 ml-4 mb-4">
                   <Image
-                    src="/tie-by-min-logo-light.png"
+                    src="/tie-by-min-logo-light.webp"
                     alt="Tiebymin Logo"
                     width={80}
                     height={20}

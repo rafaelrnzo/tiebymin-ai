@@ -75,7 +75,7 @@ type Testimonial = {
 const testimonials: Testimonial[] = [
   {
     type: "image",
-    content: "/testi-1.png",
+    content: "/testi-1.webp",
     hoverContent:
       '"Mantap Tiebymin beneran ngebantu nemuin hijab yang on-point buat aku. Nggak pake ribet, hasilnya cakep."',
     author: "Lady Fortuna",
@@ -83,7 +83,7 @@ const testimonials: Testimonial[] = [
   },
   {
     type: "image",
-    content: "/testi-2.png",
+    content: "/testi-2.webp",
     hoverContent:
       '"Gila, AI-nya nggak kaleng-kaleng. Cocok banget sama style fashion aku dan bikin outfit hijabku makin mantap. Bintang lima tiebymin!!!!"',
     author: "Shinta P",
@@ -91,7 +91,7 @@ const testimonials: Testimonial[] = [
   },
   {
     type: "image",
-    content: "/testi-3.png",
+    content: "/testi-3.webp",
     hoverContent:
       '"Ini literally penolongku. Rekomendasi hijab dari AI-nya accurate parah. Effortless banget dan hasilnya auto keren. Luv!"',
     author: "Miska",
@@ -99,7 +99,7 @@ const testimonials: Testimonial[] = [
   },
   {
     type: "image",
-    content: "/testi-4.png",
+    content: "/testi-4.webp",
     hoverContent:
       '"Definisi AI yang berguna banget buat spill rekomendasi hijab. Anti pusing-pusing mikirin cocok apa nggak. Worth it banget sih!"',
     author: "Arsyila S",
@@ -148,8 +148,8 @@ const TestimonialCard: React.FC<{
 }> = ({ data, isFlipped, onFlip }) => {
   if (data.type === "text") {
     return (
-      <div className="relative h-[400px] sm:h-[480px] w-72 sm:w-80 flex-shrink-0 overflow-hidden rounded-3xl shadow-lg">
-        <div className="bg-[#323232] h-full w-full p-8 flex flex-col">
+      <div className="relative h-[400px] sm:h-[480px] w-72 sm:w-80 flex-shrink-0 overflow-hidden rounded-3xl">
+        <div className="bg-[#323232] h-full w-full p-8 flex flex-col rounded-3xl">
           <p className="text-[#FFC6C6] font-medium text-lg italic leading-relaxed">
             {data.content}
           </p>
@@ -161,7 +161,7 @@ const TestimonialCard: React.FC<{
 
   return (
     <div
-      className="testimonial-flip-container relative h-[400px] sm:h-[480px] w-72 sm:w-80 flex-shrink-0 cursor-pointer shadow-lg"
+      className="testimonial-flip-container relative h-[500px] lg:h-[400px] w-[400px] lg:w-80 flex-shrink-0 cursor-pointer rounded-3xl shadow-lg"
       onClick={onFlip}
     >
       <div className={`testimonial-flip-inner ${isFlipped ? "flipped" : ""}`}>
@@ -173,7 +173,7 @@ const TestimonialCard: React.FC<{
             width={320}
             height={480}
             quality={100}
-            className="h-full w-full object-cover rounded-2xl"
+            className="h-full w-full object-cover"
           />
         </div>
 
@@ -228,11 +228,11 @@ export const ThirdSection = () => {
   return (
     <section id="testimoni" className="px-4 sm:px-10 lg:px-[100px]">
       <div className="container mx-auto">
-        <hr className="mt-[100px] mb-[80px] mx-5 lg:mx-0" />
+        <hr className="lg:mt-[100px] lg:mb-[80px] mt-[40px] mb-[50px]" />
 
-        <div className="flex flex-col items-center text-center lg:flex-row lg:text-start justify-between mb-[70px]">
+        <div className="flex flex-col items-center lg:flex-row text-start justify-between mb-[50px] lg:mb-[80px]">
           <div>
-            <h2 className="font-handlee italic text-3xl sm:text-4xl lg:text-5xl text-gray-900">
+            <h2 className="font-handlee italic text-3xl sm:text-4xl lg:text-5xl text-[#323232]">
               Dengar testimoni pengguna tercinta kita
             </h2>
           </div>
@@ -274,11 +274,11 @@ export const ThirdSection = () => {
             </div>
 
             {/* Navigation buttons */}
-            <div className="flex justify-center items-center gap-4 mt-6">
+            <div className="flex justify-end items-center gap-4 mt-6 mr-6">
               <button
                 onClick={goToPreviousCard}
                 disabled={currentCardIndex === 0}
-                className="bg-[#f0f0f0] rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-[#f0f0f0] rounded-full border p-3 hover:bg-gray-100 transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Previous testimonial"
               >
                 <ChevronLeft className="h-5 w-5 text-gray-800" />
@@ -286,7 +286,7 @@ export const ThirdSection = () => {
               <button
                 onClick={goToNextCard}
                 disabled={currentCardIndex === testimonials.length - 1}
-                className="bg-[#f0f0f0] rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-[#f0f0f0] rounded-full p-3 border hover:bg-gray-100 transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Next testimonial"
               >
                 <ChevronRight className="h-5 w-5 text-gray-800" />

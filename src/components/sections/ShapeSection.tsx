@@ -111,7 +111,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
                   className="flex text-xs lg:text-xl text-[#323232] font-poppins"
                 >
                   <span className="mr-2">•</span>
-                  <span>{item.trim()}</span>
+                  <span>{item.trim()}.</span>
                 </div>
               ))}
           </div>

@@ -235,7 +235,7 @@ export default function DashboardPage() {
                 produk terbaik. Semuanya kami analisis untuk bantu kamu tampil
                 lebih percaya diri dalam setiap aktivitas kamu.
               </p>
-              <div className="bg-[#323232] bg-[url('/card-bg.png')] text-[#f0f0f0] rounded-2xl shadow-xl p-6 flex flex-col items-center justify-between gap-6 flex-1">
+              <div className="bg-[#323232] bg-[url('/card-bg.webp')] text-[#f0f0f0] rounded-2xl shadow-xl p-6 flex flex-col items-center justify-between gap-6 flex-1">
                 <div className="text-center md:text-left">
                   <h3 className="font-handlee italic text-4xl md:text-5xl mt-5">
                     Mulai Analisis Kecantikan Kamu
@@ -285,7 +285,7 @@ export default function DashboardPage() {
           <div className="overflow-x-auto rounded-2xl">
             <Table className="border-0">
               <TableHeader className="border-0">
-                <TableRow className="bg-[#FFC6C6] hover:bg-[#FFC6C6]/90 shadow-md border-0">
+                <TableRow className="bg-[#FFC6C6] rounded-2xl shadow-md border-0">
                   <TableHead className="text-[#323232] font-bold text-base pl-10 rounded-l-2xl py-4 border-0">
                     Date
                   </TableHead>

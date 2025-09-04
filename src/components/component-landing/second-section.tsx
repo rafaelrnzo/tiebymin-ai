@@ -22,10 +22,10 @@ export const SecondSection = () => {
   return (
     <section
       id="tutorial"
-      className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[100px] mb-[100px]"
+      className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[100px] lg:mb-[100px] mb-[65px]"
     >
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-7 lg:gap-8 gap-4">
           <div className="lg:col-span-5 relative w-full h-full sm:h-80 md:h-full rounded-xl overflow-hidden shadow-xl cursor-pointer group">
             <Image
               src="/video-thumbnail.png"
@@ -42,7 +42,7 @@ export const SecondSection = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-2 flex flex-col gap-4 w-full">
+          <div className="lg:col-span-2 flex flex-col lg:gap-8 gap-4 w-full">
             <div className="bg-[#FFC6C6] p-6 rounded-2xl flex flex-col gap-6 w-full">
               <a
                 href={
@@ -83,7 +83,7 @@ export const SecondSection = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-5 lg:mt-0">
+            <div className="grid grid-cols-2 gap-8 mt-5 lg:mt-0">
               <div className="bg-[#323232] p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
                 <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
                   {"<"}2m

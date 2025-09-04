@@ -216,7 +216,7 @@ const CelebrityCard = () => (
       <Image
         width={200}
         height={100}
-        src="/damoy.png"
+        src="/damoy.webp"
         alt="Davina Karamoy"
         className="w-full h-[130px] object-cover rounded-lg"
       />
@@ -252,14 +252,14 @@ const RecommendationContainer = () => {
         "Hijab dengan neutral color gelap cocok untuk skin tone kamu",
     },
     {
-      imageUrl: "/new-hijab-10.png",
+      imageUrl: "/new-hijab-10.webp",
       title: "Premium Bergo",
       description: "Produk ini memiliki neutral color yang kamu butuhkan",
     },
   ];
 
   return (
-    <div className="lg:col-span-2 flex flex-col gap-4 bg-[#323232] rounded-xl p-6">
+    <div className="lg:col-span-2 hidden lg:flex flex-col gap-4 bg-[#323232] rounded-xl p-6">
       <div className="flex gap-4 mt-4">
         <Handbag className="text-[#f0f0f0]" />
         <p className="text-2xl font-handlee text-[#f0f0f0] italic">
@@ -337,7 +337,7 @@ const MobileCardsSlider: React.FC = () => {
         </div>
 
         {/* Progress Bar Indicator */}
-        <div className="px-4">
+        <div className="px-4 mt-[40px] lg:mt-0">
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] h-2 rounded-full transition-all duration-300 ease-out"
@@ -371,7 +371,7 @@ const AnalysisDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[80px]">
+    <div className="mt-12 sm:mt-16 lg:px-[80px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
         <MobileCardsSlider />
 
@@ -381,7 +381,7 @@ const AnalysisDashboard: React.FC = () => {
           </div>
           <RecommendationContainer />
         </div>
-        <hr className="mt-[60px] mb-[50px]" />
+        <hr className="mt-0 lg:mt-[60px] mb-0 lg:mb-[85px] lg:block hidden" />
       </div>
     </div>
   );

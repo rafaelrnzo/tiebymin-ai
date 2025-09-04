@@ -162,7 +162,7 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
         </div>
 
         {/* Back of card */}
-        <div className="product-flip-back bg-[url('/card-bg.png')] bg-[#323232] rounded-2xl overflow-hidden flex flex-col">
+        <div className="product-flip-back bg-[url('/card-bg.webp')] bg-[#323232] rounded-2xl overflow-hidden flex flex-col">
           <div className="p-4 flex flex-col h-full">
             <div
               className="bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] px-4 py-2 rounded-xl flex justify-between mb-6 cursor-pointer"
