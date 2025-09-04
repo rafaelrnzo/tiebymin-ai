@@ -61,7 +61,7 @@ export default function MethodologyPage() {
       <Navbar />
       <main className="container mx-auto">
         <section className="mb-[50px] pt-[180px]">
-          <Card className="bg-[url('/card-bg.png')] bg-[#323232] h-[500px] text-[#f0f0f0] rounded-2xl shadow-xl p-8 md:p-12 text-center justify-center items-center">
+          <Card className="bg-[url('/card-bg.webp')] bg-[#323232] h-[500px] text-[#f0f0f0] rounded-2xl shadow-xl p-8 md:p-12 text-center justify-center items-center">
             <h1 className="font-handlee italic text-4xl md:text-5xl text-[#FF7EA4]">
               Kenapa Analisis kami akurat dan personal?
             </h1>

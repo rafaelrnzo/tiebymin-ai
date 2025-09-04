@@ -40,9 +40,16 @@ const FaqSection = () => {
   return (
     <section className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[100px]">
       <div className="container mx-auto">
-        <hr className="mb-[100px]" />
+        <hr className="lg:mb-[100px] mb-[65px]" />
         <div className="grid grid-cols-1 xl:grid-cols-2 lg:gap-24 gap-6 items-center">
-          <div className="flex flex-col gap-[25px]">
+          <Image
+            src="/faq-image.png"
+            alt="Fashion enthusiasts"
+            width={600}
+            height={450}
+            className="rounded-2xl  w-full h-auto max-h-[790px] object-cover block lg:hidden"
+          />
+          <div className="flex flex-col mt-5 lg:mt-0 gap-[25px]">
             <p className="text-2xl sm:text-3xl font-handlee italic">
               Sempurna Untuk
             </p>
@@ -90,15 +97,13 @@ const FaqSection = () => {
             </a>
           </div>
 
-          <div>
-            <Image
-              src="/faq-image.png"
-              alt="Fashion enthusiasts"
-              width={600}
-              height={450}
-              className="rounded-2xl shadow-xl w-full h-auto max-h-[790px] object-cover hidden lg:block"
-            />
-          </div>
+          <Image
+            src="/faq-image.png"
+            alt="Fashion enthusiasts"
+            width={600}
+            height={450}
+            className="rounded-2xl shadow-xl w-full h-auto max-h-[790px] object-cover lg:block hidden"
+          />
         </div>
       </div>
     </section>

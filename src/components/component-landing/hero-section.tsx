@@ -21,13 +21,13 @@ export const HeroSection = () => {
       <div className="w-full">
         {/* Gambar Desktop */}
         <img
-          src="/geblek.png"
+          src="/hero-desktop.webp"
           alt="Analisa Gaya Anda"
           className="w-full h-auto lg:block hidden"
         />
         {/* Gambar Mobile */}
         <img
-          src="/geblek-mobile.png"
+          src="/hero-mobile.webp"
           alt="Analisa Gaya Anda - Mobile"
           className="w-full h-auto lg:hidden block mt-10"
         />

@@ -6,10 +6,13 @@ import { useEffect, useState } from "react";
 
 const footerLinks = {
   marketPlace: [
-    { href: "https://shopee.co.id/", label: "Shopee" },
-    { href: "https://www.tokopedia.com/", label: "Tokopedia" },
-    { href: "https://www.tiktok.com/shop", label: "TikTok Shop" },
-    { href: "https://www.lazada.co.id/", label: "Lazada" },
+    { href: "https://shopee.co.id/tiebyminofficial", label: "Shopee" },
+    { href: "https://www.tokopedia.com/tiebymin-official", label: "Tokopedia" },
+    { href: "https://www.tiktok.com/@tiebymin", label: "TikTok Shop" },
+    {
+      href: "https://www.lazada.co.id/shop/tiebymin-official/",
+      label: "Lazada",
+    },
   ],
   sumberDaya: [
     { href: "/testimoni", label: "Testimoni" },
@@ -75,7 +78,7 @@ export default function Footer() {
           </a>
         </div>
         <div className="flex flex-col lg:flex-row justify-between gap-10 mt-16 sm:mt-24">
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             <Link href="/" className="inline-block">
               <Image
                 src="/vector/tie-by-min-logo.svg"
@@ -133,35 +136,37 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-col">
-            <h4 className="font-bold font-poppins tracking-wide">
-              Market Place
-            </h4>
-            <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
-              {footerLinks.marketPlace.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="hover:underline">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="flex w-full">
+            <div className="flex flex-col w-full">
+              <h4 className="font-bold font-poppins tracking-wide">
+                Market Place
+              </h4>
+              <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
+                {footerLinks.marketPlace.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="hover:underline">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Kolom Sumber Daya */}
-          <div className="flex flex-col">
-            <h4 className="font-bold font-poppins tracking-wide">
-              Sumber Daya
-            </h4>
-            <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
-              {footerLinks.sumberDaya.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="hover:underline">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {/* Kolom Sumber Daya */}
+            <div className="flex flex-col w-full">
+              <h4 className="font-bold font-poppins tracking-wide">
+                Sumber Daya
+              </h4>
+              <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
+                {footerLinks.sumberDaya.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="hover:underline">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
