@@ -22,6 +22,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserData } from "@/hooks/useUserData";
+import { useGenerateStory } from "@/hooks/useAnalysisData";
+import { useToast } from "@/hooks/useToast";
 import DashboardSkeleton from "@/components/skeleton-loading/profile-skeleton";
 
 // Function to shorten month names
@@ -42,7 +44,7 @@ const shortenMonth = (dateString: string) => {
 };
 
 export default function DashboardPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
 
   const router = useRouter();
   const {
@@ -53,6 +55,9 @@ export default function DashboardPage() {
     fetchUserData,
     logout,
   } = useUserData();
+
+  const { mutateAsync: generateStory } = useGenerateStory();
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchUserData();
@@ -88,6 +93,90 @@ export default function DashboardPage() {
       }
     }
   }, [fetchUserData]);
+
+  const handleDownloadStory = async (resultId: string) => {
+    if (!resultId) return;
+    setIsGeneratingStory(true);
+
+    try {
+      console.log("Starting story generation for result ID:", resultId);
+
+      const result = await generateStory(resultId);
+      console.log("Story generation result:", result);
+
+      // Check if result exists and has data
+      if (result && result.data) {
+        console.log("Story data received, size:", result.data.byteLength);
+
+        const imageData = result.data;
+        const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
+          type: "image/png",
+        });
+
+        console.log("File created:", file.name, file.size, "bytes");
+
+        // Check if Web Share API is available and can share files
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: "Tie By Min Story",
+              text: "Coba AI Fashion Analysis aku!",
+            });
+            console.log("Story shared successfully");
+            showToast("Story berhasil dibagikan!", "success");
+          } catch (shareError) {
+            console.log("Share failed, falling back to download:", shareError);
+            // Fallback to download
+            const url = URL.createObjectURL(file);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = file.name;
+            document.body.appendChild(link); // Add to DOM for better compatibility
+            link.click();
+            document.body.removeChild(link); // Clean up
+            URL.revokeObjectURL(url);
+            console.log("Story downloaded successfully");
+            showToast("Story berhasil diunduh!", "success");
+          }
+        } else {
+          console.log("Web Share API not available, downloading directly");
+          // Direct download
+          const url = URL.createObjectURL(file);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = file.name;
+          document.body.appendChild(link); // Add to DOM for better compatibility
+          link.click();
+          document.body.removeChild(link); // Clean up
+          URL.revokeObjectURL(url);
+          console.log("Story downloaded successfully");
+          showToast("Story berhasil diunduh!", "success");
+        }
+      } else {
+        console.error("No story data received in result:", result);
+        throw new Error("No story data received from server");
+      }
+    } catch (error) {
+      console.error("Story generation error:", error);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
+      console.error("Error details:", {
+        message: err?.message,
+        stack: err?.stack,
+        response: err?.response,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+      });
+
+      showToast(
+        `Gagal membuat story: ${err?.message || "Unknown error"}`,
+        "error"
+      );
+    } finally {
+      setIsGeneratingStory(false);
+    }
+  };
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -267,6 +356,10 @@ export default function DashboardPage() {
                             variant="outline"
                             size="icon"
                             className="rounded-lg border-gray-300"
+                            onClick={() =>
+                              handleDownloadStory(item.analysis_id)
+                            }
+                            disabled={isGeneratingStory}
                           >
                             <Share2 className="h-4 w-4" />
                           </Button>

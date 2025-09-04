@@ -70,7 +70,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             priority
           />
         </div>
-        <p className="font-poppins text-xs lg:text-xl lg:mt-0 mt-6 mb-4">
+        <p className="font-poppins text-xs lg:text-xl lg:mt-0 mt-6 mb-4 break-words hyphens-auto">
           {bodyDetails.penjelasan_body_shape}
         </p>
       </div>
@@ -105,20 +105,21 @@ const BodySection: React.FC<BodySectionProps> = ({
           </div>
 
           <div className="bg-[#FFC6C6] shadow-md rounded-2xl p-4 lg:p-6 w-full max-w-full">
-            <h3 className="italic font-handlee mb-2 sm:mb-3 text-base sm:text-lg lg:text-xl md:text-left xl:text-center lg:text-center text-left">
+            <h3 className="italic font-handlee mb-2 sm:mb-3 text-base sm:text-lg lg:text-2xl md:text-left xl:text-center lg:text-center text-left">
               Karakteristik
             </h3>
-            <div className="grid grid-cols-1">
+            <div className="space-y-2">
               {bodyDetails?.karakteristik
                 ?.split("-")
                 .filter((point: string) => point.trim() !== "")
                 .map((point: string, index: number) => (
-                  <p
+                  <div
                     key={index}
-                    className="text-xs lg:text-xl text-[#323232] font-poppins"
+                    className="flex text-xs lg:text-xl text-[#323232] font-poppins"
                   >
-                    • {point.trim()}
-                  </p>
+                    <span className="mr-2">•</span>
+                    <span>{point.trim()}</span>
+                  </div>
                 ))}
             </div>
           </div>

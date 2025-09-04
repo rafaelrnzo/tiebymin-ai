@@ -95,7 +95,6 @@ function RegisterPageContent() {
 
         setIsInitialized(true);
       } catch (error) {
-        console.error("Error initializing step from storage:", error);
         setIsInitialized(true);
       }
     }
@@ -217,11 +216,90 @@ function RegisterPageContent() {
       setPersistedCurrentStep(2);
       setCurrentStep("measurements");
     } catch (err) {
-      setErrorModalMessage(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat registrasi. Silakan coba lagi."
-      );
+      let errorMessage =
+        "Terjadi kesalahan saat registrasi. Silakan coba lagi.";
+
+      if (err instanceof Error) {
+        const errorText = err.message.toLowerCase();
+
+        // Handle email already exists error
+        if (
+          errorText.includes("email") &&
+          (errorText.includes("already") ||
+            errorText.includes("exists") ||
+            errorText.includes("duplicate"))
+        ) {
+          errorMessage = "Email sudah digunakan, silakan coba email lain";
+        }
+        // Handle network/connection errors
+        else if (
+          errorText.includes("network") ||
+          errorText.includes("connection") ||
+          errorText.includes("timeout")
+        ) {
+          errorMessage =
+            "Koneksi internet bermasalah. Periksa koneksi Anda dan coba lagi.";
+        }
+        // Handle server errors
+        else if (
+          errorText.includes("internal") ||
+          errorText.includes("server") ||
+          errorText.includes("500")
+        ) {
+          errorMessage =
+            "Server sedang mengalami gangguan. Silakan coba beberapa saat lagi.";
+        }
+        // Handle validation errors
+        else if (
+          errorText.includes("validation") ||
+          errorText.includes("invalid")
+        ) {
+          errorMessage =
+            "Data yang dimasukkan tidak valid. Periksa kembali form Anda.";
+        }
+        // Handle rate limiting
+        else if (
+          errorText.includes("rate") ||
+          errorText.includes("limit") ||
+          errorText.includes("too many")
+        ) {
+          errorMessage =
+            "Terlalu banyak percobaan. Silakan tunggu beberapa menit sebelum mencoba lagi.";
+        }
+        // Handle authentication errors
+        else if (
+          errorText.includes("unauthorized") ||
+          errorText.includes("forbidden") ||
+          errorText.includes("403") ||
+          errorText.includes("401")
+        ) {
+          errorMessage =
+            "Akses ditolak. Silakan coba lagi atau hubungi dukungan.";
+        }
+        // Handle other specific errors
+        else if (
+          errorText.includes("bad request") ||
+          errorText.includes("400")
+        ) {
+          errorMessage =
+            "Permintaan tidak dapat diproses. Periksa data Anda dan coba lagi.";
+        }
+        // Use original message if it's already user-friendly
+        else if (
+          errorText.length < 100 &&
+          !errorText.includes("error") &&
+          !errorText.includes("code")
+        ) {
+          errorMessage = err.message;
+        }
+        // Default fallback for technical errors
+        else {
+          errorMessage =
+            "Terjadi kesalahan saat membuat akun. Silakan coba lagi dalam beberapa saat.";
+        }
+      }
+
+      setErrorModalMessage(errorMessage);
       setIsErrorModalOpen(true);
     }
   };
@@ -257,7 +335,7 @@ function RegisterPageContent() {
 
   return (
     <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="2xl:container 2xl:mx-auto w-full xl:px-[60px] lg:px-[80px] flex flex-col lg:flex-row items-center justify-between gap-[25px] lg:gap-[100px] xl:gap-[200px]">
         <LeftSideSection
           steps={steps}
           currentStepNumber={1}

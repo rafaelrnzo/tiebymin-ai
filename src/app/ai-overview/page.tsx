@@ -32,7 +32,7 @@ interface AnalysisData {
   celebrity_id?: string;
   analysis_details?: {
     bmi: {
-      bmi_value: number;
+      bmi: number;
     };
   };
 }
@@ -55,7 +55,7 @@ function BeautyAnalysisPageInner() {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   // Custom hooks
-  const { userName, userId } = useUserData();
+  const { userName, userId, fetchAuthMe } = useUserData();
   const { showToast } = useToast();
 
   // Check authentication
@@ -72,7 +72,13 @@ function BeautyAnalysisPageInner() {
       window.location.href = "/register";
       return;
     }
-  }, []);
+
+    // Fetch user data from /v1/auth/me when component mounts
+    // This ensures we have the latest user first_name, especially when navigating from profile
+    if (isLoggedIn) {
+      fetchAuthMe();
+    }
+  }, [fetchAuthMe]);
 
   const resultId = searchParams.get("result_id");
 
@@ -80,14 +86,23 @@ function BeautyAnalysisPageInner() {
   const fallbackResultId = resultId || localStorage.getItem("analysisResultId");
   const finalResultId = fallbackResultId;
 
+  // Validate resultId format
+  const isValidResultId =
+    finalResultId &&
+    typeof finalResultId === "string" &&
+    finalResultId.length > 0;
+
   const {
     data: analysisResult,
     isLoading,
     error,
     isError,
-  } = useAnalysisData(finalResultId, {
+  } = useAnalysisData(isValidResultId ? finalResultId : null, {
     onError: (err) => {
-      setErrorModalMessage(err.message);
+      console.error("Analysis data error:", err);
+      setErrorModalMessage(
+        err.message || "Terjadi kesalahan saat memuat data analisis"
+      );
       setIsErrorModalOpen(true);
     },
   });
@@ -115,15 +130,26 @@ function BeautyAnalysisPageInner() {
   const handleDownloadStory = async () => {
     if (!finalResultId) return;
     setIsGeneratingStory(true);
+
     try {
       setStoryError(null);
+      console.log("Starting story generation for result ID:", finalResultId);
+
       const result = await generateStory(finalResultId);
-      if (result.data) {
+      console.log("Story generation result:", result);
+
+      // Check if result exists and has data
+      if (result && result.data) {
+        console.log("Story data received, size:", result.data.byteLength);
+
         const imageData = result.data;
         const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
           type: "image/png",
         });
 
+        console.log("File created:", file.name, file.size, "bytes");
+
+        // Check if Web Share API is available and can share files
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
@@ -131,31 +157,57 @@ function BeautyAnalysisPageInner() {
               title: "Tie By Min Story",
               text: "Coba AI Fashion Analysis aku!",
             });
+            console.log("Story shared successfully");
             showToast("Story berhasil dibagikan!", "success");
           } catch (shareError) {
+            console.log("Share failed, falling back to download:", shareError);
+            // Fallback to download
             const url = URL.createObjectURL(file);
             const link = document.createElement("a");
             link.href = url;
             link.download = file.name;
+            document.body.appendChild(link); // Add to DOM for better compatibility
             link.click();
+            document.body.removeChild(link); // Clean up
             URL.revokeObjectURL(url);
+            console.log("Story downloaded successfully");
             showToast("Story berhasil diunduh!", "success");
           }
         } else {
+          console.log("Web Share API not available, downloading directly");
+          // Direct download
           const url = URL.createObjectURL(file);
           const link = document.createElement("a");
           link.href = url;
           link.download = file.name;
+          document.body.appendChild(link); // Add to DOM for better compatibility
           link.click();
+          document.body.removeChild(link); // Clean up
           URL.revokeObjectURL(url);
+          console.log("Story downloaded successfully");
           showToast("Story berhasil diunduh!", "success");
         }
       } else {
-        throw new Error("No story data received");
+        console.error("No story data received in result:", result);
+        throw new Error("No story data received from server");
       }
     } catch (error) {
+      console.error("Story generation error:", error);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
+      console.error("Error details:", {
+        message: err?.message,
+        stack: err?.stack,
+        response: err?.response,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+      });
+
       setStoryError("Gagal membuat story");
-      showToast("Gagal membuat story", "error");
+      showToast(
+        `Gagal membuat story: ${err?.message || "Unknown error"}`,
+        "error"
+      );
     } finally {
       setIsGeneratingStory(false);
     }
@@ -211,6 +263,7 @@ function BeautyAnalysisPageInner() {
 
   const renderContent = (tabId: string) => {
     const analysisData = rawAnalysisData;
+    console.log(analysisData);
     if (!analysisData) return null;
 
     const content = (() => {
@@ -235,7 +288,7 @@ function BeautyAnalysisPageInner() {
               bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
               bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
               bmiResult={{
-                value: analysisData.analysis_details?.bmi?.bmi_value || 0,
+                value: analysisData.analysis_details?.bmi?.bmi || 0,
               }}
             />
           );
@@ -290,8 +343,8 @@ function BeautyAnalysisPageInner() {
     <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
 
-      <main className="xl:container xl:mx-auto w-full py-8 lg:py-4 pt-[80px] px-[20px]">
-        <div className="flex flex-col md:flex-col xl:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
+      <main className="w-full py-8 lg:py-4 pt-[80px] px-[20px] 2xl:container 2xl:mx-auto">
+        <div className="flex flex-col md:flex-col xl:flex-row w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
           <UserProfileSection
             userName={userName}
             userPhotoUrl={userPhotoUrl}

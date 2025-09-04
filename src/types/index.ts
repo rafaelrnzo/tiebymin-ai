@@ -65,15 +65,20 @@ export interface ColorAnalysis {
   id: string;
   name: string;
   description: string;
-  best_colour: string[];
-  neutral_colour: string[];
-  worst_colour: string[];
-  best_colour_combination: string[];
+  best_colour?: string[];
+  best_colors?: string[];
+  neutral_colour?: string[];
+  neutral_colors?: string[];
+  worst_colour?: string[];
+  worst_colors?: string[];
+  best_colour_combination?: string[];
+  combination_colors?: string[][];
   make_up_tips: string;
   tips_warna_kulit_pakaian: string;
   personality: string;
   karakteristik: string;
   penjelasan_color_analysis: string;
+  color_tips_summary?: string;
 }
 
 export interface FaceShape {

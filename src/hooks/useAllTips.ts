@@ -58,11 +58,11 @@ export const useAllTips = ({
       }),
     ]);
     return {
-      faceTip: faceRes.data.tips_bentuk_wajah,
-      bodyTip: bodyRes.data.tips_body_shape,
-      colorTip: colorRes.data.color_tips_summary,
-      bmiTip: bmiRes.data.tips_fashion,
-      makeupTip: colorRes.data.make_up_tips,
+      faceTip: faceRes.data.tips_bentuk_wajah || faceRes.data.tips_face_shape || "Tips bentuk wajah tidak tersedia",
+      bodyTip: bodyRes.data.tips_body_shape || "Tips bentuk tubuh tidak tersedia",
+      colorTip: colorRes.data.color_tips_summary || colorRes.data.tips_warna_kulit_pakaian || "Tips warna kulit tidak tersedia",
+      bmiTip: bmiRes.data.tips_fashion || "Tips fashion tidak tersedia",
+      makeupTip: colorRes.data.make_up_tips || "Tips makeup tidak tersedia",
     };
   };
 

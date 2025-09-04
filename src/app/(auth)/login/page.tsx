@@ -90,15 +90,15 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="2xl:container 2xl:mx-auto w-full xl:px-[60px] lg:px-[80px] flex flex-col lg:flex-row items-center justify-between gap-[25px] lg:gap-[100px] xl:gap-[200px]">
         <LeftSideSection
           steps={steps}
           currentStepNumber={1}
           showExtendedSteps={false}
         />
-        <div className="w-full flex-1 xl:px-[4rem] lg:px-0 lg:mr-[50px] xl:mr-[50px]">
+        <div className="w-full flex-1">
           <div className="bg-[#f0f0f0] lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#323232] mb-6 font-oswald text-left">
               Login Akun
             </h2>
 

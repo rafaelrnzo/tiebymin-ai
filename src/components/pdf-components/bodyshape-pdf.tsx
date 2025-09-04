@@ -6,11 +6,17 @@ import { PageHeader } from "./header-pdf";
 export const BodyShape = ({
   userData,
   bodyDetails,
+  bmiValue,
+  bmiCategory,
 }: {
   userData: UserData;
   bodyDetails?: BodyShapeData;
+  bmiValue?: number;
+  bmiCategory?: string;
 }) => {
-  const bmiValue = userData.bmi.value;
+  // Use provided BMI value or fallback to userData
+  const finalBmiValue = bmiValue ?? userData.bmi?.value ?? 0;
+  const finalBmiCategory = bmiCategory ?? userData.bmi?.category ?? "Unknown";
 
   // Helper untuk mem-parse daftar karakteristik dengan aman
   const characteristics =
@@ -27,9 +33,7 @@ export const BodyShape = ({
         <div className="flex gap-10">
           <div className="flex-shrink-0">
             <Image
-              src={
-                bodyDetails?.link_picture || userData.bodyShapeAnalysis.imageUrl
-              }
+              src={bodyDetails?.link_picture as string}
               loading="eager"
               decoding="sync"
               alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
@@ -62,9 +66,11 @@ export const BodyShape = ({
         {/* Konten Bawah: BMI Index */}
         <div className="pt-8">
           <p className="font-bold">
-            BMI INDEX: {bmiValue} ({userData.bmi.category})
+            BMI INDEX: {finalBmiValue} ({finalBmiCategory})
           </p>
-          <p className="text-gray-600 mb-3 text-sm">{userData.bmi.desc}</p>
+          <p className="text-gray-600 mb-3 text-sm">
+            {userData.bmi?.desc || ""}
+          </p>
           <div className="w-full h-8 rounded-md bg-gray-200 overflow-hidden">
             <div className="h-full rounded-md bg-gradient-to-r from-[#EF789B] to-[#F7D3DF]" />
           </div>

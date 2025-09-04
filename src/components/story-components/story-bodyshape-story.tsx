@@ -5,18 +5,41 @@ interface StoryBodyShapeProps {
   userData: UserData;
   bodyDetails?: BodyShapeData;
   bmiCategoryDetails?: BmiCategory;
+  bmiValue?: number;
+  bmiCategory?: string;
 }
 
 export const StoryBodyShape = ({
   userData,
   bodyDetails,
   bmiCategoryDetails,
+  bmiValue,
+  bmiCategory,
 }: StoryBodyShapeProps) => {
+  // Use provided BMI data or fallback to userData
+  const finalBmiValue = bmiValue ?? userData.bmi?.value ?? 0;
+  const finalBmiCategory =
+    bmiCategory ??
+    bmiCategoryDetails?.kategori ??
+    userData.bmi?.category ??
+    "Unknown";
+
+  // Parse BMI category to separate category and description
+  const parseBmiCategory = (category: string) => {
+    if (category.includes(" – ")) {
+      const [mainCategory, description] = category.split(" – ");
+      return { category: mainCategory, description };
+    }
+    return { category, description: "" };
+  };
+
+  const { category: bmiMainCategory, description: bmiDescription } =
+    parseBmiCategory(finalBmiCategory);
   return (
     <div className="flex gap-[40px]">
       <div className="border p-4 rounded-2xl w-[400px]">
         <Image
-          src={bodyDetails?.link_picture || userData.bodyShapeAnalysis.imageUrl}
+          src={bodyDetails?.link_picture as string}
           alt={`Diagram Bentuk Tubuh ${userData.bodyShape}`}
           width={120}
           height={300}
@@ -33,25 +56,26 @@ export const StoryBodyShape = ({
         </p>
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
           <div className="border rounded-2xl p-4">
-            <h4 className="font-bold text-xl font-poppins text-gray-800 mb-2">
+            <h4 className="font-bold text-xl font-poppins text-[#323232] mb-2">
               Karakteristik
             </h4>
-            <ul className="list-disc list-inside space-y-2">
+            <div className="space-y-2">
               {bodyDetails?.karakteristik
                 ?.split("-")
                 .filter((point) => point.trim() !== "")
                 .map((point, index) => (
-                  <li
+                  <div
                     key={index}
-                    className="text-xl font-poppins text-gray-600"
+                    className="flex text-xl font-poppins text-[#323232]"
                   >
-                    {point.trim()}
-                  </li>
+                    <span className="mr-2">•</span>
+                    <span>{point.trim()}</span>
+                  </div>
                 ))}
-            </ul>
+            </div>
           </div>
           <div className="border rounded-2xl p-4 relative">
-            <h4 className="font-bold text-xl font-poppins text-gray-800 mb-4">
+            <h4 className="font-bold text-xl font-poppins text-[#323232] mb-4">
               BMI Index
             </h4>
 
@@ -61,13 +85,13 @@ export const StoryBodyShape = ({
                 style={{
                   left: `${Math.min(
                     100,
-                    Math.max(0, (userData.bmi.value / 40) * 100)
+                    Math.max(0, (finalBmiValue / 40) * 100)
                   )}%`,
                 }}
               ></div>
             </div>
-            <div className="w-fit self-center text-center mt-4 bg-neutral-800 text-[#f0f0f0] text-sm px-3 py-1 rounded-md whitespace-nowrap">
-              {userData.bmi.value.toFixed(2)} {bmiCategoryDetails?.kategori}
+            <div className="w-fit self-center text-center mt-4 bg-[#323232] text-[#f0f0f0] text-sm px-3 py-1 rounded-md whitespace-nowrap">
+              {finalBmiValue.toFixed(2)} {bmiMainCategory}
             </div>
 
             {/* Tips */}

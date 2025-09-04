@@ -62,10 +62,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
       className="w-full h-[100px] object-cover rounded-lg"
     />
     <div className="flex items-center gap-4">
-      <h4 className="font-semibold text-[#323232] text-xl">{title}</h4>
+      <h4 className="font-bold font-poppins text-[#323232] text-xl">{title}</h4>
       <ShoppingCart className="h-4 w-4 fill-[#323232]" />
     </div>
-    <p className="text-xl text-[#323232]">{description}</p>
+    <p className="text-xl text-[#323232] font-poppins">{description}</p>
   </div>
 );
 

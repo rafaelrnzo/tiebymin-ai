@@ -193,6 +193,53 @@ export const useUserData = () => {
     retry: 2,
   });
 
+  // Auth me query for getting user first_name
+  const authMeQuery = useQuery({
+    queryKey: ["authMe"],
+    queryFn: async () => {
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+      if (!token) {
+        throw new Error("No access token found");
+      }
+
+      try {
+        const response = await axios.get(secureUrl(`/v1/auth/me`), {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // Save first_name to localStorage if available
+        if (response.data.first_name) {
+          localStorage.setItem("firstName", response.data.first_name);
+          setUserName(response.data.first_name);
+        }
+
+        return response.data;
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401) {
+          // Clear invalid tokens
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("userToken");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userEmail");
+          localStorage.removeItem("firstName");
+          localStorage.removeItem("lastName");
+          // Clear cookie
+          if (typeof window !== 'undefined') {
+            document.cookie = 'auth=; path=/; max-age=0';
+          }
+          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+        }
+        throw error;
+      }
+    },
+    enabled: false, // Manual trigger
+    retry: 2,
+  });
+
   // Analysis history query
   const analysisHistoryQuery = useQuery({
     queryKey: ["analysisHistory"],
@@ -323,6 +370,7 @@ export const useUserData = () => {
     // Query triggers
     fetchUserProfile: userProfileQuery.refetch,
     fetchAnalysisHistory: analysisHistoryQuery.refetch,
+    fetchAuthMe: authMeQuery.refetch,
 
     // Combined fetch
     fetchUserData: async () => {

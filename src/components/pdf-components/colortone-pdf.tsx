@@ -92,19 +92,35 @@ export const ColorTone = ({
         <div className="grid grid-cols-2 gap-12">
           <ColorPalette
             title="Best Color"
-            colors={colorToneDetails?.best_colour || []}
+            colors={
+              colorToneDetails?.best_colors ||
+              colorToneDetails?.best_colour ||
+              []
+            }
           />
           <ColorPalette
             title="Neutral Color"
-            colors={colorToneDetails?.neutral_colour || []}
+            colors={
+              colorToneDetails?.neutral_colors ||
+              colorToneDetails?.neutral_colour ||
+              []
+            }
           />
           <ColorPalette
             title="Worst Color"
-            colors={colorToneDetails?.worst_colour || []}
+            colors={
+              colorToneDetails?.worst_colors ||
+              colorToneDetails?.worst_colour ||
+              []
+            }
           />
           <ColorPalette
             title="Combination"
-            colors={colorToneDetails?.best_colour_combination || []}
+            colors={
+              colorToneDetails?.best_colour_combination ||
+              colorToneDetails?.combination_colors ||
+              []
+            }
             isCombination
           />
         </div>
@@ -114,19 +130,29 @@ export const ColorTone = ({
         <div className="grid grid-cols-2 gap-10">
           <InfoSection
             title="Make Up Tips"
-            content={colorToneDetails?.make_up_tips}
+            content={
+              colorToneDetails?.make_up_tips || "Makeup tips tidak tersedia"
+            }
           />
           <InfoSection
             title="Outfit Tips"
-            content={colorToneDetails?.tips_warna_kulit_pakaian}
+            content={
+              colorToneDetails?.tips_warna_kulit_pakaian ||
+              "Tips pakaian tidak tersedia"
+            }
           />
           <InfoSection
             title="Personality"
-            content={colorToneDetails?.personality}
+            content={
+              colorToneDetails?.personality ||
+              "Informasi personality tidak tersedia"
+            }
           />
           <InfoSection
             title="Karakteristik"
-            content={colorToneDetails?.karakteristik}
+            content={
+              colorToneDetails?.karakteristik || "Karakteristik tidak tersedia"
+            }
           />
         </div>
         <Footer page="03" className="bg-transparent text-white mt-[12rem]" />

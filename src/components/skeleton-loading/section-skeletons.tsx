@@ -184,7 +184,6 @@ export const ColorToneSectionSkeleton = () => {
   );
 };
 
-// CelebrityMatchSection Skeleton
 export const CelebrityMatchSectionSkeleton = () => {
   return (
     <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8">
@@ -244,7 +243,6 @@ export const CelebrityMatchSectionSkeleton = () => {
   );
 };
 
-// BodySection Skeleton
 export const BodySectionSkeleton = () => {
   return (
     <div className="flex flex-col tablet:flex-col lg:flex-row xl:flex-row w-full gap-5 lg:gap-[50px]">

@@ -77,7 +77,7 @@ const MainContent = ({
           {/* Card Gambar */}
           <div className="w-1/2 h-full relative overflow-hidden rounded-l-lg bg-gray-100">
             <Image
-              src={product.images?.[0] || "/placeholder.png"}
+              src={product.images?.[0]}
               alt={product.name || "Product"}
               fill
               loading="eager"
@@ -85,14 +85,10 @@ const MainContent = ({
               className="object-cover"
               priority={true}
               unoptimized={true} // Disable optimization for PDF generation
-              onError={(e) => {
-                // Fallback to placeholder if image fails to load
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.png";
-              }}
             />
             <div className="absolute bottom-3 left-3 bg-black bg-opacity-60 text-[#f0f0f0] px-3 py-1 rounded-full text-xs font-bold">
-              {Math.round((product.total_compatibility_score || 0) * 10)}% Match
+              {Math.round((product.total_compatibility_score || 0) * 100)}%
+              Match
             </div>
           </div>
           {/* Card Deskripsi */}
@@ -103,9 +99,6 @@ const MainContent = ({
             >
               {product.name || "Product Name"}
             </h2>
-            <p className="text-xs font-semibold text-gray-300 mb-1">
-              Kenapa Cocok:
-            </p>
             <p className="text-sm font-medium text-gray-200 leading-tight line-clamp-3">
               {product.compatibility_reason || "Produk ini cocok untuk Anda"}
             </p>
@@ -155,6 +148,10 @@ export const ProductRecommendation = ({
           ...product,
           compatibility_reason:
             combinedCompatibilityData[product.id]?.compatibility_reason || "",
+          total_compatibility_score:
+            combinedCompatibilityData[product.id]?.compatibility_score ||
+            product.total_compatibility_score ||
+            0,
         }))
         .sort(
           (a, b) => b.total_compatibility_score - a.total_compatibility_score

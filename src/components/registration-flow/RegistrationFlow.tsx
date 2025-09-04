@@ -218,7 +218,7 @@ export default function RegistrationFlow({
 
   return (
     <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+      <div className="2xl:container 2xl:mx-auto w-full xl:px-[60px] lg:px-[30px] flex flex-col lg:flex-row items-center justify-between gap-3 xl:gap-[30px] lg:gap-[60px]">
         <LeftSideSection
           steps={getStepsForDisplay()}
           currentStepNumber={currentStepNumber}
