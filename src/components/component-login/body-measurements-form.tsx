@@ -19,12 +19,7 @@ export default function BodyMeasurementsForm({
   onFormDataChange,
   onSubmit,
 }: BodyMeasurementsFormProps) {
-  React.useEffect(() => {
-    console.log("BodyMeasurementsForm formData updated:", formData);
-  }, [formData]);
-
   const handleInputChange = (field: string, value: string) => {
-    console.log(`Input changed: ${field} = ${value}`);
     onFormDataChange(field, value);
   };
 

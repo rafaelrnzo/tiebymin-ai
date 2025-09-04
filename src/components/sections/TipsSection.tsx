@@ -2,6 +2,7 @@
 
 import { useAllTips } from "@/hooks/useAllTips";
 import { AnalysisData } from "@/types";
+import { TipsSectionSkeleton } from "@/components/skeleton-loading/section-skeletons";
 import Image from "next/image";
 import React from "react";
 
@@ -25,7 +26,7 @@ const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => {
         </h3>
       </div>
       <div className="mt-2">
-        <div className="mt-2 font-poppins text-[#323232] text-xs lg:text-xl">
+        <div className="mt-2 font-poppins text-[#323232] text-xs lg:text-xl ">
           {tip?.replace(/^-+/gm, "").trim()}
         </div>
       </div>
@@ -48,11 +49,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
   });
 
   if (isLoading) {
-    return (
-      <div className="text-center p-8 text-sm sm:text-base">
-        Merangkum tips terbaik untukmu...
-      </div>
-    );
+    return <TipsSectionSkeleton />;
   }
 
   if (isError || error) {
@@ -75,20 +72,20 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] lg:gap-[50px]">
       <TipCard
         category="Tips untuk bentuk wajah kamu"
-        tip={allTips.faceTip}
+        tip={allTips.faceTip || "Tips untuk bentuk wajah tidak tersedia"}
         icon="/overview-ai/icons/ri_shape-fill.svg"
       />
       <TipCard
         type
         category="Tips untuk bentuk badan kamu"
-        tip={allTips.bodyTip}
+        tip={allTips.bodyTip || "Tips untuk bentuk badan tidak tersedia"}
         icon="/overview-ai/icons/healthicons_body.svg"
         isBodyTip={true}
       />
       <TipCard
         type
         category="Tips untuk Tone Warna Kamu"
-        tip={allTips.colorTip}
+        tip={allTips.colorTip || "Tips untuk tone warna tidak tersedia"}
         icon="/overview-ai/icons/mdi_color.svg"
       />
       <div className="bg-[#FFC6C6] p-[20px] rounded-2xl shadow-md flex flex-col gap-[10px]">
@@ -110,8 +107,8 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
           </h3>
         </div>
         <div className="text-[#323232] text-xs lg:text-xl font-poppins leading-relaxed">
-          {allTips.makeupTip}
-          {allTips.bmiTip}
+          {allTips.makeupTip || "Tips makeup tidak tersedia"}
+          {allTips.bmiTip || "Tips BMI tidak tersedia"}
         </div>
       </div>
     </div>

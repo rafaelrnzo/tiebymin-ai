@@ -105,7 +105,6 @@ function PreviewPdfPage() {
         window.URL.revokeObjectURL(url);
       }
     } catch (error) {
-      console.error("Error downloading PDF:", error);
       const errorMessage =
         error instanceof Error
           ? error.message

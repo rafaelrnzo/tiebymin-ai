@@ -29,7 +29,7 @@ export default function LeftSideSection({
   previousStep,
 }: LeftSideSectionProps) {
   return (
-    <div className="space-y-[17px] lg:space-y-8 w-full max-w-lg mx-auto flex flex-col items-center">
+    <div className="space-y-[5px] lg:space-y-8 flex flex-col items-center">
       {/* Animation Styles */}
       <style jsx global>{`
         @keyframes stepExpand {
@@ -112,12 +112,12 @@ export default function LeftSideSection({
       `}</style>
 
       {/* Logo */}
-      <div className="flex justify-center w-[120px] lg:w-full mt-[40px] lg:mt-0">
+      <div className="flex justify-center w-[120px] lg:w-full lg:h-full mt-[40px] lg:mt-0">
         <Image
           src="/vector/tie-by-min-logo.svg"
           alt="Tiebymin Logo"
           width={300}
-          height={96}
+          height={256}
           priority
           className="mx-auto"
         />
@@ -127,8 +127,8 @@ export default function LeftSideSection({
       {!(
         title === "Pilih Bentuk Tubuh Kamu" || title === "Scan Wajah Kamu"
       ) && (
-        <div className="w-full max-w-sm mx-auto">
-          <h3 className="text-center font-poppins text-gray-800 mb-4">
+        <div className="w-full max-w-sm mx-auto lg:block hidden">
+          <h3 className="text-center font-poppins text-[#323232] lg:text-lg text-xs my-4">
             Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami yang
             berikan saran terbaik untuk kamu
           </h3>
@@ -175,7 +175,7 @@ export default function LeftSideSection({
                     />
                   </div>
                 </div>
-                <p className="text-[#f0f0f0]/90 text-sm leading-relaxed">
+                <p className="text-[#f0f0f0] font-poppins text-xl leading-relaxed">
                   {description}
                 </p>
               </div>
@@ -221,7 +221,7 @@ export default function LeftSideSection({
                     />
                   </div>
                 </div>
-                <p className="text-[#f0f0f0]/90 text-sm leading-relaxed">
+                <p className="text-[#f0f0f0] leading-relaxed font-poppins text-xl">
                   {description}
                 </p>
               </div>
@@ -233,6 +233,12 @@ export default function LeftSideSection({
       {/* Mobile steps - always show when steps exist */}
       {steps && (
         <div className="lg:hidden w-full px-4 rounded-2xl">
+          <div className="w-full max-w-sm mx-auto ">
+            <h3 className="text-center font-poppins text-[#323232] text-xs mb-4">
+              Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami
+              yang berikan saran terbaik untuk kamu
+            </h3>
+          </div>
           <div className="flex flex-row justify-center items-start">
             {steps
               .filter((step) => {

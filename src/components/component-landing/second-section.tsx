@@ -76,7 +76,7 @@ export const SecondSection = () => {
               <p className="text-[#323232] text-base sm:text-lg leading-relaxed font-poppins">
                 Nggak perlu mahal! Cukup dengan{" "}
                 <strong className="font-bold text-[#2C2C2E]">
-                  9 Ribuan Aja
+                  Rp 9 Ribuan Aja
                 </strong>
                 , kamu udah bisa buka semua hasil analisa AI, lengkap dan
                 rekomendasi.

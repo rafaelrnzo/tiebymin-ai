@@ -81,7 +81,6 @@ export const useUserData = () => {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
       const endpoint = secureUrl(`/v1/auth/login`);
-      console.log("Login endpoint:", endpoint);
 
       const response = await axios.post(endpoint, credentials, {
         headers: {
@@ -93,7 +92,6 @@ export const useUserData = () => {
       return response.data as LoginResponse;
     },
     onSuccess: (result) => {
-      console.log("Login successful:", result);
 
       // Save access token to localStorage
       if (result.access_token) {
@@ -115,7 +113,6 @@ export const useUserData = () => {
   const registerMutation = useMutation({
     mutationFn: async (registerData: RegisterData) => {
       const endpoint = secureUrl(`/v1/auth/register`);
-      console.log("Register endpoint:", endpoint);
 
       const response = await axios.post(endpoint, registerData, {
         headers: {
@@ -127,7 +124,6 @@ export const useUserData = () => {
       return response.data as RegisterResponse;
     },
     onSuccess: (result) => {
-      console.log("Registration successful:", result);
 
       // Save user data to localStorage
       if (result.id) {
@@ -164,7 +160,6 @@ export const useUserData = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Validating token with backend...");
         const tes = await axios.get(secureUrl(`/v1/auth/validate-token`), {
           headers: {
             "Content-Type": "application/json",
@@ -172,15 +167,59 @@ export const useUserData = () => {
           },
         });
 
-        console.log("Validate token response:", tes.data);
         localStorage.setItem("userId", tes.data.user_id);
-        console.log("User ID stored in localStorage:", tes.data.user_id);
 
         return response.data as UserProfile;
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          console.log("🚪 Unauthorized access in userProfileQuery, clearing tokens");
+          // Clear invalid tokens
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("userToken");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userEmail");
+          localStorage.removeItem("firstName");
+          localStorage.removeItem("lastName");
+          // Clear cookie
+          if (typeof window !== 'undefined') {
+            document.cookie = 'auth=; path=/; max-age=0';
+          }
+          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+        }
+        throw error;
+      }
+    },
+    enabled: false, // Manual trigger
+    retry: 2,
+  });
+
+  // Auth me query for getting user first_name
+  const authMeQuery = useQuery({
+    queryKey: ["authMe"],
+    queryFn: async () => {
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+      if (!token) {
+        throw new Error("No access token found");
+      }
+
+      try {
+        const response = await axios.get(secureUrl(`/v1/auth/me`), {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // Save first_name to localStorage if available
+        if (response.data.first_name) {
+          localStorage.setItem("firstName", response.data.first_name);
+          setUserName(response.data.first_name);
+        }
+
+        return response.data;
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401) {
           // Clear invalid tokens
           localStorage.removeItem("accessToken");
           localStorage.removeItem("userToken");
@@ -222,7 +261,6 @@ export const useUserData = () => {
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          console.log("🚪 Unauthorized access in analysisHistoryQuery, clearing tokens");
           // Clear invalid tokens
           localStorage.removeItem("accessToken");
           localStorage.removeItem("userToken");
@@ -261,7 +299,6 @@ export const useUserData = () => {
       return response.data;
     },
     onSuccess: () => {
-      console.log("Logout successful");
 
       // Clear all auth-related data from localStorage
       localStorage.removeItem("accessToken");
@@ -333,6 +370,7 @@ export const useUserData = () => {
     // Query triggers
     fetchUserProfile: userProfileQuery.refetch,
     fetchAnalysisHistory: analysisHistoryQuery.refetch,
+    fetchAuthMe: authMeQuery.refetch,
 
     // Combined fetch
     fetchUserData: async () => {

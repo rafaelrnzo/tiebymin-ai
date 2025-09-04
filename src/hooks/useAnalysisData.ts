@@ -1,40 +1,45 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { secureUrl } from "@/lib/api";
-import { BodyType } from "@/types";
 import { defaultUserData } from "@/lib/mock-data";
-import { useRouter } from "next/navigation";
+import { BodyType } from "@/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 
 async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
-  console.log(`🔄 Fetching: ${fullUrl}`); // Debug log
-      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+  const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+
+  console.log("fetchData Debug:", {
+    endpoint,
+    hasToken: !!token,
+    tokenLength: token ? token.length : 0,
+    tokenPrefix: token ? token.substring(0, 20) + "..." : null
+  });
+
+  // Check if token exists
+  if (!token) {
+    console.error("No authentication token found for API call:", endpoint);
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    throw new Error("Token autentikasi tidak ditemukan. Silakan login kembali.");
+  }
 
   try {
     const response = await axios.get(fullUrl, {
       headers: {
         "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    console.log(`📡 Response status: ${response.status} for ${endpoint}`); // Debug log
-
     if (response.status >= 200 && response.status < 300) {
-      console.log(`✅ Success fetching ${endpoint}:`, response.data); // Debug log
       return response.data;
     } else {
-      console.error(
-        `❌ HTTP Error ${response.status} for ${endpoint}:`,
-        response.data
-      );
       if (response.status === 401) {
-        console.log("🚪 Unauthorized access, redirecting to login");
         if (onUnauthorized) {
           onUnauthorized();
         } else {
-          // Fallback: redirect to login if no callback provided
           if (typeof window !== "undefined") {
             window.location.href = "/login";
           }
@@ -46,16 +51,19 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
           "Kami tidak dapat menemukan data yang Anda cari. Mohon periksa ID dan coba lagi."
         );
       }
+      if (response.status === 422) {
+        throw new Error(
+          "Data yang dikirim tidak valid. Mohon periksa dan coba lagi."
+        );
+      }
       throw new Error(
         "Kami mengalami masalah saat mengambil data. Mohon coba lagi dalam beberapa saat."
       );
     }
   } catch (error: unknown) {
-    console.error(`💥 Fetch error for ${endpoint}:`, error);
     // Handle axios error responses
-    const axiosError = error as { response?: { status?: number } };
+    const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
     if (axiosError.response?.status === 401) {
-      console.log("🚪 Unauthorized access (catch), redirecting to login");
       if (onUnauthorized) {
         onUnauthorized();
       } else {
@@ -64,6 +72,11 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
         }
       }
       throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+    }
+    if (axiosError.response?.status === 422) {
+      throw new Error(
+        `Data tidak dapat diproses: ${axiosError.response.data?.message || "Format data tidak valid"}`
+      );
     }
     throw error;
   }
@@ -74,7 +87,6 @@ export function useAnalysisData(
   resultId: string | null,
   options?: { onError?: (error: Error) => void }
 ) {
-  console.log("🚀 useAnalysisData called with resultId:", resultId); // Debug log
 
   const handleUnauthorized = () => {
     if (typeof window !== "undefined") {
@@ -85,23 +97,18 @@ export function useAnalysisData(
   return useQuery({
     queryKey: ["analysisData", resultId],
     queryFn: async () => {
+      console.log("useAnalysisData queryFn called with resultId:", resultId);
+
       if (!resultId) {
-        console.warn("⚠️ Result ID is required but not provided");
         throw new Error("ID Hasil diperlukan");
       }
 
-      console.log("📊 Starting analysis data fetch for resultId:", resultId);
-
       try {
         // Fetch analysis data dan photos secara parallel
-        console.log("🔄 Fetching analysis data and photos...");
         const [analysisData, photosData] = await Promise.all([
           fetchData(`/v1/user-analysis-results/${resultId}`, handleUnauthorized),
           fetchData(`/v1/user-photos/analysis/${resultId}`, handleUnauthorized),
         ]);
-
-        console.log("📋 Analysis data received:", analysisData);
-        console.log("🖼️ Photos data received:", photosData);
 
         if (analysisData?.user_id && typeof window !== "undefined") {
           localStorage.setItem("userId", analysisData.user_id);
@@ -112,8 +119,13 @@ export function useAnalysisData(
           throw new Error("Data analisis kosong atau tidak terdefinisi");
         }
 
+        // Validasi ID yang diperlukan untuk fetch data tambahan
+        if (!analysisData.face_shape_id && !analysisData.color_analysis_id &&
+            !analysisData.body_shape_id && !analysisData.bmi_category_id) {
+          console.warn("Tidak ada ID yang valid untuk mengambil data tambahan");
+        }
+
         // Fetch additional data berdasarkan IDs dari analysis result
-        console.log("🔄 Fetching additional data...");
         const additionalDataPromises = [
           analysisData.face_shape_id
             ? fetchData(`/v1/face-shapes/${analysisData.face_shape_id}`, handleUnauthorized)
@@ -140,14 +152,6 @@ export function useAnalysisData(
           celebrityData,
         ] = await Promise.all(additionalDataPromises);
 
-        console.log("📊 Additional data received:", {
-          faceShapeData,
-          colorToneData,
-          bodyShapeData,
-          bmiCategoryData,
-          celebrityData,
-        });
-
         // Find user photo
         let userPhotoUrl = null;
         if (Array.isArray(photosData)) {
@@ -166,13 +170,18 @@ export function useAnalysisData(
           }
         }
 
-        // Calculate BMI value dengan null checking
+        // Calculate BMI value dengan null checking dan validasi
         let bmiValue = 0;
         if (analysisData.analysis_details?.bmi?.value) {
-          bmiValue =
-            typeof analysisData.analysis_details.bmi.value === "string"
-              ? parseFloat(analysisData.analysis_details.bmi.value)
-              : Number(analysisData.analysis_details.bmi.value);
+          const rawValue = analysisData.analysis_details.bmi.value;
+          if (typeof rawValue === "string") {
+            const parsed = parseFloat(rawValue);
+            if (!isNaN(parsed) && parsed > 0) {
+              bmiValue = parsed;
+            }
+          } else if (typeof rawValue === "number" && !isNaN(rawValue) && rawValue > 0) {
+            bmiValue = rawValue;
+          }
         }
 
         const transformedData = {
@@ -208,8 +217,7 @@ export function useAnalysisData(
           },
           bodyShapeAnalysis: {
             description:
-              bodyShapeData?.description ||
-              defaultUserData.bodyShapeAnalysis.description,
+              bodyShapeData?.description,
             karakteristik:
               bodyShapeData?.karakteristik ||
               defaultUserData.bodyShapeAnalysis.karakteristik,
@@ -266,7 +274,6 @@ export function useAnalysisData(
           },
         };
 
-        console.log("✅ Transformed data:", transformedData);
 
         return {
           userData: transformedData,
@@ -342,7 +349,6 @@ export function useBodyShapeData(bodyShapeId: string | null) {
   return useQuery({
     queryKey: ["bodyShape", bodyShapeId],
     queryFn: async () => {
-      console.log(bodyShapeId)
       if (!bodyShapeId) {
         throw new Error("ID Bentuk Tubuh diperlukan");
       }
@@ -392,44 +398,159 @@ export function useCelebrityData(celebrityId: string | null) {
     retry: 2,
   });
 }
-
 export function useDownloadPdf() {
   return useMutation({
     mutationFn: async (data: { resultId: string; firstName?: string }) => {
       const firstName = data.firstName || localStorage.getItem("firstName") || "User";
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
-      const response = await axios.post("/api/generate-pdf", {
+      console.log("useDownloadPdf: Starting PDF download request", {
         resultId: data.resultId,
-        firstName
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        responseType: "blob",
+        firstName,
+        hasToken: !!token
       });
 
-      return response.data;
+      try {
+        const response = await axios.post("/api/generate-pdf", {
+          resultId: data.resultId,
+          firstName
+        }, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          responseType: "blob", // This is crucial for PDF downloads
+          timeout: 120000, // 2 minute timeout
+        });
+
+        console.log("useDownloadPdf: Response received", {
+          status: response.status,
+          contentType: response.headers['content-type'],
+          dataSize: response.data?.size || 'unknown'
+        });
+
+        // Verify we got a proper blob response
+        if (!response.data || response.data.size === 0) {
+          throw new Error("Empty PDF response received");
+        }
+
+        // Check if the response is actually a PDF
+        const contentType = response.headers['content-type'];
+        if (!contentType || !contentType.includes('application/pdf')) {
+          console.error("useDownloadPdf: Unexpected content type:", contentType);
+          // Try to read the response as text to see if it's an error message
+          const text = await response.data.text();
+          console.error("useDownloadPdf: Response content:", text.substring(0, 500));
+          throw new Error(`Unexpected response format: ${contentType}. Expected PDF.`);
+        }
+
+        return {
+          data: response.data,
+          filename: `hasil-analisa-lengkap-${Date.now()}.pdf`
+        };
+      } catch (error) {
+        console.error("useDownloadPdf: Error occurred:", error);
+        
+        if (axios.isAxiosError(error)) {
+          if (error.code === 'ECONNABORTED') {
+            throw new Error("PDF generation timeout. Please try again.");
+          }
+          if (error.response?.status === 500) {
+            // Try to extract error details from response
+            try {
+              const errorText = await error.response.data.text();
+              const errorData = JSON.parse(errorText);
+              throw new Error(`Server error: ${errorData.details || errorData.error || 'Unknown server error'}`);
+            } catch (parseError) {
+              throw new Error("Server error during PDF generation. Please try again.");
+            }
+          }
+          if (error.response?.status === 401) {
+            throw new Error("Authentication failed. Please login again.");
+          }
+        }
+        
+        throw error;
+      }
     },
+    onError: (error) => {
+      console.error("useDownloadPdf: Mutation failed:", error);
+    }
   });
 }
+
+// Ganti hook useGenerateStory yang ada dengan versi ini:
 
 export function useGenerateStory() {
   return useMutation({
     mutationFn: async (resultId: string) => {
+      console.log("useGenerateStory: Starting API call for", resultId);
+      
       if (!resultId) {
         throw new Error("ID Hasil diperlukan");
       }
 
-      const response = await axios.post(
-        `/api/generate-story?result_id=${resultId}`,
-        {},
-        {
-          responseType: "blob",
-        }
-      );
+      // Get token from localStorage
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+      console.log("useGenerateStory: Token available:", !!token);
 
-      return response.data;
+      const url = `/api/generate-story?result_id=${resultId}`;
+      console.log("useGenerateStory: Calling URL:", url);
+
+      try {
+        const response = await axios.post(url, {}, {
+          headers: {
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          responseType: "blob", // Important: Keep this as blob for binary data
+        });
+
+        console.log("useGenerateStory: Response received");
+        console.log("useGenerateStory: Response status:", response.status);
+        console.log("useGenerateStory: Response headers:", response.headers);
+        console.log("useGenerateStory: Blob size:", response.data.size);
+
+        // Check if response is actually a blob with content
+        if (!response.data || response.data.size === 0) {
+          throw new Error("Received empty response from story generation");
+        }
+
+        // Convert blob to arrayBuffer for consistent handling
+        const arrayBuffer = await response.data.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        
+        console.log("useGenerateStory: ArrayBuffer created, size:", uint8Array.byteLength);
+
+        // Return in the format expected by the frontend handler
+        return {
+          data: uint8Array,
+          size: uint8Array.byteLength,
+          type: response.headers['content-type'] || "image/png"
+        };
+      } catch (error) {
+        console.error("useGenerateStory: API call failed:", error);
+        
+        // Handle axios errors specifically
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 500) {
+            throw new Error("Server error saat membuat story. Silakan coba lagi.");
+          } else if (error.response?.status === 404) {
+            throw new Error("Data tidak ditemukan. Periksa result ID.");
+          } else if (error.response?.status === 401) {
+            throw new Error("Sesi telah berakhir. Silakan login kembali.");
+          }
+          throw new Error(`Request failed: ${error.response?.status} ${error.response?.statusText}`);
+        }
+        
+        throw error;
+      }
     },
+    onError: (error) => {
+      console.error("useGenerateStory: Mutation error:", error);
+    },
+    onSuccess: (data) => {
+      console.log("useGenerateStory: Mutation success, data size:", data?.size);
+    }
   });
 }
 
@@ -446,7 +567,6 @@ export const useBodyShapes = () => {
         const token =
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
-      console.log("🔄 Fetching body shapes...");
       try {
         const response = await axios.get(secureUrl(`/v1/body-shapes/`), {
           headers:{
@@ -455,7 +575,6 @@ export const useBodyShapes = () => {
           }
         });
 
-        console.log("✅ Body shapes fetched:", response.data);
 
         if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
           throw new Error("Tidak ada data bentuk tubuh ditemukan");
@@ -465,7 +584,6 @@ export const useBodyShapes = () => {
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          console.log("🚪 Unauthorized access in useBodyShapes, redirecting to login");
           handleUnauthorized();
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }

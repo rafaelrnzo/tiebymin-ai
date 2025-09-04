@@ -8,11 +8,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === '/' || pathname === '/login' || pathname === '/register') {
+  if (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === "/metodologi") {
     return NextResponse.next();
   }
 
   if (pathname === '/ai-overview/profile' && searchParams.has('access_token')) {
+    return NextResponse.next();
+  }
+
+  // Allow access to PDF and story generation routes when print=true or when token is provided
+  if ((pathname === '/ai-overview/pdf' || pathname === '/ai-overview/story') &&
+      (searchParams.get('print') === 'true' || searchParams.has('token'))) {
     return NextResponse.next();
   }
 

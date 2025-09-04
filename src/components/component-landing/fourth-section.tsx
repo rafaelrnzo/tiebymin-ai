@@ -95,8 +95,8 @@ const FaqSection = () => {
               src="/faq-image.png"
               alt="Fashion enthusiasts"
               width={600}
-              height={700}
-              className="rounded-2xl shadow-xl w-full h-auto hidden lg:block"
+              height={450}
+              className="rounded-2xl shadow-xl w-full h-auto max-h-[790px] object-cover hidden lg:block"
             />
           </div>
         </div>

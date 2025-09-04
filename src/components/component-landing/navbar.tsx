@@ -211,7 +211,7 @@ export function Navbar() {
                       <div className="flex flex-col gap-4 mr-4">
                         <Button
                           size="default"
-                          className="rounded-full bg-[#EF789B] hover:bg-[#E5679A] flex items-center gap-2 w-full px-4 py-2"
+                          className="rounded-full bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] hover:bg-[#E5679A] flex items-center gap-2 w-full px-4 py-2"
                         >
                           <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#f0f0f0] fill-[#f0f0f0]" />
                           <span className="text-sm sm:text-base">

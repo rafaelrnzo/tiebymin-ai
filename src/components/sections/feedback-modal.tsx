@@ -46,17 +46,13 @@ function FeedbackModal({
       user_rating: rating,
     };
 
-    console.log("Submitting feedback:", feedbackData); // Debug log
-
     submitFeedback(feedbackData, {
       onSuccess: () => {
-        console.log("Feedback submitted successfully");
         localStorage.setItem("feedbackDismissed", "true");
 
         onClose();
       },
-      onError: (error) => {
-        console.error("Error submitting feedback:", error);
+      onError: () => {
         alert("Terjadi kesalahan saat mengirim feedback. Silakan coba lagi.");
       },
     });

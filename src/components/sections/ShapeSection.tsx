@@ -1,6 +1,7 @@
 "use client";
 
 import { useFaceShapeData } from "@/hooks/useAnalysisData";
+import { ShapeSectionSkeleton } from "@/components/skeleton-loading/section-skeletons";
 import React from "react";
 
 interface IShape {
@@ -26,7 +27,7 @@ const ShapeBar: React.FC<ShapeBarProps> = ({ name, value }) => (
 );
 
 const FaceShapeAnalysis: React.FC<{ data: IShape[] }> = ({ data }) => (
-  <div className="w-full mt-[50px]">
+  <div className="w-full mt-[40px]">
     <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-x-12 gap-y-4">
       {data.map((shape) => (
         <ShapeBar key={shape.name} {...shape} />
@@ -71,8 +72,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     ? generateGimmickChartData(shapeDetails.name)
     : [];
 
-  if (isLoading)
-    return <div className="text-center p-8">Loading shape information...</div>;
+  if (isLoading) return <ShapeSectionSkeleton />;
   if (error)
     return (
       <div className="text-center p-8 text-red-500">
@@ -91,44 +91,36 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
           <h3 className="font-bold mt-2 text-xl sm:text-3xl lg:text-5xl font-oswald">
             {shapeDetails.name}
           </h3>
-          <p className="text-[#323232] leading-relaxed mt-[10px] font-poppins">
-            {shapeDetails.penjelasan_face_shape
-              .split("-")
-              .filter((item: string) => item.trim() !== "")
-              .map((item: string, index: number) =>
-                index === 0 ? (
-                  <span key={index}>
-                    <span className="block text-xs lg:text-xl">
-                      {item.trim()}
-                    </span>
-                  </span>
-                ) : (
-                  <span key={index} className="hidden text-xl text-[#323232]">
-                    • <span className="text-xl ml-2">{item.trim()}</span>
-                  </span>
-                )
-              )}
-          </p>
+          <div className="text-[#323232] leading-relaxed mt-[10px] font-poppins">
+            <p className="block text-xs lg:text-xl mb-2">
+              {shapeDetails.penjelasan_face_shape.split("-")[0].trim()}
+            </p>
+          </div>
         </div>
-        <div className="bg-[#FFC6C6] px-5 pb-5 rounded-2xl shadow-md">
-          <h3 className="font-bold font-handlee pt-5 text-[#323232] text-xl text-center italic">
+        <div className="bg-[#FFC6C6] p-[20px] rounded-2xl shadow-md">
+          <h3 className="font-handlee text-[#323232] text-2xl text-center italic">
             Karakteristik
           </h3>
-          <ul className="text-[#323232] mt-[20px] font-poppins leading-relaxed space-y-2">
+          <div className="text-[#323232] mt-[20px] font-poppins leading-relaxed space-y-2">
             {shapeDetails.karakteristik
               .split("-")
               .filter((item: string) => item.trim() !== "")
               .map((item: string, index: number) => (
-                <p
+                <div
                   key={index}
-                  className="block text-xs lg:text-xl text-[#323232] font-poppins"
+                  className="flex text-xs lg:text-xl text-[#323232] font-poppins"
                 >
-                  • {item.trim()}
-                </p>
+                  <span className="mr-2">•</span>
+                  <span>{item.trim()}</span>
+                </div>
               ))}
-          </ul>
+          </div>
         </div>
       </div>
+
+      <h1 className="hidden xl:block 2xl:block font-oswald text-4xl text-[#323232] font-bold mt-[50px]">
+        Face Shape Distribution
+      </h1>
 
       {gimmickChartData.length > 0 && (
         <FaceShapeAnalysis data={gimmickChartData} />

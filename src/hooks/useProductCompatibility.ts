@@ -48,12 +48,6 @@ export const useProductCompatibility = (
         });
         const data: CompatibilityData[] = response.data;
 
-        console.log("useProductCompatibility - Debug Info:");
-        console.log("Filter:", filter);
-        console.log("User Shape ID:", userShapeId);
-        console.log("Total data from API:", data.length);
-
-        // Transform data into a map keyed by product_id, taking the first compatibility for each product
         const compatibilityMap: ProductCompatibility = {};
         data.forEach((item) => {
           if (!compatibilityMap[item.product_id]) {
@@ -63,8 +57,6 @@ export const useProductCompatibility = (
             };
           }
         });
-
-        console.log("Final compatibility map:", compatibilityMap);
 
         return compatibilityMap;
       } catch (error) {

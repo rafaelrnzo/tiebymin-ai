@@ -67,13 +67,6 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
     setIsFlipped(!isFlipped);
   };
 
-  // Debug logging
-  console.log("ProductCardDesktop - Product ID:", product.id);
-  console.log(
-    "ProductCardDesktop - Product compatibility reason:",
-    product.compatibility_reason
-  );
-
   return (
     <div className="product-flip-container h-[650px] w-full">
       <div className={`product-flip-inner ${isFlipped ? "flipped" : ""}`}>

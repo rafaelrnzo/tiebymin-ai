@@ -148,39 +148,25 @@ const normalPlan = {
   ],
 };
 
-// --- Komponen Utama ---
 export default function PaymentPage() {
   const router = useRouter();
-  const [step, setStep] = useState("selection"); // 'selection' atau 'payment'
+  const [step, setStep] = useState("selection");
   const [plan, setPlan] = useState("promo");
   const [selectedMethod, setSelectedMethod] = useState("Bank Central Asia");
   const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const handleProceedToPayment = () => {
-    console.log("Proceeding to payment step");
     setStep("payment");
   };
 
-  // Debug logging for step changes
-  useEffect(() => {
-    console.log("Current step:", step);
-  }, [step]);
-
   const handlePayNow = async () => {
-    console.log("handlePayNow triggered");
     setIsAnalysisLoading(true);
     setAnalysisError(null);
 
     try {
-      // Simulate payment process first
-      console.log("Processing payment...");
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate payment delay
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Payment successful - now proceed with analysis
-      console.log("Payment successful, starting analysis...");
-
-      // Get analysis data from localStorage
       const storedData = localStorage.getItem("tiebymin-analysis-data");
       if (!storedData) {
         setAnalysisError(
@@ -195,20 +181,12 @@ export default function PaymentPage() {
 
       // Validasi data
       if (!tinggi || !berat || !umur || !body_shape_id) {
-        console.error("Analysis data is incomplete:", analysisData);
         setAnalysisError(
           "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
         );
         setIsAnalysisLoading(false);
         return;
       }
-
-      console.log("Using analysis data:", {
-        tinggi,
-        berat,
-        umur,
-        body_shape_id,
-      });
 
       // Get user ID
       const userId = localStorage.getItem("userId");
@@ -268,7 +246,6 @@ export default function PaymentPage() {
 
       // Call analysis API
       const endpoint = secureUrl(`/v1/analysis/full-analysis`);
-      console.log("Calling analysis API endpoint:", endpoint);
       const token =
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
@@ -289,7 +266,6 @@ export default function PaymentPage() {
           localStorage.removeItem("uploadedFaceImageName");
 
           // Redirect to ai-overview with result_id
-          console.log("Analysis completed, redirecting to results...");
           router.push(`/ai-overview?result_id=${resultId}`);
         } else {
           throw new Error("Proses analisis gagal. Silakan coba lagi.");
@@ -301,7 +277,6 @@ export default function PaymentPage() {
         );
       }
     } catch (error) {
-      console.error("Payment/Analysis Error:", error);
       const err = error as Error;
       setAnalysisError(
         err.message ||
@@ -413,7 +388,6 @@ export default function PaymentPage() {
                         {...promoPlan}
                         isFeatured={true}
                         onButtonClick={() => {
-                          console.log("Promo plan button clicked");
                           handleProceedToPayment();
                         }}
                       />
@@ -435,7 +409,6 @@ export default function PaymentPage() {
                         {...normalPlan}
                         isFeatured={false}
                         onButtonClick={() => {
-                          console.log("Normal plan button clicked");
                           handleProceedToPayment();
                         }}
                       />

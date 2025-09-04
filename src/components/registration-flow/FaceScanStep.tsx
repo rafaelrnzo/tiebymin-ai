@@ -81,7 +81,6 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       return response.data;
     },
     onSuccess: (resultId) => {
-      console.log("Analysis completed successfully, result ID:", resultId);
       localStorage.setItem("analysisResultId", resultId);
 
       // Convert selected image to base64 and store it
@@ -181,7 +180,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
   };
 
   return (
-    <div className="w-full lg:flex-1 lg:mr-[50px]">
+    <div className="w-full lg:flex-1 pl-0 xl:pl-[100px]">
       {/* CSS untuk Animasi Bintang */}
       <style jsx global>{`
         @keyframes rotate-sparkle {
@@ -205,7 +204,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       `}</style>
 
       {isDesktop ? (
-        <div className="w-full lg:col-span-2 lg:order-2 flex flex-col items-center lg:items-start mt-10 lg:mt-12">
+        <div className="bg-[#f0f0f0] lg:min-h-full min-h-[73vh] backdrop-blur-sm shadow-xl rounded-t-2xl lg:rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10 w-full lg:col-span-2 lg:order-2 flex flex-col items-center lg:items-start mt-10 lg:mt-12">
           <div className="w-full flex justify-between items-center mb-8 sm:mb-10">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-oswald font-bold text-[#333333] text-center lg:text-left">
               Siapkan Wajahmu
@@ -266,8 +265,8 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
           {/* Tombol Aksi */}
           <div className="w-full space-y-6">
             <div className="space-y-4">
-              <Button
-                className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#323232]"
+              <button
+                className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-4 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#323232]"
                 onClick={handleTakePhoto}
                 disabled={!isChecked}
               >
@@ -275,9 +274,9 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
                 <span className="text-[16px] font-poppins">
                   Ambil Foto Sekarang
                 </span>
-              </Button>
-              <Button
-                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-6 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#323232] disabled:hover:border-[#323232]"
+              </button>
+              <button
+                className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-4 px-8 font-semibold text-base sm:text-lg hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#323232] disabled:hover:border-[#323232]"
                 onClick={handleUploadFromGallery}
                 disabled={!isChecked}
               >
@@ -285,7 +284,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
                 <span className="text-[16px] font-poppins">
                   Upload dari Galeri
                 </span>
-              </Button>
+              </button>
             </div>
 
             {/* Privacy Policy Section - Improved Layout */}
@@ -319,7 +318,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
           </div>
         </div>
       ) : (
-        <div className="bg-[#f0f0f0] lg:h-full rounded-2xl shadow-lg p-6 mt-4">
+        <div className="bg-[#f0f0f0] lg:min-h-full min-h-[73vh] backdrop-blur-sm shadow-xl rounded-t-2xl lg:rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-oswald font-bold">
               Siapkan Wajahmu
@@ -411,49 +410,51 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
 
           {/* Tombol Aksi */}
           <div className="w-full space-y-4">
-            <Button
+            <button
               className="bg-[#323232] text-[#f0f0f0] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#323232]"
               onClick={handleTakePhoto}
               disabled={!isChecked}
             >
               <Camera className="size-[20px] fill-[#f0f0f0] text-[#323232]" />
               <span className="text-sm font-poppins">Ambil Foto Sekarang</span>
-            </Button>
-            <Button
+            </button>
+            <button
               className="group bg-transparent border border-[#323232] text-[#323232] rounded-lg w-full py-4 px-6 font-semibold text-base hover:bg-[#EF789B] hover:text-[#f0f0f0] hover:border-[#EF789B] transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#323232] disabled:hover:border-[#323232]"
               onClick={handleUploadFromGallery}
               disabled={!isChecked}
             >
               <ImageIcon className="transition-colors group-hover:text-[#f0f0f0] size-[20px]" />
               <span className="text-sm font-poppins">Upload dari Galeri</span>
-            </Button>
+            </button>
           </div>
 
           {/* Privacy Policy Checkbox */}
-          <div className="mt-4 flex items-start gap-3">
-            <input
-              type="checkbox"
-              id="privacy-policy-mobile"
-              checked={isChecked}
-              onChange={() => setIsChecked(!isChecked)}
-              className="mt-1 w-4 h-4 text-[#EF789B] bg-gray-100 border-gray-300 rounded focus:ring-[#EF789B] focus:ring-2 cursor-pointer"
-            />
-            <label
-              htmlFor="privacy-policy-mobile"
-              className={`text-xs leading-relaxed mt-1 mb-14 cursor-pointer select-none ${
-                isChecked ? "text-gray-600/50" : "text-gray-600"
-              } transition-colors`}
-            >
-              Saya menyetujui
-              <button className="text-[#EF789B] hover:text-pink-600 underline font-medium">
-                Kebijakan Privasi
-              </button>
-              dan
-              <button className="text-[#EF789B] hover:text-pink-600 underline font-medium">
-                Syarat & Ketentuan
-              </button>
-              yang berlaku
-            </label>
+          <div className="flex items-center justify-center mt-5">
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="privacy-policy"
+                checked={isChecked}
+                onChange={() => setIsChecked(!isChecked)}
+                // Styling untuk checkbox agar lebih terlihat
+                className="h-5 w-5 cursor-pointer rounded border-gray-400 bg-gray-100 text-blue-600 accent-blue-500 focus:ring-2 focus:ring-blue-500"
+              />
+              <label
+                htmlFor="privacy-policy"
+                // Menerapkan font Poppins dan warna dinamis berdasarkan state isChecked
+                className={`font-poppins cursor-pointer select-none text-base ${
+                  isChecked ? "text-[#323232]/50" : "text-[#323232]"
+                } transition-colors`}
+              >
+                Saya telah membaca dan menyetujui{" "}
+                <a
+                  href="/kebijakan-privasi"
+                  className="font-semibold underline hover:text-blue-600"
+                >
+                  Kebijakan Privasi
+                </a>
+              </label>
+            </div>
           </div>
         </div>
       )}

@@ -20,13 +20,6 @@ export const useProductRecommendations = (
     faceShapeId
   );
 
-  // Debug logging
-  console.log("useProductRecommendations - Compatibility Data:", compatibilityData);
-  console.log("useProductRecommendations - Is Loading Compatibility:", isLoadingCompatibility);
-  console.log("useProductRecommendations - Body Shape ID:", bodyShapeId);
-  console.log("useProductRecommendations - Face Shape ID:", faceShapeId);
-  console.log("useProductRecommendations - Filter:", recommendationFilter);
-
   const handleFilterChange = (filter: "hijab" | "clothes") => {
     setRecommendationFilter(filter);
   };

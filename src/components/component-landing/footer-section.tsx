@@ -36,7 +36,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[100px]">
+    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[80px]">
       <div className="container mx-auto">
         <div className="container mx-auto bg-[#F0F0F0] rounded-2xl mt-12 sm:mt-16 py-12 sm:py-20 text-center shadow-md">
           <h2 className="font-handlee text-4xl sm:text-5xl lg:text-6xl font-bold text-[#323232] leading-tight">
@@ -44,7 +44,7 @@ export default function Footer() {
             <br />
             Dibandingkan Yang Lain
           </h2>
-          <p className="max-w-3xl mx-auto my-8 sm:my-12 text-[#323232] font-poppins text-base sm:text-lg lg:text-xl">
+          <p className="max-w-3xl mx-auto my-8 sm:my-12 text-[#323232] font-poppins text-base sm:text-lg lg:text-xl px-5 lg:px-0">
             Temukan Fashion Yang Sesuai Untukmu Dengan Cara Yang Cerdas. Hanya
             Butuh Satu Foto. <b>Tiebymin AI</b> Memberikan Rekomendasi Instan
             Tanpa Perlu Repot, Serta Hemat Waktu Dan Biaya.

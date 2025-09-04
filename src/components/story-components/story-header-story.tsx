@@ -5,6 +5,9 @@ interface StoryHeaderProps {
 }
 
 export const StoryHeader = ({ userName }: StoryHeaderProps) => {
+  // Extract first name from full name
+  const firstName = userName?.split(" ")[0] || "USER";
+
   return (
     <div className="flex justify-between items-center mb-4">
       <Image
@@ -14,7 +17,7 @@ export const StoryHeader = ({ userName }: StoryHeaderProps) => {
         height={40}
       />
       <h1 className="text-2xl font-bold font-oswald">
-        HASIL ANALISA {userName?.toUpperCase()}
+        HASIL ANALISA {firstName?.toUpperCase() || "USER"}
       </h1>
     </div>
   );
