@@ -1,6 +1,7 @@
 "use client";
 
 import { useCelebrityData } from "@/hooks/useAnalysisData";
+import { CelebrityMatchSectionSkeleton } from "@/components/skeleton-loading/section-skeletons";
 import Image from "next/image";
 import React, { useState } from "react";
 
@@ -16,12 +17,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
     () => Math.floor(Math.random() * (95 - 80 + 1)) + 80
   );
 
-  if (isLoading)
-    return (
-      <div className="text-center p-8 text-base sm:text-lg">
-        Finding your celebrity match...
-      </div>
-    );
+  if (isLoading) return <CelebrityMatchSectionSkeleton />;
   if (error)
     return (
       <div className="text-center p-8 text-red-500 text-base sm:text-lg">

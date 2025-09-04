@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useColorToneData } from "@/hooks/useAnalysisData";
+import { ColorToneSectionSkeleton } from "@/components/skeleton-loading/section-skeletons";
 
 interface ColorCircleProps {
   color: string;
@@ -76,12 +77,7 @@ const ColorToneSection: React.FC<ColorToneSectionProps> = ({
     error,
   } = useColorToneData(colorAnalysisId);
 
-  if (isLoading)
-    return (
-      <div className="text-center p-8 text-base sm:text-lg">
-        Loading color analysis...
-      </div>
-    );
+  if (isLoading) return <ColorToneSectionSkeleton />;
 
   if (error)
     return (

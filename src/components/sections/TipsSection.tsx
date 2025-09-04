@@ -2,6 +2,7 @@
 
 import { useAllTips } from "@/hooks/useAllTips";
 import { AnalysisData } from "@/types";
+import { TipsSectionSkeleton } from "@/components/skeleton-loading/section-skeletons";
 import Image from "next/image";
 import React from "react";
 
@@ -48,11 +49,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ analysisData }) => {
   });
 
   if (isLoading) {
-    return (
-      <div className="text-center p-8 text-sm sm:text-base">
-        Merangkum tips terbaik untukmu...
-      </div>
-    );
+    return <TipsSectionSkeleton />;
   }
 
   if (isError || error) {

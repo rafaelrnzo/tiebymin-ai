@@ -81,7 +81,6 @@ export const useUserData = () => {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
       const endpoint = secureUrl(`/v1/auth/login`);
-      console.log("Login endpoint:", endpoint);
 
       const response = await axios.post(endpoint, credentials, {
         headers: {
@@ -93,7 +92,6 @@ export const useUserData = () => {
       return response.data as LoginResponse;
     },
     onSuccess: (result) => {
-      console.log("Login successful:", result);
 
       // Save access token to localStorage
       if (result.access_token) {
@@ -115,7 +113,6 @@ export const useUserData = () => {
   const registerMutation = useMutation({
     mutationFn: async (registerData: RegisterData) => {
       const endpoint = secureUrl(`/v1/auth/register`);
-      console.log("Register endpoint:", endpoint);
 
       const response = await axios.post(endpoint, registerData, {
         headers: {
@@ -127,7 +124,6 @@ export const useUserData = () => {
       return response.data as RegisterResponse;
     },
     onSuccess: (result) => {
-      console.log("Registration successful:", result);
 
       // Save user data to localStorage
       if (result.id) {
@@ -164,7 +160,6 @@ export const useUserData = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Validating token with backend...");
         const tes = await axios.get(secureUrl(`/v1/auth/validate-token`), {
           headers: {
             "Content-Type": "application/json",
@@ -172,15 +167,12 @@ export const useUserData = () => {
           },
         });
 
-        console.log("Validate token response:", tes.data);
         localStorage.setItem("userId", tes.data.user_id);
-        console.log("User ID stored in localStorage:", tes.data.user_id);
 
         return response.data as UserProfile;
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          console.log("🚪 Unauthorized access in userProfileQuery, clearing tokens");
           // Clear invalid tokens
           localStorage.removeItem("accessToken");
           localStorage.removeItem("userToken");
@@ -222,7 +214,6 @@ export const useUserData = () => {
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          console.log("🚪 Unauthorized access in analysisHistoryQuery, clearing tokens");
           // Clear invalid tokens
           localStorage.removeItem("accessToken");
           localStorage.removeItem("userToken");
@@ -261,7 +252,6 @@ export const useUserData = () => {
       return response.data;
     },
     onSuccess: () => {
-      console.log("Logout successful");
 
       // Clear all auth-related data from localStorage
       localStorage.removeItem("accessToken");

@@ -22,6 +22,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserData } from "@/hooks/useUserData";
+import DashboardSkeleton from "@/components/skeleton-loading/profile-skeleton";
 
 // Function to shorten month names
 const shortenMonth = (dateString: string) => {
@@ -57,7 +58,6 @@ export default function DashboardPage() {
     fetchUserData();
   }, [fetchUserData]);
 
-  // Handle OAuth redirect with access_token in query params or hash
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
@@ -76,8 +76,6 @@ export default function DashboardPage() {
       }
 
       if (accessToken) {
-        console.log("OAuth: Found access token, storing and validating...");
-
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("userToken", accessToken); // For backward compatibility
 
@@ -86,22 +84,13 @@ export default function DashboardPage() {
         // Clean the URL (remove query params and hash)
         window.history.replaceState(null, "", window.location.pathname);
 
-        // Refetch user data with new token (this will trigger validate-token API)
-        console.log("OAuth: Calling fetchUserData to validate token...");
         fetchUserData();
       }
     }
   }, [fetchUserData]);
 
   if (isLoading) {
-    return (
-      <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
-        <Navbar />
-        <main className="lg:px-[200px] px-4 mt-[20px] lg:mt-[50px] flex items-center justify-center">
-          <div className="animate-pulse">Loading...</div>
-        </main>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error) {

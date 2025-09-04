@@ -175,7 +175,6 @@ function PdfPage() {
         showToast("PDF berhasil didownload!", "success");
       }
     } catch (error) {
-      console.error("Error downloading PDF:", error);
       const errorMessage =
         error instanceof Error
           ? error.message

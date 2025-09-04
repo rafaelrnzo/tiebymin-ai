@@ -80,7 +80,6 @@ export default function StoryPoster({
   faceShapeDetails,
 }: StoryPosterProps) {
   const faceShapeAnalysisData = generateGimmickChartData(userData.faceShape);
-  console.log(userData, userPhotoUrl);
   const penjelasanLengkap = faceShapeDetails?.penjelasan_face_shape || "";
 
   const kalimatUtama = penjelasanLengkap.split("-")[0].trim();

@@ -1,14 +1,12 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { secureUrl } from "@/lib/api";
-import { BodyType } from "@/types";
 import { defaultUserData } from "@/lib/mock-data";
-import { useRouter } from "next/navigation";
+import { BodyType } from "@/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 
 async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
-  console.log(`🔄 Fetching: ${fullUrl}`); // Debug log
       const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
   try {
@@ -19,22 +17,14 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
       },
     });
 
-    console.log(`📡 Response status: ${response.status} for ${endpoint}`); // Debug log
 
     if (response.status >= 200 && response.status < 300) {
-      console.log(`✅ Success fetching ${endpoint}:`, response.data); // Debug log
       return response.data;
     } else {
-      console.error(
-        `❌ HTTP Error ${response.status} for ${endpoint}:`,
-        response.data
-      );
       if (response.status === 401) {
-        console.log("🚪 Unauthorized access, redirecting to login");
         if (onUnauthorized) {
           onUnauthorized();
         } else {
-          // Fallback: redirect to login if no callback provided
           if (typeof window !== "undefined") {
             window.location.href = "/login";
           }
@@ -51,11 +41,9 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
       );
     }
   } catch (error: unknown) {
-    console.error(`💥 Fetch error for ${endpoint}:`, error);
     // Handle axios error responses
     const axiosError = error as { response?: { status?: number } };
     if (axiosError.response?.status === 401) {
-      console.log("🚪 Unauthorized access (catch), redirecting to login");
       if (onUnauthorized) {
         onUnauthorized();
       } else {
@@ -74,7 +62,6 @@ export function useAnalysisData(
   resultId: string | null,
   options?: { onError?: (error: Error) => void }
 ) {
-  console.log("🚀 useAnalysisData called with resultId:", resultId); // Debug log
 
   const handleUnauthorized = () => {
     if (typeof window !== "undefined") {
@@ -86,22 +73,16 @@ export function useAnalysisData(
     queryKey: ["analysisData", resultId],
     queryFn: async () => {
       if (!resultId) {
-        console.warn("⚠️ Result ID is required but not provided");
         throw new Error("ID Hasil diperlukan");
       }
 
-      console.log("📊 Starting analysis data fetch for resultId:", resultId);
 
       try {
         // Fetch analysis data dan photos secara parallel
-        console.log("🔄 Fetching analysis data and photos...");
         const [analysisData, photosData] = await Promise.all([
           fetchData(`/v1/user-analysis-results/${resultId}`, handleUnauthorized),
           fetchData(`/v1/user-photos/analysis/${resultId}`, handleUnauthorized),
         ]);
-
-        console.log("📋 Analysis data received:", analysisData);
-        console.log("🖼️ Photos data received:", photosData);
 
         if (analysisData?.user_id && typeof window !== "undefined") {
           localStorage.setItem("userId", analysisData.user_id);
@@ -113,7 +94,6 @@ export function useAnalysisData(
         }
 
         // Fetch additional data berdasarkan IDs dari analysis result
-        console.log("🔄 Fetching additional data...");
         const additionalDataPromises = [
           analysisData.face_shape_id
             ? fetchData(`/v1/face-shapes/${analysisData.face_shape_id}`, handleUnauthorized)
@@ -139,14 +119,6 @@ export function useAnalysisData(
           bmiCategoryData,
           celebrityData,
         ] = await Promise.all(additionalDataPromises);
-
-        console.log("📊 Additional data received:", {
-          faceShapeData,
-          colorToneData,
-          bodyShapeData,
-          bmiCategoryData,
-          celebrityData,
-        });
 
         // Find user photo
         let userPhotoUrl = null;
@@ -266,7 +238,6 @@ export function useAnalysisData(
           },
         };
 
-        console.log("✅ Transformed data:", transformedData);
 
         return {
           userData: transformedData,
@@ -342,7 +313,6 @@ export function useBodyShapeData(bodyShapeId: string | null) {
   return useQuery({
     queryKey: ["bodyShape", bodyShapeId],
     queryFn: async () => {
-      console.log(bodyShapeId)
       if (!bodyShapeId) {
         throw new Error("ID Bentuk Tubuh diperlukan");
       }
@@ -446,7 +416,6 @@ export const useBodyShapes = () => {
         const token =
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
-      console.log("🔄 Fetching body shapes...");
       try {
         const response = await axios.get(secureUrl(`/v1/body-shapes/`), {
           headers:{
@@ -455,7 +424,6 @@ export const useBodyShapes = () => {
           }
         });
 
-        console.log("✅ Body shapes fetched:", response.data);
 
         if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
           throw new Error("Tidak ada data bentuk tubuh ditemukan");
@@ -465,7 +433,6 @@ export const useBodyShapes = () => {
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          console.log("🚪 Unauthorized access in useBodyShapes, redirecting to login");
           handleUnauthorized();
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }

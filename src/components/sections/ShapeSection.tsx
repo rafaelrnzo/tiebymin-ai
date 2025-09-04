@@ -1,6 +1,7 @@
 "use client";
 
 import { useFaceShapeData } from "@/hooks/useAnalysisData";
+import { ShapeSectionSkeleton } from "@/components/skeleton-loading/section-skeletons";
 import React from "react";
 
 interface IShape {
@@ -71,8 +72,7 @@ const ShapeSection: React.FC<ShapeSectionProps> = ({ shapeId }) => {
     ? generateGimmickChartData(shapeDetails.name)
     : [];
 
-  if (isLoading)
-    return <div className="text-center p-8">Loading shape information...</div>;
+  if (isLoading) return <ShapeSectionSkeleton />;
   if (error)
     return (
       <div className="text-center p-8 text-red-500">

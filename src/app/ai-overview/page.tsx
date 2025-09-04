@@ -74,23 +74,11 @@ function BeautyAnalysisPageInner() {
     }
   }, []);
 
-  console.log("Page component - userId:", userId, "userName:", userName);
-
   const resultId = searchParams.get("result_id");
-  console.log("ai-overview page - resultId from URL:", resultId);
-  console.log(
-    "ai-overview page - full search params:",
-    Object.fromEntries(searchParams.entries())
-  );
 
   // Fallback: try to get resultId from localStorage if not in URL
   const fallbackResultId = resultId || localStorage.getItem("analysisResultId");
   const finalResultId = fallbackResultId;
-
-  console.log(
-    "ai-overview page - final resultId (URL or localStorage):",
-    finalResultId
-  );
 
   const {
     data: analysisResult,
@@ -99,7 +87,6 @@ function BeautyAnalysisPageInner() {
     isError,
   } = useAnalysisData(finalResultId, {
     onError: (err) => {
-      console.error("useAnalysisData error:", err);
       setErrorModalMessage(err.message);
       setIsErrorModalOpen(true);
     },
@@ -113,17 +100,6 @@ function BeautyAnalysisPageInner() {
       userPhotoUrl: null,
       rawAnalysisData: null,
     };
-
-  // Debug logging
-  console.log("ai-overview page - Raw Analysis Data:", rawAnalysisData);
-  console.log(
-    "ai-overview page - Body Shape ID:",
-    rawAnalysisData?.body_shape_id
-  );
-  console.log(
-    "ai-overview page - Face Shape ID:",
-    rawAnalysisData?.face_shape_id
-  );
 
   const {
     sortedProducts,
@@ -157,7 +133,6 @@ function BeautyAnalysisPageInner() {
             });
             showToast("Story berhasil dibagikan!", "success");
           } catch (shareError) {
-            console.warn("Share failed, falling back to download:", shareError);
             const url = URL.createObjectURL(file);
             const link = document.createElement("a");
             link.href = url;
@@ -167,7 +142,6 @@ function BeautyAnalysisPageInner() {
             showToast("Story berhasil diunduh!", "success");
           }
         } else {
-          console.log("Web Share API not supported, using direct download");
           const url = URL.createObjectURL(file);
           const link = document.createElement("a");
           link.href = url;
@@ -180,7 +154,6 @@ function BeautyAnalysisPageInner() {
         throw new Error("No story data received");
       }
     } catch (error) {
-      console.error("Error generating story:", error);
       setStoryError("Gagal membuat story");
       showToast("Gagal membuat story", "error");
     } finally {
@@ -230,7 +203,6 @@ function BeautyAnalysisPageInner() {
         localStorage.removeItem("capturedImage");
         localStorage.removeItem("registration-steps-progress");
         localStorage.removeItem("registration-current-step");
-        console.log("LocalStorage data cleared after successful analysis load");
       }, 2000); // Clear after 2 seconds to ensure data is fully loaded
 
       return () => clearTimeout(clearDataTimer);

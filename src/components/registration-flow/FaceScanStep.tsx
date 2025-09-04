@@ -81,7 +81,6 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       return response.data;
     },
     onSuccess: (resultId) => {
-      console.log("Analysis completed successfully, result ID:", resultId);
       localStorage.setItem("analysisResultId", resultId);
 
       // Convert selected image to base64 and store it

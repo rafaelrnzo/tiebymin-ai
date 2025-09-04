@@ -1,6 +1,7 @@
 "use client";
 
 import { useBmiCategoryData, useBodyShapeData } from "@/hooks/useAnalysisData";
+import { BodySectionSkeleton } from "@/components/skeleton-loading/section-skeletons";
 import Image from "next/image";
 import React from "react";
 
@@ -39,12 +40,7 @@ const BodySection: React.FC<BodySectionProps> = ({
     return isNaN(numberValue) ? "0.00" : numberValue.toFixed(2);
   };
 
-  if (isLoading)
-    return (
-      <div className="text-center p-8 text-base sm:text-lg">
-        Loading body information...
-      </div>
-    );
+  if (isLoading) return <BodySectionSkeleton />;
   if (error)
     return (
       <div className="text-center p-8 text-red-500 text-base sm:text-lg">

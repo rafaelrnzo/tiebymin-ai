@@ -132,14 +132,12 @@ function HalamanKameraWajahContent() {
       const uploadedImage = localStorage.getItem("uploadedFaceImage");
 
       if (storedResultId) {
-        console.log("Found stored analysis result ID:", storedResultId);
         setAnalysisResultId(storedResultId);
 
         if (uploadedImage) {
           setCapturedImage(uploadedImage);
         }
       } else {
-        console.error("No analysis result ID found in localStorage");
         setErrorModalMessage(
           "Hasil analisis tidak ditemukan. Silakan coba lagi."
         );
@@ -197,12 +195,11 @@ function HalamanKameraWajahContent() {
 
   useEffect(() => {
     if (appState === "LOADING_UI") {
-      console.log("Starting loading UI animation...");
       setLoadingStep(0);
       setProgress(0);
 
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 45000; // 45 seconds
+      const totalDuration = 30000; // 45 seconds
       const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
@@ -214,7 +211,6 @@ function HalamanKameraWajahContent() {
       }, Math.max(20, totalDuration / 100));
 
       const finishTimer = setTimeout(() => {
-        console.log("Loading UI completed, showing completion modal...");
         setProgress(100);
         setAppState("COMPLETION_MODAL");
       }, totalDuration);
@@ -296,16 +292,6 @@ function HalamanKameraWajahContent() {
         return;
       }
 
-      console.log("MENYIAPKAN DATA UNTUK ANALISIS:", {
-        tinggi,
-        berat,
-        umur,
-        body_shape_id,
-        foto_wajah: imageBlobFromGallery
-          ? "ada dari galeri"
-          : "ada dari kamera",
-      });
-
       let imageToUpload: Blob | null = null;
       let imageFileName: string = "face-photo.png";
 
@@ -347,7 +333,6 @@ function HalamanKameraWajahContent() {
 
       // Call analysis API
       const endpoint = secureUrl("/v1/analysis/full-analysis");
-      console.log("Calling analysis API endpoint:", endpoint);
       const token =
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
@@ -363,11 +348,9 @@ function HalamanKameraWajahContent() {
         const resultId = String(response.data.analysis_result_id);
 
         if (resultId && resultId !== "[object Object]") {
-          console.log("Analysis completed successfully, result ID:", resultId);
           setAnalysisResultId(resultId);
           setIsApiLoading(false);
 
-          // After API analysis completes, show loading UI
           setAppState("LOADING_UI");
         } else {
           throw new Error("Gagal mendapatkan ID hasil analisis.");
@@ -379,7 +362,6 @@ function HalamanKameraWajahContent() {
         );
       }
     } catch (error) {
-      console.error("Analysis error:", error);
       const err = error as Error;
       setErrorModalMessage(
         err.message ||
@@ -391,7 +373,6 @@ function HalamanKameraWajahContent() {
   };
 
   const handleAnalyze = async () => {
-    console.log("Starting API analysis...");
     await handleFullAnalysis();
   };
 
@@ -453,9 +434,6 @@ function HalamanKameraWajahContent() {
                 if (resultIdToUse) {
                   router.push(`/ai-overview?result_id=${resultIdToUse}`);
                 } else {
-                  console.error(
-                    "No analysis result ID available for navigation"
-                  );
                   setErrorModalMessage(
                     "Hasil analisis tidak ditemukan. Silakan coba lagi."
                   );

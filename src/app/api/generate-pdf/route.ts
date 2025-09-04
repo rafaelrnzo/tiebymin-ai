@@ -25,7 +25,6 @@ async function generatePdf(req: NextRequest) {
       }
     }
     
-    // Jika tidak ada data dari body atau metode GET, coba ambil dari URL query
     if (!resultId) {
       resultId = req.nextUrl.searchParams.get('resultId');
     }
@@ -107,7 +106,6 @@ async function generatePdf(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error generating PDF:", error);
     return new NextResponse(
       JSON.stringify({
         error: "Failed to generate PDF",

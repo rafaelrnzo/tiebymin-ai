@@ -71,7 +71,6 @@ async function generateStory(req: NextRequest) {
       }
     );
   } catch (error) {
-    console.error("Error generating story PNG:", error);
     return new NextResponse("Failed to generate PNG", { status: 500 });
   }
 }

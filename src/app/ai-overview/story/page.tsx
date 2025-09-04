@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
 
 import StoryPoster from "@/components/story-components/story-poster-story";
+import { StoryPageSkeleton } from "@/components/skeleton-loading/story-skeleton";
 import { defaultUserData } from "@/lib/mock-data";
 
 function StoryPage() {
@@ -58,16 +59,7 @@ function StoryPage() {
   );
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
-        <Image
-          src="/tie-by-min-logo-light.png"
-          alt="Logo Tie By Min"
-          width={180}
-          height={80}
-        />
-      </div>
-    );
+    return <StoryPageSkeleton />;
   }
 
   if (fetchError) {
@@ -99,13 +91,7 @@ function StoryPage() {
 
 export default function App() {
   return (
-    <Suspense
-      fallback={
-        <div className="bg-gray-100 min-h-screen flex justify-center p-6">
-          <Skeleton className="h-[812px] w-[456px]" />
-        </div>
-      }
-    >
+    <Suspense fallback={<StoryPageSkeleton />}>
       <StoryPage />
     </Suspense>
   );

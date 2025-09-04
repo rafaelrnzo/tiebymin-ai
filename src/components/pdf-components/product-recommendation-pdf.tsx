@@ -1,5 +1,7 @@
-import { UserData, Product } from "@/types";
+import { ProductRecommendationSkeleton } from "@/components/skeleton-loading/product-recommendation-skeleton";
+import { useProductCompatibility } from "@/hooks/useProductCompatibility";
 import { useRecommendations } from "@/hooks/useRecommendations";
+import { Product, UserData } from "@/types";
 import Image from "next/image";
 import { Footer } from "./footer-pdf";
 import { PageHeader } from "./header-pdf";
@@ -8,23 +10,35 @@ const MainContent = ({
   isLoading,
   error,
   products,
+  userData,
 }: {
   isLoading: boolean;
   error: Error | null;
   products: Product[];
+  userData: UserData;
 }) => {
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-600">Memuat rekomendasi produk...</p>
-      </div>
-    );
+    return <ProductRecommendationSkeleton userData={userData} />;
   }
 
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-red-600">Gagal memuat rekomendasi produk.</p>
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 text-red-400">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <p className="text-red-600 text-lg font-medium">
+            Gagal memuat rekomendasi produk
+          </p>
+          <p className="text-gray-500 text-sm mt-1">Silakan coba lagi nanti</p>
+        </div>
       </div>
     );
   }
@@ -32,9 +46,23 @@ const MainContent = ({
   if (!products || products.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-gray-600">
-          Tidak ada rekomendasi produk yang tersedia.
-        </p>
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 text-gray-400">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <p className="text-gray-600 text-lg font-medium">
+            Tidak ada rekomendasi produk yang tersedia
+          </p>
+          <p className="text-gray-500 text-sm mt-1">
+            Coba lagi nanti atau hubungi customer service
+          </p>
+        </div>
       </div>
     );
   }
@@ -75,8 +103,11 @@ const MainContent = ({
             >
               {product.name || "Product Name"}
             </h2>
-            <p className="text-lg font-bold text-gray-200">
-              Rp{(product.current_price || 0).toLocaleString("id-ID")}
+            <p className="text-xs font-semibold text-gray-300 mb-1">
+              Kenapa Cocok:
+            </p>
+            <p className="text-sm font-medium text-gray-200 leading-tight line-clamp-3">
+              {product.compatibility_reason || "Produk ini cocok untuk Anda"}
             </p>
           </div>
         </div>
@@ -98,12 +129,33 @@ export const ProductRecommendation = ({
     error,
   } = useRecommendations(resultId);
 
-  // Menggabungkan dan mengurutkan produk
+  // Get compatibility data for hijab and clothes
+  const { data: hijabCompatibilityData } = useProductCompatibility(
+    resultId,
+    "hijab"
+  );
+  const { data: clothesCompatibilityData } = useProductCompatibility(
+    resultId,
+    "clothes"
+  );
+
+  // Combine compatibility data
+  const combinedCompatibilityData = {
+    ...hijabCompatibilityData,
+    ...clothesCompatibilityData,
+  };
+
+  // Menggabungkan dan mengurutkan produk dengan compatibility reasons
   const topProducts = recommendationsData
     ? [
         ...(recommendationsData.hijab || []),
         ...(recommendationsData.clothes || []),
       ]
+        .map((product) => ({
+          ...product,
+          compatibility_reason:
+            combinedCompatibilityData[product.id]?.compatibility_reason || "",
+        }))
         .sort(
           (a, b) => b.total_compatibility_score - a.total_compatibility_score
         )
@@ -111,7 +163,6 @@ export const ProductRecommendation = ({
     : [];
 
   return (
-    // PERUBAHAN 1: Menggunakan satu struktur utama dengan `h-full`
     <div className="bg-[#F0F0F0] w-full h-full px-10 flex flex-col">
       <PageHeader name={userData.name} />
 
@@ -121,17 +172,16 @@ export const ProductRecommendation = ({
         </h1>
         <hr className="border-[#323232] my-10" />
 
-        {/* PERUBAHAN 2: Konten dirender secara dinamis di sini */}
         <div className="flex-grow">
           <MainContent
             isLoading={isLoading}
             error={error}
             products={topProducts}
+            userData={userData}
           />
         </div>
       </main>
 
-      {/* PERUBAHAN 3: Nomor halaman disesuaikan */}
       <Footer page="07" />
     </div>
   );

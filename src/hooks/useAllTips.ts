@@ -57,13 +57,6 @@ export const useAllTips = ({
         }
       }),
     ]);
-
-    console.log(faceRes)
-    console.log(bodyRes)
-    console.log(colorRes)
-    console.log(bmiRes)
-    console.log(colorRes)
-
     return {
       faceTip: faceRes.data.tips_bentuk_wajah,
       bodyTip: bodyRes.data.tips_body_shape,
