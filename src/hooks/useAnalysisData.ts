@@ -56,13 +56,17 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
           "Data yang dikirim tidak valid. Mohon periksa dan coba lagi."
         );
       }
-      throw new Error(
-        "Kami mengalami masalah saat mengambil data. Mohon coba lagi dalam beberapa saat."
-      );
+      if (response.status === 429) {
+        throw new Error("Terlalu banyak permintaan. Mohon tunggu sebentar dan coba lagi.");
+      }
+      if (response.status >= 500) {
+        throw new Error("Server sedang mengalami masalah. Silakan coba lagi nanti.");
+      }
+      throw new Error("Terjadi kesalahan saat mengambil data. Mohon coba lagi.");
     }
   } catch (error: unknown) {
     // Handle axios error responses
-    const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+    const axiosError = error as { response?: { status?: number; data?: { message?: string } }; code?: string; message?: string };
     if (axiosError.response?.status === 401) {
       if (onUnauthorized) {
         onUnauthorized();
@@ -78,7 +82,19 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
         `Data tidak dapat diproses: ${axiosError.response.data?.message || "Format data tidak valid"}`
       );
     }
-    throw error;
+    if (axiosError.response?.status === 429) {
+      throw new Error("Terlalu banyak permintaan. Mohon tunggu sebentar dan coba lagi.");
+    }
+    if (axiosError.response?.status && axiosError.response.status >= 500) {
+      throw new Error("Server sedang mengalami masalah. Silakan coba lagi nanti.");
+    }
+    if (axiosError.code === 'ECONNABORTED' || (axiosError.message && axiosError.message.includes('timeout'))) {
+      throw new Error("Permintaan memakan waktu terlalu lama. Silakan coba lagi.");
+    }
+    if (axiosError.code === 'ENOTFOUND' || axiosError.code === 'ECONNREFUSED') {
+      throw new Error("Koneksi internet bermasalah. Mohon periksa koneksi Anda.");
+    }
+    throw new Error("Terjadi kesalahan saat mengambil data. Mohon coba lagi.");
   }
 }
 
@@ -172,8 +188,19 @@ export function useAnalysisData(
 
         // Calculate BMI value dengan null checking dan validasi
         let bmiValue = 0;
-        if (analysisData.analysis_details?.bmi?.value) {
-          const rawValue = analysisData.analysis_details.bmi.value;
+        if (analysisData.analysis_details?.bmi?.bmi_value) {
+          const rawValue = analysisData.analysis_details.bmi.bmi_value;
+          if (typeof rawValue === "string") {
+            const parsed = parseFloat(rawValue);
+            if (!isNaN(parsed) && parsed > 0) {
+              bmiValue = parsed;
+            }
+          } else if (typeof rawValue === "number" && !isNaN(rawValue) && rawValue > 0) {
+            bmiValue = rawValue;
+          }
+        } else if (analysisData.analysis_details?.bmi?.bmi) {
+          // Fallback: use bmi.bmi if bmi_value is not available
+          const rawValue = analysisData.analysis_details.bmi.bmi;
           if (typeof rawValue === "string") {
             const parsed = parseFloat(rawValue);
             if (!isNaN(parsed) && parsed > 0) {
@@ -190,7 +217,7 @@ export function useAnalysisData(
           bodyShape: bodyShapeData?.name || defaultUserData.bodyShape,
           colorTone: colorToneData?.name || defaultUserData.colorTone,
           bmi: {
-            value: bmiValue || defaultUserData.bmi.value,
+            value: bmiValue ,
             category: bmiCategoryData?.name || defaultUserData.bmi.category,
             desc: bmiCategoryData?.description || defaultUserData.bmi.desc,
           },
@@ -466,7 +493,11 @@ export function useDownloadPdf() {
             }
           }
           if (error.response?.status === 401) {
-            throw new Error("Authentication failed. Please login again.");
+            throw new Error("Sesi telah berakhir. Silakan login kembali.");
+          } else if (error.response?.status === 404) {
+            throw new Error("Data tidak ditemukan untuk membuat PDF. Periksa result ID.");
+          } else if (error.response?.status === 500) {
+            throw new Error("Server sedang mengalami masalah saat membuat PDF. Silakan coba lagi nanti.");
           }
         }
         
@@ -538,8 +569,12 @@ export function useGenerateStory() {
             throw new Error("Data tidak ditemukan. Periksa result ID.");
           } else if (error.response?.status === 401) {
             throw new Error("Sesi telah berakhir. Silakan login kembali.");
+          } else if (error.response?.status === 404) {
+            throw new Error("Data tidak ditemukan. Periksa result ID dan coba lagi.");
+          } else if (error.response?.status === 500) {
+            throw new Error("Server sedang mengalami masalah. Silakan coba lagi nanti.");
           }
-          throw new Error(`Request failed: ${error.response?.status} ${error.response?.statusText}`);
+          throw new Error("Terjadi kesalahan saat membuat story. Silakan coba lagi.");
         }
         
         throw error;

@@ -32,7 +32,7 @@ interface AnalysisData {
   celebrity_id?: string;
   analysis_details?: {
     bmi: {
-      bmi: number;
+      bmi_value: number;
     };
   };
 }
@@ -288,7 +288,7 @@ function BeautyAnalysisPageInner() {
               bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
               bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
               bmiResult={{
-                value: analysisData.analysis_details?.bmi?.bmi || 0,
+                value: userData?.bmi?.value || 0,
               }}
             />
           );

@@ -107,7 +107,14 @@ const FaceShapeCard = () => (
 );
 
 const ColorToneCard = () => {
-  const bestColors = ["#000000", "#191970", "#2F4F4F", "#4A444B", "#800000"];
+  const bestColors = [
+    "#000000",
+    "#4B0082",
+    "#191970",
+    "#2F4F4F",
+    "#4A444B",
+    "#800000",
+  ];
   const combinationColors = [
     ["#000000", "#483D8B"],
     ["#2F4F4F", "#800000"],

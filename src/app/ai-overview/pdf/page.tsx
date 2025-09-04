@@ -364,7 +364,7 @@ function PdfPage() {
                   colorTip={tips?.colorTip}
                   isLoading={false} // Don't show loading state in PDF
                   isError={false} // Don't show error state in PDF
-                  bmiValue={analysisData?.analysis_details?.bmi?.bmi}
+                  bmiValue={analysisData?.analysis_details?.bmi?.bmi_value}
                   bmiCategory={
                     analysisData?.analysis_details?.bmi?.category?.kategori
                   }
@@ -458,7 +458,7 @@ function PdfPage() {
           colorTip={tips?.colorTip}
           isLoading={tipsLoading}
           isError={tipsError}
-          bmiValue={analysisData?.analysis_details?.bmi?.bmi}
+          bmiValue={analysisData?.analysis_details?.bmi?.bmi_value}
           bmiCategory={analysisData?.analysis_details?.bmi?.category?.kategori}
         />
       </div>
