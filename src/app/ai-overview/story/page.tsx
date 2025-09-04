@@ -142,7 +142,7 @@ function StoryPage() {
         bmiCategoryDetails={bmiCategoryDetails}
         colorToneDetails={colorToneDetails}
         faceShapeDetails={faceShapeDetails}
-        bmiValue={data?.rawAnalysisData?.analysis_details?.bmi?.bmi}
+        bmiValue={data?.rawAnalysisData?.analysis_details?.bmi?.bmi_value}
         bmiCategory={
           data?.rawAnalysisData?.analysis_details?.bmi?.category?.kategori
         }

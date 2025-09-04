@@ -1,76 +1,10 @@
 "use client";
-import {
-  Gem,
-  Hourglass,
-  Package2,
-  Snowflake,
-  Sparkles,
-  UserRoundSearch,
-} from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
-type AnalysisCardProps = {
-  icon: React.ReactNode;
-  title: string;
-  subtitle?: string;
-  isAnalytics?: boolean;
-  titleClassName?: string;
-  className?: string;
-  zIndex?: string;
-};
-
-const AnalysisCard = ({
-  icon,
-  title,
-  subtitle,
-  isAnalytics,
-  zIndex = "z-30",
-}: AnalysisCardProps) => {
-  return (
-    <div
-      className={`flex w-[180px] xs:w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] xl:w-[340px] flex-row gap-2 xs:gap-3 sm:gap-4 rounded-xl px-2 xs:px-3 sm:px-4 py-2 sm:py-3 shadow-lg ${zIndex} relative ${
-        isAnalytics
-          ? "bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD]"
-          : "bg-[#f0f0f0]"
-      }`}
-    >
-      <div
-        className={
-          isAnalytics ? "fill-[#f0f0f0] py-1 xs:py-2 sm:py-3" : "mt-1 sm:mt-2"
-        }
-      >
-        {icon}
-      </div>
-
-      <div className="flex flex-col justify-center">
-        <p
-          className={`font-bold text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl ${
-            isAnalytics ? "text-[#f0f0f0]" : "text-[#323232]"
-          }`}
-        >
-          {title}
-        </p>
-        {subtitle && (
-          <p
-            className={`text-[10px] xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl ${
-              isAnalytics ? "text-[#f0f0f0]" : "text-[#323232]"
-            }`}
-          >
-            {subtitle}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
-
 export const HeroSection = () => {
-  // Check if user is logged in
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Only access localStorage on client side
     if (typeof window !== "undefined") {
       const accessToken = localStorage.getItem("accessToken");
       const userToken = localStorage.getItem("userToken");
@@ -82,99 +16,72 @@ export const HeroSection = () => {
   }, []);
 
   return (
-    <main className="relative w-full flex flex-col items-center justify-center overflow-hidden bg-cover bg-center bg-[url('/hero-bg.webp')] min-h-screen">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-[200px] z-20 relative pt-16 xs:pt-20 sm:pt-24 md:pt-24 lg:pt-28 xl:pt-32">
-        {/* Teks Hero */}
-        <div className="text-center relative lg:mb-12 xl:mb-16">
-          <h1 className="font-oswald lg:text-[156px] md:text-[120px] sm:text-8xl text-[80px] font-medium text-[#323232] tracking-tight leading-[0.9] xs:leading-[0.85] sm:leading-tight">
-            AI Temukan
-            <br />
-            <div className="flex text-center mt-10 lg:mt-0 gap-16 xs:gap-20 sm:gap-28 md:gap-36 lg:gap-40 xl:gap-64 justify-center items-center">
-              <span className="block font-handlee italic">Gaya</span>
-              <span className="block font-handlee italic">Kamu</span>
-            </div>
-          </h1>
-        </div>
+    <main className="relative w-full overflow-hidden">
+      {/* Container untuk Gambar Latar */}
+      <div className="w-full">
+        {/* Gambar Desktop */}
+        <img
+          src="/geblek.png"
+          alt="Analisa Gaya Anda"
+          className="w-full h-auto lg:block hidden"
+        />
+        {/* Gambar Mobile */}
+        <img
+          src="/geblek-mobile.png"
+          alt="Analisa Gaya Anda - Mobile"
+          className="w-full h-auto lg:hidden block mt-10"
+        />
+      </div>
 
-        {/* Analysis Cards Layout */}
-        <div className="relative w-full">
-          {/* Desktop Image - Original positioning */}
-          <div className="absolute w-[115%] lg:w-full md:w-full left-0 right-0 transform lg:-translate-y-1/3 -translate-y-[14rem] lg:block h-screen z-10">
-            <Image
-              src="/new-model-hero.png"
-              alt="AI Fashion Model"
-              fill
-              priority
-              quality={100}
-              className="lg:object-contain object-cover"
-            />
-          </div>
-
-          {/* Cards Container */}
-          <div className="relative flex flex-col lg:mt-0 mt-[5rem] md:mt-0 items-center gap-4 xs:gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
-            <div className="flex w-full justify-center gap-[5rem] lg:justify-between items-center px-0 xs:px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 relative">
-              <AnalysisCard
-                icon={
-                  <Gem className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
-                }
-                title="Diamond"
-                subtitle="Hasil Analisa Wajah"
-              />
-              <AnalysisCard
-                icon={
-                  <Snowflake className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
-                }
-                title="Cool Winter"
-                subtitle="Hasil Analisa Kulit"
-              />
-            </div>
-
-            <div className="flex w-full justify-between items-center px-4 xs:px-6 sm:px-8 md:px-12 lg:px-16 xl:px-24 relative">
-              <div className="transform -translate-x-4 xs:-translate-x-6 sm:-translate-x-8 md:-translate-x-12 lg:-translate-x-16 xl:-translate-x-20">
-                <AnalysisCard
-                  icon={
-                    <Hourglass className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
-                  }
-                  title="Hourglass"
-                  subtitle="Hasil Analisa Tubuh"
-                  zIndex="z-0" // Lower z-index so it appears behind the model
-                />
-              </div>
-              <div className="transform translate-x-4 xs:translate-x-6 sm:translate-x-8 md:translate-x-12 lg:translate-x-16 xl:translate-x-20">
-                <AnalysisCard
-                  icon={
-                    <UserRoundSearch className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
-                  }
-                  title="Selebriti Yang Serupa"
-                  subtitle="Kecocokan Analisa"
-                />
-              </div>
-            </div>
-
-            {/* Third Row - 2 cards */}
-            <div className="flex w-full justify-center gap-[5rem] lg:justify-between items-center px-0 xs:px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 relative">
-              <AnalysisCard
-                icon={
-                  <Package2 className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#323232]" />
-                }
-                title="Rekomendasi Produk"
-                subtitle="Saran Produk"
-              />
-              <a
-                href={
-                  isLoggedIn ? "/register?startStep=measurements" : "/register"
-                }
-                className="inline-block"
+      <div className="absolute bottom-0 right-0 w-full h-full pointer-events-none">
+        <div className="relative w-full h-full">
+          <div
+            className="absolute pointer-events-auto
+                         bottom-[21%] right-[18%]
+                         xs:bottom-[16%] xs:right-[18%]
+                         sm:bottom-[23%] sm:right-[18%] 
+                         md:bottom-[23%] md:right-[15%]
+                         lg:bottom-[10%] lg:right-[23%]
+                         xl:bottom-[11%] xl:right-[23%]
+                         2xl:bottom-[12%] 2xl:right-[23%]"
+          >
+            <a
+              href={
+                isLoggedIn ? "/register?startStep=measurements" : "/register"
+              }
+              className="inline-block"
+            >
+              <div
+                className="flex items-center justify-center bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] rounded-xl md:rounded-2xl gap-2 md:gap-3 
+                               px-3 py-2
+                               xs:px-4 xs:py-2
+                               sm:px-5 sm:py-2.5 
+                               md:px-10 md:py-4
+                               lg:px-8 lg:py-4 
+                               xl:px-10 xl:py-4
+                               2xl:px-12 2xl:py-5
+                               hover:shadow-lg transition-all duration-300 hover:scale-105 
+                               transform-gpu will-change-transform"
               >
-                <AnalysisCard
-                  isAnalytics={true}
-                  icon={
-                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 fill-[#f0f0f0] text-[#f0f0f0]" />
-                  }
-                  title="Coba Sekarang"
-                />
-              </a>
-            </div>
+                <svg
+                  className="h-3 w-3 xs:h-4 xs:w-4 sm:h-5 sm:w-5 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7"
+                  viewBox="0 0 8 9"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2.92233 1.51074C3.15555 0.828236 4.09857 0.807566 4.37508 1.44873L4.39848 1.51113L4.71321 2.43153C4.78534 2.64261 4.90189 2.83576 5.05502 2.99797C5.20814 3.16018 5.39427 3.28766 5.60085 3.37182L5.68548 3.40341L6.60588 3.71775C7.28838 3.95097 7.30905 4.89399 6.66828 5.1705L6.60588 5.1939L5.68548 5.50863C5.47432 5.58071 5.28109 5.69724 5.11881 5.85037C4.95654 6.00349 4.829 6.18965 4.7448 6.39627L4.71321 6.48051L4.39887 7.4013C4.16565 8.0838 3.22263 8.10447 2.94651 7.4637L2.92233 7.4013L2.60799 6.4809C2.53591 6.26974 2.41937 6.07651 2.26625 5.91423C2.11312 5.75196 1.92697 5.62441 1.72035 5.54022L1.63611 5.50863L0.715707 5.19429C0.0328173 4.96107 0.0121474 4.01805 0.653307 3.74193L0.715707 3.71775L1.63611 3.40341C1.84719 3.33128 2.04035 3.21472 2.20255 3.0616C2.36476 2.90847 2.49224 2.72234 2.5764 2.51577L2.60799 2.43153L2.92233 1.51074ZM6.7806 0.166016C6.85356 0.166016 6.92506 0.186482 6.98697 0.22509C7.04888 0.263697 7.09872 0.318897 7.13082 0.384416L7.14954 0.430046L7.28604 0.830186L7.68657 0.966686C7.75969 0.991527 7.82378 1.03752 7.87074 1.09882C7.91769 1.16013 7.94539 1.234 7.95032 1.31106C7.95524 1.38813 7.93718 1.46492 7.89842 1.53171C7.85966 1.5985 7.80195 1.65228 7.73259 1.68624L7.68657 1.70496L7.28643 1.84146L7.14993 2.24199C7.12504 2.31508 7.07902 2.37915 7.01769 2.42606C6.95636 2.47298 6.88248 2.50063 6.80542 2.50552C6.72836 2.5104 6.65158 2.4923 6.58481 2.45351C6.51804 2.41472 6.4643 2.35698 6.43038 2.28762L6.41166 2.24199L6.27516 1.84185L5.87463 1.70535C5.80151 1.6805 5.73741 1.63452 5.69046 1.57321C5.6435 1.5119 5.61581 1.43803 5.61088 1.36097C5.60595 1.2839 5.62401 1.20711 5.66277 1.14032C5.70153 1.07353 5.75925 1.01975 5.82861 0.985796L5.87463 0.967076L6.27477 0.830576L6.41127 0.430046C6.43757 0.352992 6.48732 0.2861 6.55355 0.23875C6.61979 0.1914 6.69918 0.165967 6.7806 0.166016Z"
+                    fill="#F0F0F0"
+                  />
+                </svg>
+                <p
+                  className="font-poppins text-white font-bold whitespace-nowrap
+                              text-[10px] xs:text-base sm:text-base md:text-base lg:text-base xl:text-lg 2xl:text-xl"
+                >
+                  Coba Sekarang
+                </p>
+              </div>
+            </a>
           </div>
         </div>
       </div>

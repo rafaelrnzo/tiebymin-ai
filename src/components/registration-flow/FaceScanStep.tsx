@@ -204,7 +204,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       `}</style>
 
       {isDesktop ? (
-        <div className="bg-[#f0f0f0] lg:min-h-full min-h-[73vh] backdrop-blur-sm shadow-xl rounded-t-2xl lg:rounded-2xl border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10 w-full lg:col-span-2 lg:order-2 flex flex-col items-center lg:items-start mt-10 lg:mt-12">
+        <div className="lg:min-h-full min-h-[73vh] backdrop-blur-sm border-0 py-6 px-4 sm:py-8 sm:px-5 md:py-10 md:px-8 lg:px-10 w-full lg:col-span-2 lg:order-2 flex flex-col items-center lg:items-start mt-10 lg:mt-12">
           <div className="w-full flex justify-between items-center mb-8 sm:mb-10">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-oswald font-bold text-[#333333] text-center lg:text-left">
               Siapkan Wajahmu
