@@ -16,7 +16,7 @@ export const useSendEmail = () => {
       let pdfUrl, storyUrl;
 
       if (resultId) {
-        const baseUrl = "https://tiebymin-ai.netlify.app";
+        const baseUrl = "https://tiebymin-ai.vercel.app";
 
         pdfUrl = `${baseUrl}/api/generate-pdf?resultId=${resultId}&firstName=${encodeURIComponent(data.userData.name)}`;
 
