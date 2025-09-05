@@ -1,0 +1,11 @@
+[[plugins]]
+package = "netlify-plugin-chromium"
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200

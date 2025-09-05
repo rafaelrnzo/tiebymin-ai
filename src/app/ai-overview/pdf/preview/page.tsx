@@ -249,14 +249,6 @@ function PreviewPdfPage() {
                   <ChevronRight className="text-[#f0f0f0] w-5 h-5" />
                 )}
               </Button>
-              <Button
-                onClick={() => setIsEmailModalOpen(true)}
-                className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
-              >
-                <span className="text-[#f0f0f0] font-poppins font-bold">
-                  Share
-                </span>
-              </Button>
             </div>
           ) : (
             <div className="bg-[#f0f0f0] p-4 flex justify-between items-center border-t border-gray-200">

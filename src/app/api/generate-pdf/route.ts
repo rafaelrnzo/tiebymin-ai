@@ -14,7 +14,7 @@ async function generatePdf(req: NextRequest) {
   try {
     let resultId, firstName;
     
-    // Cek metode request
+    // Parse request data
     if (req.method === 'POST') {
       try {
         const body = await req.json();
@@ -57,7 +57,13 @@ async function generatePdf(req: NextRequest) {
       pdfUrl: pdfUrl.toString()
     });
 
+    // Detect environment
+    const isNetlify = !!process.env.NETLIFY;
     const isVercel = !!process.env.VERCEL_ENV;
+    const isLocal = !isNetlify && !isVercel;
+
+    console.log("Environment Detection:", { isNetlify, isVercel, isLocal });
+
     let puppeteer;
     let launchOptions: {
       headless: boolean;
@@ -67,11 +73,56 @@ async function generatePdf(req: NextRequest) {
       headless: true,
     };
 
-    if (isVercel) {
+    if (isNetlify) {
+      // Netlify configuration with plugin-installed Chrome
+      puppeteer = await import("puppeteer");
+      
+      const chromeExecutablePath = process.env.CHROME_PATH || 
+                                 process.env.PUPPETEER_EXECUTABLE_PATH ||
+                                 '/opt/buildhome/.cache/puppeteer/chrome';
+
+      launchOptions = {
+        headless: true,
+        executablePath: chromeExecutablePath,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-gpu',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-web-security',
+          '--disable-features=TranslateUI',
+          '--disable-extensions',
+          '--disable-component-extensions-with-background-pages',
+          '--disable-default-apps',
+          '--mute-audio',
+          '--no-default-browser-check',
+          '--autoplay-policy=user-gesture-required',
+          '--disable-background-networking',
+          '--disable-background-sync',
+          '--disable-client-side-phishing-detection',
+          '--disable-sync',
+          '--disable-translate',
+          '--hide-scrollbars',
+          '--metrics-recording-only',
+          '--no-first-run',
+          '--safebrowsing-disable-auto-update',
+          '--disable-crash-reporter'
+        ],
+      };
+    } else if (isVercel) {
+      // Vercel configuration with @sparticuz/chromium
       const chromium = (await import("@sparticuz/chromium")).default;
       puppeteer = await import("puppeteer-core");
+      
       launchOptions = {
-        ...launchOptions,
+        headless: true,
         args: [
           ...chromium.args,
           '--no-sandbox',
@@ -84,12 +135,12 @@ async function generatePdf(req: NextRequest) {
           '--disable-gpu'
         ],
         executablePath: await chromium.executablePath(),
-        headless: true,
       };
     } else {
+      // Local development
       puppeteer = await import("puppeteer");
       launchOptions = {
-        ...launchOptions,
+        headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -99,9 +150,13 @@ async function generatePdf(req: NextRequest) {
           '--no-zygote',
           '--disable-gpu'
         ],
-        headless: true,
       };
     }
+
+    console.log("Launching browser with options:", { 
+      executablePath: launchOptions.executablePath || 'default',
+      argsCount: launchOptions.args?.length || 0 
+    });
 
     const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
@@ -112,27 +167,28 @@ async function generatePdf(req: NextRequest) {
       deviceScaleFactor: 1,
     });
 
-    // Set longer timeout and better wait conditions
+    // Set longer timeout for Netlify cold starts
+    const navigationTimeout = isNetlify ? 90000 : 60000;
+
     await page.goto(pdfUrl.toString(), {
       waitUntil: ["networkidle0", "domcontentloaded"],
-      timeout: 60000,
+      timeout: navigationTimeout,
     });
 
     // Wait for page to be fully loaded
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
     console.log("Initial page load wait completed");
 
     try {
       // Multiple strategies for waiting for content readiness
       let contentReady = false;
       let attempts = 0;
-      const maxAttempts = 15; // 30 seconds total with 2 second intervals
+      const maxAttempts = isNetlify ? 20 : 15; // More attempts for Netlify
 
       while (!contentReady && attempts < maxAttempts) {
         attempts++;
         
         try {
-          // Strategy 1: Wait for the ideal ready state
           await page.waitForSelector('#pdf-content[data-pdf-ready="true"]', { timeout: 2000 });
           console.log("PDF content marked as ready via data-pdf-ready=true");
           contentReady = true;
@@ -142,7 +198,6 @@ async function generatePdf(req: NextRequest) {
         }
 
         try {
-          // Strategy 2: Check if we have basic data
           const hasBasicData = await page.$('#pdf-content[data-has-basic-data="true"]');
           if (hasBasicData) {
             console.log("PDF content has basic data, proceeding");
@@ -154,7 +209,6 @@ async function generatePdf(req: NextRequest) {
         }
 
         try {
-          // Strategy 3: Check if content exists and loading is complete
           const loadingComplete = await page.$('#pdf-content[data-loading-state="loaded"]');
           if (loadingComplete) {
             console.log("PDF content loading is complete, proceeding");
@@ -165,7 +219,6 @@ async function generatePdf(req: NextRequest) {
           console.log(`Attempt ${attempts}: Loading state check failed`);
         }
 
-        // Wait before next attempt
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
@@ -173,7 +226,6 @@ async function generatePdf(req: NextRequest) {
         console.warn("Content readiness check timed out, proceeding with PDF generation anyway");
       }
 
-      // Final check - ensure the element exists at all
       const contentExists = await page.$('#pdf-content');
       if (!contentExists) {
         console.error("Critical Error: #pdf-content element does not exist on the page.");
@@ -184,9 +236,8 @@ async function generatePdf(req: NextRequest) {
         console.log("Using body content as a last resort for PDF generation.");
       }
 
-      // Additional wait for any remaining resources
       console.log("Final wait for resources...");
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 4000));
       
       console.log("Proceeding with PDF generation");
     } catch (error) {
@@ -199,16 +250,16 @@ async function generatePdf(req: NextRequest) {
       width: '210mm',
       height: '297mm',
       preferCSSPageSize: true,
+      timeout: 60000,
     });
 
     await browser.close();
 
-    // Return PDF as response
     const pdfBuffer = Buffer.from(pdf);
     
     console.log("PDF Generation: Returning PDF", {
       bufferSize: pdfBuffer.length,
-      contentType: "application/pdf"
+      environment: { isNetlify, isVercel, isLocal }
     });
 
     return new NextResponse(pdfBuffer, {
@@ -217,17 +268,18 @@ async function generatePdf(req: NextRequest) {
         "Content-Disposition": "attachment; filename=hasil-analisa-lengkap.pdf",
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Content-Length": pdfBuffer.length.toString(),
-        // Add CORS headers if needed
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
   } catch (error) {
+    console.error("PDF Generation Error:", error);
     return new NextResponse(
       JSON.stringify({
         error: "Failed to generate PDF",
         details: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
       }),
       {
         status: 500,
