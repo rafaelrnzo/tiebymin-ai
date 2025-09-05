@@ -1,3 +1,5 @@
+"use client"; // Tambahkan ini di baris paling atas
+
 import Footer from "@/components/component-landing/footer-section";
 import { FourthSection } from "@/components/component-landing/fourth-section";
 import { HeroSection } from "@/components/component-landing/hero-section";

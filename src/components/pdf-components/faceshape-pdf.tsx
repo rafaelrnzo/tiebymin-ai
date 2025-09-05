@@ -56,10 +56,12 @@ const DetailList = ({
   if (isDark) {
     return (
       <div className="bg-[#323232] text-[#f0f0f0] p-6 rounded h-full">
-        <h3 className="text-sm font-bold text-[#EF789B] mb-2">{title}</h3>
+        <h3 className="text-sm font-bold text-[#EF789B] mb-2 font-poppins">
+          {title}
+        </h3>
         <ul className="space-y-1">
           {items.map((item, index) => (
-            <li key={index} className="flex text-sm">
+            <li key={index} className="flex text-sm font-poppins">
               <span className="mr-2">•</span>
               <span>{item}</span>
             </li>

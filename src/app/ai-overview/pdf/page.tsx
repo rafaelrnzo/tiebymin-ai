@@ -30,7 +30,7 @@ import {
 } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import React, { Suspense, useMemo, useState } from "react";
+import React, { Suspense, useMemo, useState, useEffect } from "react";
 import { ProductRecommendation } from "@/components/pdf-components/product-recommendation-pdf";
 
 interface PageProps {
@@ -46,43 +46,94 @@ interface PageProps {
   colorTip?: AllTips["colorTip"];
   isLoading?: boolean;
   isError?: boolean;
+  bmiValue?: number;
+  bmiCategory?: string;
 }
 
 function PdfPage() {
   const searchParams = useSearchParams();
   const resultId = searchParams.get("result_id");
   const isPrintMode = searchParams.get("print") === "true";
-
+  const tokenFromUrl = searchParams.get("token");
   const userNameFromUrl = searchParams.get("userName");
+
+  // Set token to localStorage if provided in URL (for PDF generation)
+  const [tokenReady, setTokenReady] = useState(false);
+  const [pdfContentReady, setPdfContentReady] = useState(false);
+
+  useEffect(() => {
+    if (isPrintMode && tokenFromUrl && typeof window !== "undefined") {
+      localStorage.setItem("accessToken", tokenFromUrl);
+      localStorage.setItem("userToken", tokenFromUrl);
+      console.log("PDF Page: Token set from URL for PDF generation", {
+        tokenLength: tokenFromUrl.length,
+        tokenPrefix: tokenFromUrl.substring(0, 20) + "...",
+      });
+      // Small delay to ensure localStorage is set before proceeding
+      setTimeout(() => {
+        setTokenReady(true);
+      }, 100);
+    } else if (!isPrintMode) {
+      setTokenReady(true); // For normal page loads
+    } else if (isPrintMode && !tokenFromUrl) {
+      // In print mode but no token from URL, check if token exists in localStorage
+      const existingToken =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
+      if (existingToken) {
+        console.log("PDF Page: Using existing token from localStorage");
+        setTokenReady(true);
+      } else {
+        console.error("PDF Page: No token available for PDF generation");
+        // Still set ready to true to prevent blocking, but data fetching will fail gracefully
+        setTokenReady(true);
+      }
+    }
+  }, [isPrintMode, tokenFromUrl]);
+
+  console.log(
+    "PDF Page: About to call useAnalysisData with resultId:",
+    resultId,
+    "tokenReady:",
+    tokenReady
+  );
 
   const {
     data: analysisResult,
     isLoading,
     error: fetchError,
-  } = useAnalysisData(resultId);
+  } = useAnalysisData(tokenReady ? resultId : null);
+
+  console.log("PDF Page: useAnalysisData result:", {
+    hasData: !!analysisResult,
+    isLoading,
+    hasError: !!fetchError,
+    errorMessage: fetchError?.message,
+  });
+
   const { rawAnalysisData } = analysisResult || {
     rawAnalysisData: null,
   };
   const analysisData = rawAnalysisData;
 
   const { data: bodyDetails } = useBodyShapeData(
-    analysisData?.body_shape_id?.toString()
+    tokenReady && analysisData?.body_shape_id?.toString()
   );
 
   const { data: faceShapeDetails } = useFaceShapeData(
-    analysisData?.face_shape_id?.toString()
+    tokenReady && analysisData?.face_shape_id?.toString()
   );
 
   const { data: colorToneDetails } = useColorToneData(
-    analysisData?.color_analysis_id?.toString()
+    tokenReady && analysisData?.color_analysis_id?.toString()
   );
 
   const { data: celebrityDetails } = useCelebrityData(
-    analysisData?.celebrity_id?.toString()
+    tokenReady && analysisData?.celebrity_id?.toString()
   );
 
   const { data: bmiCategoryDetails } = useBmiCategoryData(
-    analysisData?.bmi_category_id?.toString()
+    tokenReady && analysisData?.bmi_category_id?.toString()
   );
 
   const {
@@ -91,7 +142,7 @@ function PdfPage() {
     isError: tipsError,
   } = useAllTips({
     analysisData: rawAnalysisData,
-    enabled: !!rawAnalysisData,
+    enabled: tokenReady && !!rawAnalysisData,
   });
 
   const { userData = defaultUserData, userPhotoUrl } = analysisResult || {};
@@ -119,7 +170,61 @@ function PdfPage() {
     };
   }, [analysisResult, isPrintMode, userNameFromUrl]);
 
-  const { refetch: downloadPdf, isLoading: isGenerating } = useDownloadPdf();
+  // Enhanced PDF readiness logic
+  useEffect(() => {
+    if (isPrintMode && analysisResult && finalUserData && analysisData) {
+      // Set a timer to mark content as ready after minimum required data is loaded
+      const timer = setTimeout(() => {
+        console.log("PDF Content: Marking as ready after timeout");
+        setPdfContentReady(true);
+      }, 3000); // 3 second fallback
+
+      // Check if we have sufficient data to proceed
+      const hasBasicData = !!(finalUserData && analysisData);
+      const hasOptionalData = !!(
+        bodyDetails ||
+        faceShapeDetails ||
+        colorToneDetails
+      );
+
+      if (hasBasicData && hasOptionalData) {
+        console.log("PDF Content: Sufficient data available, marking as ready");
+        clearTimeout(timer);
+        setPdfContentReady(true);
+      }
+
+      return () => clearTimeout(timer);
+    }
+  }, [
+    isPrintMode,
+    analysisResult,
+    finalUserData,
+    analysisData,
+    bodyDetails,
+    faceShapeDetails,
+    colorToneDetails,
+    celebrityDetails,
+    tips,
+  ]);
+
+  // Debug logging for PDF generation
+  if (isPrintMode) {
+    console.log("PDF Generation Debug:", {
+      hasBasicData: !!finalUserData && !!analysisData,
+      bodyDetails: !!bodyDetails,
+      faceShapeDetails: !!faceShapeDetails,
+      colorToneDetails: !!colorToneDetails,
+      celebrityDetails: !!celebrityDetails,
+      tips: !!tips,
+      tipsLoading,
+      tipsError,
+      isPrintMode,
+      pdfContentReady,
+    });
+  }
+
+  const { mutateAsync: downloadPdf, isPending: isGenerating } =
+    useDownloadPdf();
 
   const [error, setError] = useState<string | null>(null);
 
@@ -160,7 +265,7 @@ function PdfPage() {
 
     try {
       setError(null);
-      const result = await downloadPdf();
+      const result = await downloadPdf({ resultId });
 
       if (result.data) {
         const url = window.URL.createObjectURL(result.data);
@@ -174,7 +279,6 @@ function PdfPage() {
         showToast("PDF berhasil didownload!", "success");
       }
     } catch (error) {
-      console.error("Error downloading PDF:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -225,35 +329,61 @@ function PdfPage() {
   };
 
   if (isPrintMode) {
-    return (
-      <main id="pdf-content">
-        {pageOrder.map((pageKey, index) => {
-          const ComponentToPrint = pages[pageKey];
-          const isNotLastPage = index < pageOrder.length - 1;
+    // For PDF generation, render immediately with available data
+    // Don't wait for all data to be loaded to speed up PDF generation
+    const hasBasicData = finalUserData && analysisData;
 
-          return (
-            <section
-              key={pageKey}
-              className="pdf-page"
-              style={{ pageBreakAfter: isNotLastPage ? "always" : "auto" }}
-            >
-              <ComponentToPrint
-                userData={finalUserData}
-                userPhotoUrl={userPhotoUrl}
-                bodyDetails={bodyDetails}
-                faceShapeDetails={faceShapeDetails}
-                colorToneDetails={colorToneDetails}
-                celebrityDetails={celebrityDetails}
-                bmiCategoryDetails={bmiCategoryDetails}
-                faceTip={tips?.faceTip}
-                bodyTip={tips?.bodyTip}
-                colorTip={tips?.colorTip}
-                isLoading={tipsLoading}
-                isError={tipsError}
-              />
-            </section>
-          );
-        })}
+    return (
+      <main
+        id="pdf-content"
+        data-pdf-ready={pdfContentReady ? "true" : "false"}
+        data-loading-state={isLoading ? "loading" : "loaded"}
+        data-has-basic-data={hasBasicData ? "true" : "false"}
+      >
+        {hasBasicData ? (
+          pageOrder.map((pageKey, index) => {
+            const ComponentToPrint = pages[pageKey];
+            const isNotLastPage = index < pageOrder.length - 1;
+
+            return (
+              <section
+                key={pageKey}
+                className="pdf-page"
+                style={{ pageBreakAfter: isNotLastPage ? "always" : "auto" }}
+              >
+                <ComponentToPrint
+                  userData={finalUserData}
+                  userPhotoUrl={userPhotoUrl}
+                  bodyDetails={bodyDetails}
+                  faceShapeDetails={faceShapeDetails}
+                  colorToneDetails={colorToneDetails}
+                  celebrityDetails={celebrityDetails}
+                  bmiCategoryDetails={bmiCategoryDetails}
+                  faceTip={tips?.faceTip}
+                  bodyTip={tips?.bodyTip}
+                  colorTip={tips?.colorTip}
+                  isLoading={false} // Don't show loading state in PDF
+                  isError={false} // Don't show error state in PDF
+                  bmiValue={analysisData?.analysis_details?.bmi?.bmi_value}
+                  bmiCategory={
+                    analysisData?.analysis_details?.bmi?.category?.kategori
+                  }
+                />
+              </section>
+            );
+          })
+        ) : (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="text-xl font-bold mb-4">
+                Loading PDF Content...
+              </div>
+              <div className="text-gray-600">
+                Please wait while we prepare your analysis
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     );
   }
@@ -328,6 +458,8 @@ function PdfPage() {
           colorTip={tips?.colorTip}
           isLoading={tipsLoading}
           isError={tipsError}
+          bmiValue={analysisData?.analysis_details?.bmi?.bmi_value}
+          bmiCategory={analysisData?.analysis_details?.bmi?.category?.kategori}
         />
       </div>
     </>

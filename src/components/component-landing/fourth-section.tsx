@@ -38,15 +38,22 @@ const faqItems = [
 
 const FaqSection = () => {
   return (
-    <section className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[200px]">
+    <section className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[100px]">
       <div className="container mx-auto">
-        <hr className="mb-[100px]" />
+        <hr className="lg:mb-[100px] mb-[65px]" />
         <div className="grid grid-cols-1 xl:grid-cols-2 lg:gap-24 gap-6 items-center">
-          <div className="flex flex-col">
+          <Image
+            src="/faq-image.png"
+            alt="Fashion enthusiasts"
+            width={600}
+            height={450}
+            className="rounded-2xl  w-full h-auto max-h-[790px] object-cover block lg:hidden"
+          />
+          <div className="flex flex-col mt-5 lg:mt-0 gap-[25px]">
             <p className="text-2xl sm:text-3xl font-handlee italic">
               Sempurna Untuk
             </p>
-            <div>
+            <div className="flex flex-col gap-[10px]">
               <h2 className="font-oswald text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900">
                 Semua Pecinta Fashion!
               </h2>
@@ -60,43 +67,43 @@ const FaqSection = () => {
               type="single"
               collapsible
               defaultValue="item-1"
-              className="w-full"
+              className="flex flex-col w-full gap-[25px]"
             >
               {faqItems.map((item) => (
                 <AccordionItem
                   key={item.value}
                   value={item.value}
-                  className="px-4 my-4 rounded-2xl transition-colors duration-300 data-[state=closed]:bg-transparent data-[state=open]:bg-[#FFC6C6] data-[state=closed]:border"
+                  className="px-4 rounded-2xl transition-colors duration-300 data-[state=closed]:bg-transparent data-[state=open]:bg-[#FFC6C6] data-[state=closed]:border"
                 >
-                  <AccordionTrigger className="font-poppins text-base sm:text-lg lg:text-xl w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-[#323232]">
+                  <AccordionTrigger className="font-poppins text-sm sm:text-base xl:text-xl lg:text-xl w-full text-left font-semibold p-4 hover:no-underline data-[state=closed]:text-gray-900 data-[state=open]:text-[#323232]">
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="font-poppins text-sm sm:text-base px-4 pb-4 text-[#323232]">
+                  <AccordionContent className="font-poppins text-sm sm:text-base xl:text-xl lg:text-xl px-4 pb-4 text-[#323232]">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-            <a href="/metodologi">
+            <a href="/metodologi" className="mt-2">
               <Button
                 size="lg"
                 className="bg-[#323232] w-full text-[#f0f0f0] font-semibold rounded-xl py-5 sm:py-7 self-start text-base"
               >
-                <Clipboard className="h-6 w-6 sm:h-8 sm:w-8 text-[#f0f0f0]" />
-                Lihat Metodologi
+                <Clipboard className="h-6 w-6 sm:h-8 sm:w-8 text-[#f0f0f0] fill-[#f0f0f0]" />
+                <span className="font-poppins font-bold text-[#f0f0f0]">
+                  Lihat Metodologi
+                </span>
               </Button>
             </a>
           </div>
 
-          <div>
-            <Image
-              src="/faq-image.png"
-              alt="Fashion enthusiasts"
-              width={600}
-              height={700}
-              className="rounded-2xl shadow-xl w-full h-auto hidden lg:block"
-            />
-          </div>
+          <Image
+            src="/faq-image.png"
+            alt="Fashion enthusiasts"
+            width={600}
+            height={450}
+            className="rounded-2xl shadow-xl w-full h-auto max-h-[790px] object-cover lg:block hidden"
+          />
         </div>
       </div>
     </section>

@@ -31,23 +31,24 @@ export interface ProductColor {
 export interface Product {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   original_price: number;
   current_price: number;
-  discount_percentage: number;
+  discount_percentage?: number;
   average_rating: number;
-  total_reviews: number;
+  total_reviews?: number;
   size_range: string;
-  brand: string;
-  category: string;
+  brand?: string;
+  category?: string;
   product_link: string;
   images: string[];
-  is_active: boolean;
-  stock_quantity: number;
-  created_at: string;
-  updated_at: string;
-  color_recommendations: string[];
+  is_active?: boolean;
+  stock_quantity?: number;
+  created_at?: string;
+  updated_at?: string;
+  color_recommendations?: string[];
   total_compatibility_score: number;
+  compatibility_reason?: string;
 }
 
 export interface Celebrity {
@@ -64,15 +65,20 @@ export interface ColorAnalysis {
   id: string;
   name: string;
   description: string;
-  best_colour: string[];
-  neutral_colour: string[];
-  worst_colour: string[];
-  best_colour_combination: string[];
+  best_colour?: string[];
+  best_colors?: string[];
+  neutral_colour?: string[];
+  neutral_colors?: string[];
+  worst_colour?: string[];
+  worst_colors?: string[];
+  best_colour_combination?: string[];
+  combination_colors?: string[][];
   make_up_tips: string;
   tips_warna_kulit_pakaian: string;
   personality: string;
   karakteristik: string;
   penjelasan_color_analysis: string;
+  color_tips_summary?: string;
 }
 
 export interface FaceShape {

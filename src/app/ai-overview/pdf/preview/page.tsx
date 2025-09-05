@@ -81,7 +81,7 @@ function PreviewPdfPage() {
     isError: tipsError,
   } = useAllTips({ analysisData: rawAnalysisData, enabled: !!rawAnalysisData });
 
-  const { refetch: downloadPdf } = useDownloadPdf();
+  const { mutateAsync: downloadPdf } = useDownloadPdf();
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -92,7 +92,7 @@ function PreviewPdfPage() {
     setIsDownloading(true);
     try {
       setError(null);
-      const result = await downloadPdf();
+      const result = await downloadPdf({ resultId });
 
       if (result.data) {
         const url = window.URL.createObjectURL(result.data);
@@ -105,7 +105,6 @@ function PreviewPdfPage() {
         window.URL.revokeObjectURL(url);
       }
     } catch (error) {
-      console.error("Error downloading PDF:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -249,14 +248,6 @@ function PreviewPdfPage() {
                 {!isDownloading && (
                   <ChevronRight className="text-[#f0f0f0] w-5 h-5" />
                 )}
-              </Button>
-              <Button
-                onClick={() => setIsEmailModalOpen(true)}
-                className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
-              >
-                <span className="text-[#f0f0f0] font-poppins font-bold">
-                  Share
-                </span>
               </Button>
             </div>
           ) : (

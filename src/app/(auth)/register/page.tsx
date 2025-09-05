@@ -54,12 +54,26 @@ function RegisterPageContent() {
           return;
         }
 
-        // If user is already logged in but no startStep parameter, redirect to home
-        if (isLoggedIn && !startStepParam) {
-          router.push("/");
+        // If not logged in and trying to access analysis steps, keep them at register
+        if (
+          !isLoggedIn &&
+          (startStepParam === "measurements" ||
+            startStepParam === "body-shape" ||
+            startStepParam === "face-scan")
+        ) {
+          setCurrentStep("register");
+          setIsInitialized(true);
           return;
         }
 
+        // For unauthenticated users, only allow access to register step
+        if (!isLoggedIn) {
+          setCurrentStep("register");
+          setIsInitialized(true);
+          return;
+        }
+
+        // Allow logged-in users to access saved steps
         const savedStep = getCurrentStepFromStorage();
         const savedStepFromRegistration = persistedCurrentStep;
 
@@ -81,7 +95,6 @@ function RegisterPageContent() {
 
         setIsInitialized(true);
       } catch (error) {
-        console.error("Error initializing step from storage:", error);
         setIsInitialized(true);
       }
     }
@@ -203,11 +216,90 @@ function RegisterPageContent() {
       setPersistedCurrentStep(2);
       setCurrentStep("measurements");
     } catch (err) {
-      setErrorModalMessage(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat registrasi. Silakan coba lagi."
-      );
+      let errorMessage =
+        "Terjadi kesalahan saat registrasi. Silakan coba lagi.";
+
+      if (err instanceof Error) {
+        const errorText = err.message.toLowerCase();
+
+        // Handle email already exists error
+        if (
+          errorText.includes("email") &&
+          (errorText.includes("already") ||
+            errorText.includes("exists") ||
+            errorText.includes("duplicate"))
+        ) {
+          errorMessage = "Email sudah digunakan, silakan coba email lain";
+        }
+        // Handle network/connection errors
+        else if (
+          errorText.includes("network") ||
+          errorText.includes("connection") ||
+          errorText.includes("timeout")
+        ) {
+          errorMessage =
+            "Koneksi internet bermasalah. Periksa koneksi Anda dan coba lagi.";
+        }
+        // Handle server errors
+        else if (
+          errorText.includes("internal") ||
+          errorText.includes("server") ||
+          errorText.includes("500")
+        ) {
+          errorMessage =
+            "Server sedang mengalami gangguan. Silakan coba beberapa saat lagi.";
+        }
+        // Handle validation errors
+        else if (
+          errorText.includes("validation") ||
+          errorText.includes("invalid")
+        ) {
+          errorMessage =
+            "Data yang dimasukkan tidak valid. Periksa kembali form Anda.";
+        }
+        // Handle rate limiting
+        else if (
+          errorText.includes("rate") ||
+          errorText.includes("limit") ||
+          errorText.includes("too many")
+        ) {
+          errorMessage =
+            "Terlalu banyak percobaan. Silakan tunggu beberapa menit sebelum mencoba lagi.";
+        }
+        // Handle authentication errors
+        else if (
+          errorText.includes("unauthorized") ||
+          errorText.includes("forbidden") ||
+          errorText.includes("403") ||
+          errorText.includes("401")
+        ) {
+          errorMessage =
+            "Akses ditolak. Silakan coba lagi atau hubungi dukungan.";
+        }
+        // Handle other specific errors
+        else if (
+          errorText.includes("bad request") ||
+          errorText.includes("400")
+        ) {
+          errorMessage =
+            "Permintaan tidak dapat diproses. Periksa data Anda dan coba lagi.";
+        }
+        // Use original message if it's already user-friendly
+        else if (
+          errorText.length < 100 &&
+          !errorText.includes("error") &&
+          !errorText.includes("code")
+        ) {
+          errorMessage = err.message;
+        }
+        // Default fallback for technical errors
+        else {
+          errorMessage =
+            "Terjadi kesalahan saat membuat akun. Silakan coba lagi dalam beberapa saat.";
+        }
+      }
+
+      setErrorModalMessage(errorMessage);
       setIsErrorModalOpen(true);
     }
   };
@@ -225,7 +317,7 @@ function RegisterPageContent() {
   // Don't render the registration form until we've checked localStorage
   if (!isInitialized) {
     return (
-      <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+      <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
         </div>
@@ -242,14 +334,14 @@ function RegisterPageContent() {
   ];
 
   return (
-    <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="container mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
+    <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+      <div className="2xl:container 2xl:mx-auto w-full xl:px-[60px] lg:px-[80px] flex flex-col lg:flex-row items-center justify-between gap-[25px] lg:gap-[100px] xl:gap-[200px]">
         <LeftSideSection
           steps={steps}
           currentStepNumber={1}
           showExtendedSteps={false}
         />
-        <div className="w-full lg:flex-1 lg:max-w-[65%] lg:mr-[50px]">
+        <div className="w-full flex-1 xl:px-[4rem] lg:px-0 lg:mr-[50px] xl:mr-[50px]">
           <div className="bg-[#f0f0f0]/95 lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
               Buat Akun Baru
@@ -267,7 +359,7 @@ function RegisterPageContent() {
                   htmlFor="fullName"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Full Name *
+                  Full Name
                 </label>
                 <input
                   id="fullName"
@@ -289,7 +381,7 @@ function RegisterPageContent() {
                   htmlFor="email"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Email *
+                  Email
                 </label>
                 <input
                   id="email"
@@ -308,7 +400,7 @@ function RegisterPageContent() {
                   htmlFor="phone"
                   className="block text-gray-600 font-medium text-xs lg:text-sm"
                 >
-                  Nomor Telepon *
+                  Nomor Telepon
                 </label>
                 <div className="flex items-center border-gray-300 focus-within:border-gray-600 transition-colors">
                   <span className="text-gray-700 pl-1 text-xs lg:text-sm">
@@ -333,7 +425,7 @@ function RegisterPageContent() {
                     htmlFor="password"
                     className="block text-gray-600 font-medium text-xs lg:text-sm"
                   >
-                    Password *
+                    Password
                   </label>
                   <input
                     id="password"
@@ -354,7 +446,7 @@ function RegisterPageContent() {
                     htmlFor="confirmPassword"
                     className="block text-gray-600 font-medium text-xs lg:text-sm"
                   >
-                    Konfirmasi Password *
+                    Konfirmasi Password
                   </label>
                   <input
                     id="confirmPassword"
@@ -455,7 +547,7 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[url('/login-bg.png')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+        <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f0f0f0]"></div>
           </div>

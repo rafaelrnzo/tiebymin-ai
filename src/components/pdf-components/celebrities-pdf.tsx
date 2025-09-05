@@ -27,7 +27,7 @@ export const CelebritiesMatch = ({
           <Image
             loading="eager"
             decoding="sync"
-            src={celebrityDetails?.picture_url || "/placeholder.png"} // Tambahkan placeholder
+            src={celebrityDetails?.picture_url as string} // Tambahkan placeholder
             alt={celebrityDetails?.name || "Celebrity Match"}
             fill
             className="object-cover h-[500px]"

@@ -2,20 +2,52 @@
 
 import LeftSideSection from "@/components/component-login/left-side-section";
 import { ErrorModal } from "@/components/sections/error-modal";
+import { useUserData } from "@/hooks/useUserData";
 import { secureUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useUserData } from "@/hooks/useUserData";
+import { useState, useEffect } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading, error } = useUserData();
+
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // Handle OAuth redirect if user ends up on login page with token
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+
+      let accessToken = null;
+
+      // Check for access_token in query parameters
+      if (urlParams.has("access_token")) {
+        accessToken = urlParams.get("access_token");
+      }
+      // Check for access_token in hash
+      else if (hash.includes("access_token")) {
+        const hashParams = new URLSearchParams(hash.substring(1));
+        accessToken = hashParams.get("access_token");
+      }
+
+      if (accessToken) {
+        // Store token and redirect to profile
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("userToken", accessToken);
+        document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+
+        // Clean URL and redirect
+        window.history.replaceState(null, "", "/login");
+        router.push("/ai-overview/profile");
+      }
+    }
+  }, [router]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -57,18 +89,16 @@ export default function LoginPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[url('/login-bg.png')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
-      <div className="container mx-auto w-full max-w-[85rem] flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-16">
-        <div className="w-full lg:flex-1 lg:max-w-[45%]">
-          <LeftSideSection
-            steps={steps}
-            currentStepNumber={1}
-            showExtendedSteps={false}
-          />
-        </div>
-        <div className="w-full lg:flex-1 lg:max-w-[55%] lg:px-4">
+    <main className="min-h-screen bg-[url('/hero-bg.webp')] bg-cover bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 flex items-center justify-center">
+      <div className="2xl:container 2xl:mx-auto w-full xl:px-[60px] lg:px-[80px] flex flex-col lg:flex-row items-center justify-between gap-[25px] lg:gap-[100px] xl:gap-[200px]">
+        <LeftSideSection
+          steps={steps}
+          currentStepNumber={1}
+          showExtendedSteps={false}
+        />
+        <div className="w-full flex-1">
           <div className="bg-[#f0f0f0] lg:h-full h-[73vh] backdrop-blur-sm shadow-xl lg:rounded-2xl rounded-t-2xl border-0 py-6 px-4 sm:py-12 sm:px-6 md:px-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 font-oswald text-left">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#323232] mb-6 font-oswald text-left">
               Login Akun
             </h2>
 

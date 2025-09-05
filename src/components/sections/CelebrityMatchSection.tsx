@@ -1,6 +1,7 @@
 "use client";
 
 import { useCelebrityData } from "@/hooks/useAnalysisData";
+import { CelebrityMatchSectionSkeleton } from "@/components/skeleton-loading/section-skeletons";
 import Image from "next/image";
 import React, { useState } from "react";
 
@@ -16,12 +17,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
     () => Math.floor(Math.random() * (95 - 80 + 1)) + 80
   );
 
-  if (isLoading)
-    return (
-      <div className="text-center p-8 text-base sm:text-lg">
-        Finding your celebrity match...
-      </div>
-    );
+  if (isLoading) return <CelebrityMatchSectionSkeleton />;
   if (error)
     return (
       <div className="text-center p-8 text-red-500 text-base sm:text-lg">
@@ -74,18 +70,18 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
             <p className="font-handlee italic text-[#EF789B] text-lg sm:text-xl mb-1">
               Artis yang mirip kamu
             </p>
-            <h3 className="text-xl sm:text-3xl font-bold text-[#323232] font-oswald">
+            <h3 className="lg:text-4xl text-3xl font-bold text-[#323232] font-oswald">
               {matchData.name}
             </h3>
-            <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-lg mt-3 leading-relaxed">
+            <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-xl mt-3 leading-relaxed">
               {matchData.description}
             </p>
           </div>
           <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6">
-            <h4 className=" font-handlee text-[#323232] text-lg sm:text-xl mb-2 italic">
+            <h4 className=" font-handlee text-[#323232] text-2xl  mb-2 italic">
               Kenapa Cocok?
             </h4>
-            <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-lg leading-relaxed">
+            <p className="text-[#323232] font-poppins text-sm sm:text-base lg:text-xl leading-relaxed">
               {matchData.similarity_text}
             </p>
           </div>

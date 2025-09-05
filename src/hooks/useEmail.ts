@@ -16,19 +16,17 @@ export const useSendEmail = () => {
       let pdfUrl, storyUrl;
 
       if (resultId) {
-        const baseUrl = "https://tiebymin-ai.vercel.app";
+        const baseUrl = "https://tiebymin-ai.netlify.app";
 
         pdfUrl = `${baseUrl}/api/generate-pdf?resultId=${resultId}&firstName=${encodeURIComponent(data.userData.name)}`;
 
         storyUrl = `${baseUrl}/api/generate-story?result_id=${resultId}`;
 
-        console.log("Created download URLs:", { pdfUrl, storyUrl });
       }
 
       const html = createAnalysisEmailTemplate(data, pdfUrl, storyUrl);
 
       const response = await axios.post("/api/send-mail", { to, subject, html });
-      console.log("Email sent successfully with download links");
       return response.data;
     },
     onError: (error) => {

@@ -1,3 +1,3 @@
-const url = "https://minecraft-server-tiebymin-be-production.dgrttk.easypanel.host"
+const url = process.env.API_URL
 
 export default url

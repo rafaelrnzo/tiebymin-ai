@@ -1,37 +1,47 @@
 import { useState, useEffect } from "react";
 import { useRecommendations } from "./useRecommendations";
+import { useProductCompatibility } from "./useProductCompatibility";
+import { Product } from "@/types";
 
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  current_price: number;
-  original_price: number;
-  total_compatibility_score: number;
-  average_rating: number;
-  color_recommendations?: string[];
-  size_range: string;
-  product_link: string;
-}
-
-export const useProductRecommendations = (resultId: string | null) => {
+export const useProductRecommendations = (
+  resultId: string | null,
+  bodyShapeId?: string,
+  faceShapeId?: string
+) => {
   const [recommendationFilter, setRecommendationFilter] = useState<"hijab" | "clothes">("hijab");
   const [topProductScores, setTopProductScores] = useState<Map<string, number>>(new Map());
 
   const { data: recommendationsData, isLoading: isLoadingRecommendations } = useRecommendations(resultId);
 
+  const { data: compatibilityData, isLoading: isLoadingCompatibility } = useProductCompatibility(
+    resultId,
+    recommendationFilter,
+    bodyShapeId,
+    faceShapeId
+  );
+
   const handleFilterChange = (filter: "hijab" | "clothes") => {
     setRecommendationFilter(filter);
   };
 
-  const filteredProducts = recommendationsData
+  const baseFilteredProducts = recommendationsData
     ? recommendationFilter === "hijab"
       ? recommendationsData.hijab
       : recommendationsData.clothes
     : [];
 
+  const filteredProducts = baseFilteredProducts.map(product => ({
+    ...product,
+    compatibility_reason: compatibilityData?.[product.id]?.compatibility_reason || '',
+    total_compatibility_score: compatibilityData?.[product.id]?.compatibility_score ?? product.total_compatibility_score,
+  }));
+
   const sortedProducts = [...filteredProducts].sort(
-    (a: Product, b: Product) => b.total_compatibility_score - a.total_compatibility_score
+    (a: Product, b: Product) => {
+      const aScore = isNaN(a.total_compatibility_score) ? 0 : a.total_compatibility_score;
+      const bScore = isNaN(b.total_compatibility_score) ? 0 : b.total_compatibility_score;
+      return bScore - aScore;
+    }
   );
 
   useEffect(() => {
@@ -66,5 +76,6 @@ export const useProductRecommendations = (resultId: string | null) => {
     sortedProducts,
     topProductScores,
     isLoadingRecommendations,
+    isLoadingCompatibility,
   };
 };

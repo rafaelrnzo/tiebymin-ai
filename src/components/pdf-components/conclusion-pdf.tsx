@@ -89,19 +89,19 @@ export const Conclusion = ({
         <div className="flex flex-col gap-6">
           <TipBox
             title="Tips untuk bentuk wajah kamu"
-            content={faceTip} // Langsung pass string
+            content={faceTip || "Tips untuk bentuk wajah tidak tersedia"}
             loading={isLoading}
             error={isError}
           />
           <TipBox
             title="Tips untuk bentuk badan kamu"
-            content={bodyTip} // Langsung pass string
+            content={bodyTip || "Tips untuk bentuk badan tidak tersedia"}
             loading={isLoading}
             error={isError}
           />
           <TipBox
             title="Tips untuk tone warna kamu"
-            content={colorTip} // Langsung pass string
+            content={colorTip || "Tips untuk tone warna tidak tersedia"}
             loading={isLoading}
             error={isError}
           />
@@ -111,8 +111,9 @@ export const Conclusion = ({
               <p className="font-bold">Rekap Cepat Tips Kamu</p>
             </div>
             <p className="text-sm leading-relaxed text-gray-200">
-              {getFirstSentence(faceTip)} {getFirstSentence(bodyTip)}{" "}
-              {getFirstSentence(colorTip)}
+              {getFirstSentence(faceTip) || "Tips wajah tidak tersedia"}{" "}
+              {getFirstSentence(bodyTip) || "Tips badan tidak tersedia"}{" "}
+              {getFirstSentence(colorTip) || "Tips warna tidak tersedia"}
             </p>
           </div>
         </div>

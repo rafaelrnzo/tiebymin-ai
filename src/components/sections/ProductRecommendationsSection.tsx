@@ -5,19 +5,7 @@ import ProductCardMobile from "@/components/ProductCardMobile";
 import ProductCardDesktop from "@/components/ProductCardDesktop";
 import ResponsiveCarousel from "@/components/component-landing/carousel";
 import EmptyState from "./EmptyState";
-
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  current_price: number;
-  original_price: number;
-  total_compatibility_score: number;
-  average_rating: number;
-  color_recommendations?: string[];
-  size_range: string;
-  product_link: string;
-}
+import { Product } from "@/types";
 
 interface ProductRecommendationsSectionProps {
   sortedProducts: Product[];
@@ -47,8 +35,8 @@ const ProductRecommendationsSection: React.FC<
               onClick={() => onFilterChange("hijab")}
               className={`flex items-center justify-center gap-2.5 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 font-bold text-sm sm:text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
                 recommendationFilter === "hijab"
-                  ? "bg-gray-800 text-[#f0f0f0] shadow-lg"
-                  : "bg-gray-200 text-gray-600"
+                  ? "bg-[#323232] text-[#f0f0f0] shadow-lg"
+                  : "bg-gray-200 text-[#323232]"
               }`}
             >
               <span className="font-poppins font-bold text-sm sm:text-base">
@@ -60,8 +48,8 @@ const ProductRecommendationsSection: React.FC<
               onClick={() => onFilterChange("clothes")}
               className={`flex items-center justify-center gap-2.5 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 font-bold text-sm sm:text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
                 recommendationFilter === "clothes"
-                  ? "bg-gray-800 text-[#f0f0f0] shadow-lg"
-                  : "bg-gray-200 text-gray-600"
+                  ? "bg-[#323232] text-[#f0f0f0] shadow-lg"
+                  : "bg-gray-200 text-[#323232]"
               }`}
             >
               <span className="font-poppins font-bold text-sm sm:text-base">

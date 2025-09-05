@@ -1,9 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@theme {
-  --breakpoint-lg: 1090px
-}
 
 .font-oswald {
     font-family: var(--font-oswald);

@@ -31,8 +31,8 @@ interface AnalysisData {
   bmi_category_id?: string;
   celebrity_id?: string;
   analysis_details?: {
-    bmi?: {
-      bmi: number;
+    bmi: {
+      bmi_value: number;
     };
   };
 }
@@ -52,50 +52,62 @@ function BeautyAnalysisPageInner() {
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
   const [storyError, setStoryError] = useState<string | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   // Custom hooks
-  const { userName, userId } = useUserData();
+  const { userName, userId, fetchAuthMe } = useUserData();
   const { showToast } = useToast();
 
-  console.log("Page component - userId:", userId, "userName:", userName);
+  // Check authentication
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const userToken = localStorage.getItem("userToken");
+    const isLoggedIn =
+      !!(accessToken && accessToken.trim()) ||
+      !!(userToken && userToken.trim());
+
+    setIsAuthChecking(false);
+
+    if (!isLoggedIn) {
+      window.location.href = "/register";
+      return;
+    }
+
+    // Fetch user data from /v1/auth/me when component mounts
+    // This ensures we have the latest user first_name, especially when navigating from profile
+    if (isLoggedIn) {
+      fetchAuthMe();
+    }
+  }, [fetchAuthMe]);
 
   const resultId = searchParams.get("result_id");
-  console.log("ai-overview page - resultId from URL:", resultId);
-  console.log(
-    "ai-overview page - full search params:",
-    Object.fromEntries(searchParams.entries())
-  );
 
   // Fallback: try to get resultId from localStorage if not in URL
   const fallbackResultId = resultId || localStorage.getItem("analysisResultId");
   const finalResultId = fallbackResultId;
 
-  console.log(
-    "ai-overview page - final resultId (URL or localStorage):",
-    finalResultId
-  );
+  // Validate resultId format
+  const isValidResultId =
+    finalResultId &&
+    typeof finalResultId === "string" &&
+    finalResultId.length > 0;
 
   const {
     data: analysisResult,
     isLoading,
     error,
     isError,
-  } = useAnalysisData(finalResultId, {
+  } = useAnalysisData(isValidResultId ? finalResultId : null, {
     onError: (err) => {
-      console.error("useAnalysisData error:", err);
-      setErrorModalMessage(err.message);
+      console.error("Analysis data error:", err);
+      setErrorModalMessage(
+        err.message || "Terjadi kesalahan saat memuat data analisis"
+      );
       setIsErrorModalOpen(true);
     },
   });
 
   const { mutateAsync: generateStory } = useGenerateStory();
-
-  const {
-    sortedProducts,
-    topProductScores,
-    recommendationFilter,
-    handleFilterChange,
-  } = useProductRecommendations(finalResultId);
 
   const { userData, userPhotoUrl, rawAnalysisData }: AnalysisResult =
     analysisResult || {
@@ -104,18 +116,40 @@ function BeautyAnalysisPageInner() {
       rawAnalysisData: null,
     };
 
+  const {
+    sortedProducts,
+    topProductScores,
+    recommendationFilter,
+    handleFilterChange,
+  } = useProductRecommendations(
+    finalResultId,
+    rawAnalysisData?.body_shape_id?.toString(),
+    rawAnalysisData?.face_shape_id?.toString()
+  );
+
   const handleDownloadStory = async () => {
     if (!finalResultId) return;
     setIsGeneratingStory(true);
+
     try {
       setStoryError(null);
+      console.log("Starting story generation for result ID:", finalResultId);
+
       const result = await generateStory(finalResultId);
-      if (result.data) {
+      console.log("Story generation result:", result);
+
+      // Check if result exists and has data
+      if (result && result.data) {
+        console.log("Story data received, size:", result.data.byteLength);
+
         const imageData = result.data;
         const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
           type: "image/png",
         });
 
+        console.log("File created:", file.name, file.size, "bytes");
+
+        // Check if Web Share API is available and can share files
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
@@ -123,34 +157,57 @@ function BeautyAnalysisPageInner() {
               title: "Tie By Min Story",
               text: "Coba AI Fashion Analysis aku!",
             });
+            console.log("Story shared successfully");
             showToast("Story berhasil dibagikan!", "success");
           } catch (shareError) {
-            console.warn("Share failed, falling back to download:", shareError);
+            console.log("Share failed, falling back to download:", shareError);
+            // Fallback to download
             const url = URL.createObjectURL(file);
             const link = document.createElement("a");
             link.href = url;
             link.download = file.name;
+            document.body.appendChild(link); // Add to DOM for better compatibility
             link.click();
+            document.body.removeChild(link); // Clean up
             URL.revokeObjectURL(url);
+            console.log("Story downloaded successfully");
             showToast("Story berhasil diunduh!", "success");
           }
         } else {
-          console.log("Web Share API not supported, using direct download");
+          console.log("Web Share API not available, downloading directly");
+          // Direct download
           const url = URL.createObjectURL(file);
           const link = document.createElement("a");
           link.href = url;
           link.download = file.name;
+          document.body.appendChild(link); // Add to DOM for better compatibility
           link.click();
+          document.body.removeChild(link); // Clean up
           URL.revokeObjectURL(url);
+          console.log("Story downloaded successfully");
           showToast("Story berhasil diunduh!", "success");
         }
       } else {
-        throw new Error("No story data received");
+        console.error("No story data received in result:", result);
+        throw new Error("No story data received from server");
       }
     } catch (error) {
-      console.error("Error generating story:", error);
+      console.error("Story generation error:", error);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
+      console.error("Error details:", {
+        message: err?.message,
+        stack: err?.stack,
+        response: err?.response,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+      });
+
       setStoryError("Gagal membuat story");
-      showToast("Gagal membuat story", "error");
+      showToast(
+        `Gagal membuat story: ${err?.message || "Unknown error"}`,
+        "error"
+      );
     } finally {
       setIsGeneratingStory(false);
     }
@@ -198,7 +255,6 @@ function BeautyAnalysisPageInner() {
         localStorage.removeItem("capturedImage");
         localStorage.removeItem("registration-steps-progress");
         localStorage.removeItem("registration-current-step");
-        console.log("LocalStorage data cleared after successful analysis load");
       }, 2000); // Clear after 2 seconds to ensure data is fully loaded
 
       return () => clearTimeout(clearDataTimer);
@@ -207,6 +263,7 @@ function BeautyAnalysisPageInner() {
 
   const renderContent = (tabId: string) => {
     const analysisData = rawAnalysisData;
+    console.log(analysisData);
     if (!analysisData) return null;
 
     const content = (() => {
@@ -231,7 +288,7 @@ function BeautyAnalysisPageInner() {
               bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
               bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
               bmiResult={{
-                value: analysisData.analysis_details?.bmi?.bmi || 0,
+                value: userData?.bmi?.value || 0,
               }}
             />
           );
@@ -271,12 +328,23 @@ function BeautyAnalysisPageInner() {
     return content;
   };
 
+  // Show loading while checking authentication
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen bg-[#f0f0f0] flex items-center justify-center">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#323232]"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
       <Navbar />
 
-      <main className="xl:container xl:mx-auto w-full py-8 lg:py-4 pt-[80px] xl:px-[100px] px-[20px]">
-        <div className="flex flex-col md:flex-col lg:flex-row xl:flex-row justify-between w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
+      <main className="w-full py-8 lg:py-4 pt-[80px] px-[20px] 2xl:container 2xl:mx-auto">
+        <div className="flex flex-col md:flex-col xl:flex-row w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
           <UserProfileSection
             userName={userName}
             userPhotoUrl={userPhotoUrl}

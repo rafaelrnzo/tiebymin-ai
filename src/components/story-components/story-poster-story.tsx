@@ -67,6 +67,8 @@ interface StoryPosterProps {
   isGenerating: boolean;
   colorToneDetails?: ColorTone;
   faceShapeDetails?: FaceShape;
+  bmiValue?: number;
+  bmiCategory?: string;
 }
 
 export default function StoryPoster({
@@ -78,9 +80,10 @@ export default function StoryPoster({
   isGenerating,
   colorToneDetails,
   faceShapeDetails,
+  bmiValue,
+  bmiCategory,
 }: StoryPosterProps) {
   const faceShapeAnalysisData = generateGimmickChartData(userData.faceShape);
-  console.log(userData, userPhotoUrl);
   const penjelasanLengkap = faceShapeDetails?.penjelasan_face_shape || "";
 
   const kalimatUtama = penjelasanLengkap.split("-")[0].trim();
@@ -132,6 +135,8 @@ export default function StoryPoster({
           userData={userData}
           bodyDetails={bodyDetails}
           bmiCategoryDetails={bmiCategoryDetails}
+          bmiValue={bmiValue}
+          bmiCategory={bmiCategory}
         />
       </div>
     </div>

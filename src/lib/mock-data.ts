@@ -7,7 +7,7 @@ export const defaultUserData: UserData = {
   bodyShape: "Hourglass",
   colorTone: "Cool Winter",
   bmi: {
-    value: 51.18,
+    value: 0.00,
     category: "Ideal",
     desc: "Badan kamu bagus ideal!"
   },

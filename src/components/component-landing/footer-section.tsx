@@ -6,10 +6,13 @@ import { useEffect, useState } from "react";
 
 const footerLinks = {
   marketPlace: [
-    { href: "https://shopee.co.id/", label: "Shopee" },
-    { href: "https://www.tokopedia.com/", label: "Tokopedia" },
-    { href: "https://www.tiktok.com/shop", label: "TikTok Shop" },
-    { href: "https://www.lazada.co.id/", label: "Lazada" },
+    { href: "https://shopee.co.id/tiebyminofficial", label: "Shopee" },
+    { href: "https://www.tokopedia.com/tiebymin-official", label: "Tokopedia" },
+    { href: "https://www.tiktok.com/@tiebymin", label: "TikTok Shop" },
+    {
+      href: "https://www.lazada.co.id/shop/tiebymin-official/",
+      label: "Lazada",
+    },
   ],
   sumberDaya: [
     { href: "/testimoni", label: "Testimoni" },
@@ -36,7 +39,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[200px]">
+    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[80px]">
       <div className="container mx-auto">
         <div className="container mx-auto bg-[#F0F0F0] rounded-2xl mt-12 sm:mt-16 py-12 sm:py-20 text-center shadow-md">
           <h2 className="font-handlee text-4xl sm:text-5xl lg:text-6xl font-bold text-[#323232] leading-tight">
@@ -44,7 +47,7 @@ export default function Footer() {
             <br />
             Dibandingkan Yang Lain
           </h2>
-          <p className="max-w-3xl mx-auto my-8 sm:my-12 text-[#323232] font-poppins text-base sm:text-lg lg:text-xl">
+          <p className="max-w-3xl mx-auto my-8 sm:my-12 text-[#323232] font-poppins text-base sm:text-lg lg:text-xl px-5 lg:px-0">
             Temukan Fashion Yang Sesuai Untukmu Dengan Cara Yang Cerdas. Hanya
             Butuh Satu Foto. <b>Tiebymin AI</b> Memberikan Rekomendasi Instan
             Tanpa Perlu Repot, Serta Hemat Waktu Dan Biaya.
@@ -75,7 +78,7 @@ export default function Footer() {
           </a>
         </div>
         <div className="flex flex-col lg:flex-row justify-between gap-10 mt-16 sm:mt-24">
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             <Link href="/" className="inline-block">
               <Image
                 src="/vector/tie-by-min-logo.svg"
@@ -85,7 +88,7 @@ export default function Footer() {
                 className="h-auto"
               />
             </Link>
-            <p className="my-6 text-justify text-base sm:text-lg max-w-md text-[#323232]/50 font-poppins">
+            <p className="my-6 text-base sm:text-lg max-w-md text-[#323232]/50 font-poppins">
               Tiebymin Adalah Grup Yang Menaungi Brand Gaya Hidup Remaja
               Muslimah Nomer 1 Di Indonesia Dari Fashion Hingga Kecantikan.
               Desain Simple Dan Elegan Menjadi Ciri Khas Sekaligus Menebar
@@ -133,35 +136,37 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-col">
-            <h4 className="font-bold font-poppins tracking-wide">
-              Market Place
-            </h4>
-            <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
-              {footerLinks.marketPlace.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="hover:underline">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="flex w-full">
+            <div className="flex flex-col w-full">
+              <h4 className="font-bold font-poppins tracking-wide">
+                Market Place
+              </h4>
+              <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
+                {footerLinks.marketPlace.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="hover:underline">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Kolom Sumber Daya */}
-          <div className="flex flex-col">
-            <h4 className="font-bold font-poppins tracking-wide">
-              Sumber Daya
-            </h4>
-            <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
-              {footerLinks.sumberDaya.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="hover:underline">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {/* Kolom Sumber Daya */}
+            <div className="flex flex-col w-full">
+              <h4 className="font-bold font-poppins tracking-wide">
+                Sumber Daya
+              </h4>
+              <ul className="mt-8 sm:mt-12 space-y-6 sm:space-y-8 text-base sm:text-lg text-[#323232]/50">
+                {footerLinks.sumberDaya.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="hover:underline">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 

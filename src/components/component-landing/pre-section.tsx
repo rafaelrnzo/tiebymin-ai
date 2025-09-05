@@ -62,10 +62,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
       className="w-full h-[100px] object-cover rounded-lg"
     />
     <div className="flex items-center gap-4">
-      <h4 className="font-semibold text-[#323232] text-xl">{title}</h4>
+      <h4 className="font-bold font-poppins text-[#323232] text-xl">{title}</h4>
       <ShoppingCart className="h-4 w-4 fill-[#323232]" />
     </div>
-    <p className="text-xl text-[#323232]">{description}</p>
+    <p className="text-xl text-[#323232] font-poppins">{description}</p>
   </div>
 );
 
@@ -107,7 +107,14 @@ const FaceShapeCard = () => (
 );
 
 const ColorToneCard = () => {
-  const bestColors = ["#000000", "#191970", "#2F4F4F", "#4A444B", "#800000"];
+  const bestColors = [
+    "#000000",
+    "#4B0082",
+    "#191970",
+    "#2F4F4F",
+    "#4A444B",
+    "#800000",
+  ];
   const combinationColors = [
     ["#000000", "#483D8B"],
     ["#2F4F4F", "#800000"],
@@ -209,7 +216,7 @@ const CelebrityCard = () => (
       <Image
         width={200}
         height={100}
-        src="/damoy.png"
+        src="/damoy.webp"
         alt="Davina Karamoy"
         className="w-full h-[130px] object-cover rounded-lg"
       />
@@ -245,14 +252,14 @@ const RecommendationContainer = () => {
         "Hijab dengan neutral color gelap cocok untuk skin tone kamu",
     },
     {
-      imageUrl: "/new-hijab-10.png",
+      imageUrl: "/new-hijab-10.webp",
       title: "Premium Bergo",
       description: "Produk ini memiliki neutral color yang kamu butuhkan",
     },
   ];
 
   return (
-    <div className="lg:col-span-2 flex flex-col gap-4 bg-[#323232] rounded-xl p-6">
+    <div className="lg:col-span-2 hidden lg:flex flex-col gap-4 bg-[#323232] rounded-xl p-6">
       <div className="flex gap-4 mt-4">
         <Handbag className="text-[#f0f0f0]" />
         <p className="text-2xl font-handlee text-[#f0f0f0] italic">
@@ -330,7 +337,7 @@ const MobileCardsSlider: React.FC = () => {
         </div>
 
         {/* Progress Bar Indicator */}
-        <div className="px-4">
+        <div className="px-4 mt-[40px] lg:mt-0">
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] h-2 rounded-full transition-all duration-300 ease-out"
@@ -350,11 +357,9 @@ const MobileCardsSlider: React.FC = () => {
   );
 };
 const AnalysisDashboard: React.FC = () => {
-  // Check if user is logged in
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Only access localStorage on client side
     if (typeof window !== "undefined") {
       const accessToken = localStorage.getItem("accessToken");
       const userToken = localStorage.getItem("userToken");
@@ -366,7 +371,7 @@ const AnalysisDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="mt-12 sm:mt-16 p-4 sm:p-6 lg:p-8 lg:px-[190px]">
+    <div className="mt-12 sm:mt-16 lg:px-[80px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
         <MobileCardsSlider />
 
@@ -376,7 +381,7 @@ const AnalysisDashboard: React.FC = () => {
           </div>
           <RecommendationContainer />
         </div>
-        <hr className="mt-[60px] mb-[50px]" />
+        <hr className="mt-0 lg:mt-[60px] mb-0 lg:mb-[85px] lg:block hidden" />
       </div>
     </div>
   );

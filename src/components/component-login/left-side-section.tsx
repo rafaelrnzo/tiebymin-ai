@@ -29,7 +29,7 @@ export default function LeftSideSection({
   previousStep,
 }: LeftSideSectionProps) {
   return (
-    <div className="space-y-[17px] lg:space-y-8 w-full max-w-lg mx-auto flex flex-col items-center">
+    <div className="space-y-[5px] lg:space-y-8 flex flex-col items-center">
       {/* Animation Styles */}
       <style jsx global>{`
         @keyframes stepExpand {
@@ -112,24 +112,28 @@ export default function LeftSideSection({
       `}</style>
 
       {/* Logo */}
-      <div className="flex justify-center w-[120px] lg:w-full mt-[40px] lg:mt-0">
+      <div className="flex justify-center w-[120px] lg:w-full lg:h-full mt-[40px] lg:mt-0">
         <Image
           src="/vector/tie-by-min-logo.svg"
           alt="Tiebymin Logo"
           width={300}
-          height={96}
+          height={256}
           priority
           className="mx-auto"
         />
       </div>
 
-      {/* Description text for all steps */}
-      <div className="w-full max-w-sm mx-auto">
-        <h3 className="text-center font-poppins text-gray-800 mb-4">
-          Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami yang
-          berikan saran terbaik untuk kamu
-        </h3>
-      </div>
+      {/* Description text for all steps except body-shape and face-scan */}
+      {!(
+        title === "Pilih Bentuk Tubuh Kamu" || title === "Scan Wajah Kamu"
+      ) && (
+        <div className="w-full max-w-sm mx-auto lg:block hidden">
+          <h3 className="text-center font-poppins text-[#323232] lg:text-lg text-xs my-4">
+            Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami yang
+            berikan saran terbaik untuk kamu
+          </h3>
+        </div>
+      )}
 
       {/* Current Step Indicator */}
       {currentStep && (
@@ -148,6 +152,10 @@ export default function LeftSideSection({
         <div className="flex flex-col gap-8">
           {title === "Pilih Bentuk Tubuh Kamu" && (
             <>
+              <div className="shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300">
+                <p className="font-bold font-poppins">Analisa</p>
+                <p className="font-poppins font-bold">03</p>
+              </div>
               <div
                 className={`bg-[#EF789B] hidden lg:block rounded-2xl p-6 text-[#f0f0f0] w-full max-w-sm mx-auto shadow-md ${
                   animateStep === 3 && previousStep !== 3
@@ -167,7 +175,7 @@ export default function LeftSideSection({
                     />
                   </div>
                 </div>
-                <p className="text-[#f0f0f0]/90 text-sm leading-relaxed">
+                <p className="text-[#f0f0f0] font-poppins text-xl leading-relaxed">
                   {description}
                 </p>
               </div>
@@ -182,6 +190,10 @@ export default function LeftSideSection({
 
           {title === "Scan Wajah Kamu" && (
             <>
+              <div className="shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300">
+                <p className="font-bold font-poppins">Analisa</p>
+                <p className="font-poppins font-bold">03</p>
+              </div>
               <div className="shadow-md hidden lg:flex bg-[#f0f0f0] rounded-2xl p-4 items-center justify-between transition-colors duration-300">
                 <span className="font-bold font-poppins">
                   Pilih bentuk Tubuh Kamu
@@ -209,7 +221,7 @@ export default function LeftSideSection({
                     />
                   </div>
                 </div>
-                <p className="text-[#f0f0f0]/90 text-sm leading-relaxed">
+                <p className="text-[#f0f0f0] leading-relaxed font-poppins text-xl">
                   {description}
                 </p>
               </div>
@@ -221,6 +233,12 @@ export default function LeftSideSection({
       {/* Mobile steps - always show when steps exist */}
       {steps && (
         <div className="lg:hidden w-full px-4 rounded-2xl">
+          <div className="w-full max-w-sm mx-auto ">
+            <h3 className="text-center font-poppins text-[#323232] text-xs mb-4">
+              Mulai perjalanan kecantikanmu dengan analisa kami Biar Ai kami
+              yang berikan saran terbaik untuk kamu
+            </h3>
+          </div>
           <div className="flex flex-row justify-center items-start">
             {steps
               .filter((step) => {

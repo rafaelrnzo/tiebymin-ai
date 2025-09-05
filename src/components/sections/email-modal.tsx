@@ -40,8 +40,12 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
         ]);
 
         if (pdfResult.data && pngResult.data) {
+          const pdfBlob = new Blob([pdfResult.data], {
+            type: "application/pdf",
+          });
+          const pngBlob = new Blob([pngResult.data], { type: "image/png" });
           sendEmail(
-            { email, pdf: pdfResult.data, png: pngResult.data },
+            { email, pdf: pdfBlob, png: pngBlob },
             {
               onSuccess: () => {
                 console.log("Email sent successfully");

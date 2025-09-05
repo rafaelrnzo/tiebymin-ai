@@ -19,9 +19,12 @@ import {
 } from "@/components/ui/table";
 import { Download, Share2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserData } from "@/hooks/useUserData";
+import { useGenerateStory } from "@/hooks/useAnalysisData";
+import { useToast } from "@/hooks/useToast";
+import DashboardSkeleton from "@/components/skeleton-loading/profile-skeleton";
 
 // Function to shorten month names
 const shortenMonth = (dateString: string) => {
@@ -41,23 +44,142 @@ const shortenMonth = (dateString: string) => {
 };
 
 export default function DashboardPage() {
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+
   const router = useRouter();
-  const { userProfile, analysisHistory, isLoading, error, fetchUserData } =
-    useUserData();
+  const {
+    userProfile,
+    analysisHistory,
+    isLoading,
+    error,
+    fetchUserData,
+    logout,
+  } = useUserData();
+
+  const { mutateAsync: generateStory } = useGenerateStory();
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+
+      let accessToken = null;
+
+      // Check for access_token in query parameters (from backend redirect)
+      if (urlParams.has("access_token")) {
+        accessToken = urlParams.get("access_token");
+      }
+      // Fallback: check for access_token in hash
+      else if (hash.includes("access_token")) {
+        const hashParams = new URLSearchParams(hash.substring(1));
+        accessToken = hashParams.get("access_token");
+      }
+
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("userToken", accessToken); // For backward compatibility
+
+        document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+
+        // Clean the URL (remove query params and hash)
+        window.history.replaceState(null, "", window.location.pathname);
+
+        fetchUserData();
+      }
+    }
+  }, [fetchUserData]);
+
+  const handleDownloadStory = async (resultId: string) => {
+    if (!resultId) return;
+    setIsGeneratingStory(true);
+
+    try {
+      console.log("Starting story generation for result ID:", resultId);
+
+      const result = await generateStory(resultId);
+      console.log("Story generation result:", result);
+
+      // Check if result exists and has data
+      if (result && result.data) {
+        console.log("Story data received, size:", result.data.byteLength);
+
+        const imageData = result.data;
+        const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
+          type: "image/png",
+        });
+
+        console.log("File created:", file.name, file.size, "bytes");
+
+        // Check if Web Share API is available and can share files
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: "Tie By Min Story",
+              text: "Coba AI Fashion Analysis aku!",
+            });
+            console.log("Story shared successfully");
+            showToast("Story berhasil dibagikan!", "success");
+          } catch (shareError) {
+            console.log("Share failed, falling back to download:", shareError);
+            // Fallback to download
+            const url = URL.createObjectURL(file);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = file.name;
+            document.body.appendChild(link); // Add to DOM for better compatibility
+            link.click();
+            document.body.removeChild(link); // Clean up
+            URL.revokeObjectURL(url);
+            console.log("Story downloaded successfully");
+            showToast("Story berhasil diunduh!", "success");
+          }
+        } else {
+          console.log("Web Share API not available, downloading directly");
+          // Direct download
+          const url = URL.createObjectURL(file);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = file.name;
+          document.body.appendChild(link); // Add to DOM for better compatibility
+          link.click();
+          document.body.removeChild(link); // Clean up
+          URL.revokeObjectURL(url);
+          console.log("Story downloaded successfully");
+          showToast("Story berhasil diunduh!", "success");
+        }
+      } else {
+        console.error("No story data received in result:", result);
+        throw new Error("No story data received from server");
+      }
+    } catch (error) {
+      console.error("Story generation error:", error);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
+      console.error("Error details:", {
+        message: err?.message,
+        stack: err?.stack,
+        response: err?.response,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+      });
+
+      showToast(
+        `Gagal membuat story: ${err?.message || "Unknown error"}`,
+        "error"
+      );
+    } finally {
+      setIsGeneratingStory(false);
+    }
+  };
+
   if (isLoading) {
-    return (
-      <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
-        <Navbar />
-        <main className="lg:px-[200px] px-4 mt-[20px] lg:mt-[50px] flex items-center justify-center">
-          <div className="animate-pulse">Loading...</div>
-        </main>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error) {
@@ -74,7 +196,7 @@ export default function DashboardPage() {
   return (
     <div className="bg-[#f0f0f0] min-h-screen w-full font-poppins text-[#323232]">
       <Navbar />
-      <main className="container mx-auto lg:px-[200px] px-4 lg:pt-[190px]">
+      <main className="container mx-auto px-4 pt-[100px] lg:pt-[190px]">
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-[20px] lg:gap-[50px] mb-[20px]">
           <Card className="lg:col-span-1 rounded-2xl border flex flex-col items-center justify-center text-center p-6">
             <Image
@@ -93,7 +215,10 @@ export default function DashboardPage() {
               <button className="py-2 border w-full rounded-lg border-[#EF789B] text-[#EF789B] hover:bg-[#EF789B] hover:text-[#f0f0f0]">
                 Reset Password
               </button>
-              <button className="w-full py-2 text-[#f0f0f0] font-bold font-poppins rounded-lg bg-[#EF789B] hover:bg-pink-500">
+              <button
+                onClick={() => logout()}
+                className="w-full py-2 text-[#f0f0f0] font-bold font-poppins rounded-lg bg-[#EF789B] hover:bg-pink-500"
+              >
                 Log Out
               </button>
             </div>
@@ -110,13 +235,18 @@ export default function DashboardPage() {
                 produk terbaik. Semuanya kami analisis untuk bantu kamu tampil
                 lebih percaya diri dalam setiap aktivitas kamu.
               </p>
-              <div className="bg-[#323232] bg-[url('/card-bg.png')] text-[#f0f0f0] rounded-2xl shadow-xl p-6 flex flex-col items-center justify-between gap-6 flex-1">
+              <div className="bg-[#323232] bg-[url('/card-bg.webp')] text-[#f0f0f0] rounded-2xl shadow-xl p-6 flex flex-col items-center justify-between gap-6 flex-1">
                 <div className="text-center md:text-left">
                   <h3 className="font-handlee italic text-4xl md:text-5xl mt-5">
                     Mulai Analisis Kecantikan Kamu
                   </h3>
                 </div>
-                <Button className="bg-[#EF789B] hover:bg-pink-500 text-[#f0f0f0] font-bold rounded-lg text-lg w-full md:w-auto shrink-0 py-5 px-8 mb-5">
+                <Button
+                  onClick={() =>
+                    router.push("/register?startStep=measurements")
+                  }
+                  className="bg-[#EF789B] hover:bg-pink-500 text-[#f0f0f0] font-bold rounded-lg text-lg w-full md:w-auto shrink-0 py-5 px-8 mb-5"
+                >
                   <div className="">
                     <svg
                       width="31"
@@ -155,7 +285,7 @@ export default function DashboardPage() {
           <div className="overflow-x-auto rounded-2xl">
             <Table className="border-0">
               <TableHeader className="border-0">
-                <TableRow className="bg-[#FFC6C6] hover:bg-[#FFC6C6]/90 shadow-md border-0">
+                <TableRow className="bg-[#FFC6C6] rounded-2xl shadow-md border-0">
                   <TableHead className="text-[#323232] font-bold text-base pl-10 rounded-l-2xl py-4 border-0">
                     Date
                   </TableHead>
@@ -209,7 +339,14 @@ export default function DashboardPage() {
                       </TableCell>
                       <TableCell className="py-4">
                         <div className="flex items-center gap-8">
-                          <Button className="bg-[#EF789B] hover:bg-pink-500 rounded-lg shadow-md">
+                          <Button
+                            className="bg-[#EF789B] hover:bg-pink-500 rounded-lg shadow-md"
+                            onClick={() =>
+                              router.push(
+                                `/ai-overview/pdf/preview?result_id=${item.analysis_id}`
+                              )
+                            }
+                          >
                             <Download className="h-4 w-4 text-[#f0f0f0]" />
                             <p className="hidden sm:block text-[#f0f0f0] ml-2">
                               Download
@@ -219,6 +356,10 @@ export default function DashboardPage() {
                             variant="outline"
                             size="icon"
                             className="rounded-lg border-gray-300"
+                            onClick={() =>
+                              handleDownloadStory(item.analysis_id)
+                            }
+                            disabled={isGeneratingStory}
                           >
                             <Share2 className="h-4 w-4" />
                           </Button>

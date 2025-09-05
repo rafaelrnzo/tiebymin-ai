@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { useImageHandling } from "@/hooks/useImageHandling";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface UserProfileSectionProps {
   userName: string;
@@ -31,8 +30,8 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   } = useImageHandling(userPhotoUrl);
 
   return (
-    <div className="bg-[#323232] xl:w-[500px] md:w-full md:h-[250px] xl:h-[630px] rounded-3xl p-5 text-[#f0f0f0] flex flex-col md:flex-row gap-x-[20px] lg:gap-x-5 xl:flex-col lg:flex-col lg:mt-[130px] xl:mt-0">
-      <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full mb-4 sm:mb-6 bg-gray-200 rounded-xl overflow-hidden">
+    <div className="bg-[#323232] 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl p-5 text-[#f0f0f0] flex flex-col lg:flex-row md:flex-row items-center xl:flex-col gap-x-5 lg:mt-[60px] xl:mt-0">
+      <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full  rounded-xl overflow-hidden">
         {userPhotoUrl ? (
           <>
             {/* Loading State */}
@@ -96,21 +95,21 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
       </div>
 
       {/* Content Section */}
-      <div className="flex flex-col w-full">
-        <h2 className="w-full text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-4 font-handlee text-[#FFC6C6] italic leading-tight">
+      <div className="flex flex-col w-full justify-evenly gap-4 mt-4">
+        <h2 className="w-full text-2xl sm:text-3xl lg:text-4xl font-handlee text-[#FFC6C6] italic leading-tight">
           Hi {userName}, Ini Dia
           <br />
           Hasil Analisa Kamu
         </h2>
-        <p className="text-[#f0f0f0] text-xs lg:text-base xl:text-xl leading-relaxed font-poppins">
+        <p className="text-[#f0f0f0] text-xs lg:text-base xl:text-xl font-poppins">
           Dapatkan insight mendalam tentang fashion terbaik untuk kamu dengan
           teknologi AI kami dengan rekomendasi personal yang akurat.
         </p>
-        <div className="flex justify-between mt-6 gap-x-3">
+        <div className="flex justify-between mt-4 gap-x-3">
           <button
             onClick={onDownloadStory}
             disabled={!resultId || isGeneratingStory}
-            className="bg-[#f0f0f0] w-full text-xs sm:text-sm text-[#323232] px-3 lg:py-0 py-2 rounded-lg lg:rounded-full flex items-center justify-center gap-4 lg:gap-1 not-last:transition hover:bg-gray-200 disabled:opacity-50"
+            className="bg-[#f0f0f0] w-full text-xs sm:text-sm text-[#323232] px-3 py-2 rounded-lg xl:rounded-full flex items-center justify-center gap-4 lg:gap-1 not-last:transition hover:bg-gray-200 disabled:opacity-50"
           >
             <Image
               src="/overview-ai/icons/material-symbols_share.svg"
@@ -119,14 +118,16 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
               alt="Bagikan Hasil"
               loading="lazy"
             />
-            <span className="text-[12px] lg:text-[16px]">Bagikan Hasil</span>
+            <span className="text-[12px] lg:text-[16px] font-poppins text-[#323232]">
+              Bagikan Hasil
+            </span>
           </button>
           <button
             onClick={() =>
               router.push(`/ai-overview/pdf/preview?result_id=${resultId}`)
             }
             disabled={!resultId}
-            className="bg-[#FFC6C6] w-full text-[#323232] px-3 lg:py-0 py-2 rounded-lg lg:rounded-full flex items-center justify-center gap-4 lg:gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"
+            className="bg-[#FFC6C6] w-full text-[#323232] px-3 py-2 rounded-lg xl:rounded-full flex items-center justify-center gap-4 lg:gap-1 hover:bg-pink-600 transition disabled:bg-gray-400 text-xs sm:text-sm"
           >
             <Image
               src="/overview-ai/icons/ic_round-download.svg"
@@ -135,7 +136,9 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
               alt="Unduh Hasil"
               loading="lazy"
             />
-            <span className="text-[12px] lg:text-[16px]">Download Hasil</span>
+            <span className="text-[12px] lg:text-[16px] font-poppins text-[#323232]">
+              Download Hasil
+            </span>
           </button>
         </div>
       </div>
