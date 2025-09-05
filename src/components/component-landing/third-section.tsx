@@ -228,7 +228,7 @@ export const ThirdSection = () => {
   return (
     <section id="testimoni" className="px-4 sm:px-10 lg:px-[100px]">
       <div className="container mx-auto">
-        <hr className="lg:mt-[100px] lg:mb-[80px] mt-[40px] mb-[50px]" />
+        <hr className="lg:mt-[100px] lg:mb-[80px] my-[70px]" />
 
         <div className="flex flex-col items-center lg:flex-row text-start justify-between mb-[50px] lg:mb-[80px]">
           <div>
