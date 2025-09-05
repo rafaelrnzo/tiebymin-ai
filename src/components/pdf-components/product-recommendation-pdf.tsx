@@ -87,8 +87,7 @@ const MainContent = ({
               unoptimized={true} // Disable optimization for PDF generation
             />
             <div className="absolute bottom-3 left-3 bg-black bg-opacity-60 text-[#f0f0f0] px-3 py-1 rounded-full text-xs font-bold">
-              {Math.round((product.total_compatibility_score || 0) * 100)}%
-              Match
+              {Math.round((product.total_compatibility_score || 0) * 10)}% Match
             </div>
           </div>
           {/* Card Deskripsi */}
