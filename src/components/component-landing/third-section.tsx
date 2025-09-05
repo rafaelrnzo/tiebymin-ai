@@ -161,7 +161,7 @@ const TestimonialCard: React.FC<{
 
   return (
     <div
-      className="testimonial-flip-container relative h-[500px] lg:h-[400px] w-[400px] lg:w-80 flex-shrink-0 cursor-pointer rounded-3xl shadow-lg"
+      className="testimonial-flip-container relative h-[500px] lg:h-[480px] w-[400px] lg:w-80 flex-shrink-0 cursor-pointer rounded-3xl shadow-lg"
       onClick={onFlip}
     >
       <div className={`testimonial-flip-inner ${isFlipped ? "flipped" : ""}`}>
