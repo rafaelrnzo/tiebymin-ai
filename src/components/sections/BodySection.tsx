@@ -55,8 +55,8 @@ const BodySection: React.FC<BodySectionProps> = ({
     );
 
   return (
-    <div className="flex flex-col tablet:flex-col lg:flex-row xl:flex-row w-full gap-5 lg:gap-[50px]">
-      <div className="flex flex-col flex-1 px-[20px] pt-[10px] rounded-2xl border">
+    <div className="flex flex-col lg:flex-row xl:flex-row w-full gap-5 lg:gap-[50px]">
+      <div className="flex flex-col flex-1 px-[20px] pt-[25px] rounded-2xl border">
         <h3 className="font-bold text-2xl sm:text-3xl lg:text-5xl font-oswald">
           {bodyDetails.name}
         </h3>
@@ -66,7 +66,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             alt={`${bodyDetails.name} body type`}
             width={150}
             height={245}
-            className="object-contain h-[180px] sm:h-[220px] lg:h-[245px] xl:h-[245px]"
+            className="object-contain h-[180px] sm:h-[220px] lg:h-[245px] xl:h-[300px] 2xl:h-[350px]"
             priority
           />
         </div>
@@ -77,7 +77,7 @@ const BodySection: React.FC<BodySectionProps> = ({
 
       <div className="flex-2 space-y-4 lg:space-y-6">
         <div className="flex flex-col gap-4 lg:gap-12">
-          <div className="border border-[#323232] w-full max-w-full rounded-2xl p-4 text-[#323232]">
+          <div className="border border-[#323232] w-full max-w-full rounded-2xl p-4 text-[#323232] flex-gr">
             <h3 className="font-bold mt-3  text-[#323232] lg:text-center text-left text-lg sm:text-2xl lg:text-4xl xl:text-5xl font-oswald">
               BMI Analyst
             </h3>
@@ -104,7 +104,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             </div>
           </div>
 
-          <div className="bg-[#FFC6C6] shadow-md rounded-2xl p-4 lg:p-6 w-full max-w-full">
+          <div className="bg-[#FFC6C6] flex-1/2 shadow-md rounded-2xl p-4 lg:p-6 w-full max-w-full">
             <h3 className="italic font-handlee mb-2 sm:mb-3 text-base sm:text-lg lg:text-2xl md:text-left xl:text-center lg:text-center text-left">
               Karakteristik
             </h3>
