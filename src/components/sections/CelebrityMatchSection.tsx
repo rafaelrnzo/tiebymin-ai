@@ -45,7 +45,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
       <div className="w-full md:hidden">
         <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] max-w-sm mx-auto">
           <Image
-            src={matchData.picture_url || "/hijab-3.png"}
+            src={matchData.picture_url}
             alt={matchData.name}
             fill
             className="rounded-2xl object-cover object-center"
@@ -65,8 +65,8 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
 
       {/* Desktop: Side by side layout */}
       <div className="hidden md:flex flex-row gap-[20px] lg:gap-[50px]">
-        <div className="flex flex-col gap-[20px] lg:gap-[50px] w-full md:w-1/2">
-          <div className="border-[1px] border-neutral-600 rounded-2xl p-4 sm:p-6">
+        <div className="flex flex-col gap-[20px] lg:gap-[50px] w-full">
+          <div className="border-[1px] flex-1 border-neutral-600 rounded-2xl p-4 sm:p-6">
             <p className="font-handlee italic text-[#EF789B] text-lg sm:text-xl mb-1">
               Artis yang mirip kamu
             </p>
@@ -77,7 +77,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
               {matchData.description}
             </p>
           </div>
-          <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6">
+          <div className="bg-[#FFC6C6] rounded-2xl p-4 sm:p-6 flex-1">
             <h4 className=" font-handlee text-[#323232] text-2xl  mb-2 italic">
               Kenapa Cocok?
             </h4>
@@ -87,7 +87,7 @@ const CelebrityMatchSection: React.FC<CelebrityMatchSectionProps> = ({
           </div>
         </div>
 
-        <div className="relative w-full md:w-1/2 min-h-[300px] sm:min-h-[400px]">
+        <div className="relative w-full xl:h-[600px]">
           <Image
             src={matchData.picture_url || "/hijab-3.png"}
             alt={matchData.name}
