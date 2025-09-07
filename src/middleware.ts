@@ -32,9 +32,15 @@ export function middleware(request: NextRequest) {
   }
 
   const authCookie = request.cookies.get('auth');
+
+  // If no auth cookie, redirect to login
   if (!authCookie) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
+
+  // Additional session validation could be added here in the future
+  // For example: JWT token validation, session expiry checks, etc.
+  // For now, we trust the cookie presence and let the frontend handle detailed auth
 
   return NextResponse.next();
 }

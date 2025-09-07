@@ -53,6 +53,50 @@ export const useUserData = () => {
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
 
+  // Comprehensive localStorage clearing function for auth expiration
+  const clearAllUserData = () => {
+    if (typeof window === "undefined") return;
+
+    // Clear all authentication tokens
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userToken");
+
+    // Clear all user profile data
+    localStorage.removeItem("userId");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("id");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("lastName");
+
+    // Clear analysis data
+    localStorage.removeItem("analysisResultId");
+    localStorage.removeItem("tiebymin-analysis-data");
+
+    // Clear payment data
+    localStorage.removeItem("paymentOrderId");
+
+    // Clear image data
+    localStorage.removeItem("capturedImage");
+    localStorage.removeItem("uploadedImage");
+    localStorage.removeItem("uploadedFaceImage");
+
+    // Clear registration data
+    localStorage.removeItem("registration-steps-progress");
+    localStorage.removeItem("registration-current-step");
+
+    // Clear feedback data
+    localStorage.removeItem("feedbackSubmitted");
+    localStorage.removeItem("feedbackDismissed");
+
+    // Clear cookie
+    document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
+
+    // Clear user state
+    setUserName("");
+    setUserId("");
+  };
+
   useEffect(() => {
     const syncData = () => {
       if (typeof window !== "undefined") {
@@ -174,17 +218,8 @@ export const useUserData = () => {
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          // Clear invalid tokens
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("userToken");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userEmail");
-          localStorage.removeItem("firstName");
-          localStorage.removeItem("lastName");
-          // Clear cookie
-          if (typeof window !== 'undefined') {
-            document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
-          }
+          // Clear all user data on auth expiration
+          clearAllUserData();
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
         throw handleAxiosError(error, 'general');
@@ -221,17 +256,8 @@ export const useUserData = () => {
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          // Clear invalid tokens
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("userToken");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userEmail");
-          localStorage.removeItem("firstName");
-          localStorage.removeItem("lastName");
-          // Clear cookie
-          if (typeof window !== 'undefined') {
-            document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
-          }
+          // Clear all user data on auth expiration
+          clearAllUserData();
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
         throw error;
@@ -262,17 +288,8 @@ export const useUserData = () => {
       } catch (error: unknown) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
-          // Clear invalid tokens
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("userToken");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userEmail");
-          localStorage.removeItem("firstName");
-          localStorage.removeItem("lastName");
-          // Clear cookie
-          if (typeof window !== 'undefined') {
-            document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
-          }
+          // Clear all user data on auth expiration
+          clearAllUserData();
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
         throw error;
@@ -300,29 +317,8 @@ export const useUserData = () => {
       return response.data;
     },
     onSuccess: () => {
-
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("registration-current-step");
-      localStorage.removeItem("registration-steps-progress");
-      localStorage.removeItem("tiebymin-analysis-data");
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userEmail");
-      localStorage.removeItem("firstName");
-      localStorage.removeItem("lastName");
-      localStorage.removeItem("analysisResultId");
-      localStorage.removeItem("paymentOrderId");
-      localStorage.removeItem("capturedImage");
-      localStorage.removeItem("uploadedImage");
-
-      // Clear cookie
-      if (typeof window !== 'undefined') {
-        document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
-      }
-
-      // Clear user state
-      setUserName("");
-      setUserId("");
+      // Clear all user data
+      clearAllUserData();
 
       // Redirect to home page
       if (typeof window !== "undefined") {
@@ -330,23 +326,8 @@ export const useUserData = () => {
       }
     },
     onError: (error) => {
-      console.error("Logout error:", error);
-      // Even if logout API fails, clear local data and redirect
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userEmail");
-      localStorage.removeItem("firstName");
-      localStorage.removeItem("lastName");
-      localStorage.removeItem("analysisResultId");
-
-      // Clear cookie
-      if (typeof window !== 'undefined') {
-        document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
-      }
-
-      setUserName("");
-      setUserId("");
+      // Even if logout API fails, clear all local data and redirect
+      clearAllUserData();
 
       if (typeof window !== "undefined") {
         window.location.href = "/";
