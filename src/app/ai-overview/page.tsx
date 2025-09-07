@@ -102,6 +102,17 @@ function BeautyAnalysisPageInner() {
   });
   const { isGeneratingStory, handleDownloadStory } = useStoryHandler();
 
+  // Logout function with localStorage clearing
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      // Clear all localStorage data
+      localStorage.clear();
+
+      // Redirect to login
+      window.location.href = "/login";
+    }
+  };
+
   // Data fetching and payment flow
   const {
     data: orderData,
@@ -204,6 +215,24 @@ function BeautyAnalysisPageInner() {
     },
   });
 
+  // Handle session expiration and authentication errors
+  useEffect(() => {
+    if (!isAuthChecking && (error || orderError)) {
+      // Check if it's an authentication error (401)
+      const isAuthError =
+        (error as { response?: { status?: number } })?.response?.status ===
+          401 ||
+        (orderError as { response?: { status?: number } })?.response?.status ===
+          401;
+
+      if (isAuthError) {
+        // Clear all localStorage data and logout
+        handleLogout();
+        return;
+      }
+    }
+  }, [isAuthChecking, error, orderError, handleLogout]);
+
   // Analysis data and mutations
   const { mutateAsync: createPayment, isPending: isPaymentProcessing } =
     useCreatePayment();
@@ -214,6 +243,27 @@ function BeautyAnalysisPageInner() {
       userPhotoUrl: null,
       rawAnalysisData: null,
     };
+
+  // Determine which image to use based on access source and availability
+  const getDisplayImage = () => {
+    if (typeof window === "undefined") return userPhotoUrl;
+
+    // For registration flow, try localStorage images first
+    if (accessSource === "registration") {
+      const capturedImage = localStorage.getItem("capturedImage");
+      const uploadedImage = localStorage.getItem("uploadedImage");
+
+      // If we have localStorage images and no API image, use localStorage
+      if ((capturedImage || uploadedImage) && !userPhotoUrl) {
+        return capturedImage || uploadedImage;
+      }
+    }
+
+    // For other flows or if API image is available, use API image
+    return userPhotoUrl;
+  };
+
+  const displayImage = getDisplayImage();
 
   // Clean up payment-related data after successful payment processing
   useEffect(() => {
@@ -502,7 +552,7 @@ function BeautyAnalysisPageInner() {
         <div className="flex flex-col md:flex-col xl:flex-row w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
           <UserProfileSection
             userName={userName}
-            userPhotoUrl={userPhotoUrl}
+            userPhotoUrl={displayImage}
             resultId={finalResultId}
             onDownloadStory={handleStoryDownload}
             isGeneratingStory={isGeneratingStory}
