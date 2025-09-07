@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { secureUrl } from "@/lib/api";
+import { handleAxiosError } from "@/lib/error-utils";
 
 interface LoginCredentials {
   email: string;
@@ -98,9 +99,9 @@ export const useUserData = () => {
         localStorage.setItem("accessToken", result.access_token);
         localStorage.setItem("userToken", result.access_token); // For backward compatibility
 
-        // Set cookie for middleware
+        // Set cookie for middleware with proper settings
         if (typeof window !== 'undefined') {
-          document.cookie = `auth=${result.access_token}; path=/; max-age=86400`;
+          document.cookie = `auth=${result.access_token}; path=/; max-age=86400; SameSite=Lax`;
         }
       }
     },
@@ -182,10 +183,12 @@ export const useUserData = () => {
           localStorage.removeItem("lastName");
           // Clear cookie
           if (typeof window !== 'undefined') {
-            document.cookie = 'auth=; path=/; max-age=0';
+            document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
           }
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
+        throw handleAxiosError(error, 'general');
+        throw handleAxiosError(error, 'general');
         throw error;
       }
     },
@@ -229,7 +232,7 @@ export const useUserData = () => {
           localStorage.removeItem("lastName");
           // Clear cookie
           if (typeof window !== 'undefined') {
-            document.cookie = 'auth=; path=/; max-age=0';
+            document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
           }
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
@@ -270,7 +273,7 @@ export const useUserData = () => {
           localStorage.removeItem("lastName");
           // Clear cookie
           if (typeof window !== 'undefined') {
-            document.cookie = 'auth=; path=/; max-age=0';
+            document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
           }
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
@@ -300,7 +303,6 @@ export const useUserData = () => {
     },
     onSuccess: () => {
 
-      // Clear all auth-related data from localStorage
       localStorage.removeItem("accessToken");
       localStorage.removeItem("registration-current-step");
       localStorage.removeItem("registration-steps-progress");
@@ -312,10 +314,12 @@ export const useUserData = () => {
       localStorage.removeItem("lastName");
       localStorage.removeItem("analysisResultId");
       localStorage.removeItem("paymentOrderId");
+      localStorage.removeItem("capturedImage");
+      localStorage.removeItem("uploadedImage");
 
       // Clear cookie
       if (typeof window !== 'undefined') {
-        document.cookie = 'auth=; path=/; max-age=0';
+        document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
       }
 
       // Clear user state
@@ -340,7 +344,7 @@ export const useUserData = () => {
 
       // Clear cookie
       if (typeof window !== 'undefined') {
-        document.cookie = 'auth=; path=/; max-age=0';
+        document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
       }
 
       setUserName("");

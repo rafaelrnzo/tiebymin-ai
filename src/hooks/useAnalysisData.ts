@@ -100,7 +100,20 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
     if (axiosError.code === 'ENOTFOUND' || axiosError.code === 'ECONNREFUSED') {
       throw new Error("Koneksi internet bermasalah. Mohon periksa koneksi Anda.");
     }
-    throw new Error("Terjadi kesalahan saat mengambil data. Mohon coba lagi.");
+    // Provide more specific error message based on the error type
+    if (axiosError.response?.status === 404) {
+      throw new Error("Data yang Anda cari tidak ditemukan. Pastikan ID yang benar.");
+    } else if (axiosError.response?.status === 403 || axiosError.response?.status === 401) {
+      throw new Error("Akses ditolak. Silakan login kembali.");
+    } else if (axiosError.response?.status && axiosError.response.status >= 500) {
+      throw new Error("Server sedang mengalami masalah. Silakan coba lagi nanti.");
+    } else if (axiosError.code === 'ECONNABORTED' || axiosError.message?.includes('timeout')) {
+      throw new Error("Permintaan timeout. Periksa koneksi internet Anda.");
+    } else if (axiosError.code === 'ENOTFOUND' || axiosError.code === 'ECONNREFUSED') {
+      throw new Error("Tidak dapat terhubung ke server. Periksa koneksi internet Anda.");
+    } else {
+      throw new Error("Terjadi kesalahan saat mengambil data. Mohon coba lagi.");
+    }
   }
 }
 

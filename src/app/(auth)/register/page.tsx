@@ -5,12 +5,14 @@ import RegistrationFlow, {
   RegistrationStep,
 } from "@/components/registration-flow/RegistrationFlow";
 import { ErrorModal } from "@/components/sections/error-modal";
-import { secureUrl } from "@/lib/api";
 import { useRegistrationFlow } from "@/hooks/useLocalStorage";
 import { useStepsProgress } from "@/hooks/useStepsProgress";
 import { useUserData } from "@/hooks/useUserData";
+import { secureUrl } from "@/lib/api";
+import { handleAxiosError } from "@/lib/error-utils";
+import { validateIndonesianPhoneNumber } from "@/lib/phone-utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 function RegisterPageContent() {
   const router = useRouter();
@@ -34,16 +36,44 @@ function RegisterPageContent() {
     setCurrentStep: setPersistedCurrentStep,
   } = useRegistrationFlow();
 
-  // Initialize step from localStorage and URL parameters only once on component mount
+  // Handle OAuth redirect and initialize step from localStorage and URL parameters only once on component mount
   useEffect(() => {
     if (!isInitialized) {
       try {
+        // Handle OAuth redirect if user ends up on register page with token
+        const urlParams = new URLSearchParams(window.location.search);
+        const hash = window.location.hash;
+
+        let accessToken = null;
+
+        // Check for access_token in query parameters
+        if (urlParams.has("access_token")) {
+          accessToken = urlParams.get("access_token");
+        }
+        // Check for access_token in hash
+        else if (hash.includes("access_token")) {
+          const hashParams = new URLSearchParams(hash.substring(1));
+          accessToken = hashParams.get("access_token");
+        }
+
+        if (accessToken) {
+          // Store token and redirect to profile
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("userToken", accessToken);
+          document.cookie = `auth=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+
+          // Clean URL and redirect to analysis overview
+          window.history.replaceState(null, "", "/register");
+          router.push("/ai-overview");
+          return;
+        }
+
         // Check for startStep URL parameter (for logged-in users)
         const startStepParam = searchParams.get("startStep");
-        const accessToken = localStorage.getItem("accessToken");
+        const accessTokenFromStorage = localStorage.getItem("accessToken");
         const userToken = localStorage.getItem("userToken");
         const isLoggedIn =
-          !!(accessToken && accessToken.trim()) ||
+          !!(accessTokenFromStorage && accessTokenFromStorage.trim()) ||
           !!(userToken && userToken.trim());
 
         if (isLoggedIn && startStepParam === "measurements") {
@@ -105,6 +135,7 @@ function RegisterPageContent() {
     searchParams,
     userProfile,
     setPersistedCurrentStep,
+    router,
   ]);
 
   const generateUUID = () => {
@@ -119,10 +150,23 @@ function RegisterPageContent() {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    if (field === "phone") {
+      // Only allow numbers, remove any non-numeric characters
+      const numericValue = value.replace(/\D/g, "");
+
+      // Limit to 15 digits (reasonable max for international phone numbers)
+      const limitedValue = numericValue.slice(0, 15);
+
+      setFormData((prev) => ({
+        ...prev,
+        [field]: limitedValue,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
   };
 
   const handleStepChange = (step: RegistrationStep) => {
@@ -151,8 +195,10 @@ function RegisterPageContent() {
       errors.push("Format email tidak valid");
     }
 
-    if (!formData.phone || formData.phone.length < 10) {
-      errors.push("Nomor telepon minimal 10 digit");
+    if (!formData.phone || formData.phone.length < 9) {
+      errors.push(
+        "Nomor telepon minimal 10 digit (atau 9 digit tanpa angka 0 di depan)"
+      );
     }
 
     if (formData.password.length < 6) {
@@ -193,7 +239,14 @@ function RegisterPageContent() {
           ? nameParts.slice(1).join(" ")
           : nameParts[0] || "";
 
-      const phoneNumber = formData.phone.replace(/\D/g, "");
+      // Format and validate phone number using utility function
+      const phoneValidation = validateIndonesianPhoneNumber(formData.phone);
+
+      if (!phoneValidation.isValid) {
+        throw new Error(phoneValidation.error);
+      }
+
+      const phoneNumber = phoneValidation.formattedNumber;
 
       await register({
         email: formData.email.trim().toLowerCase(),
@@ -201,104 +254,27 @@ function RegisterPageContent() {
         last_name: lastName || "",
         google_id: uniqueGoogleId,
         is_active: true,
-        phone_number: parseInt(phoneNumber) || null,
+        phone_number: phoneNumber ? parseInt(phoneNumber) : null,
         password: formData.password,
       });
 
       // Automatically login the user after successful registration
-      await login({
+      const loginResult = await login({
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
 
-      // Mark step 1 as completed and move to step 2
-      markStepCompleted(1);
-      setPersistedCurrentStep(2);
-      setCurrentStep("measurements");
-    } catch (err) {
-      let errorMessage =
-        "Terjadi kesalahan saat registrasi. Silakan coba lagi.";
-
-      if (err instanceof Error) {
-        const errorText = err.message.toLowerCase();
-
-        // Handle email already exists error
-        if (
-          errorText.includes("email") &&
-          (errorText.includes("already") ||
-            errorText.includes("exists") ||
-            errorText.includes("duplicate"))
-        ) {
-          errorMessage = "Email sudah digunakan, silakan coba email lain";
-        }
-        // Handle network/connection errors
-        else if (
-          errorText.includes("network") ||
-          errorText.includes("connection") ||
-          errorText.includes("timeout")
-        ) {
-          errorMessage =
-            "Koneksi internet bermasalah. Periksa koneksi Anda dan coba lagi.";
-        }
-        // Handle server errors
-        else if (
-          errorText.includes("internal") ||
-          errorText.includes("server") ||
-          errorText.includes("500")
-        ) {
-          errorMessage =
-            "Server sedang mengalami gangguan. Silakan coba beberapa saat lagi.";
-        }
-        // Handle validation errors
-        else if (
-          errorText.includes("validation") ||
-          errorText.includes("invalid")
-        ) {
-          errorMessage =
-            "Data yang dimasukkan tidak valid. Periksa kembali form Anda.";
-        }
-        // Handle rate limiting
-        else if (
-          errorText.includes("rate") ||
-          errorText.includes("limit") ||
-          errorText.includes("too many")
-        ) {
-          errorMessage =
-            "Terlalu banyak percobaan. Silakan tunggu beberapa menit sebelum mencoba lagi.";
-        }
-        // Handle authentication errors
-        else if (
-          errorText.includes("unauthorized") ||
-          errorText.includes("forbidden") ||
-          errorText.includes("403") ||
-          errorText.includes("401")
-        ) {
-          errorMessage =
-            "Akses ditolak. Silakan coba lagi atau hubungi dukungan.";
-        }
-        // Handle other specific errors
-        else if (
-          errorText.includes("bad request") ||
-          errorText.includes("400")
-        ) {
-          errorMessage =
-            "Permintaan tidak dapat diproses. Periksa data Anda dan coba lagi.";
-        }
-        // Use original message if it's already user-friendly
-        else if (
-          errorText.length < 100 &&
-          !errorText.includes("error") &&
-          !errorText.includes("code")
-        ) {
-          errorMessage = err.message;
-        }
-        // Default fallback for technical errors
-        else {
-          errorMessage =
-            "Terjadi kesalahan saat membuat akun. Silakan coba lagi dalam beberapa saat.";
-        }
+      // Ensure login was successful before proceeding
+      if (loginResult) {
+        // Mark step 1 as completed and move to step 2
+        markStepCompleted(1);
+        setPersistedCurrentStep(2);
+        setCurrentStep("measurements");
+      } else {
+        throw new Error("Login otomatis gagal setelah registrasi");
       }
-
+    } catch (err) {
+      const errorMessage = handleAxiosError(err, "register");
       setErrorModalMessage(errorMessage);
       setIsErrorModalOpen(true);
     }
@@ -412,9 +388,12 @@ function RegisterPageContent() {
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     className="w-full text-xs lg:text-sm border-b-gray-300 border-b-2 bg-transparent px-2 py-2 focus:outline-none focus:ring-0"
-                    placeholder="81234567890 (minimal 10 digit)"
+                    placeholder="81234567890 (hanya angka, tanpa spasi)"
                     required
-                    minLength={10}
+                    minLength={9}
+                    maxLength={15}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                   />
                 </div>
               </div>

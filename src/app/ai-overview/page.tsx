@@ -98,7 +98,7 @@ function BeautyAnalysisPageInner() {
   const { userName, userId } = useUserData();
   const { isAuthChecking } = useAuthCheck({
     redirectTo: "/register",
-    autoRedirect: true,
+    autoRedirect: false, // Don't auto-redirect, let the component handle it
     fetchUserData: true,
   });
   const { isGeneratingStory, handleDownloadStory } = useStoryHandler();
@@ -194,13 +194,17 @@ function BeautyAnalysisPageInner() {
     isLoading,
     error,
     isError,
-  } = useAnalysisData(isValidResultId ? finalResultId : null, {
+  } = useAnalysisData(isValidResultId && finalResultId ? finalResultId : null, {
     onError: (err) => {
       console.error("Analysis data error:", err);
-      setErrorModalMessage(
-        err.message || "Terjadi kesalahan saat memuat data analisis"
-      );
-      setIsErrorModalOpen(true);
+      // Only show error modal if we actually have a resultId to fetch
+      // This prevents error modals for new users who haven't completed analysis yet
+      if (finalResultId && isValidResultId) {
+        setErrorModalMessage(
+          err.message || "Terjadi kesalahan saat memuat data analisis"
+        );
+        setIsErrorModalOpen(true);
+      }
     },
   });
 
