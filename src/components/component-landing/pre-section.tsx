@@ -246,7 +246,7 @@ const CelebrityCard = () => (
 const RecommendationContainer = () => {
   const products: ProductCardProps[] = [
     {
-      imageUrl: "/new-hijab-9.png",
+      imageUrl: "/new-hijab-9.webp",
       title: "Premium Pasmina",
       description:
         "Hijab dengan neutral color gelap cocok untuk skin tone kamu",

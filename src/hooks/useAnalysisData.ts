@@ -170,6 +170,7 @@ export function useAnalysisData(
 
         // Find user photo
         let userPhotoUrl = null;
+        console.log("useAnalysisData - photosData:", photosData);
         if (Array.isArray(photosData)) {
           const processedPhoto = photosData.find(
             (photo: { is_processed: boolean }) => photo.is_processed === true
@@ -177,14 +178,19 @@ export function useAnalysisData(
 
           if (processedPhoto) {
             userPhotoUrl = processedPhoto.file_path;
+            console.log("useAnalysisData - Found processed photo:", userPhotoUrl);
           } else {
             const originalPhoto = photosData.find(
               (photo: { photo_type: string }) =>
                 photo.photo_type === "face_original"
             );
-            if (originalPhoto) userPhotoUrl = originalPhoto.file_path;
+            if (originalPhoto) {
+              userPhotoUrl = originalPhoto.file_path;
+              console.log("useAnalysisData - Found original photo:", userPhotoUrl);
+            }
           }
         }
+        console.log("useAnalysisData - Final userPhotoUrl:", userPhotoUrl);
 
         // Calculate BMI value dengan null checking dan validasi
         let bmiValue = 0;
@@ -653,4 +659,98 @@ export function useSendEmail() {
   });
 
   return sendEmailMutation;
+}
+
+export function useCreatePayment() {
+  return useMutation({
+    mutationFn: async (data: {
+      user_id: string;
+      tinggi_badan: number;
+      berat_badan: number;
+      umur: number;
+      body_shape_id: string;
+      amount: number;
+      foto_wajah: Blob;
+    }) => {
+      const formData = new FormData();
+      formData.append("user_id", data.user_id);
+      formData.append("tinggi_badan", data.tinggi_badan.toString());
+      formData.append("berat_badan", data.berat_badan.toString());
+      formData.append("umur", data.umur.toString());
+      formData.append("body_shape_id", data.body_shape_id);
+      formData.append("amount", data.amount.toString());
+      formData.append("foto_wajah", data.foto_wajah, "face-photo.png");
+
+      const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
+
+      const response = await axios.post(
+        secureUrl("/v1/payments/create-for-user"),
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    },
+    onSuccess: (result) => {
+      console.log("Payment created successfully:", result);
+      // Store the order ID for later use
+      if (result.order_id) {
+        localStorage.setItem("paymentOrderId", result.order_id);
+      }
+    },
+    onError: (error) => {
+      console.error("Payment creation error:", error);
+    },
+  });
+}
+
+export function useOrderData(orderId: string | null) {
+  const handleUnauthorized = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  };
+
+  return useQuery({
+    queryKey: ["orderData", orderId],
+    queryFn: async () => {
+      console.log("useOrderData queryFn called with orderId:", orderId);
+
+      if (!orderId) {
+        throw new Error("Order ID diperlukan");
+      }
+
+      try {
+        const orderData = await fetchData(`/v1/orders/${orderId}`, handleUnauthorized);
+        console.log("useOrderData - Order data:", orderData);
+
+        if (!orderData || !orderData.analysis_result_id) {
+          throw new Error("Data order tidak valid atau analysis_result_id tidak ditemukan");
+        }
+
+        return {
+          orderData,
+          analysisResultId: orderData.analysis_result_id
+        };
+      } catch (error: unknown) {
+        console.error("💥 Error fetching order data:", error);
+        throw new Error(
+          error instanceof Error
+            ? error.message
+            : "Terjadi kesalahan saat mengambil data order. Mohon coba lagi."
+        );
+      }
+    },
+    enabled: !!orderId,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000,
+  });
 }

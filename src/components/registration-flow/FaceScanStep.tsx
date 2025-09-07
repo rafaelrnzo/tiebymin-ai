@@ -43,72 +43,24 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
 
-  // Mutation for full analysis
-  const fullAnalysisMutation = useMutation({
-    mutationFn: async (data: {
-      imageBlob: Blob;
-      imageName: string;
-      userId: string;
-      analysisData: {
-        tinggi: string;
-        berat: string;
-        umur: string;
-        body_shape_id: string;
+  // Store data and redirect to camera/gallery
+  const handleProceedToAnalysis = () => {
+    // Convert selected image to base64 and store it
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        localStorage.setItem("uploadedFaceImage", e.target?.result as string);
+        // Redirect to open-camera page with loading animation
+        router.push(`/analyze/open-camera?fromGallery=true&skipCamera=true`);
       };
-    }) => {
-      const formData = new FormData();
-      formData.append("user_id", data.userId);
-      formData.append("tinggi_badan", data.analysisData.tinggi);
-      formData.append("berat_badan", data.analysisData.berat);
-      formData.append("umur", data.analysisData.umur);
-      formData.append("body_shape_id", data.analysisData.body_shape_id);
-      formData.append("foto_wajah", data.imageBlob, data.imageName);
-      const token =
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("userToken");
-
-      const response = await axios.post(
-        secureUrl("/v1/analysis/full-analysis"),
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      return response.data;
-    },
-    onSuccess: (resultId) => {
-      localStorage.setItem("analysisResultId", resultId);
-
-      // Convert selected image to base64 and store it
-      if (selectedFile) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          localStorage.setItem("uploadedFaceImage", e.target?.result as string);
-          // Redirect to open-camera page with loading animation
-          router.push(`/analyze/open-camera?fromGallery=true&skipCamera=true`);
-        };
-        reader.onerror = (error) => {
-          console.error("Error converting image to base64:", error);
-          setErrorModalMessage("Gagal memproses gambar. Silakan coba lagi.");
-          setIsErrorModalOpen(true);
-        };
-        reader.readAsDataURL(selectedFile);
-      }
-    },
-    onError: (error) => {
-      console.error("Analysis error:", error);
-      const err = error as Error;
-      setErrorModalMessage(
-        err.message ||
-          "Terjadi kesalahan saat memulai analisis. Silakan coba lagi."
-      );
-      setIsErrorModalOpen(true);
-    },
-  });
+      reader.onerror = (error) => {
+        console.error("Error converting image to base64:", error);
+        setErrorModalMessage("Gagal memproses gambar. Silakan coba lagi.");
+        setIsErrorModalOpen(true);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
 
   const handleTakePhoto = () => {
     router.push(`/analyze/open-camera`);
@@ -170,13 +122,8 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       return;
     }
 
-    // Trigger the mutation
-    fullAnalysisMutation.mutate({
-      imageBlob: selectedFile,
-      imageName: selectedFile.name,
-      userId,
-      analysisData: { tinggi, berat, umur, body_shape_id },
-    });
+    // Store data and proceed
+    handleProceedToAnalysis();
   };
 
   return (
@@ -490,17 +437,9 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
               </Button>
               <Button
                 onClick={handleProceedToCamera}
-                disabled={fullAnalysisMutation.isPending}
-                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
               >
-                {fullAnalysisMutation.isPending ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#323232]"></div>
-                    Menganalisa...
-                  </>
-                ) : (
-                  "Mulai Analisa"
-                )}
+                Mulai Analisa
               </Button>
             </div>
           </div>

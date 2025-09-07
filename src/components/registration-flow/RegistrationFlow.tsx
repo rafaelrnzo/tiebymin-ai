@@ -124,6 +124,15 @@ export default function RegistrationFlow({
       ...prev,
       [field]: value,
     }));
+
+    // Store tiebymin-analysis-data in localStorage
+    const currentData = localStorage.getItem("tiebymin-analysis-data");
+    const parsedData = currentData ? JSON.parse(currentData) : {};
+    const updatedData = {
+      ...parsedData,
+      [field]: value,
+    };
+    localStorage.setItem("tiebymin-analysis-data", JSON.stringify(updatedData));
   };
 
   const handleMeasurementsNext = () => {

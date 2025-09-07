@@ -66,7 +66,7 @@ const BodySection: React.FC<BodySectionProps> = ({
             alt={`${bodyDetails.name} body type`}
             width={150}
             height={245}
-            className="object-contain h-[180px] sm:h-[220px] lg:h-[245px] xl:h-[300px] 2xl:h-[350px]"
+            className="object-contain h-[180px] sm:h-[220px] lg:h-[245px] xl:h-[300px]"
             priority
           />
         </div>
