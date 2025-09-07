@@ -1,5 +1,3 @@
-import { FaceShape } from "@/types";
-
 interface StoryFaceShapeProps {
   faceShapeAnalysisData: { label: string; value: number; active: boolean }[];
   userData: { faceShape: string };

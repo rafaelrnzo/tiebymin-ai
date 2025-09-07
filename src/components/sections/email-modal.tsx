@@ -48,7 +48,6 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
             { email, pdf: pdfBlob, png: pngBlob },
             {
               onSuccess: () => {
-                console.log("Email sent successfully");
                 onClose();
               },
               onError: (error: Error) => {

@@ -71,7 +71,6 @@ function BeautyAnalysisPageInner() {
       !localStorage.getItem("paymentOrderId")
     ) {
       localStorage.setItem("paymentOrderId", urlOrderId);
-      console.log("Stored order_id from URL to localStorage:", urlOrderId);
     }
   }, [urlOrderId]);
 
@@ -134,13 +133,12 @@ function BeautyAnalysisPageInner() {
   // Payment flow effects
   useEffect(() => {
     if (orderId && isOrderLoading) {
-      console.log("Order data is loading, preventing any redirects");
+      // Order data is loading, preventing any redirects
     }
   }, [orderId, isOrderLoading]);
 
   useEffect(() => {
     if (isOrderSuccess && orderId && !paymentRedirectProcessed) {
-      console.log("Payment redirect processed successfully");
       setPaymentRedirectProcessed(true);
     }
   }, [isOrderSuccess, orderId, paymentRedirectProcessed]);
@@ -153,7 +151,6 @@ function BeautyAnalysisPageInner() {
     if (!isAuthChecking) {
       // Handle order errors
       if (orderId && orderError) {
-        console.error("Order loading failed:", orderError);
         setErrorModalMessage(
           "Order tidak ditemukan atau tidak valid. Silakan periksa link yang Anda ikuti."
         );
@@ -196,7 +193,6 @@ function BeautyAnalysisPageInner() {
     isError,
   } = useAnalysisData(isValidResultId && finalResultId ? finalResultId : null, {
     onError: (err) => {
-      console.error("Analysis data error:", err);
       // Only show error modal if we actually have a resultId to fetch
       // This prevents error modals for new users who haven't completed analysis yet
       if (finalResultId && isValidResultId) {
@@ -219,10 +215,6 @@ function BeautyAnalysisPageInner() {
       rawAnalysisData: null,
     };
 
-  // Debug logging
-  console.log("AI Overview Debug - userPhotoUrl:", userPhotoUrl);
-  console.log("AI Overview Debug - analysisResult:", analysisResult);
-
   // Clean up payment-related data after successful payment processing
   useEffect(() => {
     if (
@@ -238,8 +230,6 @@ function BeautyAnalysisPageInner() {
       userData &&
       !isAuthChecking
     ) {
-      console.log("Payment success fully processed, cleaning up payment data");
-
       // Clean up payment-related localStorage data
       localStorage.removeItem("uploadedImage");
       localStorage.removeItem("capturedImage");
@@ -248,15 +238,7 @@ function BeautyAnalysisPageInner() {
       // Store the analysisResultId in localStorage for fallback use
       if (orderAnalysisResultId) {
         localStorage.setItem("analysisResultId", orderAnalysisResultId);
-        console.log(
-          "Stored analysisResultId in localStorage:",
-          orderAnalysisResultId
-        );
       }
-
-      console.log(
-        "Payment success - Cleaned up payment data from localStorage"
-      );
     }
   }, [
     paymentRedirectProcessed,
@@ -334,7 +316,6 @@ function BeautyAnalysisPageInner() {
         throw new Error("Pembayaran gagal diproses. Silakan coba lagi.");
       }
     } catch (error) {
-      console.error("Payment error:", error);
       const err = error as Error;
       setErrorModalMessage(
         err.message ||
@@ -409,9 +390,6 @@ function BeautyAnalysisPageInner() {
         // Clear analysisResultId for non-payment flows to prevent interference
         if (!orderId && !urlOrderId) {
           localStorage.removeItem("analysisResultId");
-          console.log(
-            "Cleared analysisResultId from localStorage (non-payment flow)"
-          );
         }
 
         // Clean up tiebymin-analysis-data after successful payment
@@ -422,9 +400,6 @@ function BeautyAnalysisPageInner() {
           transactionStatus === "settlement"
         ) {
           localStorage.removeItem("tiebymin-analysis-data");
-          console.log(
-            "Cleared tiebymin-analysis-data after successful payment"
-          );
         }
       }, 2000);
 
@@ -444,7 +419,6 @@ function BeautyAnalysisPageInner() {
 
   const renderContent = (tabId: string) => {
     const analysisData = rawAnalysisData;
-    console.log(analysisData);
     if (!analysisData) return null;
 
     const content = (() => {

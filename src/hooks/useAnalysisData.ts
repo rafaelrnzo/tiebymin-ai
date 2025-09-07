@@ -24,17 +24,8 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
   const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
-  console.log("🔗 fetchData Debug:", {
-    endpoint,
-    fullUrl,
-    hasToken: !!token,
-    tokenLength: token ? token.length : 0,
-    tokenPrefix: token ? token.substring(0, 20) + "..." : null
-  });
-
   // Check if token exists
   if (!token) {
-    console.error("No authentication token found for API call:", endpoint);
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
@@ -42,7 +33,6 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   }
 
   try {
-    console.log("📤 fetchData - Making request to:", fullUrl);
     const response = await axios.get(fullUrl, {
       headers: {
         "Content-Type": "application/json",
@@ -50,11 +40,8 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
       },
     });
 
-    console.log("📥 fetchData - Response status:", response.status);
-    console.log("📄 fetchData - Response data preview:", JSON.stringify(response.data).substring(0, 200) + "...");
 
     if (response.status >= 200 && response.status < 300) {
-      console.log("✅ fetchData - Request successful");
       return response.data;
     } else {
       if (response.status === 401) {
@@ -147,7 +134,6 @@ export function useAnalysisData(
   return useQuery({
     queryKey: ["analysisData", resultId],
     queryFn: async () => {
-      console.log("useAnalysisData queryFn called with resultId:", resultId);
 
       if (!resultId) {
         throw new Error("ID Hasil diperlukan");
@@ -172,7 +158,6 @@ export function useAnalysisData(
         // Validasi ID yang diperlukan untuk fetch data tambahan
         if (!analysisData.face_shape_id && !analysisData.color_analysis_id &&
             !analysisData.body_shape_id && !analysisData.bmi_category_id) {
-          console.warn("Tidak ada ID yang valid untuk mengambil data tambahan");
         }
 
         // Fetch additional data berdasarkan IDs dari analysis result
@@ -204,11 +189,8 @@ export function useAnalysisData(
 
         // Find user photo - extract file_path from photos array
         let userPhotoUrl = null;
-        let allPhotos = [];
-        console.log("useAnalysisData - photosData:", photosData);
 
         if (Array.isArray(photosData) && photosData.length > 0) {
-          allPhotos = photosData;
 
           // Priority 1: Find processed photo (annotated/landmarked)
           const processedPhoto = photosData.find(
@@ -217,7 +199,6 @@ export function useAnalysisData(
 
           if (processedPhoto && processedPhoto.file_path) {
             userPhotoUrl = processedPhoto.file_path;
-            console.log("useAnalysisData - Found processed photo:", userPhotoUrl);
           } else {
             // Priority 2: Find original face photo
             const originalPhoto = photosData.find(
@@ -226,7 +207,6 @@ export function useAnalysisData(
             );
             if (originalPhoto && originalPhoto.file_path) {
               userPhotoUrl = originalPhoto.file_path;
-              console.log("useAnalysisData - Found original photo:", userPhotoUrl);
             } else {
               // Priority 3: Use first available photo with file_path
               const firstPhotoWithPath = photosData.find(
@@ -234,13 +214,10 @@ export function useAnalysisData(
               );
               if (firstPhotoWithPath) {
                 userPhotoUrl = firstPhotoWithPath.file_path;
-                console.log("useAnalysisData - Found first available photo:", userPhotoUrl);
               }
             }
           }
         }
-        console.log("useAnalysisData - Final userPhotoUrl:", userPhotoUrl);
-        console.log("useAnalysisData - All available photos:", allPhotos);
 
         // Calculate BMI value dengan null checking dan validasi
         let bmiValue = 0;
@@ -364,7 +341,6 @@ export function useAnalysisData(
           rawAnalysisData: analysisData, // Tambahkan ini
         };
       } catch (error: unknown) {
-        console.error("💥 Error fetching analysis data:", error);
         if (options?.onError) {
           options.onError(error instanceof Error ? error : new Error(String(error)));
         }
@@ -487,11 +463,6 @@ export function useDownloadPdf() {
       const firstName = data.firstName || localStorage.getItem("firstName") || "User";
       const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
-      console.log("useDownloadPdf: Starting PDF download request", {
-        resultId: data.resultId,
-        firstName,
-        hasToken: !!token
-      });
 
       try {
         const response = await axios.post("/api/generate-pdf", {
@@ -506,11 +477,6 @@ export function useDownloadPdf() {
           timeout: 120000, // 2 minute timeout
         });
 
-        console.log("useDownloadPdf: Response received", {
-          status: response.status,
-          contentType: response.headers['content-type'],
-          dataSize: response.data?.size || 'unknown'
-        });
 
         // Verify we got a proper blob response
         if (!response.data || response.data.size === 0) {
@@ -520,10 +486,7 @@ export function useDownloadPdf() {
         // Check if the response is actually a PDF
         const contentType = response.headers['content-type'];
         if (!contentType || !contentType.includes('application/pdf')) {
-          console.error("useDownloadPdf: Unexpected content type:", contentType);
           // Try to read the response as text to see if it's an error message
-          const text = await response.data.text();
-          console.error("useDownloadPdf: Response content:", text.substring(0, 500));
           throw new Error(`Unexpected response format: ${contentType}. Expected PDF.`);
         }
 
@@ -532,7 +495,6 @@ export function useDownloadPdf() {
           filename: `hasil-analisa-lengkap-${Date.now()}.pdf`
         };
       } catch (error) {
-        console.error("useDownloadPdf: Error occurred:", error);
         
         if (axios.isAxiosError(error)) {
           if (error.code === 'ECONNABORTED') {
@@ -561,7 +523,6 @@ export function useDownloadPdf() {
       }
     },
     onError: (error) => {
-      console.error("useDownloadPdf: Mutation failed:", error);
     }
   });
 }
@@ -571,7 +532,6 @@ export function useDownloadPdf() {
 export function useGenerateStory() {
   return useMutation({
     mutationFn: async (resultId: string) => {
-      console.log("useGenerateStory: Starting API call for", resultId);
       
       if (!resultId) {
         throw new Error("ID Hasil diperlukan");
@@ -579,10 +539,7 @@ export function useGenerateStory() {
 
       // Get token from localStorage
       const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
-      console.log("useGenerateStory: Token available:", !!token);
-
       const url = `/api/generate-story?result_id=${resultId}`;
-      console.log("useGenerateStory: Calling URL:", url);
 
       try {
         const response = await axios.post(url, {}, {
@@ -592,10 +549,6 @@ export function useGenerateStory() {
           responseType: "blob", // Important: Keep this as blob for binary data
         });
 
-        console.log("useGenerateStory: Response received");
-        console.log("useGenerateStory: Response status:", response.status);
-        console.log("useGenerateStory: Response headers:", response.headers);
-        console.log("useGenerateStory: Blob size:", response.data.size);
 
         // Check if response is actually a blob with content
         if (!response.data || response.data.size === 0) {
@@ -606,7 +559,6 @@ export function useGenerateStory() {
         const arrayBuffer = await response.data.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
         
-        console.log("useGenerateStory: ArrayBuffer created, size:", uint8Array.byteLength);
 
         // Return in the format expected by the frontend handler
         return {
@@ -615,7 +567,6 @@ export function useGenerateStory() {
           type: response.headers['content-type'] || "image/png"
         };
       } catch (error) {
-        console.error("useGenerateStory: API call failed:", error);
         
         // Handle axios errors specifically
         if (axios.isAxiosError(error)) {
@@ -635,12 +586,6 @@ export function useGenerateStory() {
         
         throw error;
       }
-    },
-    onError: (error) => {
-      console.error("useGenerateStory: Mutation error:", error);
-    },
-    onSuccess: (data) => {
-      console.log("useGenerateStory: Mutation success, data size:", data?.size);
     }
   });
 }
@@ -749,15 +694,9 @@ export function useCreatePayment() {
       return response.data;
     },
     onSuccess: (result) => {
-      console.log("Payment created successfully:", result);
-      // Store the order ID for later use
       if (result.order_id) {
         localStorage.setItem("paymentOrderId", result.order_id);
-        console.log("Payment created - Stored paymentOrderId in localStorage:", result.order_id);
       }
-    },
-    onError: (error) => {
-      console.error("Payment creation error:", error);
     },
   });
 }
@@ -766,17 +705,13 @@ export function useOrderData(orderId: string | null, requireAuth: boolean = true
   return useQuery({
     queryKey: ["orderData", orderId, requireAuth],
     queryFn: async () => {
-      console.log("🔍 useOrderData queryFn called with orderId:", orderId, "requireAuth:", requireAuth);
-
       if (!orderId) {
-        console.log("❌ useOrderData - No orderId provided");
         throw new Error("Order ID diperlukan");
       }
 
       try {
         // Make unauthenticated call for payment redirects
         if (!requireAuth) {
-          console.log("🔓 useOrderData - Making unauthenticated API call to:", `/v1/orders/${orderId}`);
           const fullUrl = secureUrl(`/v1/orders/${orderId}`);
           const response = await axios.get(fullUrl, {
             headers: {
@@ -784,36 +719,22 @@ export function useOrderData(orderId: string | null, requireAuth: boolean = true
             },
           });
 
-          console.log("📥 useOrderData - Unauthenticated response status:", response.status);
-          console.log("📄 useOrderData - Unauthenticated response data preview:", JSON.stringify(response.data).substring(0, 200) + "...");
-
           if (response.status >= 200 && response.status < 300) {
-            console.log("✅ useOrderData - Unauthenticated request successful");
             const orderData = response.data;
-            console.log("✅ useOrderData - Raw order data received:", orderData);
-            console.log("🔑 useOrderData - Order data keys:", Object.keys(orderData || {}));
-            console.log("🎯 useOrderData - analysis_result_id:", orderData?.analysis_result_id);
 
             if (!orderData) {
-              console.error("❌ useOrderData - No order data received");
               throw new Error("Data order tidak ditemukan");
             }
 
             if (!orderData.analysis_result_id) {
-              console.error("❌ useOrderData - No analysis_result_id in order data");
-              console.error("🔍 useOrderData - Available fields:", Object.keys(orderData));
-              console.error("📄 useOrderData - Full order data:", JSON.stringify(orderData, null, 2));
               throw new Error("Data order tidak valid atau analysis_result_id tidak ditemukan");
             }
-
-            console.log("🎉 useOrderData - Successfully extracted analysisResultId:", orderData.analysis_result_id);
 
             return {
               orderData,
               analysisResultId: orderData.analysis_result_id
             };
           } else {
-            console.error("❌ useOrderData - Unauthenticated request failed with status:", response.status);
             throw new Error(`API request failed with status ${response.status}`);
           }
         } else {
@@ -821,29 +742,18 @@ export function useOrderData(orderId: string | null, requireAuth: boolean = true
           const handleUnauthorized = () => {
             if (typeof window !== "undefined") {
               // Don't redirect to login immediately, let the component handle it
-              console.warn("Unauthorized access to order data");
             }
           };
 
-          console.log("📡 useOrderData - Making authenticated API call to:", `/v1/orders/${orderId}`);
           const orderData = await fetchData(`/v1/orders/${orderId}`, handleUnauthorized);
-          console.log("✅ useOrderData - Raw order data received:", orderData);
-          console.log("🔑 useOrderData - Order data keys:", Object.keys(orderData || {}));
-          console.log("🎯 useOrderData - analysis_result_id:", orderData?.analysis_result_id);
 
           if (!orderData) {
-            console.error("❌ useOrderData - No order data received");
             throw new Error("Data order tidak ditemukan");
           }
 
           if (!orderData.analysis_result_id) {
-            console.error("❌ useOrderData - No analysis_result_id in order data");
-            console.error("🔍 useOrderData - Available fields:", Object.keys(orderData));
-            console.error("📄 useOrderData - Full order data:", JSON.stringify(orderData, null, 2));
             throw new Error("Data order tidak valid atau analysis_result_id tidak ditemukan");
           }
-
-          console.log("🎉 useOrderData - Successfully extracted analysisResultId:", orderData.analysis_result_id);
 
           return {
             orderData,
@@ -851,20 +761,9 @@ export function useOrderData(orderId: string | null, requireAuth: boolean = true
           };
         }
       } catch (error: unknown) {
-        console.error("💥 useOrderData - Error fetching order data:", error);
-
-        // Log more details about the error
-        const axiosError = error as { response?: { status?: number; statusText?: string; data?: unknown }; message?: string };
-        console.error("🔍 useOrderData - Error details:", {
-          status: axiosError.response?.status,
-          statusText: axiosError.response?.statusText,
-          data: axiosError.response?.data,
-          message: axiosError.message
-        });
-
         // Don't throw error for 404 (order not found), just return null
+        const axiosError = error as { response?: { status?: number; statusText?: string; data?: unknown }; message?: string };
         if (axiosError.response?.status === 404) {
-          console.warn("⚠️ useOrderData - Order not found (404), returning null");
           return null;
         }
 

@@ -98,12 +98,11 @@ export default function DashboardPage() {
     autoRedirect: true,
     fetchUserData: false, // We handle user data fetching manually due to OAuth logic
     onAuthenticated: () => {
-      console.log("User authenticated successfully in profile page");
       localStorage.removeItem("analysisResultId");
       fetchUserData();
     },
     onUnauthenticated: () => {
-      console.log("User not authenticated, redirecting to register");
+      // User not authenticated, redirecting to register
     },
   });
 
@@ -112,21 +111,14 @@ export default function DashboardPage() {
     setIsGeneratingStory(true);
 
     try {
-      console.log("Starting story generation for result ID:", resultId);
-
       const result = await generateStory(resultId);
-      console.log("Story generation result:", result);
 
       // Check if result exists and has data
       if (result && result.data) {
-        console.log("Story data received, size:", result.data.byteLength);
-
         const imageData = result.data;
         const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
           type: "image/png",
         });
-
-        console.log("File created:", file.name, file.size, "bytes");
 
         // Check if Web Share API is available and can share files
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -136,10 +128,8 @@ export default function DashboardPage() {
               title: "Tie By Min Story",
               text: "Coba AI Fashion Analysis aku!",
             });
-            console.log("Story shared successfully");
             showToast("Story berhasil dibagikan!", "success");
           } catch (shareError) {
-            console.log("Share failed, falling back to download:", shareError);
             // Fallback to download
             const url = URL.createObjectURL(file);
             const link = document.createElement("a");
@@ -149,11 +139,9 @@ export default function DashboardPage() {
             link.click();
             document.body.removeChild(link); // Clean up
             URL.revokeObjectURL(url);
-            console.log("Story downloaded successfully");
             showToast("Story berhasil diunduh!", "success");
           }
         } else {
-          console.log("Web Share API not available, downloading directly");
           // Direct download
           const url = URL.createObjectURL(file);
           const link = document.createElement("a");
@@ -163,24 +151,14 @@ export default function DashboardPage() {
           link.click();
           document.body.removeChild(link); // Clean up
           URL.revokeObjectURL(url);
-          console.log("Story downloaded successfully");
           showToast("Story berhasil diunduh!", "success");
         }
       } else {
-        console.error("No story data received in result:", result);
         throw new Error("No story data received from server");
       }
     } catch (error) {
-      console.error("Story generation error:", error);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const err = error as any;
-      console.error("Error details:", {
-        message: err?.message,
-        stack: err?.stack,
-        response: err?.response,
-        status: err?.response?.status,
-        statusText: err?.response?.statusText,
-      });
 
       showToast(
         `Gagal membuat story: ${err?.message || "Unknown error"}`,

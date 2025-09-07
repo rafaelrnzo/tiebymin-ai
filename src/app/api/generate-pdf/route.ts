@@ -21,7 +21,6 @@ async function generatePdf(req: NextRequest) {
         resultId = body.resultId;
         firstName = body.firstName;
       } catch (e) {
-        console.error('Error parsing JSON body:', e);
       }
     }
     
@@ -51,11 +50,6 @@ async function generatePdf(req: NextRequest) {
     const userName = firstName || "User";
     pdfUrl.searchParams.set("userName", userName);
 
-    console.log("PDF Generation Debug:", {
-      resultId,
-      token: token ? "Token provided" : "No token",
-      pdfUrl: pdfUrl.toString()
-    });
 
     const isVercel = !!process.env.VERCEL_ENV;
     let puppeteer;
@@ -120,7 +114,6 @@ async function generatePdf(req: NextRequest) {
 
     // Wait for page to be fully loaded
     await new Promise(resolve => setTimeout(resolve, 2000));
-    console.log("Initial page load wait completed");
 
     try {
       // Multiple strategies for waiting for content readiness
@@ -134,35 +127,29 @@ async function generatePdf(req: NextRequest) {
         try {
           // Strategy 1: Wait for the ideal ready state
           await page.waitForSelector('#pdf-content[data-pdf-ready="true"]', { timeout: 2000 });
-          console.log("PDF content marked as ready via data-pdf-ready=true");
           contentReady = true;
           break;
         } catch (readyError) {
-          console.log(`Attempt ${attempts}: data-pdf-ready=true not found, trying fallback...`);
         }
 
         try {
           // Strategy 2: Check if we have basic data
           const hasBasicData = await page.$('#pdf-content[data-has-basic-data="true"]');
           if (hasBasicData) {
-            console.log("PDF content has basic data, proceeding");
             contentReady = true;
             break;
           }
         } catch (basicDataError) {
-          console.log(`Attempt ${attempts}: Basic data check failed`);
         }
 
         try {
           // Strategy 3: Check if content exists and loading is complete
           const loadingComplete = await page.$('#pdf-content[data-loading-state="loaded"]');
           if (loadingComplete) {
-            console.log("PDF content loading is complete, proceeding");
             contentReady = true;
             break;
           }
         } catch (loadingError) {
-          console.log(`Attempt ${attempts}: Loading state check failed`);
         }
 
         // Wait before next attempt
@@ -170,27 +157,21 @@ async function generatePdf(req: NextRequest) {
       }
 
       if (!contentReady) {
-        console.warn("Content readiness check timed out, proceeding with PDF generation anyway");
       }
 
       // Final check - ensure the element exists at all
       const contentExists = await page.$('#pdf-content');
       if (!contentExists) {
-        console.error("Critical Error: #pdf-content element does not exist on the page.");
         const bodyContent = await page.$('body');
         if (!bodyContent) {
           throw new Error("No content found on the page at all.");
         }
-        console.log("Using body content as a last resort for PDF generation.");
       }
 
       // Additional wait for any remaining resources
-      console.log("Final wait for resources...");
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      console.log("Proceeding with PDF generation");
     } catch (error) {
-      console.warn(`PDF content preparation failed: ${error}. Attempting to generate PDF anyway.`);
     }
 
     const pdf = await page.pdf({
@@ -206,10 +187,6 @@ async function generatePdf(req: NextRequest) {
     // Return PDF as response
     const pdfBuffer = Buffer.from(pdf);
     
-    console.log("PDF Generation: Returning PDF", {
-      bufferSize: pdfBuffer.length,
-      contentType: "application/pdf"
-    });
 
     return new NextResponse(pdfBuffer, {
       headers: {
