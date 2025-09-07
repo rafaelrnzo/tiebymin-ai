@@ -1,12 +1,21 @@
 "use client";
 
-import { ErrorModal } from "@/components/sections/error-modal";
-import { Button } from "@/components/ui/button";
-import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
-import { Camera, Check, File, RotateCw } from "lucide-react";
+// React imports
+import { Suspense, useEffect, useRef, useState } from "react";
+
+// Next.js imports
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+
+// UI Components
+import { Button } from "@/components/ui/button";
+import { ErrorModal } from "@/components/sections/error-modal";
+
+// Icons
+import { Camera, Check, File, RotateCw } from "lucide-react";
+
+// Animation
+import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
 
 const AnalysisIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -39,6 +48,7 @@ type AppState =
   | "COMPLETION_MODAL"
   | "API_ERROR";
 
+// Constants
 const LOADING_STEPS = [
   {
     title: "Sedang mengenali kecantikan unikmu...",
@@ -74,6 +84,9 @@ const LOADING_STEPS = [
   },
 ];
 
+const TOTAL_LOADING_DURATION = 30000; // 30 seconds
+const CARDS_TO_SHOW = 4;
+
 const RiveLoadingAnimation = () => {
   const { RiveComponent } = useRive({
     src: "/animations/Loading.riv",
@@ -86,21 +99,55 @@ const RiveLoadingAnimation = () => {
   });
 
   return (
-    <div
-      className={`w-80 h-[10rem] sm:w-96 sm:h-[10rem] lg:w-[30rem] lg:h-[20rem] xl:w-[35rem] xl:h-[15rem] flex justify-center items-center`}
-    >
+    <div className="w-80 h-[10rem] sm:w-96 sm:h-[10rem] lg:w-[30rem] lg:h-[20rem] xl:w-[35rem] xl:h-[15rem] flex justify-center items-center">
       <RiveComponent />
     </div>
   );
 };
 
-function HalamanKameraWajahContent() {
-  const router = useRouter();
+const LoadingStepCard = ({
+  step,
+  actualIndex,
+  isCompleted,
+  isActive,
+  isPending,
+}: {
+  step: (typeof LOADING_STEPS)[0];
+  actualIndex: number;
+  isCompleted: boolean;
+  isActive: boolean;
+  isPending: boolean;
+}) => (
+  <div
+    key={`step-${actualIndex}`}
+    className={`p-4 rounded-2xl border-2 transition-all duration-500 font-poppins ${
+      isCompleted
+        ? "bg-[#323232] border-[#323232] text-[#f0f0f0] w-full"
+        : "bg-transparent border-[#323232] text-[#323232] w-full"
+    }`}
+  >
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+        {isCompleted && <Check className="w-5 h-5 text-[#f0f0f0]" />}
+        {isActive && (
+          <div className="w-5 h-5 border-2 border-[#323232] border-t-transparent rounded-full animate-spin" />
+        )}
+        {isPending && (
+          <div className="w-5 h-5 border-2 border-[#323232] rounded-full" />
+        )}
+      </div>
+      <div className="flex-1 text-left">
+        <p className="text-sm font-medium leading-tight">{step.title}</p>
+      </div>
+    </div>
+  </div>
+);
+
+// Custom hooks
+function useCameraState() {
   const searchParams = useSearchParams();
   const fromGallery = searchParams.get("fromGallery") === "true";
   const skipCamera = searchParams.get("skipCamera") === "true";
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const getInitialState = (): AppState => {
     if (fromGallery && skipCamera) {
@@ -111,17 +158,87 @@ function HalamanKameraWajahContent() {
 
   const [appState, setAppState] = useState<AppState>(getInitialState());
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
-  const [errorModalMessage, setErrorModalMessage] = useState("");
-  const [isApiLoading, setIsApiLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
 
   const handleCameraSwitch = () => {
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
   };
 
+  return {
+    appState,
+    setAppState,
+    capturedImage,
+    setCapturedImage,
+    facingMode,
+    handleCameraSwitch,
+    fromGallery,
+    skipCamera,
+  };
+}
+
+function useLoadingState(
+  appState: AppState,
+  setAppState: (state: AppState) => void
+) {
+  const [progress, setProgress] = useState(0);
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  useEffect(() => {
+    if (appState === "LOADING_UI") {
+      setLoadingStep(0);
+      setProgress(0);
+
+      const stepCount = LOADING_STEPS.length;
+      const stepDuration = Math.floor(TOTAL_LOADING_DURATION / stepCount);
+
+      const stepTimer = setInterval(() => {
+        setLoadingStep((prev) => (prev < stepCount - 1 ? prev + 1 : prev));
+      }, stepDuration);
+
+      const progressTimer = setInterval(() => {
+        setProgress((prev) => (prev >= 99 ? 99 : prev + 1));
+      }, Math.max(20, TOTAL_LOADING_DURATION / 100));
+
+      const finishTimer = setTimeout(() => {
+        setProgress(100);
+        setAppState("COMPLETION_MODAL");
+      }, TOTAL_LOADING_DURATION);
+
+      return () => {
+        clearInterval(stepTimer);
+        clearInterval(progressTimer);
+        clearTimeout(finishTimer);
+      };
+    }
+  }, [appState, setAppState]);
+
+  return { progress, loadingStep };
+}
+
+function HalamanKameraWajahContent() {
+  const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // State management
+  const {
+    appState,
+    setAppState,
+    capturedImage,
+    setCapturedImage,
+    facingMode,
+    handleCameraSwitch,
+    fromGallery,
+    skipCamera,
+  } = useCameraState();
+
+  const { progress, loadingStep } = useLoadingState(appState, setAppState);
+
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isApiLoading, setIsApiLoading] = useState(false);
+
+  // Effects
   useEffect(() => {
     if (appState === "LOADING_UI") {
       // Set captured image from either camera or gallery
@@ -133,11 +250,10 @@ function HalamanKameraWajahContent() {
       } else if (capturedImageData) {
         setCapturedImage(capturedImageData);
       }
-      // Don't check for storedResultId - we're in the loading animation flow
-      // The loading animation will proceed and then redirect to ai-overview
     }
   }, [appState]);
 
+  // Camera management effect
   useEffect(() => {
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
 
@@ -181,36 +297,7 @@ function HalamanKameraWajahContent() {
     };
   }, [fromGallery, skipCamera, appState, facingMode]);
 
-  useEffect(() => {
-    if (appState === "LOADING_UI") {
-      setLoadingStep(0);
-      setProgress(0);
-
-      const stepCount = LOADING_STEPS.length;
-      const totalDuration = 30000; // 30 seconds
-      const stepDuration = Math.floor(totalDuration / stepCount);
-
-      const stepTimer = setInterval(() => {
-        setLoadingStep((prev) => (prev < stepCount - 1 ? prev + 1 : prev));
-      }, stepDuration);
-
-      const progressTimer = setInterval(() => {
-        setProgress((prev) => (prev >= 99 ? 99 : prev + 1));
-      }, Math.max(20, totalDuration / 100));
-
-      const finishTimer = setTimeout(() => {
-        setProgress(100);
-        setAppState("COMPLETION_MODAL");
-      }, totalDuration);
-
-      return () => {
-        clearInterval(stepTimer);
-        clearInterval(progressTimer);
-        clearTimeout(finishTimer);
-      };
-    }
-  }, [appState]);
-
+  // Event handlers
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
@@ -230,18 +317,15 @@ function HalamanKameraWajahContent() {
 
   const handleRetake = () => {
     setCapturedImage(null);
-    setProgress(0);
     setAppState("CAMERA");
     setErrorModalMessage("");
     setIsErrorModalOpen(false);
   };
 
   const handleAnalyze = () => {
-    // Store captured image and start loading animation
     if (capturedImage) {
       localStorage.setItem("capturedImage", capturedImage);
     }
-
     setAppState("LOADING_UI");
   };
 
@@ -261,13 +345,12 @@ function HalamanKameraWajahContent() {
             </p>
           </div>
 
-          {/* Loading Steps Cards - Show 4 cards, rotate through remaining steps */}
+          {/* Loading Steps Cards */}
           <div className="mt-8 flex flex-col gap-3 w-full max-w-lg">
             {(() => {
               const totalSteps = LOADING_STEPS.length;
-              const cardsToShow = 4;
-              const startIndex = Math.max(0, loadingStep - (cardsToShow - 1));
-              const endIndex = Math.min(totalSteps, startIndex + cardsToShow);
+              const startIndex = Math.max(0, loadingStep - (CARDS_TO_SHOW - 1));
+              const endIndex = Math.min(totalSteps, startIndex + CARDS_TO_SHOW);
               const visibleSteps = LOADING_STEPS.slice(startIndex, endIndex);
 
               return visibleSteps.map((step, index) => {
@@ -277,33 +360,14 @@ function HalamanKameraWajahContent() {
                 const isPending = actualIndex > loadingStep;
 
                 return (
-                  <div
+                  <LoadingStepCard
                     key={`step-${actualIndex}`}
-                    className={`p-4 rounded-2xl border-2 transition-all duration-500 font-poppins ${
-                      isCompleted
-                        ? "bg-[#323232] border-[#323232] text-[#f0f0f0] w-full"
-                        : "bg-transparent border-[#323232] text-[#323232] w-full"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-                        {isCompleted && (
-                          <Check className="w-5 h-5 text-[#f0f0f0]" />
-                        )}
-                        {isActive && (
-                          <div className="w-5 h-5 border-2 border-[#323232] border-t-transparent rounded-full animate-spin" />
-                        )}
-                        {isPending && (
-                          <div className="w-5 h-5 border-2 border-[#323232] rounded-full" />
-                        )}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <p className="text-sm font-medium leading-tight">
-                          {step.title}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                    step={step}
+                    actualIndex={actualIndex}
+                    isCompleted={isCompleted}
+                    isActive={isActive}
+                    isPending={isPending}
+                  />
                 );
               });
             })()}

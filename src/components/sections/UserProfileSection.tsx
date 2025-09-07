@@ -1,6 +1,5 @@
 "use client";
 
-import { useImageHandling } from "@/hooks/useImageHandling";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -76,22 +75,16 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
     displayImage,
   });
 
-  const { retryCount, handleImageLoad, handleImageError } =
-    useImageHandling(displayImage);
-
   return (
     <div className="bg-[#323232] 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl p-5 text-[#f0f0f0] flex flex-col lg:flex-row md:flex-row items-center xl:flex-col gap-x-5 lg:mt-[60px] xl:mt-0">
       <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full  rounded-xl overflow-hidden">
         <Image
-          key={`${displayImage}-${retryCount}`}
           src={displayImage}
           alt="Analysis Result"
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 500px"
           className="object-cover rounded-xl"
           loading="lazy"
-          onLoad={handleImageLoad}
-          onError={handleImageError}
           unoptimized={true}
           priority={false}
         />

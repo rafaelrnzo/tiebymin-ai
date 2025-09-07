@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { useUserData } from "@/hooks/useUserData";
 import { useGenerateStory } from "@/hooks/useAnalysisData";
 import { useToast } from "@/hooks/useToast";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
 import DashboardSkeleton from "@/components/skeleton-loading/profile-skeleton";
 
 // Function to shorten month names
@@ -59,10 +60,7 @@ export default function DashboardPage() {
   const { mutateAsync: generateStory } = useGenerateStory();
   const { showToast } = useToast();
 
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
-
+  // Handle OAuth-style token extraction from URL
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
@@ -93,6 +91,21 @@ export default function DashboardPage() {
       }
     }
   }, [fetchUserData]);
+
+  // Use the flexible auth check hook
+  const { isAuthChecking, isAuthenticated } = useAuthCheck({
+    redirectTo: "/register",
+    autoRedirect: true,
+    fetchUserData: false, // We handle user data fetching manually due to OAuth logic
+    onAuthenticated: () => {
+      console.log("User authenticated successfully in profile page");
+      localStorage.removeItem("analysisResultId");
+      fetchUserData();
+    },
+    onUnauthenticated: () => {
+      console.log("User not authenticated, redirecting to register");
+    },
+  });
 
   const handleDownloadStory = async (resultId: string) => {
     if (!resultId) return;
@@ -178,7 +191,8 @@ export default function DashboardPage() {
     }
   };
 
-  if (isLoading) {
+  // Show loading while checking authentication or fetching user data
+  if (isAuthChecking || isLoading) {
     return <DashboardSkeleton />;
   }
 

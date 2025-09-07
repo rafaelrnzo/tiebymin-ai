@@ -311,6 +311,7 @@ export const useUserData = () => {
       localStorage.removeItem("firstName");
       localStorage.removeItem("lastName");
       localStorage.removeItem("analysisResultId");
+      localStorage.removeItem("paymentOrderId");
 
       // Clear cookie
       if (typeof window !== 'undefined') {

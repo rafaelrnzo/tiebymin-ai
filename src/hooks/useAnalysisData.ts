@@ -9,8 +9,9 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
   const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
-  console.log("fetchData Debug:", {
+  console.log("🔗 fetchData Debug:", {
     endpoint,
+    fullUrl,
     hasToken: !!token,
     tokenLength: token ? token.length : 0,
     tokenPrefix: token ? token.substring(0, 20) + "..." : null
@@ -26,6 +27,7 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   }
 
   try {
+    console.log("📤 fetchData - Making request to:", fullUrl);
     const response = await axios.get(fullUrl, {
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +35,11 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
       },
     });
 
+    console.log("📥 fetchData - Response status:", response.status);
+    console.log("📄 fetchData - Response data preview:", JSON.stringify(response.data).substring(0, 200) + "...");
+
     if (response.status >= 200 && response.status < 300) {
+      console.log("✅ fetchData - Request successful");
       return response.data;
     } else {
       if (response.status === 401) {
@@ -703,6 +709,7 @@ export function useCreatePayment() {
       // Store the order ID for later use
       if (result.order_id) {
         localStorage.setItem("paymentOrderId", result.order_id);
+        console.log("Payment created - Stored paymentOrderId in localStorage:", result.order_id);
       }
     },
     onError: (error) => {
@@ -711,36 +718,112 @@ export function useCreatePayment() {
   });
 }
 
-export function useOrderData(orderId: string | null) {
-  const handleUnauthorized = () => {
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
-    }
-  };
-
+export function useOrderData(orderId: string | null, requireAuth: boolean = true) {
   return useQuery({
-    queryKey: ["orderData", orderId],
+    queryKey: ["orderData", orderId, requireAuth],
     queryFn: async () => {
-      console.log("useOrderData queryFn called with orderId:", orderId);
+      console.log("🔍 useOrderData queryFn called with orderId:", orderId, "requireAuth:", requireAuth);
 
       if (!orderId) {
+        console.log("❌ useOrderData - No orderId provided");
         throw new Error("Order ID diperlukan");
       }
 
       try {
-        const orderData = await fetchData(`/v1/orders/${orderId}`, handleUnauthorized);
-        console.log("useOrderData - Order data:", orderData);
+        // Make unauthenticated call for payment redirects
+        if (!requireAuth) {
+          console.log("🔓 useOrderData - Making unauthenticated API call to:", `/v1/orders/${orderId}`);
+          const fullUrl = secureUrl(`/v1/orders/${orderId}`);
+          const response = await axios.get(fullUrl, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
 
-        if (!orderData || !orderData.analysis_result_id) {
-          throw new Error("Data order tidak valid atau analysis_result_id tidak ditemukan");
+          console.log("📥 useOrderData - Unauthenticated response status:", response.status);
+          console.log("📄 useOrderData - Unauthenticated response data preview:", JSON.stringify(response.data).substring(0, 200) + "...");
+
+          if (response.status >= 200 && response.status < 300) {
+            console.log("✅ useOrderData - Unauthenticated request successful");
+            const orderData = response.data;
+            console.log("✅ useOrderData - Raw order data received:", orderData);
+            console.log("🔑 useOrderData - Order data keys:", Object.keys(orderData || {}));
+            console.log("🎯 useOrderData - analysis_result_id:", orderData?.analysis_result_id);
+
+            if (!orderData) {
+              console.error("❌ useOrderData - No order data received");
+              throw new Error("Data order tidak ditemukan");
+            }
+
+            if (!orderData.analysis_result_id) {
+              console.error("❌ useOrderData - No analysis_result_id in order data");
+              console.error("🔍 useOrderData - Available fields:", Object.keys(orderData));
+              console.error("📄 useOrderData - Full order data:", JSON.stringify(orderData, null, 2));
+              throw new Error("Data order tidak valid atau analysis_result_id tidak ditemukan");
+            }
+
+            console.log("🎉 useOrderData - Successfully extracted analysisResultId:", orderData.analysis_result_id);
+
+            return {
+              orderData,
+              analysisResultId: orderData.analysis_result_id
+            };
+          } else {
+            console.error("❌ useOrderData - Unauthenticated request failed with status:", response.status);
+            throw new Error(`API request failed with status ${response.status}`);
+          }
+        } else {
+          // Use the existing authenticated fetchData for normal cases
+          const handleUnauthorized = () => {
+            if (typeof window !== "undefined") {
+              // Don't redirect to login immediately, let the component handle it
+              console.warn("Unauthorized access to order data");
+            }
+          };
+
+          console.log("📡 useOrderData - Making authenticated API call to:", `/v1/orders/${orderId}`);
+          const orderData = await fetchData(`/v1/orders/${orderId}`, handleUnauthorized);
+          console.log("✅ useOrderData - Raw order data received:", orderData);
+          console.log("🔑 useOrderData - Order data keys:", Object.keys(orderData || {}));
+          console.log("🎯 useOrderData - analysis_result_id:", orderData?.analysis_result_id);
+
+          if (!orderData) {
+            console.error("❌ useOrderData - No order data received");
+            throw new Error("Data order tidak ditemukan");
+          }
+
+          if (!orderData.analysis_result_id) {
+            console.error("❌ useOrderData - No analysis_result_id in order data");
+            console.error("🔍 useOrderData - Available fields:", Object.keys(orderData));
+            console.error("📄 useOrderData - Full order data:", JSON.stringify(orderData, null, 2));
+            throw new Error("Data order tidak valid atau analysis_result_id tidak ditemukan");
+          }
+
+          console.log("🎉 useOrderData - Successfully extracted analysisResultId:", orderData.analysis_result_id);
+
+          return {
+            orderData,
+            analysisResultId: orderData.analysis_result_id
+          };
+        }
+      } catch (error: unknown) {
+        console.error("💥 useOrderData - Error fetching order data:", error);
+
+        // Log more details about the error
+        const axiosError = error as { response?: { status?: number; statusText?: string; data?: unknown }; message?: string };
+        console.error("🔍 useOrderData - Error details:", {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          message: axiosError.message
+        });
+
+        // Don't throw error for 404 (order not found), just return null
+        if (axiosError.response?.status === 404) {
+          console.warn("⚠️ useOrderData - Order not found (404), returning null");
+          return null;
         }
 
-        return {
-          orderData,
-          analysisResultId: orderData.analysis_result_id
-        };
-      } catch (error: unknown) {
-        console.error("💥 Error fetching order data:", error);
         throw new Error(
           error instanceof Error
             ? error.message
@@ -749,8 +832,8 @@ export function useOrderData(orderId: string | null) {
       }
     },
     enabled: !!orderId,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: 1, // Reduce retries to avoid multiple redirects
+    retryDelay: 1000,
     staleTime: 5 * 60 * 1000,
   });
 }
