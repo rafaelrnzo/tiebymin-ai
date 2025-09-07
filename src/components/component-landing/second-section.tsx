@@ -1,6 +1,5 @@
 "use client";
-import { ArrowUpRight, Play } from "lucide-react";
-import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const SecondSection = () => {
@@ -26,20 +25,17 @@ export const SecondSection = () => {
     >
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-7 lg:gap-8 gap-4">
-          <div className="lg:col-span-5 relative w-full h-full sm:h-80 md:h-full rounded-xl overflow-hidden shadow-xl cursor-pointer group">
-            <Image
-              src="/video-thumbnail.png"
-              alt="Video thumbnail of fashion analysis"
-              layout="fill"
-              objectFit="cover"
-              className="group-hover:scale-105 transition-transform duration-300"
+          <div className="lg:col-span-5 relative w-full h-full sm:h-80 md:h-full rounded-xl overflow-hidden shadow-xl group">
+            <iframe
+              src="https://drive.google.com/file/d/1ps5A1C76RYtD3pO1mkzMSqjQ-2n5acGy/preview"
+              width="100%"
+              height="100%"
+              allow="autoplay"
+              className="group-hover:scale-105 transition-transform duration-300 rounded-xl"
+              title="Fashion Analysis Video"
+              frameBorder="0"
+              allowFullScreen
             />
-            <div className="absolute inset-0 bg-[#323232]/10"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="h-20 w-20 lg:h-24 lg:w-24 bg-[#FFC6C6] rounded-full flex items-center justify-center text-[#f0f0f0] shadow-lg transition-transform group-hover:scale-110">
-                <Play className="h-10 w-10 lg:h-12 lg:w-12 fill-[#f0f0f0] ml-2" />
-              </div>
-            </div>
           </div>
 
           <div className="lg:col-span-2 flex flex-col lg:gap-8 gap-4 w-full">

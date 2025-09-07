@@ -1,11 +1,18 @@
 "use client";
 
+// React imports
 import { useState, useEffect } from "react";
+
+// Next.js imports
 import { useRouter } from "next/navigation";
+
+// Components
 import LeftSideSection from "@/components/component-login/left-side-section";
 import BodyMeasurementsStep from "./BodyMeasurementsStep";
 import BodyShapeStep from "./BodyShapeStep";
 import FaceScanStep from "./FaceScanStep";
+
+// Hooks and Context
 import { useAnalysis } from "@/context/AnalysisContext";
 import { useRegistrationFlow } from "@/hooks/useLocalStorage";
 import { useStepsProgress } from "@/hooks/useStepsProgress";
@@ -22,16 +29,41 @@ interface RegistrationFlowProps {
   onStepChange: (step: RegistrationStep) => void;
 }
 
+// Constants
+const STEP_MAP: { [key: number]: RegistrationStep } = {
+  1: "register",
+  2: "measurements",
+  3: "body-shape",
+  4: "body-shape",
+  5: "face-scan",
+};
+
 export default function RegistrationFlow({
   currentStep,
   onStepChange,
 }: RegistrationFlowProps) {
   const router = useRouter();
   const { analysisData, setAnalysisData } = useAnalysis();
-  const { userProfile } = useUserData();
 
-  // Check authentication - redirect to register if not logged in
+  // State
+  const [animateStep, setAnimateStep] = useState<number | undefined>();
+  const [previousStep, setPreviousStep] = useState<number | undefined>();
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+
+  // Hooks
+  const {
+    currentStep: persistedStep,
+    setCurrentStep: setPersistedStep,
+    formData: persistedFormData,
+    setFormData: setPersistedFormData,
+    analysisData: persistedAnalysisData,
+    setAnalysisData: setPersistedAnalysisData,
+  } = useRegistrationFlow();
+
+  // Authentication check
   useEffect(() => {
+    localStorage.removeItem("analysisResultId");
     const accessToken = localStorage.getItem("accessToken");
     const userToken = localStorage.getItem("userToken");
     const isLoggedIn =
@@ -45,18 +77,6 @@ export default function RegistrationFlow({
       return;
     }
   }, [router]);
-  const {
-    currentStep: persistedStep,
-    setCurrentStep: setPersistedStep,
-    formData: persistedFormData,
-    setFormData: setPersistedFormData,
-    analysisData: persistedAnalysisData,
-    setAnalysisData: setPersistedAnalysisData,
-  } = useRegistrationFlow();
-  const [animateStep, setAnimateStep] = useState<number | undefined>();
-  const [previousStep, setPreviousStep] = useState<number | undefined>();
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   const getCurrentStepNumber = () => {
     switch (currentStep) {
@@ -87,20 +107,11 @@ export default function RegistrationFlow({
       const stepToUse = Math.max(savedStep, savedStepFromRegistration);
 
       if (stepToUse > 1) {
-        const stepMap: { [key: number]: RegistrationStep } = {
-          1: "register",
-          2: "measurements",
-          3: "body-shape",
-          4: "body-shape",
-          5: "face-scan",
-        };
-        const savedStepName = stepMap[stepToUse];
+        const savedStepName = STEP_MAP[stepToUse];
         if (savedStepName && savedStepName !== currentStep) {
           onStepChange(savedStepName);
         }
       }
-
-      // Analysis data is now managed by AnalysisContext, no need for separate initialization
 
       setIsInitialized(true);
     }
@@ -112,6 +123,7 @@ export default function RegistrationFlow({
     currentStep,
   ]);
 
+  // Event handlers
   const handleFormDataChange = (field: string, value: string) => {
     // Update analysis data - this will automatically sync to localStorage via AnalysisContext
     setAnalysisData((prev) => ({
@@ -139,9 +151,7 @@ export default function RegistrationFlow({
     setPreviousStep(currentStepNumber);
     setAnimateStep(3);
     markStepCompleted(currentStepNumber);
-
     setPersistedStep(4); // Set to step 4 instead of 3
-
     onStepChange("body-shape");
   };
 
@@ -149,18 +159,16 @@ export default function RegistrationFlow({
     setPreviousStep(currentStepNumber);
     setAnimateStep(5);
     markStepCompleted(currentStepNumber);
-
     setPersistedStep(5);
-
     onStepChange("face-scan");
   };
 
   const handleFaceScanComplete = () => {
     markStepCompleted(currentStepNumber);
-
     setPersistedStep(currentStepNumber);
   };
 
+  // Utility functions
   const getStepsForDisplay = () => {
     return steps.map((step) => ({
       number: step.number,
