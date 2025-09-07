@@ -65,10 +65,6 @@ function PdfPage() {
     if (isPrintMode && tokenFromUrl && typeof window !== "undefined") {
       localStorage.setItem("accessToken", tokenFromUrl);
       localStorage.setItem("userToken", tokenFromUrl);
-      console.log("PDF Page: Token set from URL for PDF generation", {
-        tokenLength: tokenFromUrl.length,
-        tokenPrefix: tokenFromUrl.substring(0, 20) + "...",
-      });
       // Small delay to ensure localStorage is set before proceeding
       setTimeout(() => {
         setTokenReady(true);
@@ -81,35 +77,19 @@ function PdfPage() {
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
       if (existingToken) {
-        console.log("PDF Page: Using existing token from localStorage");
         setTokenReady(true);
       } else {
-        console.error("PDF Page: No token available for PDF generation");
         // Still set ready to true to prevent blocking, but data fetching will fail gracefully
         setTokenReady(true);
       }
     }
   }, [isPrintMode, tokenFromUrl]);
 
-  console.log(
-    "PDF Page: About to call useAnalysisData with resultId:",
-    resultId,
-    "tokenReady:",
-    tokenReady
-  );
-
   const {
     data: analysisResult,
     isLoading,
     error: fetchError,
   } = useAnalysisData(tokenReady ? resultId : null);
-
-  console.log("PDF Page: useAnalysisData result:", {
-    hasData: !!analysisResult,
-    isLoading,
-    hasError: !!fetchError,
-    errorMessage: fetchError?.message,
-  });
 
   const { rawAnalysisData } = analysisResult || {
     rawAnalysisData: null,
@@ -175,7 +155,6 @@ function PdfPage() {
     if (isPrintMode && analysisResult && finalUserData && analysisData) {
       // Set a timer to mark content as ready after minimum required data is loaded
       const timer = setTimeout(() => {
-        console.log("PDF Content: Marking as ready after timeout");
         setPdfContentReady(true);
       }, 3000); // 3 second fallback
 
@@ -188,7 +167,6 @@ function PdfPage() {
       );
 
       if (hasBasicData && hasOptionalData) {
-        console.log("PDF Content: Sufficient data available, marking as ready");
         clearTimeout(timer);
         setPdfContentReady(true);
       }
@@ -209,18 +187,7 @@ function PdfPage() {
 
   // Debug logging for PDF generation
   if (isPrintMode) {
-    console.log("PDF Generation Debug:", {
-      hasBasicData: !!finalUserData && !!analysisData,
-      bodyDetails: !!bodyDetails,
-      faceShapeDetails: !!faceShapeDetails,
-      colorToneDetails: !!colorToneDetails,
-      celebrityDetails: !!celebrityDetails,
-      tips: !!tips,
-      tipsLoading,
-      tipsError,
-      isPrintMode,
-      pdfContentReady,
-    });
+    // PDF generation debug info removed for production
   }
 
   const { mutateAsync: downloadPdf, isPending: isGenerating } =

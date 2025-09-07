@@ -1,7 +1,7 @@
 "use client";
 
 // React imports
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Next.js imports
 import { useRouter } from "next/navigation";
@@ -16,7 +16,6 @@ import FaceScanStep from "./FaceScanStep";
 import { useAnalysis } from "@/context/AnalysisContext";
 import { useRegistrationFlow } from "@/hooks/useLocalStorage";
 import { useStepsProgress } from "@/hooks/useStepsProgress";
-import { useUserData } from "@/hooks/useUserData";
 
 export type RegistrationStep =
   | "register"

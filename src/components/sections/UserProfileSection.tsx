@@ -27,6 +27,11 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   const [uploadImage, setUploadImage] = useState<string | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
+  // State for image loading
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       setUploadImage(localStorage.getItem("uploadedImage"));
@@ -45,51 +50,156 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
     }
   }, [resultId, userPhotoUrl]);
 
+  // Helper function to ensure image has full URL
+  const ensureFullImageUrl = (imageUrl: string | null): string | null => {
+    if (!imageUrl) return null;
+
+    // If already a full URL, return as is
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      return imageUrl;
+    }
+
+    // If it's a relative path, prepend the base URL
+    const baseUrl =
+      "https://minecraft-server-tiebymin-minio.dgrttk.easypanel.host/";
+    return `${baseUrl}${
+      imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl
+    }`;
+  };
+
+  // Function to fetch image with authentication
+  const fetchImageWithAuth = async (imageUrl: string) => {
+    try {
+      setImageLoading(true);
+      setImageError(false);
+
+      const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
+
+      if (!token) {
+        console.error("No authentication token found for image fetch");
+        setImageError(true);
+        setImageLoading(false);
+        return;
+      }
+
+      const response = await fetch(imageUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const dataUrl = URL.createObjectURL(blob);
+      setImageDataUrl(dataUrl);
+      setImageLoading(false);
+    } catch (error) {
+      console.error("Error fetching image with auth:", error);
+      setImageError(true);
+      setImageLoading(false);
+    }
+  };
+
   // Determine display image based on access source
-  let displayImage = "";
+  let displayImage: string | null = null;
 
   if (accessSource === "registration") {
     // Registration flow: use localStorage images
-    displayImage = uploadImage || capturedImage || userPhotoUrl || "";
+    const processedUploadImage = uploadImage
+      ? ensureFullImageUrl(uploadImage)
+      : null;
+    const processedCapturedImage = capturedImage
+      ? ensureFullImageUrl(capturedImage)
+      : null;
+    const processedUserPhotoUrl = userPhotoUrl
+      ? ensureFullImageUrl(userPhotoUrl)
+      : null;
+    displayImage =
+      processedUploadImage ||
+      processedCapturedImage ||
+      processedUserPhotoUrl ||
+      null;
   } else if (accessSource === "payment") {
     // Payment redirect: use API data, clear localStorage
-    displayImage = userPhotoUrl || "";
+    displayImage = userPhotoUrl ? ensureFullImageUrl(userPhotoUrl) : null;
   } else if (accessSource === "profile") {
     // Profile navigation: use API data, don't use localStorage
-    displayImage = userPhotoUrl || "";
+    displayImage = userPhotoUrl ? ensureFullImageUrl(userPhotoUrl) : null;
   } else {
     // Default fallback
-    displayImage =
-      resultId && userPhotoUrl
-        ? userPhotoUrl
-        : uploadImage || capturedImage || userPhotoUrl || "";
+    if (resultId && userPhotoUrl) {
+      displayImage = ensureFullImageUrl(userPhotoUrl);
+    } else {
+      const processedUploadImage = uploadImage
+        ? ensureFullImageUrl(uploadImage)
+        : null;
+      const processedCapturedImage = capturedImage
+        ? ensureFullImageUrl(capturedImage)
+        : null;
+      const processedUserPhotoUrl = userPhotoUrl
+        ? ensureFullImageUrl(userPhotoUrl)
+        : null;
+      displayImage =
+        processedUploadImage ||
+        processedCapturedImage ||
+        processedUserPhotoUrl ||
+        null;
+    }
   }
 
-  // Debug logging
-  console.log("UserProfileSection Debug:", {
-    accessSource,
-    resultId,
-    userPhotoUrl,
-    uploadImage,
-    capturedImage,
-    displayImage,
-    hasResultId: !!resultId,
-    hasUserPhotoUrl: !!userPhotoUrl,
-  });
+  // Determine if we should show skeleton
+  const shouldShowSkeleton = (!displayImage && !imageDataUrl) || imageLoading;
+
+  // Fetch image with authentication when displayImage changes
+  useEffect(() => {
+    if (displayImage) {
+      fetchImageWithAuth(displayImage);
+    } else {
+      setImageDataUrl(null);
+      setImageLoading(false);
+    }
+  }, [displayImage]);
+
+  // Cleanup object URL to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (imageDataUrl) {
+        URL.revokeObjectURL(imageDataUrl);
+      }
+    };
+  }, [imageDataUrl]);
 
   return (
     <div className="bg-[#323232] 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl p-5 text-[#f0f0f0] flex flex-col lg:flex-row md:flex-row items-center xl:flex-col gap-x-5 lg:mt-[60px] xl:mt-0">
-      <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full  rounded-xl overflow-hidden">
-        <Image
-          src={displayImage}
-          alt="Analysis Result"
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 500px"
-          className="object-cover rounded-xl"
-          loading="lazy"
-          unoptimized={true}
-          priority={false}
-        />
+      <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full rounded-xl overflow-hidden">
+        {shouldShowSkeleton ? (
+          // Skeleton loading state
+          <div className="w-full h-full bg-gray-200 rounded-xl animate-pulse flex items-center justify-center">
+            <div className="text-gray-400 text-sm">Loading image...</div>
+          </div>
+        ) : (
+          // Actual image
+          <Image
+            src={imageDataUrl || displayImage!}
+            alt="Analysis Result"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 500px"
+            className="object-cover rounded-xl"
+            loading="lazy"
+            unoptimized={true}
+            priority={false}
+            onLoad={() => setImageLoading(false)}
+            onError={() => {
+              setImageError(true);
+              setImageLoading(false);
+            }}
+          />
+        )}
       </div>
 
       {/* Content Section */}

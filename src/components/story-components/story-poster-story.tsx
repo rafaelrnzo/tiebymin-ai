@@ -6,6 +6,7 @@ import {
   UserData,
 } from "@/types";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { StoryHeader } from "./story-header-story";
 import { StoryQRSection } from "./story-qr-section-story";
 import { StoryFaceShape } from "./story-faceshape-story";
@@ -88,13 +89,93 @@ export default function StoryPoster({
 
   const kalimatUtama = penjelasanLengkap.split("-")[0].trim();
 
-  // Debug logging for photo selection
-  console.log("StoryPoster Component - Photo Debug:", {
-    userPhotoUrl,
-    hasUserPhotoUrl: !!userPhotoUrl,
-    fallbackImage: "/model.png",
-    finalImage: userPhotoUrl || "/model.png",
-  });
+  // State for image loading
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+
+  // Helper function to ensure image has full URL
+  const ensureFullImageUrl = (imageUrl: string | null): string | null => {
+    if (!imageUrl) return null;
+
+    // If already a full URL, return as is
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      return imageUrl;
+    }
+
+    // If it's a relative path, prepend the base URL
+    const baseUrl =
+      "https://minecraft-server-tiebymin-minio.dgrttk.easypanel.host/";
+    return `${baseUrl}${
+      imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl
+    }`;
+  };
+
+  // Function to fetch image with authentication
+  const fetchImageWithAuth = async (imageUrl: string) => {
+    try {
+      setImageLoading(true);
+      setImageError(false);
+
+      const token =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken");
+
+      if (!token) {
+        console.error("No authentication token found for image fetch");
+        setImageError(true);
+        setImageLoading(false);
+        return;
+      }
+
+      const response = await fetch(imageUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const dataUrl = URL.createObjectURL(blob);
+      setImageDataUrl(dataUrl);
+      setImageLoading(false);
+    } catch (error) {
+      console.error("Error fetching image with auth:", error);
+      setImageError(true);
+      setImageLoading(false);
+    }
+  };
+
+  // Process the user photo URL
+  const processedUserPhotoUrl = userPhotoUrl
+    ? ensureFullImageUrl(userPhotoUrl)
+    : null;
+
+  // Fetch image with authentication when processedUserPhotoUrl changes
+  useEffect(() => {
+    if (processedUserPhotoUrl) {
+      fetchImageWithAuth(processedUserPhotoUrl);
+    } else {
+      setImageDataUrl(null);
+      setImageLoading(false);
+    }
+  }, [processedUserPhotoUrl]);
+
+  // Cleanup object URL to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (imageDataUrl) {
+        URL.revokeObjectURL(imageDataUrl);
+      }
+    };
+  }, [imageDataUrl]);
+
+  // Determine if we should show skeleton
+  const shouldShowSkeleton =
+    (!processedUserPhotoUrl && !imageDataUrl) || imageLoading;
 
   return (
     <div
@@ -107,13 +188,26 @@ export default function StoryPoster({
 
         <div className="flex gap-5 mb-6">
           <div className="w-[322px] rounded-lg">
-            <Image
-              src={userPhotoUrl || "/model.png"}
-              alt="User Photo"
-              width={322}
-              height={400}
-              className="object-cover h-[400px] rounded-lg"
-            />
+            {shouldShowSkeleton ? (
+              // Skeleton loading state
+              <div className="w-full h-[400px] bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
+                <div className="text-gray-400 text-sm">Loading image...</div>
+              </div>
+            ) : (
+              // Actual image
+              <Image
+                src={imageDataUrl || processedUserPhotoUrl!}
+                alt="User Photo"
+                width={322}
+                height={400}
+                className="object-cover h-[400px] rounded-lg"
+                onLoad={() => setImageLoading(false)}
+                onError={() => {
+                  setImageError(true);
+                  setImageLoading(false);
+                }}
+              />
+            )}
           </div>
 
           <StoryQRSection

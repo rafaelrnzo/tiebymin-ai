@@ -27,7 +27,6 @@ function StoryPage() {
     if (isPrintMode && tokenFromUrl && typeof window !== "undefined") {
       localStorage.setItem("accessToken", tokenFromUrl);
       localStorage.setItem("userToken", tokenFromUrl);
-      console.log("Story Page: Token set from URL for story generation");
       setTokenReady(true);
     } else if (!isPrintMode) {
       setTokenReady(true); // For normal page loads
@@ -90,7 +89,6 @@ function StoryPage() {
       // Add a small delay to ensure DOM is fully rendered
       const timer = setTimeout(() => {
         setDataReady(true);
-        console.log("All story data is ready");
       }, 1000);
       return () => clearTimeout(timer);
     }
