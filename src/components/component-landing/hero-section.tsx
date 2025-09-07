@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export const HeroSection = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -20,15 +21,20 @@ export const HeroSection = () => {
       {/* Container untuk Gambar Latar */}
       <div className="w-full">
         {/* Gambar Desktop */}
-        <img
+        <Image
           src="/hero-desktop.webp"
           alt="Analisa Gaya Anda"
+          width={1920}
+          height={1080}
           className="w-full h-auto lg:block hidden"
+          priority
         />
         {/* Gambar Mobile */}
-        <img
+        <Image
           src="/hero-mobile.webp"
           alt="Analisa Gaya Anda - Mobile"
+          width={768}
+          height={1024}
           className="w-full h-auto lg:hidden block mt-10"
         />
       </div>

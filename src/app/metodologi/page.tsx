@@ -75,11 +75,11 @@ export default function MethodologyPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-1 p-6">
               <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
-                Analisis Tiebymin AI telah dirancang berdasarkan studi
-                dermatologi, psikologi fashion, dan database visual untuk
-                memberikan rekomendasi hijab yang sesuai dengan kepribadian,
-                bentuk wajah, warna kulit, dan bentuk tubuh pengguna. Kami
-                menggabungkan prinsip-prinsip dari:
+                <strong> Analisis Tiebymin AI</strong>telah dirancang
+                berdasarkan studi dermatologi, psikologi fashion, dan database
+                visual untuk memberikan rekomendasi hijab yang sesuai dengan
+                kepribadian, bentuk wajah, warna kulit, dan bentuk tubuh
+                pengguna. Kami menggabungkan prinsip-prinsip dari:
               </p>
             </div>
             <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-[50px]">
@@ -89,9 +89,7 @@ export default function MethodologyPage() {
                   className="bg-[#FFC6C6] rounded-2xl border-0 shadow-md p-6 flex flex-col text-start"
                 >
                   <p className="font-poppins font-bold">{item.title}</p>
-                  <p className="font-poppins text-justify leading-relaxed hyphens-auto">
-                    {item.description}
-                  </p>
+                  <p className="font-poppins">{item.description}</p>
                 </Card>
               ))}
             </div>
@@ -119,13 +117,13 @@ export default function MethodologyPage() {
             <div className="md:col-span-2 p-6">
               <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                 Kami memilih 3 fokus utama untuk menjaga keseimbangan antara
-                akurasi dan kenyamanan pengguna. Studi dari {'"'}Efficient User
-                Experience in Fashion Tech{'"'} menunjukkan bahwa analisis
-                terfokus pada 3–5 variabel menghasilkan rekomendasi yang lebih
-                praktis dan mudah diaplikasikan. Setiap fokus utama dipecah
-                menjadi 5–10 parameter (misalnya: proporsi wajah, undertone
-                kulit, dll.) untuk memastikan hasil yang mendalam tanpa
-                membebani pengguna.
+                akurasi dan kenyamanan pengguna. Studi dari {'"'}
+                <strong>Efficient User Experience in Fashion Tech</strong>
+                {'"'} menunjukkan bahwa analisis terfokus pada 3–5 variabel
+                menghasilkan rekomendasi yang lebih praktis dan mudah
+                diaplikasikan. Setiap fokus utama dipecah menjadi 5–10 parameter
+                (misalnya: proporsi wajah, undertone kulit, dll.) untuk
+                memastikan hasil yang mendalam tanpa membebani pengguna.
               </p>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useImageHandling } from "@/hooks/useImageHandling";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface UserProfileSectionProps {
   userName: string;
@@ -10,6 +11,7 @@ interface UserProfileSectionProps {
   resultId: string | null;
   onDownloadStory: () => void;
   isGeneratingStory: boolean;
+  accessSource?: "registration" | "profile" | "payment";
 }
 
 const UserProfileSection: React.FC<UserProfileSectionProps> = ({
@@ -18,80 +20,81 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   resultId,
   onDownloadStory,
   isGeneratingStory,
+  accessSource = "registration",
 }) => {
   const router = useRouter();
-  const {
-    imageError,
-    imageLoading,
-    retryCount,
-    handleImageLoad,
-    handleImageError,
-    retryImage,
-  } = useImageHandling(userPhotoUrl);
+
+  // State for localStorage values
+  const [uploadImage, setUploadImage] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUploadImage(localStorage.getItem("uploadedImage"));
+      setCapturedImage(localStorage.getItem("capturedImage"));
+    }
+  }, []);
+
+  // Clear localStorage images when viewing results from API to prevent stale data
+  useEffect(() => {
+    if (resultId && userPhotoUrl && typeof window !== "undefined") {
+      // Clear localStorage images when we have API data
+      localStorage.removeItem("uploadedImage");
+      localStorage.removeItem("capturedImage");
+      setUploadImage(null);
+      setCapturedImage(null);
+    }
+  }, [resultId, userPhotoUrl]);
+
+  // Determine display image based on access source
+  let displayImage = "";
+
+  if (accessSource === "registration") {
+    // Registration flow: use localStorage images
+    displayImage = uploadImage || capturedImage || userPhotoUrl || "";
+  } else if (accessSource === "payment") {
+    // Payment redirect: use API data, clear localStorage
+    displayImage = userPhotoUrl || "";
+  } else if (accessSource === "profile") {
+    // Profile navigation: use API data, don't use localStorage
+    displayImage = userPhotoUrl || "";
+  } else {
+    // Default fallback
+    displayImage =
+      resultId && userPhotoUrl
+        ? userPhotoUrl
+        : uploadImage || capturedImage || userPhotoUrl || "";
+  }
+
+  // Debug logging
+  console.log("UserProfileSection Debug:", {
+    accessSource,
+    resultId,
+    userPhotoUrl,
+    uploadImage,
+    capturedImage,
+    displayImage,
+  });
+
+  const { retryCount, handleImageLoad, handleImageError } =
+    useImageHandling(displayImage);
 
   return (
     <div className="bg-[#323232] 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl p-5 text-[#f0f0f0] flex flex-col lg:flex-row md:flex-row items-center xl:flex-col gap-x-5 lg:mt-[60px] xl:mt-0">
       <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full  rounded-xl overflow-hidden">
-        {userPhotoUrl ? (
-          <>
-            {/* Loading State */}
-            {imageLoading && !imageError && (
-              <div className="absolute inset-0 bg-gray-200 rounded-xl flex items-center justify-center animate-pulse z-10">
-                <div className="text-sm text-gray-500">Memuat gambar...</div>
-              </div>
-            )}
-
-            {/* Retry Loading State */}
-            {imageError && retryCount < 3 && (
-              <div className="absolute inset-0 bg-gray-200 rounded-xl flex flex-col items-center justify-center z-10">
-                <div className="text-sm text-gray-500 mb-2">
-                  Memuat ulang...
-                </div>
-                <div className="text-xs text-gray-400">
-                  Percobaan {retryCount + 1}/3
-                </div>
-              </div>
-            )}
-
-            {/* Error State - Max Retries Reached */}
-            {imageError && retryCount >= 3 ? (
-              <div className="absolute inset-0 bg-gray-200 rounded-xl flex flex-col items-center justify-center z-10">
-                <div className="text-sm text-gray-500 mb-2">
-                  Gambar tidak dapat dimuat
-                </div>
-                <button
-                  onClick={retryImage}
-                  className="text-xs text-blue-500 hover:text-blue-700 underline"
-                >
-                  Coba lagi
-                </button>
-              </div>
-            ) : (
-              /* Actual Image */
-              <Image
-                key={`${userPhotoUrl}-${retryCount}`}
-                src={userPhotoUrl}
-                alt="Analysis Result"
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 500px"
-                className="object-cover rounded-xl"
-                loading="lazy"
-                onLoad={handleImageLoad}
-                onError={handleImageError}
-                unoptimized={true}
-                priority={false}
-              />
-            )}
-          </>
-        ) : (
-          /* No Image Placeholder */
-          <div className="h-full w-full bg-gray-300 rounded-xl flex items-center justify-center">
-            <div className="text-gray-500 text-center">
-              <div className="text-2xl mb-2">📷</div>
-              <div className="text-sm">Tidak ada gambar</div>
-            </div>
-          </div>
-        )}
+        <Image
+          key={`${displayImage}-${retryCount}`}
+          src={displayImage}
+          alt="Analysis Result"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 500px"
+          className="object-cover rounded-xl"
+          loading="lazy"
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          unoptimized={true}
+          priority={false}
+        />
       </div>
 
       {/* Content Section */}

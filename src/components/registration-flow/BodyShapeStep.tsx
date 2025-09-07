@@ -8,14 +8,13 @@ import { ChevronRight } from "lucide-react";
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
-// Hardcoded body shape data
 const hardcodedBodyShapes = [
   {
     name: "Apple",
     penjelasan_body_shape:
       "Bentuk tubuh apple tuh punya karakteristik unik karena bagian tengah tubuhmu lebih dominan dibanding atas dan bawah. ",
     karakteristik:
-      "-Bahu yang lebar.\n-Bagian perut lebih menonjol.\n-Tubuhmu punya aura yang kuat",
+      "-Bahu yang lebar.\n-Bagian perut lebih menonjol.\n-Tubuhmu punya aura yang kuat.",
     tips_body_shape:
       "-Gunakan atasan dengan potongan A-line atau empire waist\n-Hindari ikat pinggang ketat di bagian perut\n-Pilih celana atau rok yang memberi keseimbangan pada bagian bawah",
     link_picture:
@@ -45,7 +44,7 @@ const hardcodedBodyShapes = [
     penjelasan_body_shape:
       "Bentuk tubuhmu memiliki proporsi seimbang antara bagian atas dan bawah, dengan pinggang ramping yang bikin siluetmu kelihatan sangat elegan.",
     karakteristik:
-      "-Bahu dan pinggul hampir sama lebar.\n-Pinggang yang jelas dan ramping.\n-Kamu punya kesan feminim alami",
+      "-Bahu dan pinggul hampir sama lebar.\n-Pinggang yang jelas dan ramping.\n-Kamu punya kesan feminim alami.",
     tips_body_shape:
       "-Highlight pinggangmu dengan ikat pinggang ini bakal bikin kamu keliatan lebih chic.\n-Hindari pakaian oversized yang nggak ngehighlight lekuk tubuhmu.\n-Pilih material yang flowy atau sedikit stretchy biar nyaman dipakai tapi tetap stylish.",
     link_picture:
@@ -60,7 +59,7 @@ const hardcodedBodyShapes = [
     penjelasan_body_shape:
       "Bentuk tubuh pear tuh unik banget karena bagian bawah tubuhmu lebih dominan dibanding bagian atas. Jadi pinggulmu lebih lebar dari bahu.",
     karakteristik:
-      "-Bahu lebih sempit dibanding pinggul.\n-Lemak berkumpul di bagian bawah.\n-Kakimu biasanya ramping",
+      "-Bahu lebih sempit dibanding pinggul.\n-Lemak berkumpul di bagian bawah.\n-Kakimu biasanya ramping.",
     tips_body_shape:
       "-Coba tambahkan volume di bagian atas untuk ngebalance bentuk tubuhmu.\n-Untuk bawahan, pilih warna gelap dan potongan lurus buat bikin kaki terlihat lebih langsing.\n-Blazer atau outer dengan shoulder pad bisa bikin siluet tubuhmu lebih proporsional.",
     link_picture:
@@ -75,7 +74,7 @@ const hardcodedBodyShapes = [
     penjelasan_body_shape:
       "Bentuk tubuh rectangle itu tidak memiliki banyak lekuk, pinggang hampir tidak terlihat. dan semuanya terlihat lurus.",
     karakteristik:
-      "-Bahu, pinggang, dan pinggul hampir sejajar\n-Nggak ada lekuk tubuh yang  terlihat jelas\n-Aura kamu sporty atau chic",
+      "-Bahu, pinggang, dan pinggul hampir sejajar.\n-Nggak ada lekuk tubuh yang  terlihat jelas.\n-Aura kamu sporty atau chic.",
     tips_body_shape:
       "-Pakai pakaian yang menciptakan ilusi lekuk tubuh, atau pakai ikat pinggang.\n-Rok berlipit atau flare bisa bikin tubuhmu terlihat lebih feminin dan dinamis.\n-Hindari potongan lurus dari atas ke bawah karena bisa bikin tubuhmu terlihat datar.",
     link_picture:
@@ -90,7 +89,7 @@ const hardcodedBodyShapes = [
     penjelasan_body_shape:
       "Bentuk tubuh segitiga ditandai dengan bagian atas tubuh jauh lebih kecil dibandingkan bagian bawah tubuh.",
     karakteristik:
-      "-Bagian atas tubuh lebih kecil\n-Pinggul dan paha lebih besar.\n-Kaki terlihat lebih besar dan berisi",
+      "-Bagian atas tubuh lebih kecil.\n-Pinggul dan paha lebih besar.\n-Kaki terlihat lebih besar dan berisi.",
     tips_body_shape:
       "-Kamu tambahkan volume yang cukup besar di bagian atas tubuh kamu\n-Untuk bawahan, pilih warna gelap dan potongan lurus buat terlihat lebih langsing.\n-Blazer atau outer dengan shoulder pad bisa bikin siluet tubuhmu lebih proporsional.",
     link_picture:
@@ -174,6 +173,15 @@ export default function BodyShapeStep({ onNext }: BodyShapeStepProps) {
 
   const handleSelectBodyType = (typeId: string) => {
     setAnalysisData((prev) => ({ ...prev, body_shape_id: typeId }));
+
+    // Store body_shape_id in tiebymin-analysis-data localStorage
+    const currentData = localStorage.getItem("tiebymin-analysis-data");
+    const parsedData = currentData ? JSON.parse(currentData) : {};
+    const updatedData = {
+      ...parsedData,
+      body_shape_id: typeId,
+    };
+    localStorage.setItem("tiebymin-analysis-data", JSON.stringify(updatedData));
   };
 
   const selectedTypeId = analysisData.body_shape_id;

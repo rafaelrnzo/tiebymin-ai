@@ -10,7 +10,12 @@ import FeedbackModal from "@/components/sections/feedback-modal";
 import ProductRecommendationsSection from "@/components/sections/ProductRecommendationsSection";
 import UserProfileSection from "@/components/sections/UserProfileSection";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAnalysisData, useGenerateStory } from "@/hooks/useAnalysisData";
+import {
+  useAnalysisData,
+  useCreatePayment,
+  useGenerateStory,
+  useOrderData,
+} from "@/hooks/useAnalysisData";
 import { useProductRecommendations } from "@/hooks/useProductRecommendations";
 import { useToast } from "@/hooks/useToast";
 import { useUserData } from "@/hooks/useUserData";
@@ -23,6 +28,7 @@ import CelebrityMatchSection from "../../components/sections/CelebrityMatchSecti
 import ColorToneSection from "../../components/sections/ColorToneSection";
 import ShapeSection from "../../components/sections/ShapeSection";
 import TipsSection from "../../components/sections/TipsSection";
+import { PaymentModal } from "@/components/sections/payment-modal";
 
 interface AnalysisData {
   face_shape_id?: string;
@@ -53,6 +59,8 @@ function BeautyAnalysisPageInner() {
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
   const [storyError, setStoryError] = useState<string | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [needsPayment, setNeedsPayment] = useState(false);
 
   // Custom hooks
   const { userName, userId, fetchAuthMe } = useUserData();
@@ -60,6 +68,8 @@ function BeautyAnalysisPageInner() {
 
   // Check authentication
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const accessToken = localStorage.getItem("accessToken");
     const userToken = localStorage.getItem("userToken");
     const isLoggedIn =
@@ -81,16 +91,72 @@ function BeautyAnalysisPageInner() {
   }, [fetchAuthMe]);
 
   const resultId = searchParams.get("result_id");
+  const orderId = searchParams.get("order_id");
+  const statusCode = searchParams.get("status_code");
+  const transactionStatus = searchParams.get("transaction_status");
 
   // Fallback: try to get resultId from localStorage if not in URL
-  const fallbackResultId = resultId || localStorage.getItem("analysisResultId");
-  const finalResultId = fallbackResultId;
+  const [fallbackResultId, setFallbackResultId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedResultId = localStorage.getItem("analysisResultId");
+      setFallbackResultId(resultId || storedResultId);
+    }
+  }, [resultId]);
+
+  // Handle order data for payment redirect flow
+  const { data: orderData, isLoading: isOrderLoading } = useOrderData(orderId);
+  const orderAnalysisResultId = orderData?.analysisResultId;
+
+  // Determine which resultId to use: order-based or direct resultId
+  const finalResultId = orderAnalysisResultId || fallbackResultId;
 
   // Validate resultId format
   const isValidResultId =
     finalResultId &&
     typeof finalResultId === "string" &&
     finalResultId.length > 0;
+
+  // Determine access source
+  const getAccessSource = () => {
+    if (orderId && statusCode === "200" && transactionStatus === "settlement") {
+      return "payment";
+    } else if (resultId && !orderId) {
+      return "profile";
+    } else {
+      return "registration";
+    }
+  };
+
+  const accessSource = getAccessSource();
+
+  // Handle payment success redirect
+  useEffect(() => {
+    if (
+      orderId &&
+      statusCode === "200" &&
+      transactionStatus === "settlement" &&
+      typeof window !== "undefined"
+    ) {
+      console.log("Payment success detected, clearing URL parameters");
+      // Clear the URL parameters after successful payment
+      const newUrl = window.location.pathname;
+      window.history.replaceState(null, "", newUrl);
+
+      // Clear localStorage images since we're now using API data
+      localStorage.removeItem("uploadedImage");
+      localStorage.removeItem("capturedImage");
+    }
+  }, [orderId, statusCode, transactionStatus]);
+
+  // Check if payment is needed (no result_id in URL)
+  useEffect(() => {
+    if (!isAuthChecking && !isValidResultId) {
+      setNeedsPayment(true);
+      setIsPaymentModalOpen(true);
+    }
+  }, [isAuthChecking, isValidResultId]);
 
   const {
     data: analysisResult,
@@ -108,6 +174,8 @@ function BeautyAnalysisPageInner() {
   });
 
   const { mutateAsync: generateStory } = useGenerateStory();
+  const { mutateAsync: createPayment, isPending: isPaymentProcessing } =
+    useCreatePayment();
 
   const { userData, userPhotoUrl, rawAnalysisData }: AnalysisResult =
     analysisResult || {
@@ -115,6 +183,10 @@ function BeautyAnalysisPageInner() {
       userPhotoUrl: null,
       rawAnalysisData: null,
     };
+
+  // Debug logging for userPhotoUrl
+  console.log("AI Overview Debug - userPhotoUrl:", userPhotoUrl);
+  console.log("AI Overview Debug - analysisResult:", analysisResult);
 
   const {
     sortedProducts,
@@ -213,6 +285,78 @@ function BeautyAnalysisPageInner() {
     }
   };
 
+  const handlePayment = async () => {
+    try {
+      // Get stored data
+      if (typeof window === "undefined") return;
+
+      const storedData = localStorage.getItem("tiebymin-analysis-data");
+      const userId = localStorage.getItem("userId");
+      const capturedImage = localStorage.getItem("capturedImage");
+      const uploadedImage = localStorage.getItem("uploadedFaceImage");
+
+      if (!storedData || !userId) {
+        setErrorModalMessage(
+          "Data analisis tidak ditemukan. Silakan mulai ulang proses analisis."
+        );
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      const analysisData = JSON.parse(storedData);
+      const { tinggi, berat, umur, body_shape_id } = analysisData;
+
+      // Get image data
+      let imageBlob: Blob | null = null;
+      if (capturedImage) {
+        // Convert base64 to blob
+        const response = await fetch(capturedImage);
+        imageBlob = await response.blob();
+      } else if (uploadedImage) {
+        // Convert base64 to blob
+        const response = await fetch(uploadedImage);
+        imageBlob = await response.blob();
+      }
+
+      if (!imageBlob) {
+        setErrorModalMessage(
+          "Foto wajah tidak ditemukan. Silakan ambil foto ulang."
+        );
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      // Create payment
+      const result = await createPayment({
+        user_id: userId,
+        tinggi_badan: parseFloat(tinggi),
+        berat_badan: parseFloat(berat),
+        umur: parseInt(umur),
+        body_shape_id: body_shape_id,
+        amount: 10000,
+        foto_wajah: imageBlob,
+      });
+
+      if (result && result.redirect_url) {
+        // Close payment modal
+        setIsPaymentModalOpen(false);
+
+        // Redirect to payment page
+        window.location.href = result.redirect_url;
+      } else {
+        throw new Error("Pembayaran gagal diproses. Silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      const err = error as Error;
+      setErrorModalMessage(
+        err.message ||
+          "Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi."
+      );
+      setIsErrorModalOpen(true);
+    }
+  };
+
   useEffect(() => {
     if (activeTab !== null) {
       const currentTabId = analysisTabs[activeTab]?.id;
@@ -223,6 +367,8 @@ function BeautyAnalysisPageInner() {
   }, [activeTab]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const feedbackSubmitted = localStorage.getItem("feedbackSubmitted");
     const feedbackDismissed = localStorage.getItem("feedbackDismissed");
     if (
@@ -235,6 +381,8 @@ function BeautyAnalysisPageInner() {
   }, [visitedTabs]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const feedbackDismissed = localStorage.getItem("feedbackDismissed");
     if (feedbackDismissed === "true") {
       setFeedbackModalOpen(false);
@@ -245,16 +393,16 @@ function BeautyAnalysisPageInner() {
     setIsLockedModalOpen(false);
   }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
 
-  // Clear localStorage data after successful loading
+  // Clear localStorage data after successful loading (but keep tiebymin-analysis-data for payment flow)
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     if (!isLoading && !isError && userData && resultId) {
-      // Clear analysis-related data after successful load
+      // Clear analysis-related data after successful load, but keep tiebymin-analysis-data for payment flow
       const clearDataTimer = setTimeout(() => {
-        localStorage.removeItem("tiebymin-analysis-data");
-        localStorage.removeItem("uploadedFaceImage");
-        localStorage.removeItem("capturedImage");
         localStorage.removeItem("registration-steps-progress");
         localStorage.removeItem("registration-current-step");
+        // Note: tiebymin-analysis-data is kept for payment flow and will be cleared after successful redirect
       }, 2000); // Clear after 2 seconds to ensure data is fully loaded
 
       return () => clearTimeout(clearDataTimer);
@@ -351,9 +499,14 @@ function BeautyAnalysisPageInner() {
             resultId={finalResultId}
             onDownloadStory={handleDownloadStory}
             isGeneratingStory={isGeneratingStory}
+            accessSource={accessSource}
           />
 
-          <div className="w-full">
+          <div
+            className={`w-full ${
+              needsPayment ? "blur-sm pointer-events-none" : ""
+            }`}
+          >
             <AnalysisTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
             <div className="mt-[16px] lg:mt-[50px] relative overflow-hidden">
@@ -377,12 +530,14 @@ function BeautyAnalysisPageInner() {
           </div>
         </div>
 
-        <ProductRecommendationsSection
-          sortedProducts={sortedProducts}
-          topProductScores={topProductScores}
-          recommendationFilter={recommendationFilter}
-          onFilterChange={handleFilterChange}
-        />
+        <div className={needsPayment ? "blur-sm pointer-events-none" : ""}>
+          <ProductRecommendationsSection
+            sortedProducts={sortedProducts}
+            topProductScores={topProductScores}
+            recommendationFilter={recommendationFilter}
+            onFilterChange={handleFilterChange}
+          />
+        </div>
       </main>
       <FeedbackModal
         isOpen={isFeedbackModalOpen}
@@ -394,6 +549,12 @@ function BeautyAnalysisPageInner() {
         isOpen={isErrorModalOpen}
         onClose={() => setIsErrorModalOpen(false)}
         errorMessage={errorModalMessage}
+      />
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onProceedToPayment={handlePayment}
+        isProcessing={isPaymentProcessing}
       />
     </div>
   );

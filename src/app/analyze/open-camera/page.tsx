@@ -2,9 +2,7 @@
 
 import { ErrorModal } from "@/components/sections/error-modal";
 import { Button } from "@/components/ui/button";
-import { secureUrl } from "@/lib/api";
 import { Alignment, Fit, Layout, useRive } from "@rive-app/react-canvas";
-import axios from "axios";
 import { Camera, Check, File, RotateCw } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -101,8 +99,6 @@ function HalamanKameraWajahContent() {
   const searchParams = useSearchParams();
   const fromGallery = searchParams.get("fromGallery") === "true";
   const skipCamera = searchParams.get("skipCamera") === "true";
-  const [analysisResultId, setAnalysisResultId] = useState<string | null>(null);
-
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -127,28 +123,20 @@ function HalamanKameraWajahContent() {
   };
 
   useEffect(() => {
-    if (fromGallery && skipCamera && appState === "LOADING_UI") {
-      const storedResultId = localStorage.getItem("analysisResultId");
+    if (appState === "LOADING_UI") {
+      // Set captured image from either camera or gallery
       const uploadedImage = localStorage.getItem("uploadedFaceImage");
+      const capturedImageData = localStorage.getItem("capturedImage");
 
-      if (storedResultId) {
-        setAnalysisResultId(storedResultId);
-
-        if (uploadedImage) {
-          setCapturedImage(uploadedImage);
-        }
-      } else {
-        setErrorModalMessage(
-          "Hasil analisis tidak ditemukan. Silakan coba lagi."
-        );
-        setIsErrorModalOpen(true);
-        setTimeout(() => {
-          router.push("/analyze/take-face");
-        }, 2000);
-        return;
+      if (uploadedImage) {
+        setCapturedImage(uploadedImage);
+      } else if (capturedImageData) {
+        setCapturedImage(capturedImageData);
       }
+      // Don't check for storedResultId - we're in the loading animation flow
+      // The loading animation will proceed and then redirect to ai-overview
     }
-  }, [fromGallery, skipCamera, appState, router]);
+  }, [appState]);
 
   useEffect(() => {
     if (appState !== "CAMERA" && appState !== "CONFIRM") return;
@@ -199,7 +187,7 @@ function HalamanKameraWajahContent() {
       setProgress(0);
 
       const stepCount = LOADING_STEPS.length;
-      const totalDuration = 30000; // 45 seconds
+      const totalDuration = 30000; // 30 seconds
       const stepDuration = Math.floor(totalDuration / stepCount);
 
       const stepTimer = setInterval(() => {
@@ -221,22 +209,7 @@ function HalamanKameraWajahContent() {
         clearTimeout(finishTimer);
       };
     }
-  }, [appState, analysisResultId, router, fromGallery, skipCamera]);
-
-  const dataURLtoBlob = (dataurl: string) => {
-    const arr = dataurl.split(",");
-    if (arr.length < 2) return null;
-    const mimeMatch = arr[0].match(/:(.*?);/);
-    if (!mimeMatch) return null;
-    const mime = mimeMatch[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new Blob([u8arr], { type: mime });
-  };
+  }, [appState]);
 
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -263,138 +236,77 @@ function HalamanKameraWajahContent() {
     setIsErrorModalOpen(false);
   };
 
-  const handleFullAnalysis = async (
-    imageBlobFromGallery: Blob | null = null,
-    imageNameFromGallery: string | null = null
-  ) => {
-    setIsApiLoading(true);
-
-    try {
-      const storedData = localStorage.getItem("tiebymin-analysis-data");
-      if (!storedData) {
-        setErrorModalMessage(
-          "Data analisis tidak ditemukan. Silakan kembali ke halaman analisis dan lengkapi data Anda."
-        );
-        setIsErrorModalOpen(true);
-        setIsApiLoading(false);
-        return;
-      }
-
-      const analysisData = JSON.parse(storedData);
-      const { tinggi, berat, umur, body_shape_id } = analysisData;
-
-      if (!tinggi || !berat || !umur || !body_shape_id) {
-        setErrorModalMessage(
-          "Data analisis tidak lengkap. Silakan kembali dan lengkapi data Anda."
-        );
-        setIsErrorModalOpen(true);
-        setIsApiLoading(false);
-        return;
-      }
-
-      let imageToUpload: Blob | null = null;
-      let imageFileName: string = "face-photo.png";
-
-      if (imageBlobFromGallery && imageNameFromGallery) {
-        imageToUpload = imageBlobFromGallery;
-        imageFileName = imageNameFromGallery;
-      } else if (capturedImage) {
-        imageToUpload = dataURLtoBlob(capturedImage);
-      }
-
-      if (!imageToUpload) {
-        setErrorModalMessage(
-          "Informasi tidak lengkap. Foto atau tipe tubuh tidak ditemukan."
-        );
-        setIsErrorModalOpen(true);
-        setIsApiLoading(false);
-        return;
-      }
-
-      if (capturedImage) {
-        localStorage.setItem("capturedImage", capturedImage);
-      }
-
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
-        setIsErrorModalOpen(true);
-        setIsApiLoading(false);
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("user_id", userId);
-      formData.append("tinggi_badan", tinggi);
-      formData.append("berat_badan", berat);
-      formData.append("umur", umur);
-      formData.append("body_shape_id", body_shape_id);
-      formData.append("foto_wajah", imageToUpload, imageFileName);
-
-      // Call analysis API
-      const endpoint = secureUrl("/v1/analysis/full-analysis");
-      const token =
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("userToken");
-
-      const response = await axios.post(endpoint, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.status >= 200 && response.status < 300) {
-        const resultId = String(response.data.analysis_result_id);
-
-        if (resultId && resultId !== "[object Object]") {
-          setAnalysisResultId(resultId);
-          setIsApiLoading(false);
-
-          setAppState("LOADING_UI");
-        } else {
-          throw new Error("Gagal mendapatkan ID hasil analisis.");
-        }
-      } else {
-        throw new Error(
-          response.data?.message ||
-            "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
-        );
-      }
-    } catch (error) {
-      const err = error as Error;
-      setErrorModalMessage(
-        err.message ||
-          "Terjadi kesalahan saat memulai analisis. Silakan coba lagi."
-      );
-      setIsErrorModalOpen(true);
-      setIsApiLoading(false);
+  const handleAnalyze = () => {
+    // Store captured image and start loading animation
+    if (capturedImage) {
+      localStorage.setItem("capturedImage", capturedImage);
     }
-  };
 
-  const handleAnalyze = async () => {
-    await handleFullAnalysis();
+    setAppState("LOADING_UI");
   };
 
   if (appState === "LOADING_UI") {
-    const step =
+    const currentStepData =
       LOADING_STEPS[loadingStep] || LOADING_STEPS[LOADING_STEPS.length - 1];
+
     return (
       <main className="flex flex-col items-center justify-center h-screen w-screen bg-[#FFC6C6] text-gray-800 p-4 transition-colors duration-500">
-        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
+        <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
           <RiveLoadingAnimation />
-          <div className="flex flex-col items-center justify-center text-center">
-            <p className="text-2xl font-bold mb-4">
-              {progress < 100 ? `${progress}%` : "99%"}
+
+          {/* Current Step Description */}
+          <div className="text-center max-w-2xl">
+            <p className="text-[#323232] text-sm sm:text-base font-poppins leading-relaxed">
+              {currentStepData.desc}
             </p>
-            <div className="flex flex-col items-center justify-center text-center">
-              <h2 className="text-base sm:text-lg font-semibold mb-2 text-center">
-                {step.title}
-              </h2>
-              <p className="text-gray-600 text-sm sm:text-base text-center max-w-md">
-                {step.desc}
-              </p>
-            </div>
+          </div>
+
+          {/* Loading Steps Cards - Show 4 cards, rotate through remaining steps */}
+          <div className="mt-8 flex flex-col gap-3 w-full max-w-lg">
+            {(() => {
+              const totalSteps = LOADING_STEPS.length;
+              const cardsToShow = 4;
+              const startIndex = Math.max(0, loadingStep - (cardsToShow - 1));
+              const endIndex = Math.min(totalSteps, startIndex + cardsToShow);
+              const visibleSteps = LOADING_STEPS.slice(startIndex, endIndex);
+
+              return visibleSteps.map((step, index) => {
+                const actualIndex = startIndex + index;
+                const isCompleted = actualIndex < loadingStep;
+                const isActive = actualIndex === loadingStep;
+                const isPending = actualIndex > loadingStep;
+
+                return (
+                  <div
+                    key={`step-${actualIndex}`}
+                    className={`p-4 rounded-2xl border-2 transition-all duration-500 font-poppins ${
+                      isCompleted
+                        ? "bg-[#323232] border-[#323232] text-[#f0f0f0] w-full"
+                        : "bg-transparent border-[#323232] text-[#323232] w-full"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                        {isCompleted && (
+                          <Check className="w-5 h-5 text-[#f0f0f0]" />
+                        )}
+                        {isActive && (
+                          <div className="w-5 h-5 border-2 border-[#323232] border-t-transparent rounded-full animate-spin" />
+                        )}
+                        {isPending && (
+                          <div className="w-5 h-5 border-2 border-[#323232] rounded-full" />
+                        )}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-medium leading-tight">
+                          {step.title}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </main>
@@ -403,8 +315,8 @@ function HalamanKameraWajahContent() {
 
   if (appState === "COMPLETION_MODAL") {
     return (
-      <main className="relative h-screen w-screen overflow-hidden bg-pink-200">
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <main className="relative h-screen w-screen overflow-hidden bg-[#FFC6C6]">
+        <div className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-sm p-4">
           <div className="bg-[#323232] rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-xl text-left flex flex-col gap-6">
             <div className="flex items-center gap-4">
               <div className="bg-[#f0f0f0] w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
@@ -426,19 +338,7 @@ function HalamanKameraWajahContent() {
 
             <Button
               onClick={() => {
-                const resultIdToUse =
-                  fromGallery && skipCamera
-                    ? analysisResultId
-                    : analysisResultId;
-
-                if (resultIdToUse) {
-                  router.push(`/ai-overview?result_id=${resultIdToUse}`);
-                } else {
-                  setErrorModalMessage(
-                    "Hasil analisis tidak ditemukan. Silakan coba lagi."
-                  );
-                  setIsErrorModalOpen(true);
-                }
+                router.push("/ai-overview");
               }}
               className="bg-[#E97099] w-full text-[#f0f0f0] font-bold py-7 px-6 rounded-xl hover:bg-[#d8668c] transition-colors text-lg flex items-center justify-center gap-3"
             >
