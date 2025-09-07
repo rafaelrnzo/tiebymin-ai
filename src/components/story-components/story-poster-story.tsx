@@ -88,6 +88,14 @@ export default function StoryPoster({
 
   const kalimatUtama = penjelasanLengkap.split("-")[0].trim();
 
+  // Debug logging for photo selection
+  console.log("StoryPoster Component - Photo Debug:", {
+    userPhotoUrl,
+    hasUserPhotoUrl: !!userPhotoUrl,
+    fallbackImage: "/model.png",
+    finalImage: userPhotoUrl || "/model.png",
+  });
+
   return (
     <div
       className="bg-[#f0f0f0] text-gray-800 w-[1080px] mx-auto p-8 font-sans"

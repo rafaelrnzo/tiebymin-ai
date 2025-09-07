@@ -66,7 +66,7 @@ export default function LoginPage() {
         password: formData.password,
       });
 
-      router.push("/ai-overview");
+      router.push("/ai-overview/profile");
     } catch (err) {
       const errorMessage = handleAxiosError(err, "login");
       setErrorModalMessage(errorMessage);

@@ -188,8 +188,6 @@ export const useUserData = () => {
           throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
         }
         throw handleAxiosError(error, 'general');
-        throw handleAxiosError(error, 'general');
-        throw error;
       }
     },
     enabled: false, // Manual trigger
