@@ -4,6 +4,21 @@ import { BodyType } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
+// Interface for photo objects from /v1/user-photos/analysis API
+interface PhotoData {
+  analysis_result_id: string;
+  photo_type: string;
+  file_path: string;
+  original_filename: string;
+  file_size: number;
+  mime_type: string;
+  is_processed: boolean;
+  analysis_metadata?: Record<string, unknown>;
+  processed_at: string;
+  id: string;
+  uploaded_at: string;
+}
+
 
 async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
@@ -187,29 +202,45 @@ export function useAnalysisData(
           celebrityData,
         ] = await Promise.all(additionalDataPromises);
 
-        // Find user photo
+        // Find user photo - extract file_path from photos array
         let userPhotoUrl = null;
+        let allPhotos = [];
         console.log("useAnalysisData - photosData:", photosData);
-        if (Array.isArray(photosData)) {
+
+        if (Array.isArray(photosData) && photosData.length > 0) {
+          allPhotos = photosData;
+
+          // Priority 1: Find processed photo (annotated/landmarked)
           const processedPhoto = photosData.find(
             (photo: { is_processed: boolean }) => photo.is_processed === true
           );
 
-          if (processedPhoto) {
+          if (processedPhoto && processedPhoto.file_path) {
             userPhotoUrl = processedPhoto.file_path;
             console.log("useAnalysisData - Found processed photo:", userPhotoUrl);
           } else {
+            // Priority 2: Find original face photo
             const originalPhoto = photosData.find(
               (photo: { photo_type: string }) =>
                 photo.photo_type === "face_original"
             );
-            if (originalPhoto) {
+            if (originalPhoto && originalPhoto.file_path) {
               userPhotoUrl = originalPhoto.file_path;
               console.log("useAnalysisData - Found original photo:", userPhotoUrl);
+            } else {
+              // Priority 3: Use first available photo with file_path
+              const firstPhotoWithPath = photosData.find(
+                (photo: PhotoData) => photo.file_path
+              );
+              if (firstPhotoWithPath) {
+                userPhotoUrl = firstPhotoWithPath.file_path;
+                console.log("useAnalysisData - Found first available photo:", userPhotoUrl);
+              }
             }
           }
         }
         console.log("useAnalysisData - Final userPhotoUrl:", userPhotoUrl);
+        console.log("useAnalysisData - All available photos:", allPhotos);
 
         // Calculate BMI value dengan null checking dan validasi
         let bmiValue = 0;

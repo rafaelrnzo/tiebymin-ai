@@ -64,7 +64,7 @@ function RegisterPageContent() {
 
           // Clean URL and redirect to analysis overview
           window.history.replaceState(null, "", "/register");
-          router.push("/ai-overview");
+          router.push("/ai-overview/profile");
           return;
         }
 
@@ -266,10 +266,10 @@ function RegisterPageContent() {
 
       // Ensure login was successful before proceeding
       if (loginResult) {
-        // Mark step 1 as completed and move to step 2
+        // Mark step 1 as completed
         markStepCompleted(1);
-        setPersistedCurrentStep(2);
-        setCurrentStep("measurements");
+        // Redirect to profile page instead of continuing registration flow
+        router.push("/ai-overview/profile");
       } else {
         throw new Error("Login otomatis gagal setelah registrasi");
       }

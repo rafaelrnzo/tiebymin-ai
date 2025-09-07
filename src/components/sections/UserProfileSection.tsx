@@ -73,6 +73,8 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
     uploadImage,
     capturedImage,
     displayImage,
+    hasResultId: !!resultId,
+    hasUserPhotoUrl: !!userPhotoUrl,
   });
 
   return (

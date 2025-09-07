@@ -106,6 +106,14 @@ export const FaceShape = ({
   const englishMainShapeName =
     shapeNameMap[userData.faceShape] || userData.faceShape;
 
+  // Debug logging for photo selection
+  console.log("FaceShape PDF Component - Photo Debug:", {
+    userPhotoUrl,
+    hasUserPhotoUrl: !!userPhotoUrl,
+    fallbackImage: "/model.png",
+    finalImage: userPhotoUrl || "/model.png",
+  });
+
   const ShapeBar = ({
     label,
     value,
