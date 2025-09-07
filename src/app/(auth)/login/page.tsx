@@ -4,6 +4,7 @@ import LeftSideSection from "@/components/component-login/left-side-section";
 import { ErrorModal } from "@/components/sections/error-modal";
 import { useUserData } from "@/hooks/useUserData";
 import { secureUrl } from "@/lib/api";
+import { handleAxiosError } from "@/lib/error-utils";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -40,11 +41,11 @@ export default function LoginPage() {
         // Store token and redirect to profile
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("userToken", accessToken);
-        document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+        document.cookie = `auth=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
 
-        // Clean URL and redirect
+        // Clean URL and redirect to analysis overview
         window.history.replaceState(null, "", "/login");
-        router.push("/ai-overview/profile");
+        router.push("/ai-overview");
       }
     }
   }, [router]);
@@ -65,13 +66,10 @@ export default function LoginPage() {
         password: formData.password,
       });
 
-      router.push("/ai-overview/profile");
+      router.push("/ai-overview");
     } catch (err) {
-      setErrorModalMessage(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat login. Silakan coba lagi."
-      );
+      const errorMessage = handleAxiosError(err, "login");
+      setErrorModalMessage(errorMessage);
       setIsErrorModalOpen(true);
     }
   };
