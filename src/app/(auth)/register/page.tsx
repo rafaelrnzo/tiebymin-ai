@@ -239,7 +239,6 @@ function RegisterPageContent() {
           ? nameParts.slice(1).join(" ")
           : nameParts[0] || "";
 
-      // Format and validate phone number using utility function
       const phoneValidation = validateIndonesianPhoneNumber(formData.phone);
 
       if (!phoneValidation.isValid) {
