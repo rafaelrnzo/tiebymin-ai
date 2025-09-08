@@ -213,8 +213,6 @@ function RegisterPageContent() {
   };
 
   const handleGoogleSignup = () => {
-    // Directly redirect to the backend's Google OAuth endpoint
-    // This avoids CORS issues since it's not an AJAX request
     window.location.href = secureUrl("/v1/auth/google/login");
   };
 
