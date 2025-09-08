@@ -25,6 +25,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Redirect OAuth users from /ai-overview to /ai-overview/profile
+  // This handles the case where backend OAuth redirects to /ai-overview but we want /ai-overview/profile
+  if (pathname === '/ai-overview' && searchParams.has('access_token')) {
+    const newUrl = new URL('/ai-overview/profile', request.url);
+    // Copy all search parameters including access_token
+    searchParams.forEach((value, key) => {
+      newUrl.searchParams.set(key, value);
+    });
+    return NextResponse.redirect(newUrl);
+  }
+
   // Allow access to PDF and story generation routes when print=true or when token is provided
   if ((pathname === '/ai-overview/pdf' || pathname === '/ai-overview/story') &&
       (searchParams.get('print') === 'true' || searchParams.has('token'))) {
