@@ -35,6 +35,11 @@ export const Cover = ({ userData }: { userData: UserData }) => (
           width={1920}
           height={80}
           className="h-[600px] object-cover"
+          quality={100}
+          priority
+          loading="eager"
+          decoding="sync"
+          unoptimized={false}
         />
       </div>
     </div>

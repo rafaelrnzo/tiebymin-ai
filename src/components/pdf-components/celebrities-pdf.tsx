@@ -27,11 +27,16 @@ export const CelebritiesMatch = ({
           <Image
             loading="eager"
             decoding="sync"
-            src={celebrityDetails?.picture_url as string} // Tambahkan placeholder
+            src={celebrityDetails?.picture_url as string}
             alt={celebrityDetails?.name || "Celebrity Match"}
             fill
             className="object-cover h-[500px]"
             priority
+            quality={100}
+            unoptimized={false}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
+            sizes="55vw"
           />
           <div className="absolute bottom-4 left-4 bg-[#323232] text-[#f0f0f0] text-sm font-bold px-3 py-2 flex items-center shadow-lg">
             <Sparkles className="w-4 h-4 mr-2 text-yellow-300" />

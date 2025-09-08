@@ -15,10 +15,8 @@ const footerLinks = {
     },
   ],
   sumberDaya: [
-    { href: "/testimoni", label: "Testimoni" },
-    { href: "/dokumentasi", label: "Dokumentasi" },
-    { href: "/terms-of-service", label: "Terms Of Service" },
-    { href: "/privacy-policy", label: "Privacy Policy" },
+    { href: "/#testimoni", label: "Testimoni" },
+    { href: "/kebijakan-privasi", label: "Privacy Policy" },
   ],
 };
 
@@ -39,7 +37,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-[#FFC6C6] text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[80px]">
+    <footer className="bg-[#FFC6C6] bg-[url('/bg-noise-footer.webp')] bg-cover bg-center text-[#323232] py-12 sm:py-16 px-4 sm:px-10 lg:px-[80px]">
       <div className="container mx-auto">
         <div className="container mx-auto bg-[#F0F0F0] rounded-2xl mt-12 sm:mt-16 py-12 sm:py-20 text-center shadow-md">
           <h2 className="font-handlee text-4xl sm:text-5xl lg:text-6xl font-bold text-[#323232] leading-tight">

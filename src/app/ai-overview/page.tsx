@@ -355,7 +355,7 @@ function BeautyAnalysisPageInner() {
         berat_badan: parseFloat(analysisData.berat),
         umur: parseInt(analysisData.umur),
         body_shape_id: analysisData.body_shape_id,
-        amount: 10000,
+        amount: 9999,
         foto_wajah: imageBlob,
       });
 

@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useCreatePayment } from "./useAnalysisData";
-import { useToast } from "./useToast";
 
 export const usePaymentHandler = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const { mutateAsync: createPayment } = useCreatePayment();
-  const { showToast } = useToast();
 
   const handlePayment = async () => {
     try {
@@ -54,7 +52,7 @@ export const usePaymentHandler = () => {
         berat_badan: parseFloat(berat),
         umur: parseInt(umur),
         body_shape_id: body_shape_id,
-        amount: 10000,
+        amount: 9999,
         foto_wajah: imageBlob,
       });
 

@@ -211,8 +211,8 @@ export default function MethodologyPage() {
                 </h3>
               </div>
               <p className="text-justify leading-relaxed hyphens-auto">
-                <b>Bentuk Wajah</b> (oval) + <b>Warna Kulit</b> (cool winter)
-                →Rekomendasi hijab dengan layer panjang dan warna bold.
+                <b>Bentuk Wajah</b> (oval) + <b>Warna Kulit</b> (cool winter) →
+                Rekomendasi hijab dengan layer panjang dan warna bold.
               </p>
               <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Bentuk Tubuh</b> (hourglass) → Paduan hijab dan pakaian yang

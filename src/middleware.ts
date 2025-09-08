@@ -44,8 +44,19 @@ export function middleware(request: NextRequest) {
 
   const authCookie = request.cookies.get('auth');
 
-  // If no auth cookie, redirect to login
+  // If no auth cookie, redirect to a cleanup route that will handle localStorage clearing
   if (!authCookie) {
+    // For API routes and static files, don't redirect
+    if (pathname.startsWith('/api/') || pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|avif|css|js|woff|woff2|ttf|eot)$/)) {
+      return NextResponse.next();
+    }
+
+    // For login and register pages, allow access
+    if (pathname === '/login' || pathname === '/register' || pathname === '/') {
+      return NextResponse.next();
+    }
+
+    // For all other protected routes, redirect to login
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

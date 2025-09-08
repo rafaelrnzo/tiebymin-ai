@@ -8,6 +8,8 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
   Table,
@@ -46,6 +48,8 @@ const shortenMonth = (dateString: string) => {
 
 export default function DashboardPage() {
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const router = useRouter();
   const {
@@ -59,6 +63,77 @@ export default function DashboardPage() {
 
   const { mutateAsync: generateStory } = useGenerateStory();
   const { showToast } = useToast();
+
+  // Pagination calculations
+  const totalItems = analysisHistory.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = analysisHistory.slice(startIndex, endIndex);
+
+  // Reset to first page when data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [analysisHistory.length]);
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Generate page numbers for pagination
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if total is less than max visible
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show pages with ellipsis logic
+      if (currentPage <= 3) {
+        // Near the start
+        pages.push(1, 2, 3, 4, "...", totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // Near the end
+        pages.push(
+          1,
+          "...",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages
+        );
+      } else {
+        // In the middle
+        pages.push(
+          1,
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages
+        );
+      }
+    }
+
+    return pages;
+  };
 
   // Handle OAuth-style token extraction from URL
   useEffect(() => {
@@ -264,9 +339,17 @@ export default function DashboardPage() {
 
         {/* Bagian Riwayat Tes */}
         <section className="flex flex-col gap-[20px] lg:gap-[50px] mt-0 lg:mt-[50px]">
-          <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#323232]">
-            Test History
-          </h2>
+          <div className="flex flex-col gap-4">
+            <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#323232]">
+              Test History
+            </h2>
+            {totalItems > 0 && (
+              <p className="text-[#323232]/70 font-poppins text-sm">
+                Menampilkan {startIndex + 1}-{Math.min(endIndex, totalItems)}{" "}
+                dari {totalItems} hasil analisa
+              </p>
+            )}
+          </div>
           <p className="text-[#323232] font-poppins">
             Yuk intip lagi hasil analisa yang pernah kamu lakukan. Semua hasil
             dari analisa kamu tersimpan rapi di sini. Siapa tahu kamu menemukan
@@ -290,8 +373,8 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {analysisHistory.length > 0 ? (
-                  analysisHistory.map((item, index) => (
+                {currentItems.length > 0 ? (
+                  currentItems.map((item, index) => (
                     <TableRow
                       key={item.analysis_id || index}
                       className="border-b-[#323232]/20"
@@ -365,7 +448,9 @@ export default function DashboardPage() {
                       colSpan={3}
                       className="text-center py-8 text-gray-500"
                     >
-                      Belum ada riwayat analisa
+                      {analysisHistory.length === 0
+                        ? "Belum ada riwayat analisa"
+                        : `Tidak ada data di halaman ${currentPage}`}
                     </TableCell>
                   </TableRow>
                 )}
@@ -374,37 +459,67 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-8 flex justify-center">
-          <Pagination>
-            <PaginationContent className="gap-2">
-              <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  isActive
-                  className="bg-[#EF789B] text-[#f0f0f0] border-0 hover:bg-[#EF789B]/90 hover:text-[#f0f0f0] rounded-md"
-                >
-                  1
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  className="rounded-md bg-[#323232]/10 text-[#f0f0f0]"
-                >
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  className="rounded-md bg-[#323232]/10 text-[#f0f0f0]"
-                >
-                  3
-                </PaginationLink>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </section>
+        {totalPages > 1 && (
+          <section className="mt-8 flex justify-center">
+            <Pagination>
+              <PaginationContent className="gap-2">
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePrevPage();
+                    }}
+                    className={`rounded-md ${
+                      currentPage === 1
+                        ? "pointer-events-none opacity-50"
+                        : "hover:bg-[#EF789B]/10"
+                    }`}
+                  />
+                </PaginationItem>
+
+                {generatePageNumbers().map((page, index) => (
+                  <PaginationItem key={index}>
+                    {page === "..." ? (
+                      <span className="px-3 py-2 text-[#323232]/50">...</span>
+                    ) : (
+                      <PaginationLink
+                        href="#"
+                        isActive={page === currentPage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(page as number);
+                        }}
+                        className={`rounded-md ${
+                          page === currentPage
+                            ? "bg-[#EF789B] text-[#f0f0f0] border-0 hover:bg-[#EF789B]/90 hover:text-[#f0f0f0]"
+                            : "bg-[#323232]/10 text-[#323232] hover:bg-[#EF789B]/10"
+                        }`}
+                      >
+                        {page}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNextPage();
+                    }}
+                    className={`rounded-md ${
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "hover:bg-[#EF789B]/10"
+                    }`}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </section>
+        )}
       </main>
     </div>
   );
