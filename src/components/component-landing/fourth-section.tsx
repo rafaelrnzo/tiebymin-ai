@@ -26,7 +26,7 @@ const faqItems = [
     value: "item-3",
     question: "Seberapa Akurat Sih Hasil-Nya?",
     answer:
-      "Dengan tingkat akurasi mencapai 97.3%, rekomendasi kami sangat bisa diandalkan. Namun, ingatlah bahwa fashion itu subjektif dan yang terpenting adalah kenyamanan Anda.",
+      "Dengan tingkat akurasi yang tinggi, rekomendasi kami sangat bisa diandalkan. Namun, ingatlah bahwa fashion itu subjektif dan yang terpenting adalah kenyamanan Anda.",
   },
   {
     value: "item-4",

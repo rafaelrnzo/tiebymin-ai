@@ -44,13 +44,15 @@ const SectionTitle = ({
   children: React.ReactNode;
   info: string;
 }) => (
-  <div className="flex items-center justify-between bg-[#323232] gap-3 py-8 px-6 rounded-2xl mb-[50px] mt-[100px]">
-    <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#f0f0f0]">
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#323232] gap-3 sm:gap-6 py-6 sm:py-8 px-4 sm:px-6 rounded-2xl mb-[50px] mt-[100px]">
+    <h2 className="font-oswald text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#f0f0f0] leading-tight">
       {children}
     </h2>
-    <div className="flex items-center gap-4">
-      <Info className="w-6 h-6 text-[#f0f0f0]" />
-      <p className="font-poppins font-bold text-xl text-[#f0f0f0]">{info}</p>
+    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+      <Info className="w-4 h-4 sm:w-5 md:w-6 lg:h-6 text-[#f0f0f0]" />
+      <p className="font-poppins font-bold text-sm sm:text-base md:text-lg lg:text-xl text-[#f0f0f0] leading-tight">
+        {info}
+      </p>
     </div>
   </div>
 );
@@ -75,10 +77,10 @@ export default function MethodologyPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-1 p-6">
               <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
-                <strong> Analisis Tiebymin AI</strong>telah dirancang
-                berdasarkan studi dermatologi, psikologi fashion, dan database
-                visual untuk memberikan rekomendasi hijab yang sesuai dengan
-                kepribadian, bentuk wajah, warna kulit, dan bentuk tubuh
+                <strong> Analisis Tiebymin AI</strong> telah dirancang
+                berdasarkan studi dari dermatologi, psikologi fashion, dan
+                database visual untuk memberikan rekomendasi hijab yang sesuai
+                dengan kepribadian, bentuk wajah, warna kulit, dan bentuk tubuh
                 pengguna. Kami menggabungkan prinsip-prinsip dari:
               </p>
             </div>

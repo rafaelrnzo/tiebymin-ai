@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === "/metodologi") {
+  if (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === "/metodologi" || pathname === "/kebijakan-privasi") {
     return NextResponse.next();
   }
 

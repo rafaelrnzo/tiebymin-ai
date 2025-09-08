@@ -24,8 +24,8 @@ export const SecondSection = () => {
       className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[110px] lg:mb-[100px] mb-[65px]"
     >
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-7 lg:gap-8 gap-4">
-          <div className="lg:col-span-5 relative w-full h-full sm:h-80 md:h-full rounded-xl overflow-hidden shadow-xl group">
+        <div className="grid grid-cols-1 xl:grid-cols-7 lg:gap-8 gap-4">
+          <div className="lg:col-span-5 relative w-full aspect-video rounded-xl overflow-hidden shadow-xl group">
             <iframe
               src="https://drive.google.com/file/d/1ps5A1C76RYtD3pO1mkzMSqjQ-2n5acGy/preview"
               width="100%"
@@ -38,7 +38,7 @@ export const SecondSection = () => {
             />
           </div>
 
-          <div className="lg:col-span-2 flex flex-col lg:gap-8 gap-4 w-full">
+          <div className="xl:col-span-2 lg:col-span-5 flex flex-col lg:gap-8 gap-4 w-full">
             <div className="bg-[#FFC6C6] p-6 rounded-2xl flex flex-col gap-6 w-full">
               <a
                 href={
@@ -79,20 +79,20 @@ export const SecondSection = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-8 mt-5 lg:mt-0">
-              <div className="bg-[#323232] p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
-                <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
+            <div className="grid grid-cols-2 gap-4 mt-5 lg:mt-0">
+              <div className="bg-[#323232] p-3 sm:p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
+                <p className="font-poppins text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-[#FFC6C6] leading-tight">
                   {"<"}2m
                 </p>
-                <p className="text-base sm:text-lg lg:text-xl text-[#f0f0f0] mt-1 text-center font-poppins">
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-[#f0f0f0] mt-1 text-center font-poppins leading-tight">
                   Hasil Selesai
                 </p>
               </div>
-              <div className="bg-[#323232] p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
-                <p className="font-poppins text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FFC6C6]">
+              <div className="bg-[#323232] p-3 sm:p-4 rounded-2xl flex flex-col justify-center items-center aspect-square">
+                <p className="font-poppins text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-[#FFC6C6] leading-tight">
                   100%
                 </p>
-                <p className="text-base sm:text-lg lg:text-xl text-[#f0f0f0] mt-1 text-center font-poppins">
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-[#f0f0f0] mt-1 text-center font-poppins leading-tight">
                   Buatan Lokal
                 </p>
               </div>

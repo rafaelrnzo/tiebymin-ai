@@ -54,10 +54,7 @@ export function Navbar() {
 
   const navLinks = [
     {
-      href:
-        isLoggedIn && latestAnalysisResult
-          ? `/ai-overview?result_id=${latestAnalysisResult.analysis_id}`
-          : "/overview",
+      href: "/#hero-section",
       label: "Overview AI",
     },
     { href: "/#tutorial", label: "Tutorial" },

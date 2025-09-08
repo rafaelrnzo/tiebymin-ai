@@ -104,8 +104,7 @@ export default function StoryPoster({
     }
 
     // If it's a relative path, prepend the base URL
-    const baseUrl =
-      "https://minecraft-server-tiebymin-minio.dgrttk.easypanel.host/";
+    const baseUrl = "https://tiebymin-backend.withsummon.com/";
     return `${baseUrl}${
       imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl
     }`;
