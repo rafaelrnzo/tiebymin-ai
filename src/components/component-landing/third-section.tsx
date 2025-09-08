@@ -226,7 +226,7 @@ export const ThirdSection = () => {
   };
 
   return (
-    <section id="testimoni" className="px-4 sm:px-10 lg:px-[100px]">
+    <section id="testimoni" className="px-4 sm:px-10 lg:px-[110px]">
       <div className="container mx-auto">
         <hr className="lg:mt-[100px] lg:mb-[80px] my-[70px]" />
 

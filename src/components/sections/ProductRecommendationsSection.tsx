@@ -22,6 +22,38 @@ const ProductRecommendationsSection: React.FC<
   recommendationFilter,
   onFilterChange,
 }) => {
+  const productContent = (
+    <>
+      <div className="lg:hidden">
+        <ResponsiveCarousel
+          key={recommendationFilter}
+          data={sortedProducts}
+          renderItem={(product) => (
+            <ProductCardMobile
+              product={product}
+              topProductScores={topProductScores}
+              sortedProducts={sortedProducts}
+            />
+          )}
+        />
+      </div>
+
+      {/* Desktop Grid */}
+      <div className="hidden lg:block">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {sortedProducts.map((product) => (
+            <ProductCardDesktop
+              key={product.id}
+              product={product}
+              topProductScores={topProductScores}
+              sortedProducts={sortedProducts}
+            />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <section className="pt-8 lg:pt-16">
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-4 lg:mb-10">
@@ -62,39 +94,7 @@ const ProductRecommendationsSection: React.FC<
       </div>
 
       <div className="relative">
-        {sortedProducts.length > 0 ? (
-          <>
-            {/* Mobile Carousel - Single Card */}
-            <div className="lg:hidden">
-              <ResponsiveCarousel
-                key={recommendationFilter} // Reset carousel when filter changes
-                data={sortedProducts}
-                renderItem={(product) => (
-                  <ProductCardMobile
-                    product={product}
-                    topProductScores={topProductScores}
-                    sortedProducts={sortedProducts}
-                  />
-                )}
-              />
-            </div>
-
-            <div className="hidden lg:block">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {sortedProducts.map((product) => (
-                  <ProductCardDesktop
-                    key={product.id}
-                    product={product}
-                    topProductScores={topProductScores}
-                    sortedProducts={sortedProducts}
-                  />
-                ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          <EmptyState />
-        )}
+        {sortedProducts.length > 0 ? productContent : <EmptyState />}
       </div>
     </section>
   );

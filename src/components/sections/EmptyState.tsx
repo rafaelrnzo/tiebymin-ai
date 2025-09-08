@@ -31,7 +31,7 @@ const EmptyState: React.FC = () => {
       </svg>
 
       <p className="text-base sm:text-xl md:text-2xl text-gray-400 font-handlee italic mt-3 sm:mt-5">
-        Maaf Belum Ada Product Yang Cocok Buat Kamu...
+        Maaf Belum Ada Produk Yang Cocok Buat Kamu...
       </p>
     </div>
   );

@@ -286,7 +286,7 @@ export default function MethodologyPage() {
         </section>
 
         {/* Referensi Jurnal Section */}
-        <section className="mb-[200px]">
+        <section className="mb-[100px]">
           <Card className="bg-[#323232] text-[#f0f0f0] rounded-2xl shadow-xl p-8 md:p-10">
             <h2 className="font-oswald text-3xl font-bold mb-6 text-center">
               Referensi Jurnal Ilmiah
