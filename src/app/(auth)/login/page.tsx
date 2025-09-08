@@ -43,9 +43,9 @@ export default function LoginPage() {
         localStorage.setItem("userToken", accessToken);
         document.cookie = `auth=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
 
-        // Clean URL and redirect to analysis overview
+        // Clean URL and redirect to profile page
         window.history.replaceState(null, "", "/login");
-        router.push("/ai-overview");
+        router.push("/ai-overview/profile");
       }
     }
   }, [router]);
