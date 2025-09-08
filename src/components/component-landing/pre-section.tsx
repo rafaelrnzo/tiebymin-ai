@@ -317,12 +317,10 @@ const MobileCardsSlider: React.FC = () => {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [currentSlide, isScrolling]);
 
-  // Progress percentage (0-100%)
   const progressPercentage = ((currentSlide + 1) / cards.length) * 100;
 
   return (
     <>
-      {/* Mobile Slider */}
       <div className="block lg:hidden">
         <div
           ref={sliderRef}
@@ -336,7 +334,6 @@ const MobileCardsSlider: React.FC = () => {
           ))}
         </div>
 
-        {/* Progress Bar Indicator */}
         <div className="px-4 mt-[40px] lg:mt-0">
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
