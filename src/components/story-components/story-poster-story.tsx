@@ -98,16 +98,35 @@ export default function StoryPoster({
   const ensureFullImageUrl = (imageUrl: string | null): string | null => {
     if (!imageUrl) return null;
 
-    // If already a full URL, return as is
+    // If already a full URL, validate it
     if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-      return imageUrl;
+      try {
+        new URL(imageUrl); // Validate URL format
+        return imageUrl;
+      } catch (error) {
+        console.warn("Invalid image URL:", imageUrl);
+        return null;
+      }
     }
 
     // If it's a relative path, prepend the base URL
-    const baseUrl = "https://tiebymin-backend.withsummon.com/";
-    return `${baseUrl}${
+    const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
+    if (!baseUrl) {
+      console.warn("NEXT_PUBLIC_IMAGE_URL not configured");
+      return null;
+    }
+
+    const fullUrl = `${baseUrl}${
       imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl
     }`;
+
+    try {
+      new URL(fullUrl); // Validate the constructed URL
+      return fullUrl;
+    } catch (error) {
+      console.warn("Invalid constructed image URL:", fullUrl);
+      return null;
+    }
   };
 
   // Function to fetch image with authentication

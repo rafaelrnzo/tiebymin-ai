@@ -1,9 +1,45 @@
 "use client";
 
 import { Shirt, UserStar } from "lucide-react";
-import ProductCardMobile from "@/components/ProductCardMobile";
-import ProductCardDesktop from "@/components/ProductCardDesktop";
-import ResponsiveCarousel from "@/components/component-landing/carousel";
+import dynamic from "next/dynamic";
+
+const ProductCardMobile = dynamic(
+  () => import("@/components/ProductCardMobile"),
+  {
+    loading: () => (
+      <div className="h-64 bg-gray-200 animate-pulse rounded-lg" />
+    ),
+  }
+) as React.ComponentType<{
+  product: Product;
+  topProductScores: Map<string, number>;
+  sortedProducts: Product[];
+}>;
+
+const ProductCardDesktop = dynamic(
+  () => import("@/components/ProductCardDesktop"),
+  {
+    loading: () => (
+      <div className="h-80 bg-gray-200 animate-pulse rounded-lg" />
+    ),
+  }
+) as React.ComponentType<{
+  product: Product;
+  topProductScores: Map<string, number>;
+  sortedProducts: Product[];
+}>;
+
+const ResponsiveCarousel = dynamic(
+  () => import("@/components/component-landing/carousel"),
+  {
+    loading: () => (
+      <div className="h-80 bg-gray-200 animate-pulse rounded-lg" />
+    ),
+  }
+) as React.ComponentType<{
+  data: Product[];
+  renderItem: (product: Product) => React.ReactNode;
+}>;
 import EmptyState from "./EmptyState";
 import { Product } from "@/types";
 
@@ -65,7 +101,7 @@ const ProductRecommendationsSection: React.FC<
           <div className=" flex justify-center gap-2 sm:gap-3 min-w-max">
             <button
               onClick={() => onFilterChange("hijab")}
-              className={`flex items-center justify-center gap-2.5 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 font-bold text-sm sm:text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
+              className={`flex items-center justify-center gap-2.5 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 font-bold text-sm sm:text-base transition-colors duration-200 whitespace-nowrap ${
                 recommendationFilter === "hijab"
                   ? "bg-[#323232] text-[#f0f0f0] shadow-lg"
                   : "bg-gray-200 text-[#323232]"
@@ -78,7 +114,7 @@ const ProductRecommendationsSection: React.FC<
             </button>
             <button
               onClick={() => onFilterChange("clothes")}
-              className={`flex items-center justify-center gap-2.5 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 font-bold text-sm sm:text-base transition-all duration-300 ease-in-out transform hover:scale-105 whitespace-nowrap ${
+              className={`flex items-center justify-center gap-2.5 rounded-lg px-4 sm:px-5 py-2.5 sm:py-3 font-bold text-sm sm:text-base transition-colors duration-200 whitespace-nowrap ${
                 recommendationFilter === "clothes"
                   ? "bg-[#323232] text-[#f0f0f0] shadow-lg"
                   : "bg-gray-200 text-[#323232]"

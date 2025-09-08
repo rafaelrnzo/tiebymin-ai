@@ -1,6 +1,7 @@
 "use client";
 
 import { Navbar } from "@/components/component-landing/navbar";
+import DashboardSkeleton from "@/components/skeleton-loading/profile-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -8,8 +9,6 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
   Table,
@@ -19,15 +18,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useGenerateStory } from "@/hooks/useAnalysisData";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { useToast } from "@/hooks/useToast";
+import { useUserData } from "@/hooks/useUserData";
 import { Download, Share2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUserData } from "@/hooks/useUserData";
-import { useGenerateStory } from "@/hooks/useAnalysisData";
-import { useToast } from "@/hooks/useToast";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import DashboardSkeleton from "@/components/skeleton-loading/profile-skeleton";
+import { useEffect, useMemo, useState } from "react";
 
 // Function to shorten month names
 const shortenMonth = (dateString: string) => {
@@ -49,7 +47,7 @@ const shortenMonth = (dateString: string) => {
 export default function DashboardPage() {
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5; // Ubah dari 10 ke 2 untuk menampilkan 2 data per halaman
 
   const router = useRouter();
   const {
@@ -64,75 +62,93 @@ export default function DashboardPage() {
   const { mutateAsync: generateStory } = useGenerateStory();
   const { showToast } = useToast();
 
-  // Pagination calculations
-  const totalItems = analysisHistory.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentItems = analysisHistory.slice(startIndex, endIndex);
+  // Memoized pagination calculations untuk performa yang lebih baik
+  const paginationData = useMemo(() => {
+    const totalItems = analysisHistory?.length || 0;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = analysisHistory?.slice(startIndex, endIndex) || [];
 
-  // Reset to first page when data changes
+    return {
+      totalItems,
+      totalPages,
+      currentItems,
+      startIndex,
+      endIndex,
+    };
+  }, [analysisHistory, currentPage, itemsPerPage]);
+
+  // Reset ke halaman pertama ketika data berubah
   useEffect(() => {
-    setCurrentPage(1);
-  }, [analysisHistory.length]);
-
-  // Pagination handlers
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+    if (
+      paginationData.totalPages > 0 &&
+      currentPage > paginationData.totalPages
+    ) {
+      setCurrentPage(1);
     }
-  };
+  }, [analysisHistory?.length, currentPage, paginationData.totalPages]);
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  // Generate page numbers for pagination
-  const generatePageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
+  const generatePageNumbers = useMemo(() => {
+    const { totalPages } = paginationData;
+    const pages: number[] = [];
+    const maxVisiblePages = 5; // Meningkatkan jumlah halaman yang terlihat
 
     if (totalPages <= maxVisiblePages) {
-      // Show all pages if total is less than max visible
+      // Tampilkan semua halaman jika total kurang dari max visible
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Show pages with ellipsis logic
-      if (currentPage <= 3) {
-        // Near the start
-        pages.push(1, 2, 3, 4, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        // Near the end
-        pages.push(
-          1,
-          "...",
-          totalPages - 3,
-          totalPages - 2,
-          totalPages - 1,
-          totalPages
-        );
-      } else {
-        // In the middle
-        pages.push(
-          1,
-          "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          totalPages
-        );
+      // Hitung range di sekitar halaman saat ini
+      const halfVisible = Math.floor(maxVisiblePages / 2);
+      let start = Math.max(1, currentPage - halfVisible);
+      const end = Math.min(totalPages, start + maxVisiblePages - 1);
+
+      // Sesuaikan start jika kita mendekati akhir
+      if (end === totalPages) {
+        start = Math.max(1, end - maxVisiblePages + 1);
+      }
+
+      // Tambahkan halaman pertama jika tidak termasuk
+      if (start > 1) {
+        pages.push(1);
+        if (start > 2) {
+          pages.push(-1); // Placeholder untuk "..."
+        }
+      }
+
+      // Tambahkan halaman di range
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      // Tambahkan halaman terakhir jika tidak termasuk
+      if (end < totalPages) {
+        if (end < totalPages - 1) {
+          pages.push(-1); // Placeholder untuk "..."
+        }
+        pages.push(totalPages);
       }
     }
 
     return pages;
+  }, [paginationData.totalPages, currentPage]);
+
+  // Handler untuk perubahan halaman
+  const handlePageChange = (page: number) => {
+    if (
+      page >= 1 &&
+      page <= paginationData.totalPages &&
+      page !== currentPage
+    ) {
+      setCurrentPage(page);
+      // Scroll ke atas tabel untuk UX yang lebih baik
+      const tableElement = document.querySelector(".overflow-x-auto");
+      if (tableElement) {
+        tableElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
   };
 
   // Handle OAuth-style token extraction from URL
@@ -169,7 +185,7 @@ export default function DashboardPage() {
 
   // Use the flexible auth check hook
   const { isAuthChecking, isAuthenticated } = useAuthCheck({
-    redirectTo: "/register",
+    redirectTo: "/login",
     autoRedirect: true,
     fetchUserData: false, // We handle user data fetching manually due to OAuth logic
     onAuthenticated: () => {
@@ -177,7 +193,9 @@ export default function DashboardPage() {
       fetchUserData();
     },
     onUnauthenticated: () => {
-      // User not authenticated, redirecting to register
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+      }
     },
   });
 
@@ -367,8 +385,8 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((item, index) => (
+                {paginationData.currentItems.length > 0 ? (
+                  paginationData.currentItems.map((item, index) => (
                     <TableRow
                       key={item.analysis_id || index}
                       className="border-b-[#323232]/20"
@@ -442,7 +460,7 @@ export default function DashboardPage() {
                       colSpan={3}
                       className="text-center py-8 text-gray-500"
                     >
-                      {analysisHistory.length === 0
+                      {paginationData.totalItems === 0
                         ? "Belum ada riwayat analisa"
                         : `Tidak ada data di halaman ${currentPage}`}
                     </TableCell>
@@ -453,38 +471,21 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {totalPages > 1 && (
+        {/* Pagination Section - Ditampilkan hanya jika ada lebih dari 1 halaman */}
+        {paginationData.totalPages > 1 && (
           <section className="mt-8 flex justify-center">
             <Pagination>
               <PaginationContent className="gap-2">
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handlePrevPage();
-                    }}
-                    className={`rounded-md ${
-                      currentPage === 1
-                        ? "pointer-events-none opacity-50"
-                        : "hover:bg-[#EF789B]/10"
-                    }`}
-                  />
-                </PaginationItem>
-
-                {generatePageNumbers().map((page, index) => (
-                  <PaginationItem key={index}>
-                    {page === "..." ? (
-                      <span className="px-3 py-2 text-[#323232]/50">...</span>
+                {generatePageNumbers.map((page, index) => (
+                  <PaginationItem key={`${page}-${index}`}>
+                    {page === -1 ? (
+                      // Ellipsis placeholder
+                      <span className="px-3 py-2 text-gray-400">...</span>
                     ) : (
                       <PaginationLink
-                        href="#"
+                        onClick={() => handlePageChange(page)}
                         isActive={page === currentPage}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handlePageChange(page as number);
-                        }}
-                        className={`rounded-md ${
+                        className={`rounded-md cursor-pointer ${
                           page === currentPage
                             ? "bg-[#EF789B] text-[#f0f0f0] border-0 hover:bg-[#EF789B]/90 hover:text-[#f0f0f0]"
                             : "bg-[#323232]/10 text-[#323232] hover:bg-[#EF789B]/10"
@@ -495,21 +496,6 @@ export default function DashboardPage() {
                     )}
                   </PaginationItem>
                 ))}
-
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleNextPage();
-                    }}
-                    className={`rounded-md ${
-                      currentPage === totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "hover:bg-[#EF789B]/10"
-                    }`}
-                  />
-                </PaginationItem>
               </PaginationContent>
             </Pagination>
           </section>

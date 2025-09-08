@@ -1,30 +1,44 @@
 "use client";
 
-// React imports
+// React and Next.js imports
 import { Suspense, useEffect, useState } from "react";
-
-// Next.js imports
 import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic"; // Import for Lazy Loading
 
 // UI Components
 import { Navbar } from "@/components/component-landing/navbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatePresence, motion } from "framer-motion";
+import TabAnimation from "./TabAnimation";
 
-// Feature Components
-import AnalysisTabs from "@/components/sections/AnalysisTabs";
-import ProductRecommendationsSection from "@/components/sections/ProductRecommendationsSection";
-import UserProfileSection from "@/components/sections/UserProfileSection";
-import BodySection from "../../components/sections/BodySection";
-import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
-import ColorToneSection from "../../components/sections/ColorToneSection";
-import ShapeSection from "../../components/sections/ShapeSection";
-import TipsSection from "../../components/sections/TipsSection";
+// Feature Components - Lazy load heavy components
+const AnalysisTabs = dynamic(
+  () => import("@/components/sections/AnalysisTabs")
+);
+const ProductRecommendationsSection = dynamic(
+  () => import("@/components/sections/ProductRecommendationsSection")
+);
+const UserProfileSection = dynamic(
+  () => import("@/components/sections/UserProfileSection")
+);
 
-// Modal Components
-import { ErrorModal } from "@/components/sections/error-modal";
-import FeedbackModal from "@/components/sections/feedback-modal";
-import { PaymentModal } from "@/components/sections/payment-modal";
+// --- LAZY LOADED MODALS ---
+// Modals are now loaded only when they are needed, reducing the initial JavaScript bundle size.
+const ErrorModal = dynamic(() =>
+  import("@/components/sections/error-modal").then((mod) => ({
+    default: mod.ErrorModal,
+  }))
+);
+const FeedbackModal = dynamic(() =>
+  import("@/components/sections/feedback-modal").then((mod) => ({
+    default: mod.default,
+  }))
+);
+const PaymentModal = dynamic(() =>
+  import("@/components/sections/payment-modal").then((mod) => ({
+    default: mod.PaymentModal,
+  }))
+);
 
 // Hooks
 import {
@@ -40,6 +54,32 @@ import { useUserData } from "@/hooks/useUserData";
 // Types and Constants
 import { analysisTabs } from "@/lib/mock-data";
 import { AnalysisResult } from "@/types/analysis";
+
+// --- SKELETON COMPONENTS for <Suspense> ---
+// These are simple placeholders shown while data is loading.
+const UserProfileSkeleton = () => (
+  <div className="bg-gray-300 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl animate-pulse">
+    <div className="p-5">
+      <div className="w-full h-[200px] md:h-[200px] lg:h-[280px] bg-gray-400 rounded-xl mb-4"></div>
+      <div className="space-y-3">
+        <div className="h-8 bg-gray-400 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-400 rounded w-full"></div>
+        <div className="h-4 bg-gray-400 rounded w-2/3"></div>
+        <div className="flex gap-3 mt-4">
+          <div className="h-10 bg-gray-400 rounded-lg flex-1"></div>
+          <div className="h-10 bg-gray-400 rounded-lg flex-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const AnalysisContentSkeleton = () => (
+  <div className="w-full animate-pulse">
+    <div className="h-12 bg-gray-300 rounded-lg mb-4"></div>
+    <div className="h-96 bg-gray-300 rounded-lg"></div>
+  </div>
+);
 
 function BeautyAnalysisPageInner() {
   // UI State
@@ -246,21 +286,49 @@ function BeautyAnalysisPageInner() {
 
   // Determine which image to use based on access source and availability
   const getDisplayImage = () => {
-    if (typeof window === "undefined") return userPhotoUrl;
+    if (typeof window === "undefined")
+      return analysisResult?.userPhotoUrl || null;
 
-    // For registration flow, try localStorage images first
+    // Jika alur registrasi, prioritaskan localStorage
     if (accessSource === "registration") {
       const capturedImage = localStorage.getItem("capturedImage");
       const uploadedImage = localStorage.getItem("uploadedImage");
-
-      // If we have localStorage images and no API image, use localStorage
-      if ((capturedImage || uploadedImage) && !userPhotoUrl) {
+      if (capturedImage || uploadedImage) {
         return capturedImage || uploadedImage;
       }
     }
 
-    // For other flows or if API image is available, use API image
-    return userPhotoUrl;
+    // Jika tidak, gunakan URL dari API
+    // PASTIKAN URL ini adalah Signed URL yang bisa diakses publik
+    let apiUrl = analysisResult?.userPhotoUrl;
+
+    // Prepend NEXT_PUBLIC_IMAGE_URL if apiUrl is not a full URL
+    if (
+      apiUrl &&
+      !apiUrl.startsWith("http://") &&
+      !apiUrl.startsWith("https://")
+    ) {
+      const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
+      if (baseUrl) {
+        // Remove trailing slash from baseUrl and leading slash from apiUrl to avoid double slashes
+        const cleanBaseUrl = baseUrl.replace(/\/$/, "");
+        const cleanApiUrl = apiUrl.replace(/^\//, "");
+        apiUrl = `${cleanBaseUrl}/${cleanApiUrl}`;
+      }
+    }
+
+    // Validate URL before returning
+    if (apiUrl) {
+      try {
+        new URL(apiUrl); // This will throw if URL is invalid
+        return apiUrl;
+      } catch (error) {
+        console.warn("Invalid API image URL:", apiUrl);
+        return null;
+      }
+    }
+
+    return null;
   };
 
   const displayImage = getDisplayImage();
@@ -474,58 +542,112 @@ function BeautyAnalysisPageInner() {
     const content = (() => {
       switch (tabId) {
         case "shape":
+          const ShapeComponent = dynamic(
+            () => import("../../components/sections/ShapeSection")
+          );
           return (
-            <ShapeSection
-              shapeId={analysisData.face_shape_id?.toString() || "1"}
-            />
+            <Suspense
+              fallback={
+                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+              }
+            >
+              <ShapeComponent
+                shapeId={analysisData.face_shape_id?.toString() || "1"}
+              />
+            </Suspense>
           );
         case "color":
+          const ColorComponent = dynamic(
+            () => import("../../components/sections/ColorToneSection")
+          );
           return (
-            <ColorToneSection
-              colorAnalysisId={
-                analysisData.color_analysis_id?.toString() || "1"
+            <Suspense
+              fallback={
+                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
               }
-            />
+            >
+              <ColorComponent
+                colorAnalysisId={
+                  analysisData.color_analysis_id?.toString() || "1"
+                }
+              />
+            </Suspense>
           );
         case "body":
+          const BodyComponent = dynamic(
+            () => import("../../components/sections/BodySection")
+          );
           return (
-            <BodySection
-              bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
-              bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
-              bmiResult={{
-                value: userData?.bmi?.value || 0,
-              }}
-            />
+            <Suspense
+              fallback={
+                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+              }
+            >
+              <BodyComponent
+                bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
+                bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
+                bmiResult={{
+                  value: userData?.bmi?.value || 0,
+                }}
+              />
+            </Suspense>
           );
         case "celebrity":
+          const CelebrityComponent = dynamic(
+            () => import("../../components/sections/CelebrityMatchSection")
+          );
           return (
-            <CelebrityMatchSection
-              celebrityId={
-                analysisData.celebrity_id
-                  ? analysisData.celebrity_id.toString()
-                  : null
+            <Suspense
+              fallback={
+                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
               }
-            />
+            >
+              <CelebrityComponent
+                celebrityId={
+                  analysisData.celebrity_id
+                    ? analysisData.celebrity_id.toString()
+                    : null
+                }
+              />
+            </Suspense>
           );
         case "tips":
+          const TipsComponent = dynamic(
+            () => import("../../components/sections/TipsSection")
+          );
           return (
-            <TipsSection
-              analysisData={{
-                ...analysisData,
-                face_shape_id: analysisData.face_shape_id?.toString() || "1",
-                color_analysis_id:
-                  analysisData.color_analysis_id?.toString() || "1",
-                body_shape_id: analysisData.body_shape_id?.toString() || "1",
-                bmi_category_id:
-                  analysisData.bmi_category_id?.toString() || "1",
-              }}
-            />
+            <Suspense
+              fallback={
+                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+              }
+            >
+              <TipsComponent
+                analysisData={{
+                  ...analysisData,
+                  face_shape_id: analysisData.face_shape_id?.toString() || "1",
+                  color_analysis_id:
+                    analysisData.color_analysis_id?.toString() || "1",
+                  body_shape_id: analysisData.body_shape_id?.toString() || "1",
+                  bmi_category_id:
+                    analysisData.bmi_category_id?.toString() || "1",
+                }}
+              />
+            </Suspense>
           );
         default:
+          const DefaultShapeComponent = dynamic(
+            () => import("../../components/sections/ShapeSection")
+          );
           return (
-            <ShapeSection
-              shapeId={analysisData.face_shape_id?.toString() || "1"}
-            />
+            <Suspense
+              fallback={
+                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+              }
+            >
+              <DefaultShapeComponent
+                shapeId={analysisData.face_shape_id?.toString() || "1"}
+              />
+            </Suspense>
           );
       }
     })();
@@ -545,91 +667,106 @@ function BeautyAnalysisPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
-      <Navbar />
+    <>
+      {/* Preload critical resources */}
+      {displayImage && (
+        <link
+          rel="preload"
+          href={displayImage}
+          as="image"
+          fetchPriority="high"
+        />
+      )}
+      <link
+        rel="preconnect"
+        href="//minecraft-server-tiebymin-minio.dgrttk.easypanel.host"
+        crossOrigin=""
+      />
 
-      <main className="w-full py-8 lg:py-4 pt-[80px] px-[20px] 2xl:container 2xl:mx-auto">
-        <div className="flex flex-col md:flex-col xl:flex-row w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
-          <UserProfileSection
-            userName={userName}
-            userPhotoUrl={displayImage}
-            resultId={finalResultId}
-            onDownloadStory={handleStoryDownload}
-            isGeneratingStory={isGeneratingStory}
-            accessSource={accessSource}
-          />
+      <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
+        <Navbar />
 
-          <div
-            className={`w-full ${
-              needsPayment ? "blur-sm pointer-events-none" : ""
-            }`}
-          >
-            <AnalysisTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <main className="w-full py-8 lg:py-4 pt-[80px] px-[20px] 2xl:container 2xl:mx-auto">
+          <div className="flex flex-col md:flex-col xl:flex-row w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
+            {/* --- PERFORMANCE: Suspense for LCP Element --- */}
+            {/* The UI streams to the user. This skeleton appears instantly while the actual profile data loads. */}
+            {/* This drastically improves LCP and user experience. */}
+            <Suspense fallback={<UserProfileSkeleton />}>
+              <UserProfileSection
+                userName={userName}
+                userPhotoUrl={displayImage}
+                resultId={finalResultId}
+                onDownloadStory={handleStoryDownload}
+                isGeneratingStory={isGeneratingStory}
+              />
+            </Suspense>
 
-            <div className="mt-[16px] lg:mt-[50px] relative overflow-hidden">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={activeTab}
-                  initial={{ x: "100%" }}
-                  animate={{ x: 0 }}
-                  exit={{ x: "-100%" }}
-                  transition={{
-                    type: "tween",
-                    ease: "easeInOut",
-                    duration: 0.3,
-                  }}
-                  className="w-full"
-                >
-                  {renderContent(analysisTabs[activeTab].id)}
-                </motion.div>
-              </AnimatePresence>
+            <div
+              className={`w-full ${
+                needsPayment ? "blur-sm pointer-events-none" : ""
+              }`}
+            >
+              {/* --- PERFORMANCE: Suspense for Analysis Content --- */}
+              <Suspense fallback={<AnalysisContentSkeleton />}>
+                {isLoading ? (
+                  <AnalysisContentSkeleton />
+                ) : (
+                  <div>
+                    <AnalysisTabs
+                      activeTab={activeTab}
+                      onTabChange={setActiveTab}
+                    />
+
+                    <div className="mt-[16px] lg:mt-[50px] relative overflow-hidden">
+                      <TabAnimation activeTab={activeTab}>
+                        {renderContent(analysisTabs[activeTab].id)}
+                      </TabAnimation>
+                    </div>
+                  </div>
+                )}
+              </Suspense>
             </div>
           </div>
-        </div>
 
-        <div className={needsPayment ? "blur-sm pointer-events-none" : ""}>
-          <ProductRecommendationsSection
-            sortedProducts={sortedProducts}
-            topProductScores={topProductScores}
-            recommendationFilter={recommendationFilter}
-            onFilterChange={handleFilterChange}
-          />
-        </div>
-      </main>
-      <FeedbackModal
-        isOpen={isFeedbackModalOpen}
-        onClose={() => setFeedbackModalOpen(false)}
-        userId={userId}
-        analysisResultId={finalResultId || ""}
-      />
-      <ErrorModal
-        isOpen={isErrorModalOpen}
-        onClose={() => setIsErrorModalOpen(false)}
-        errorMessage={errorModalMessage}
-      />
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        onProceedToPayment={handlePayment}
-        isProcessing={isPaymentProcessing}
-      />
-    </div>
+          {/* This can also be wrapped in Suspense if product loading is slow */}
+          <div className={needsPayment ? "blur-sm pointer-events-none" : ""}>
+            <ProductRecommendationsSection
+              sortedProducts={sortedProducts}
+              topProductScores={topProductScores}
+              recommendationFilter={recommendationFilter}
+              onFilterChange={handleFilterChange}
+            />
+          </div>
+        </main>
+        <FeedbackModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => setFeedbackModalOpen(false)}
+          userId={userId}
+          analysisResultId={finalResultId || ""}
+        />
+        <ErrorModal
+          isOpen={isErrorModalOpen}
+          onClose={() => setIsErrorModalOpen(false)}
+          errorMessage={errorModalMessage}
+        />
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onProceedToPayment={handlePayment}
+          isProcessing={isPaymentProcessing}
+        />
+      </div>
+    </>
   );
 }
 
 export default function BeautyAnalysisPage() {
+  // The top-level Suspense remains a good pattern for the whole page.
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 p-8">
-          <Skeleton className="h-16 w-full mb-8" />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <Skeleton className="h-[700px] w-full rounded-3xl" />
-            <div className="lg:col-span-2 space-y-4">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-96 w-full" />
-            </div>
-          </div>
+        <div className="min-h-screen bg-gray-50">
+          <Skeleton className="h-screen w-full" />
         </div>
       }
     >
