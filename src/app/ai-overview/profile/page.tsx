@@ -343,12 +343,6 @@ export default function DashboardPage() {
             <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#323232]">
               Test History
             </h2>
-            {totalItems > 0 && (
-              <p className="text-[#323232]/70 font-poppins text-sm">
-                Menampilkan {startIndex + 1}-{Math.min(endIndex, totalItems)}{" "}
-                dari {totalItems} hasil analisa
-              </p>
-            )}
           </div>
           <p className="text-[#323232] font-poppins">
             Yuk intip lagi hasil analisa yang pernah kamu lakukan. Semua hasil

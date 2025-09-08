@@ -68,7 +68,7 @@ export default function MethodologyPage() {
           </Card>
         </section>
 
-        <section className="mb-[50px]">
+        <section className="mb-[50px] lg:px-0 px-4">
           <SectionTitle info="Dasar Ilmiah di balik rekomendasi Hijab">
             Konsep Analisis
           </SectionTitle>
@@ -96,7 +96,7 @@ export default function MethodologyPage() {
           </div>
         </section>
 
-        <section>
+        <section className="lg:px-0 px-4">
           <SectionTitle info="Mengapa Kami Memilih 3 Fokus Utama?">
             Jumlah Analisis
           </SectionTitle>
@@ -114,7 +114,7 @@ export default function MethodologyPage() {
                 </Card>
               ))}
             </div>
-            <div className="md:col-span-2 p-6">
+            <div className="md:col-span-2 lg:p-6 p-4">
               <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                 Kami memilih 3 fokus utama untuk menjaga keseimbangan antara
                 akurasi dan kenyamanan pengguna. Studi dari {'"'}
@@ -130,7 +130,7 @@ export default function MethodologyPage() {
         </section>
 
         {/* Hasil Analisa Section */}
-        <section className="mb-10">
+        <section className="mb-10 lg:px-0 px-4">
           <SectionTitle info="Bagaimana Kami Menggabungkan Data untuk Rekomendasi?">
             Bentuk Analisis
           </SectionTitle>
@@ -168,7 +168,7 @@ export default function MethodologyPage() {
           </div>
         </section>
 
-        <section>
+        <section className="lg:px-0 px-4">
           <Card className="bg-[#EF789B] text-[#f0f0f0] rounded-2xl shadow-xl p-6 md:p-8 mt-[50px] border-0">
             <div className="flex flex-col md:flex-row items-start gap-[50px]">
               {/* Bagian Kiri */}
@@ -198,7 +198,7 @@ export default function MethodologyPage() {
           </Card>
         </section>
 
-        <section className="mb-[50px]">
+        <section className="mb-[50px] lg:px-0 px-4">
           <SectionTitle info="Mengapa Kami Menggunakan Foto Selfie + Pilihan Manual?">
             Kombinasi Karakteristik
           </SectionTitle>
@@ -239,7 +239,7 @@ export default function MethodologyPage() {
         </section>
 
         {/* Disclaimer Section */}
-        <section className="mb-[50px]">
+        <section className="mb-[50px] lg:px-0 px-4">
           <SectionTitle info="Penting untuk Diperhatikan">
             Disclaimer
           </SectionTitle>
@@ -286,7 +286,7 @@ export default function MethodologyPage() {
         </section>
 
         {/* Referensi Jurnal Section */}
-        <section className="mb-[100px]">
+        <section className="mb-[100px] lg:px-0 px-4">
           <Card className="bg-[#323232] text-[#f0f0f0] rounded-2xl shadow-xl p-8 md:p-10">
             <h2 className="font-oswald text-3xl font-bold mb-6 text-center">
               Referensi Jurnal Ilmiah
