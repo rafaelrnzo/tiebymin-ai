@@ -7,13 +7,13 @@ import { Product } from "@/types";
 
 interface ProductCardMobileProps {
   product: Product;
-  topProductScores: Map<string, number>;
+  topProductScores?: Map<string, number>;
   sortedProducts: Product[];
 }
 
 const ProductCardMobile: React.FC<ProductCardMobileProps> = ({
   product,
-  topProductScores,
+  topProductScores = new Map(),
   sortedProducts,
 }) => {
   return (
@@ -29,9 +29,7 @@ const ProductCardMobile: React.FC<ProductCardMobileProps> = ({
           className="w-full h-full object-cover rounded-xl"
         />
         <span className="absolute bottom-4 left-4 bg-[#323232] bg-opacity-70 text-[#f0f0f0] px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2">
-          {topProductScores.has(product.id)
-            ? `${topProductScores.get(product.id)}% Match`
-            : `${product.total_compatibility_score * 10}% Match`}
+          {product.total_compatibility_score.toFixed(0)}% Match
         </span>
         <span className="absolute bottom-4 right-4 bg-[#f0f0f0] text-[#323232] px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md">
           <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />

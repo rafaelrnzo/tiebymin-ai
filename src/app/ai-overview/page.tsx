@@ -404,16 +404,12 @@ function BeautyAnalysisPageInner() {
   ]);
 
   // Product recommendations
-  const {
-    sortedProducts,
-    topProductScores,
-    recommendationFilter,
-    handleFilterChange,
-  } = useProductRecommendations(
-    finalResultId,
-    rawAnalysisData?.body_shape_id?.toString(),
-    rawAnalysisData?.face_shape_id?.toString()
-  );
+  const { sortedProducts, recommendationFilter, handleFilterChange } =
+    useProductRecommendations(
+      finalResultId,
+      rawAnalysisData?.body_shape_id?.toString(),
+      rawAnalysisData?.face_shape_id?.toString()
+    );
 
   // Story generation handler - using existing hook
   const handleStoryDownload = () => {
@@ -764,7 +760,6 @@ function BeautyAnalysisPageInner() {
           <div className={needsPayment ? "blur-sm pointer-events-none" : ""}>
             <ProductRecommendationsSection
               sortedProducts={sortedProducts}
-              topProductScores={topProductScores}
               recommendationFilter={recommendationFilter}
               onFilterChange={handleFilterChange}
             />

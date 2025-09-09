@@ -50,13 +50,13 @@ if (typeof document !== "undefined") {
 
 interface ProductCardDesktopProps {
   product: Product;
-  topProductScores: Map<string, number>;
+  topProductScores?: Map<string, number>;
   sortedProducts: Product[];
 }
 
 const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
   product,
-  topProductScores,
+  topProductScores = new Map(),
   sortedProducts,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -77,7 +77,7 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
   };
 
   return (
-    <div className="product-flip-container h-[630px] w-full">
+    <div className="product-flip-container min-h-[650px] w-full">
       <div className={`product-flip-inner ${isFlipped ? "flipped" : ""}`}>
         <div className="product-flip-front border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 w-full border-[#323232]">
           <div className="relative p-2 px-4">
@@ -102,9 +102,7 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
               className="w-full h-72 object-cover rounded-xl"
             />
             <span className="absolute bottom-4 left-6 bg-[#323232] bg-opacity-70 text-[#f0f0f0] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
-              {topProductScores.has(product.id)
-                ? `${topProductScores.get(product.id)}% Match`
-                : `${product.total_compatibility_score.toFixed(0)}% Match`}
+              {product.total_compatibility_score.toFixed(0)}% Match
             </span>
             <span className="absolute bottom-4 right-6 bg-[#f0f0f0] text-[#323232] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-md">
               <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />

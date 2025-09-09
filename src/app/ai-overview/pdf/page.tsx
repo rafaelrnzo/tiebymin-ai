@@ -273,7 +273,12 @@ function PdfPage() {
     CelebritiesMatch: (props) => <CelebritiesMatch {...props} />,
     Conclusion: (props) => <Conclusion {...props} />,
     ProductRecommendation: (props) => (
-      <ProductRecommendation {...props} resultId={resultId as string} />
+      <ProductRecommendation
+        {...props}
+        resultId={resultId as string}
+        bodyShapeId={analysisData?.body_shape_id?.toString()}
+        faceShapeId={analysisData?.face_shape_id?.toString()}
+      />
     ),
     BackCover: () => <BackCover />,
   };

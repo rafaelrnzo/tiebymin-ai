@@ -30,7 +30,6 @@ export const useProductCompatibility = (
     queryFn: async (): Promise<ProductCompatibility> => {
       if (!resultId) return {};
 
-      const userShapeId = filter === "clothes" ? bodyShapeId : faceShapeId;
 
       const endpoint = filter === "clothes"
         ? `${secureUrl("/v1/product-body-shape-compatibility/")}`

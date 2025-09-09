@@ -12,7 +12,7 @@ const ProductCardMobile = dynamic(
   }
 ) as React.ComponentType<{
   product: Product;
-  topProductScores: Map<string, number>;
+  topProductScores?: Map<string, number>;
   sortedProducts: Product[];
 }>;
 
@@ -25,7 +25,7 @@ const ProductCardDesktop = dynamic(
   }
 ) as React.ComponentType<{
   product: Product;
-  topProductScores: Map<string, number>;
+  topProductScores?: Map<string, number>;
   sortedProducts: Product[];
 }>;
 
@@ -45,7 +45,7 @@ import { Product } from "@/types";
 
 interface ProductRecommendationsSectionProps {
   sortedProducts: Product[];
-  topProductScores: Map<string, number>;
+  topProductScores?: Map<string, number>;
   recommendationFilter: "hijab" | "clothes";
   onFilterChange: (filter: "hijab" | "clothes") => void;
 }
@@ -54,7 +54,7 @@ const ProductRecommendationsSection: React.FC<
   ProductRecommendationsSectionProps
 > = ({
   sortedProducts,
-  topProductScores,
+  topProductScores = new Map(),
   recommendationFilter,
   onFilterChange,
 }) => {
