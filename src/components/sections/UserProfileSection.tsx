@@ -3,6 +3,44 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+// Helper function to decode and fix malformed URLs
+const decodeUrl = (url: string): string => {
+  try {
+    // Decode twice to handle double encoding
+    let decoded = decodeURIComponent(url);
+    if (decoded.includes("%")) {
+      decoded = decodeURIComponent(decoded);
+    }
+
+    // Handle case where URL has duplicate base URL with credentials
+    // Extract the correct URL from malformed double-encoded URLs
+    // Pattern matches: baseURL + "/" + baseURL + "/path"
+    const baseUrlPattern =
+      /https:\/\/[^\/]+\/[^\/]+:[^\/]+\/[^\/]+\/(https:\/\/[^\/]+\/[^\/]+:[^\/]+\/[^\/]+\/.+)/;
+    let httpsMatches = decoded.match(baseUrlPattern);
+
+    if (httpsMatches && httpsMatches[1]) {
+      // Use the second base URL with path
+      decoded = httpsMatches[1];
+      console.log("🔧 UserProfileSection: Fixed duplicate base URL pattern");
+    } else {
+      // Fallback to original pattern for other cases
+      httpsMatches = decoded.match(/https:\/\/[^\/]+\/(https:\/\/[^\/]+\/.+)/);
+      if (httpsMatches && httpsMatches[1]) {
+        decoded = httpsMatches[1];
+        console.log(
+          "🔧 UserProfileSection: Fixed generic duplicate https pattern"
+        );
+      }
+    }
+
+    return decoded;
+  } catch (error) {
+    console.warn("⚠️ UserProfileSection: Failed to decode URL:", url, error);
+    return url;
+  }
+};
+
 interface UserProfileSectionProps {
   userName: string | null;
   userPhotoUrl: string | null;
@@ -20,49 +58,71 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
 }) => {
   const router = useRouter();
 
+  // Decode the URL first to fix any duplication
+  const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
+
+  console.log("👤 UserProfileSection - Raw userPhotoUrl:", userPhotoUrl);
+  console.log(
+    "👤 UserProfileSection - Decoded userPhotoUrl:",
+    decodedUserPhotoUrl
+  );
+
   // Determine if the URL is a temporary blob URL from localStorage.
-  const isBlobUrl = userPhotoUrl?.startsWith("blob:") ?? false;
+  const isBlobUrl = decodedUserPhotoUrl?.startsWith("blob:") ?? false;
 
   // Validate URL for non-blob URLs
-  const isValidUrl = userPhotoUrl
+  const isValidUrl = decodedUserPhotoUrl
     ? (() => {
         try {
-          new URL(userPhotoUrl);
+          new URL(decodedUserPhotoUrl);
           return true;
-        } catch {
+        } catch (error) {
+          console.error(
+            "❌ UserProfileSection - URL validation failed:",
+            decodedUserPhotoUrl,
+            error
+          );
           return false;
         }
       })()
     : false;
 
+  console.log(
+    "👤 UserProfileSection - isBlobUrl:",
+    isBlobUrl,
+    "isValidUrl:",
+    isValidUrl
+  );
+  console.log(
+    "👤 UserProfileSection - Will show image:",
+    !!(decodedUserPhotoUrl && (isBlobUrl || isValidUrl))
+  );
+
   return (
     <div className="bg-[#323232] 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl p-5 text-[#f0f0f0] flex flex-col lg:flex-row md:flex-row items-center xl:flex-col gap-x-5 lg:mt-[60px] xl:mt-0">
       <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full rounded-xl overflow-hidden">
-        {userPhotoUrl && (isBlobUrl || isValidUrl) ? (
+        {decodedUserPhotoUrl && (isBlobUrl || isValidUrl) ? (
           isBlobUrl ? (
             // FIX: Use a standard <img> tag for blob URLs, as next/image cannot optimize them.
             // This prevents the "Invalid URL" crash.
             <img
-              src={userPhotoUrl}
+              src={decodedUserPhotoUrl}
               alt="Analysis Result"
               className="object-cover rounded-xl w-full h-full"
               loading="eager"
               decoding="async"
             />
           ) : (
-            // Use the highly optimized next/image component for all valid standard URLs.
-            <Image
-              key={userPhotoUrl}
-              src={userPhotoUrl}
+            // For external authenticated URLs, use <img> tag to bypass Next.js image optimization
+            // which fails with credentialed URLs from Contabo storage
+            <img
+              key={decodedUserPhotoUrl}
+              src={decodedUserPhotoUrl}
               alt="Analysis Result"
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover rounded-xl"
-              priority={true} // Prioritizes loading for this LCP element.
-              quality={75} // Further optimize image quality for better performance
-              placeholder="blur" // Add blur placeholder for better UX
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
+              className="object-cover rounded-xl w-full h-full"
+              loading="eager"
               decoding="async"
+              style={{ width: "100%", height: "100%" }}
             />
           )
         ) : (

@@ -13,6 +13,42 @@ import { StoryFaceShape } from "./story-faceshape-story";
 import { StoryColorTone } from "./story-colortone-story";
 import { StoryBodyShape } from "./story-bodyshape-story";
 
+// Helper function to decode and fix malformed URLs
+const decodeUrl = (url: string): string => {
+  try {
+    // Decode twice to handle double encoding
+    let decoded = decodeURIComponent(url);
+    if (decoded.includes("%")) {
+      decoded = decodeURIComponent(decoded);
+    }
+
+    // Handle case where URL has duplicate base URL with credentials
+    // Extract the correct URL from malformed double-encoded URLs
+    // Pattern matches: baseURL + "/" + baseURL + "/path"
+    const baseUrlPattern =
+      /https:\/\/[^\/]+\/[^\/]+:[^\/]+\/[^\/]+\/(https:\/\/[^\/]+\/[^\/]+:[^\/]+\/[^\/]+\/.+)/;
+    let httpsMatches = decoded.match(baseUrlPattern);
+
+    if (httpsMatches && httpsMatches[1]) {
+      // Use the second base URL with path
+      decoded = httpsMatches[1];
+      console.log("🔧 Story Poster: Fixed duplicate base URL pattern");
+    } else {
+      // Fallback to original pattern for other cases
+      httpsMatches = decoded.match(/https:\/\/[^\/]+\/(https:\/\/[^\/]+\/.+)/);
+      if (httpsMatches && httpsMatches[1]) {
+        decoded = httpsMatches[1];
+        console.log("🔧 Story Poster: Fixed generic duplicate https pattern");
+      }
+    }
+
+    return decoded;
+  } catch (error) {
+    console.warn("⚠️ story-poster-story: Failed to decode URL:", url, error);
+    return url;
+  }
+};
+
 const generateGimmickChartData = (
   mainShapeName: string
 ): { label: string; value: number; active: boolean }[] => {
@@ -107,8 +143,19 @@ export default function StoryPoster({
     }
   };
 
+  // Decode the URL first to fix any duplication
+  const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
+
+  console.log("📖 Story Poster - Raw userPhotoUrl:", userPhotoUrl);
+  console.log("📖 Story Poster - Decoded userPhotoUrl:", decodedUserPhotoUrl);
+
   // Function to fetch image with authentication
   const fetchImageWithAuth = async (imageUrl: string) => {
+    console.log(
+      "📖 Story Poster - Starting fetchImageWithAuth for URL:",
+      imageUrl
+    );
+
     try {
       setImageLoading(true);
       setImageError(false);
@@ -117,38 +164,81 @@ export default function StoryPoster({
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
 
+      console.log(
+        "📖 Story Poster - Token found:",
+        !!token,
+        token ? token.substring(0, 20) + "..." : "null"
+      );
+
       if (!token) {
-        console.error("No authentication token found for image fetch");
+        console.error(
+          "❌ Story Poster - No authentication token found for image fetch"
+        );
         setImageError(true);
         setImageLoading(false);
         return;
       }
 
+      console.log("📖 Story Poster - Fetching image with auth headers...");
       const response = await fetch(imageUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log(
+        "📖 Story Poster - Response status:",
+        response.status,
+        response.statusText
+      );
+      console.log("📖 Story Poster - Response headers:", [
+        ...response.headers.entries(),
+      ]);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error(
+          "❌ Story Poster - Fetch failed:",
+          `HTTP ${response.status}: ${response.statusText}`,
+          errorText
+        );
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
       }
 
       const blob = await response.blob();
+      console.log(
+        "📖 Story Poster - Blob received:",
+        blob.size,
+        "bytes, type:",
+        blob.type
+      );
+
       const dataUrl = URL.createObjectURL(blob);
+      console.log(
+        "📖 Story Poster - Created data URL, length:",
+        dataUrl.length
+      );
       setImageDataUrl(dataUrl);
       setImageLoading(false);
+      console.log("✅ Story Poster - Image fetch successful");
     } catch (error) {
-      console.error("Error fetching image with auth:", error);
+      console.error("❌ Story Poster - Error fetching image with auth:", error);
       setImageError(true);
       setImageLoading(false);
     }
   };
 
   // Process the user photo URL
-  const processedUserPhotoUrl = userPhotoUrl
-    ? validateImageUrl(userPhotoUrl)
+  const processedUserPhotoUrl = decodedUserPhotoUrl
+    ? validateImageUrl(decodedUserPhotoUrl)
     : null;
+
+  console.log(
+    "📖 Story Poster - Processed userPhotoUrl:",
+    processedUserPhotoUrl
+  );
 
   // Fetch image with authentication when processedUserPhotoUrl changes
   useEffect(() => {
@@ -172,6 +262,10 @@ export default function StoryPoster({
   // Determine if we should show skeleton
   const shouldShowSkeleton =
     (!processedUserPhotoUrl && !imageDataUrl) || imageLoading;
+
+  console.log("📖 Story Poster - shouldShowSkeleton:", shouldShowSkeleton);
+  console.log("📖 Story Poster - imageDataUrl:", !!imageDataUrl);
+  console.log("📖 Story Poster - imageLoading:", imageLoading);
 
   return (
     <div

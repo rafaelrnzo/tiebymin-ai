@@ -4,6 +4,42 @@ import { useState, useEffect } from "react";
 import { Footer } from "./footer-pdf";
 import { PageHeader } from "./header-pdf";
 
+// Helper function to decode and fix malformed URLs
+const decodeUrl = (url: string): string => {
+  try {
+    // Decode twice to handle double encoding
+    let decoded = decodeURIComponent(url);
+    if (decoded.includes("%")) {
+      decoded = decodeURIComponent(decoded);
+    }
+
+    // Handle case where URL has duplicate base URL with credentials
+    // Extract the correct URL from malformed double-encoded URLs
+    // Pattern matches: baseURL + "/" + baseURL + "/path"
+    const baseUrlPattern =
+      /https:\/\/[^\/]+\/[^\/]+:[^\/]+\/[^\/]+\/(https:\/\/[^\/]+\/[^\/]+:[^\/]+\/[^\/]+\/.+)/;
+    let httpsMatches = decoded.match(baseUrlPattern);
+
+    if (httpsMatches && httpsMatches[1]) {
+      // Use the second base URL with path
+      decoded = httpsMatches[1];
+      console.log("🔧 FaceShape PDF: Fixed duplicate base URL pattern");
+    } else {
+      // Fallback to original pattern for other cases
+      httpsMatches = decoded.match(/https:\/\/[^\/]+\/(https:\/\/[^\/]+\/.+)/);
+      if (httpsMatches && httpsMatches[1]) {
+        decoded = httpsMatches[1];
+        console.log("🔧 FaceShape PDF: Fixed generic duplicate https pattern");
+      }
+    }
+
+    return decoded;
+  } catch (error) {
+    console.warn("⚠️ faceshape-pdf: Failed to decode URL:", url, error);
+    return url;
+  }
+};
+
 // Interface IShape dan fungsi generateGimmickChartData tidak berubah
 interface IShape {
   name: string;
@@ -125,8 +161,19 @@ export const FaceShape = ({
     }
   };
 
+  // Decode the URL first to fix any duplication
+  const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
+
+  console.log("📄 FaceShape PDF - Raw userPhotoUrl:", userPhotoUrl);
+  console.log("📄 FaceShape PDF - Decoded userPhotoUrl:", decodedUserPhotoUrl);
+
   // Function to fetch image with authentication
   const fetchImageWithAuth = async (imageUrl: string) => {
+    console.log(
+      "📄 FaceShape PDF - Starting fetchImageWithAuth for URL:",
+      imageUrl
+    );
+
     try {
       setImageLoading(true);
       setImageError(false);
@@ -135,37 +182,78 @@ export const FaceShape = ({
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
 
+      console.log(
+        "📄 FaceShape PDF - Token found:",
+        !!token,
+        token ? token.substring(0, 20) + "..." : "null"
+      );
+
       if (!token) {
-        console.error("No authentication token found for image fetch");
+        console.error(
+          "❌ FaceShape PDF - No authentication token found for image fetch"
+        );
         setImageError(true);
         setImageLoading(false);
         return;
       }
 
+      console.log("📄 FaceShape PDF - Fetching image with auth headers...");
       const response = await fetch(imageUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log(
+        "📄 FaceShape PDF - Response status:",
+        response.status,
+        response.statusText
+      );
+      console.log("📄 FaceShape PDF - Response headers:", [
+        ...response.headers.entries(),
+      ]);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error(
+          "❌ FaceShape PDF - Fetch failed:",
+          `HTTP ${response.status}: ${response.statusText}`,
+          errorText
+        );
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
       }
 
       const blob = await response.blob();
+      console.log(
+        "📄 FaceShape PDF - Blob received:",
+        blob.size,
+        "bytes, type:",
+        blob.type
+      );
+
       const dataUrl = URL.createObjectURL(blob);
+      console.log(
+        "📄 FaceShape PDF - Created data URL, length:",
+        dataUrl.length
+      );
       setImageDataUrl(dataUrl);
       setImageLoading(false);
+      console.log("✅ FaceShape PDF - Image fetch successful");
     } catch (error) {
-      console.error("Error fetching image with auth:", error);
+      console.error(
+        "❌ FaceShape PDF - Error fetching image with auth:",
+        error
+      );
       setImageError(true);
       setImageLoading(false);
     }
   };
 
   // Process the user photo URL
-  const processedUserPhotoUrl = userPhotoUrl
-    ? validateImageUrl(userPhotoUrl)
+  const processedUserPhotoUrl = decodedUserPhotoUrl
+    ? validateImageUrl(decodedUserPhotoUrl)
     : null;
 
   // Fetch image with authentication when processedUserPhotoUrl changes
@@ -190,6 +278,14 @@ export const FaceShape = ({
   // Determine if we should show skeleton
   const shouldShowSkeleton =
     (!processedUserPhotoUrl && !imageDataUrl) || imageLoading;
+
+  console.log(
+    "📄 FaceShape PDF - Processed userPhotoUrl:",
+    processedUserPhotoUrl
+  );
+  console.log("📄 FaceShape PDF - shouldShowSkeleton:", shouldShowSkeleton);
+  console.log("📄 FaceShape PDF - imageDataUrl:", !!imageDataUrl);
+  console.log("📄 FaceShape PDF - imageLoading:", imageLoading);
 
   const ShapeBar = ({
     label,

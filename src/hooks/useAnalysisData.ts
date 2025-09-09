@@ -223,6 +223,32 @@ export function useAnalysisData(
 
         console.log("🖼️ useAnalysisData: Processing photos...");
 
+        // Helper function to decode and fix malformed URLs
+        const decodeUrl = (url: string): string => {
+          try {
+            // Decode twice to handle double encoding
+            let decoded = decodeURIComponent(url);
+            if (decoded.includes('%')) {
+              decoded = decodeURIComponent(decoded);
+            }
+
+            // Handle case where URL has duplicate https://
+            // Extract the correct URL from malformed double-encoded URLs
+            const httpsMatches = decoded.match(/https:\/\/[^\/]+\/[^\/]+\/(.+)/);
+            if (httpsMatches && httpsMatches[1]) {
+              // Reconstruct the proper URL
+              const baseUrl = 'https://sin1.contabostorage.com';
+              const path = httpsMatches[1];
+              decoded = `${baseUrl}/${path}`;
+            }
+
+            return decoded;
+          } catch (error) {
+            console.warn("⚠️ useAnalysisData: Failed to decode URL:", url, error);
+            return url;
+          }
+        };
+
         // Find user photo - extract file_path from photos array
         let userPhotoUrl = null;
 
@@ -235,7 +261,7 @@ export function useAnalysisData(
           );
 
           if (processedPhoto && processedPhoto.file_path) {
-            userPhotoUrl = processedPhoto.file_path;
+            userPhotoUrl = decodeUrl(processedPhoto.file_path);
             console.log("✅ useAnalysisData: Using processed photo:", userPhotoUrl);
           } else {
             // Priority 2: Find original face photo
@@ -244,7 +270,7 @@ export function useAnalysisData(
                 photo.photo_type === "face_original"
             );
             if (originalPhoto && originalPhoto.file_path) {
-              userPhotoUrl = originalPhoto.file_path;
+              userPhotoUrl = decodeUrl(originalPhoto.file_path);
               console.log("✅ useAnalysisData: Using original face photo:", userPhotoUrl);
             } else {
               // Priority 3: Use first available photo with file_path
@@ -252,7 +278,7 @@ export function useAnalysisData(
                 (photo: PhotoData) => photo.file_path
               );
               if (firstPhotoWithPath) {
-                userPhotoUrl = firstPhotoWithPath.file_path;
+                userPhotoUrl = decodeUrl(firstPhotoWithPath.file_path);
                 console.log("✅ useAnalysisData: Using first available photo:", userPhotoUrl);
               } else {
                 console.warn("⚠️ useAnalysisData: No photo with file_path found");
@@ -829,3 +855,4 @@ export function useOrderData(orderId: string | null, requireAuth: boolean = true
     staleTime: 5 * 60 * 1000,
   });
 }
+
