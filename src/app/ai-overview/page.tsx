@@ -168,6 +168,27 @@ function BeautyAnalysisPageInner() {
     typeof finalResultId === "string" &&
     finalResultId.length > 0;
 
+  console.log(
+    "🔍 page.tsx: ID resolution - resultId:",
+    resultId,
+    "urlOrderId:",
+    urlOrderId,
+    "localStorageOrderId:",
+    localStorageOrderId,
+    "orderId:",
+    orderId
+  );
+  console.log(
+    "🔍 page.tsx: Data sources - orderAnalysisResultId:",
+    orderAnalysisResultId,
+    "fallbackResultId:",
+    fallbackResultId,
+    "finalResultId:",
+    finalResultId,
+    "isValidResultId:",
+    isValidResultId
+  );
+
   // Determine access source
   const getAccessSource = () => {
     if (orderId && statusCode === "200" && transactionStatus === "settlement") {
@@ -237,6 +258,13 @@ function BeautyAnalysisPageInner() {
     orderData,
   ]);
 
+  console.log(
+    "🔍 page.tsx: useAnalysisData params - finalResultId:",
+    finalResultId,
+    "isValidResultId:",
+    isValidResultId
+  );
+
   const {
     data: analysisResult,
     isLoading,
@@ -244,6 +272,7 @@ function BeautyAnalysisPageInner() {
     isError,
   } = useAnalysisData(isValidResultId && finalResultId ? finalResultId : null, {
     onError: (err) => {
+      console.error("❌ page.tsx: useAnalysisData error:", err.message);
       // Only show error modal if we actually have a resultId to fetch
       // This prevents error modals for new users who haven't completed analysis yet
       if (finalResultId && isValidResultId) {
@@ -254,6 +283,25 @@ function BeautyAnalysisPageInner() {
       }
     },
   });
+
+  console.log(
+    "📊 page.tsx: useAnalysisData result - isLoading:",
+    isLoading,
+    "isError:",
+    isError,
+    "hasData:",
+    !!analysisResult
+  );
+  if (analysisResult) {
+    console.log(
+      "✅ page.tsx: analysisResult received - userData:",
+      !!analysisResult.userData,
+      "userPhotoUrl:",
+      !!analysisResult.userPhotoUrl,
+      "rawAnalysisData:",
+      !!analysisResult.rawAnalysisData
+    );
+  }
 
   // Handle session expiration and authentication errors
   useEffect(() => {

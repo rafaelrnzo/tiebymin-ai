@@ -20,7 +20,7 @@ const hardcodedBodyShapes = [
     link_picture:
       "https://res.cloudinary.com/dwuuwldcw/image/upload/v1754727467/Body_Shape_6_fjqhlb.png",
     is_active: true,
-    id: "633fc3b1-dcec-4127-8272-9f4a0589fe30",
+    id: "a11485af-0a5e-4b61-a203-be80c30da3d1",
     created_at: "2025-08-09T08:45:04.019165Z",
     updated_at: "2025-08-14T09:33:13.816632Z",
   },
@@ -35,7 +35,7 @@ const hardcodedBodyShapes = [
     link_picture:
       "https://res.cloudinary.com/dwuuwldcw/image/upload/v1754727467/Body_Shape_5_uwylsx.png",
     is_active: true,
-    id: "c95835b6-f4cf-490e-8fb9-94172e2d2196",
+    id: "15562f8e-a154-4b45-a815-02ed7e282bd4",
     created_at: "2025-08-09T08:44:20.244761Z",
     updated_at: "2025-08-14T09:34:48.785038Z",
   },
@@ -50,7 +50,7 @@ const hardcodedBodyShapes = [
     link_picture:
       "https://res.cloudinary.com/dwuuwldcw/image/upload/v1754727467/Body_Shape_4_dneluz.png",
     is_active: true,
-    id: "91b018ad-3405-4fbb-bb7c-258a2cc9ae54",
+    id: "2cb679ed-bd51-44eb-9921-ee212762fcd3",
     created_at: "2025-08-09T08:44:37.799439Z",
     updated_at: "2025-08-19T07:52:42.023153Z",
   },
@@ -65,7 +65,7 @@ const hardcodedBodyShapes = [
     link_picture:
       "https://res.cloudinary.com/dwuuwldcw/image/upload/v1754727467/Body_Shape_8_z82qix.png",
     is_active: true,
-    id: "14c44b55-34e3-4a51-9709-bfa4cb64309a",
+    id: "41bd6506-ef81-4182-8166-f8e5070dfef8",
     created_at: "2025-08-09T08:44:30.636395Z",
     updated_at: "2025-08-14T09:54:10.617747Z",
   },
@@ -80,7 +80,7 @@ const hardcodedBodyShapes = [
     link_picture:
       "https://res.cloudinary.com/dwuuwldcw/image/upload/v1754727467/Body_Shape_3_kuunps.png",
     is_active: true,
-    id: "7cb77e1e-92f5-4a92-9d54-06b1756b731c",
+    id: "cafbc127-6ab5-410a-9a2f-01a436c21185",
     created_at: "2025-08-09T08:44:53.332959Z",
     updated_at: "2025-08-14T09:38:07.537918Z",
   },
@@ -95,7 +95,7 @@ const hardcodedBodyShapes = [
     link_picture:
       "https://res.cloudinary.com/dwuuwldcw/image/upload/v1754727467/Body_Shape_2_jpxhhz.png",
     is_active: true,
-    id: "2b15f4fa-e4d9-40ad-8799-4f58dc0b8ee5",
+    id: "63b21791-51f0-4bff-90b6-8a9be2f0878a",
     created_at: "2025-08-09T08:44:46.326364Z",
     updated_at: "2025-08-14T09:39:10.658804Z",
   },

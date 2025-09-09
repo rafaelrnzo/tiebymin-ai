@@ -24,13 +24,18 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
   const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
+  console.log("🌐 fetchData: Calling endpoint:", endpoint, "fullUrl:", fullUrl);
+
   // Check if token exists
   if (!token) {
+    console.error("❌ fetchData: No authentication token found");
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
     throw new Error("Token autentikasi tidak ditemukan. Silakan login kembali.");
   }
+
+  console.log("🔑 fetchData: Using token:", token.substring(0, 20) + "...");
 
   try {
     const response = await axios.get(fullUrl, {
@@ -41,10 +46,16 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
     });
 
 
+    console.log("📥 fetchData: Response status:", response.status);
+
     if (response.status >= 200 && response.status < 300) {
+      console.log("✅ fetchData: Success response received");
       return response.data;
     } else {
+      console.error("❌ fetchData: Error response status:", response.status);
+
       if (response.status === 401) {
+        console.log("🔐 fetchData: 401 Unauthorized - calling onUnauthorized");
         if (onUnauthorized) {
           onUnauthorized();
         } else {
@@ -131,34 +142,54 @@ export function useAnalysisData(
     }
   };
 
+  // Debug: Log the resultId being used
+  console.log("🔍 useAnalysisData called with resultId:", resultId);
+
   return useQuery({
     queryKey: ["analysisData", resultId],
     queryFn: async () => {
 
       if (!resultId) {
+        console.error("❌ useAnalysisData: No resultId provided");
         throw new Error("ID Hasil diperlukan");
       }
 
+      console.log("🚀 useAnalysisData: Starting fetch for resultId:", resultId);
+
       try {
+        console.log("📡 useAnalysisData: Making API calls for resultId:", resultId);
+
         // Fetch analysis data dan photos secara parallel
         const [analysisData, photosData] = await Promise.all([
           fetchData(`/v1/user-analysis-results/${resultId}`, handleUnauthorized),
           fetchData(`/v1/user-photos/analysis/${resultId}`, handleUnauthorized),
         ]);
 
+        console.log("✅ useAnalysisData: API calls completed");
+        console.log("📊 useAnalysisData: analysisData received:", !!analysisData);
+        console.log("🖼️ useAnalysisData: photosData received:", Array.isArray(photosData) ? photosData.length : "not array");
+
         if (analysisData?.user_id && typeof window !== "undefined") {
           localStorage.setItem("userId", analysisData.user_id);
+          console.log("💾 useAnalysisData: Saved userId to localStorage:", analysisData.user_id);
         }
 
         // Validasi data yang diperlukan
         if (!analysisData) {
+          console.error("❌ useAnalysisData: analysisData is null or undefined");
           throw new Error("Data analisis kosong atau tidak terdefinisi");
         }
+
+        console.log("🔍 useAnalysisData: analysisData keys:", Object.keys(analysisData));
+        console.log("🆔 useAnalysisData: analysisData IDs - face_shape_id:", analysisData.face_shape_id, "color_analysis_id:", analysisData.color_analysis_id, "body_shape_id:", analysisData.body_shape_id, "bmi_category_id:", analysisData.bmi_category_id, "celebrity_id:", analysisData.celebrity_id);
 
         // Validasi ID yang diperlukan untuk fetch data tambahan
         if (!analysisData.face_shape_id && !analysisData.color_analysis_id &&
             !analysisData.body_shape_id && !analysisData.bmi_category_id) {
+          console.warn("⚠️ useAnalysisData: No analysis IDs found in analysisData");
         }
+
+        console.log("🔄 useAnalysisData: Fetching additional data...");
 
         // Fetch additional data berdasarkan IDs dari analysis result
         const additionalDataPromises = [
@@ -187,10 +218,16 @@ export function useAnalysisData(
           celebrityData,
         ] = await Promise.all(additionalDataPromises);
 
+        console.log("✅ useAnalysisData: Additional data fetched");
+        console.log("📋 useAnalysisData: Additional data results - faceShape:", !!faceShapeData, "colorTone:", !!colorToneData, "bodyShape:", !!bodyShapeData, "bmiCategory:", !!bmiCategoryData, "celebrity:", !!celebrityData);
+
+        console.log("🖼️ useAnalysisData: Processing photos...");
+
         // Find user photo - extract file_path from photos array
         let userPhotoUrl = null;
 
         if (Array.isArray(photosData) && photosData.length > 0) {
+          console.log("📸 useAnalysisData: Found", photosData.length, "photos");
 
           // Priority 1: Find processed photo (annotated/landmarked)
           const processedPhoto = photosData.find(
@@ -199,6 +236,7 @@ export function useAnalysisData(
 
           if (processedPhoto && processedPhoto.file_path) {
             userPhotoUrl = processedPhoto.file_path;
+            console.log("✅ useAnalysisData: Using processed photo:", userPhotoUrl);
           } else {
             // Priority 2: Find original face photo
             const originalPhoto = photosData.find(
@@ -207,6 +245,7 @@ export function useAnalysisData(
             );
             if (originalPhoto && originalPhoto.file_path) {
               userPhotoUrl = originalPhoto.file_path;
+              console.log("✅ useAnalysisData: Using original face photo:", userPhotoUrl);
             } else {
               // Priority 3: Use first available photo with file_path
               const firstPhotoWithPath = photosData.find(
@@ -214,9 +253,14 @@ export function useAnalysisData(
               );
               if (firstPhotoWithPath) {
                 userPhotoUrl = firstPhotoWithPath.file_path;
+                console.log("✅ useAnalysisData: Using first available photo:", userPhotoUrl);
+              } else {
+                console.warn("⚠️ useAnalysisData: No photo with file_path found");
               }
             }
           }
+        } else {
+          console.warn("⚠️ useAnalysisData: No photos array or empty array");
         }
 
         // Calculate BMI value dengan null checking dan validasi
@@ -335,11 +379,16 @@ export function useAnalysisData(
         };
 
 
-        return {
+        const result = {
           userData: transformedData,
           userPhotoUrl,
           rawAnalysisData: analysisData, // Tambahkan ini
         };
+
+        console.log("🎉 useAnalysisData: Successfully returning data for resultId:", resultId);
+        console.log("📦 useAnalysisData: Return data summary - userData:", !!result.userData, "userPhotoUrl:", !!result.userPhotoUrl, "rawAnalysisData:", !!result.rawAnalysisData);
+
+        return result;
       } catch (error: unknown) {
         if (options?.onError) {
           options.onError(error instanceof Error ? error : new Error(String(error)));
