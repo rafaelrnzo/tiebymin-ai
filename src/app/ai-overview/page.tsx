@@ -729,6 +729,7 @@ function BeautyAnalysisPageInner() {
           isOpen={isErrorModalOpen}
           onClose={() => setIsErrorModalOpen(false)}
           errorMessage={errorModalMessage}
+          onLogout={handleLogout}
         />
         <PaymentModal
           isOpen={isPaymentModalOpen}
