@@ -216,6 +216,15 @@ function RegisterPageContent() {
     window.location.href = secureUrl("/v1/auth/google/login");
   };
 
+  const parseFullName = (fullName: string) => {
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || "";
+
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+
+    return { firstName, lastName };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -230,12 +239,7 @@ function RegisterPageContent() {
     try {
       const uniqueGoogleId = generateUUID();
 
-      const nameParts = formData.fullName.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName =
-        nameParts.length > 1
-          ? nameParts.slice(1).join(" ")
-          : nameParts[0] || "";
+      const { firstName, lastName } = parseFullName(formData.fullName);
 
       const phoneValidation = validateIndonesianPhoneNumber(formData.phone);
 
