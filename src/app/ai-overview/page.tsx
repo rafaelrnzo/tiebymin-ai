@@ -131,7 +131,7 @@ function BeautyAnalysisPageInner() {
   }, [resultId]);
 
   // Custom hooks
-  const { userName, userId } = useUserData();
+  const { userName, userId, logout } = useUserData();
   const { isAuthChecking } = useAuthCheck({
     redirectTo: "/register",
     autoRedirect: false, // Don't auto-redirect, let the component handle it
@@ -139,14 +139,17 @@ function BeautyAnalysisPageInner() {
   });
   const { isGeneratingStory, handleDownloadStory } = useStoryHandler();
 
-  // Logout function with localStorage clearing
-  const handleLogout = () => {
-    if (typeof window !== "undefined") {
-      // Clear all localStorage data
-      localStorage.clear();
-
-      // Redirect to login
-      window.location.href = "/login";
+  // Proper logout function using the hook
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Fallback: clear localStorage and redirect manually if API call fails
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
     }
   };
 
