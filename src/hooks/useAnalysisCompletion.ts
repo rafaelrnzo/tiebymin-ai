@@ -9,7 +9,6 @@ export function useAnalysisCompletion(onCompletion: () => void) {
       const storedSections = localStorage.getItem(VIEWED_SECTIONS_STORAGE_KEY);
       return storedSections ? new Set(JSON.parse(storedSections)) : new Set();
     } catch (error) {
-      console.error('Error reading from localStorage', error);
       return new Set();
     }
   });
@@ -21,7 +20,6 @@ export function useAnalysisCompletion(onCompletion: () => void) {
       try {
         localStorage.setItem(VIEWED_SECTIONS_STORAGE_KEY, JSON.stringify(Array.from(newSections)));
       } catch (error) {
-        console.error('Error writing to localStorage', error);
       }
       return newSections;
     });

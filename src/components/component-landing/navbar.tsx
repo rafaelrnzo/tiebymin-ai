@@ -23,7 +23,6 @@ export function Navbar() {
 
   useEffect(() => {
     const checkLogin = async () => {
-      // Only access localStorage on client side
       if (typeof window !== "undefined") {
         const accessToken = localStorage.getItem("accessToken");
         const userToken = localStorage.getItem("userToken");
@@ -36,7 +35,6 @@ export function Navbar() {
           try {
             await fetchUserData();
           } catch (error) {
-            console.error("Failed to fetch user data:", error);
             setIsLoggedIn(false);
           }
         }
@@ -144,7 +142,7 @@ export function Navbar() {
         <div className="xl:hidden flex items-center justify-between py-2 sm:py-3 px-3 sm:px-4">
           <Link href="/">
             <Image
-              src="/tie-by-min-logo-light.webp" // Menggunakan logo terang agar kontras
+              src="/tie-by-min-logo-light.webp"
               alt="Tiebymin Logo"
               width={100}
               height={24}

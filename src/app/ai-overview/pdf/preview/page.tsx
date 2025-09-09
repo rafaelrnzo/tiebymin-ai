@@ -140,7 +140,11 @@ function PreviewPdfPage() {
       {
         id: "bodyShape",
         Component: (
-          <BodyShape userData={finalUserData} bodyDetails={bodyDetails} />
+          <BodyShape
+            userData={finalUserData}
+            bodyDetails={bodyDetails}
+            bmiCategoryDetails={undefined} // Will be added when BMI category hook is implemented
+          />
         ),
       },
       {

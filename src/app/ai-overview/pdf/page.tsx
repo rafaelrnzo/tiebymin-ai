@@ -269,7 +269,9 @@ function PdfPage() {
     Cover: (props) => <Cover {...props} />,
     FaceShape: (props) => <FaceShape {...props} />,
     ColorTone: (props) => <ColorTone {...props} />,
-    BodyShape: (props) => <BodyShape {...props} />,
+    BodyShape: (props) => (
+      <BodyShape {...props} bmiCategoryDetails={bmiCategoryDetails} />
+    ),
     CelebritiesMatch: (props) => <CelebritiesMatch {...props} />,
     Conclusion: (props) => <Conclusion {...props} />,
     ProductRecommendation: (props) => (

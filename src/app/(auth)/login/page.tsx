@@ -19,7 +19,6 @@ export default function LoginPage() {
     password: "",
   });
 
-  // Handle OAuth redirect and localStorage cleanup
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
@@ -27,43 +26,30 @@ export default function LoginPage() {
 
       let accessToken = null;
 
-      // Check for access_token in query parameters (OAuth redirect)
       if (urlParams.has("access_token")) {
         accessToken = urlParams.get("access_token");
-      }
-      // Check for access_token in hash
-      else if (hash.includes("access_token")) {
+      } else if (hash.includes("access_token")) {
         const hashParams = new URLSearchParams(hash.substring(1));
         accessToken = hashParams.get("access_token");
       }
 
       if (accessToken) {
-        // Store token and redirect to profile
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("userToken", accessToken);
         document.cookie = `auth=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
 
-        // Clean URL and redirect to profile page
         window.history.replaceState(null, "", "/login");
         router.push("/ai-overview/profile");
       } else {
-        // If no access token, this might be a session expiration redirect
-        // Clear any stale data that might be left over
         const hasStaleData =
           localStorage.getItem("accessToken") ||
           localStorage.getItem("userToken") ||
           localStorage.getItem("userId");
 
         if (hasStaleData) {
-          console.log(
-            "Detected potential stale session data, clearing localStorage"
-          );
-
-          // Clear all authentication tokens
           localStorage.removeItem("accessToken");
           localStorage.removeItem("userToken");
 
-          // Clear all user profile data
           localStorage.removeItem("userId");
           localStorage.removeItem("user_id");
           localStorage.removeItem("id");
@@ -71,30 +57,22 @@ export default function LoginPage() {
           localStorage.removeItem("firstName");
           localStorage.removeItem("lastName");
 
-          // Clear analysis data
           localStorage.removeItem("analysisResultId");
           localStorage.removeItem("tiebymin-analysis-data");
 
-          // Clear payment data
           localStorage.removeItem("paymentOrderId");
 
-          // Clear image data
           localStorage.removeItem("capturedImage");
           localStorage.removeItem("uploadedImage");
           localStorage.removeItem("uploadedFaceImage");
 
-          // Clear registration data
           localStorage.removeItem("registration-steps-progress");
           localStorage.removeItem("registration-current-step");
 
-          // Clear feedback data
           localStorage.removeItem("feedbackSubmitted");
           localStorage.removeItem("feedbackDismissed");
 
-          // Clear cookie
           document.cookie = "auth=; path=/; max-age=0; SameSite=Lax";
-
-          console.log("All stale session data cleared from localStorage");
         }
       }
     }

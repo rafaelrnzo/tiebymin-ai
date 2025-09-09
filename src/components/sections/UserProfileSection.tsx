@@ -21,53 +21,26 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
 }) => {
   const router = useRouter();
 
-  // Decode the URL first to fix any duplication
   const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
 
-  console.log("👤 UserProfileSection - Raw userPhotoUrl:", userPhotoUrl);
-  console.log(
-    "👤 UserProfileSection - Decoded userPhotoUrl:",
-    decodedUserPhotoUrl
-  );
-
-  // Determine if the URL is a temporary blob URL from localStorage.
   const isBlobUrl = decodedUserPhotoUrl?.startsWith("blob:") ?? false;
 
-  // Validate URL for non-blob URLs
   const isValidUrl = decodedUserPhotoUrl
     ? (() => {
         try {
           new URL(decodedUserPhotoUrl);
           return true;
         } catch (error) {
-          console.error(
-            "❌ UserProfileSection - URL validation failed:",
-            decodedUserPhotoUrl,
-            error
-          );
           return false;
         }
       })()
     : false;
-
-  console.log(
-    "👤 UserProfileSection - isBlobUrl:",
-    isBlobUrl,
-    "isValidUrl:",
-    isValidUrl
-  );
-  console.log(
-    "👤 UserProfileSection - Will show image:",
-    !!(decodedUserPhotoUrl && (isBlobUrl || isValidUrl))
-  );
 
   return (
     <div className="bg-[#323232] 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl p-5 text-[#f0f0f0] flex flex-col lg:flex-row md:flex-row items-center xl:flex-col gap-x-5 lg:mt-[60px] xl:mt-0">
       <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full rounded-xl overflow-hidden">
         {decodedUserPhotoUrl && (isBlobUrl || isValidUrl) ? (
           isBlobUrl ? (
-            // FIX: Use a standard <img> tag for blob URLs, as next/image cannot optimize them.
-            // This prevents the "Invalid URL" crash.
             <img
               src={decodedUserPhotoUrl}
               alt="Analysis Result"
@@ -76,8 +49,6 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
               decoding="async"
             />
           ) : (
-            // For external authenticated URLs, use <img> tag to bypass Next.js image optimization
-            // which fails with credentialed URLs from Contabo storage
             <img
               key={decodedUserPhotoUrl}
               src={decodedUserPhotoUrl}
@@ -89,7 +60,6 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
             />
           )
         ) : (
-          // Skeleton is shown when the URL is not available or invalid.
           <div className="w-full h-full bg-gray-500 rounded-xl animate-pulse" />
         )}
       </div>

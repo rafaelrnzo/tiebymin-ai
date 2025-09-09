@@ -4,7 +4,6 @@ import { BodyType } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-// Interface for photo objects from /v1/user-photos/analysis API
 interface PhotoData {
   analysis_result_id: string;
   photo_type: string;
@@ -24,18 +23,12 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
   const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
-  console.log("🌐 fetchData: Calling endpoint:", endpoint, "fullUrl:", fullUrl);
-
-  // Check if token exists
   if (!token) {
-    console.error("❌ fetchData: No authentication token found");
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
     throw new Error("Token autentikasi tidak ditemukan. Silakan login kembali.");
   }
-
-  console.log("🔑 fetchData: Using token:", token.substring(0, 20) + "...");
 
   try {
     const response = await axios.get(fullUrl, {
@@ -45,17 +38,10 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
       },
     });
 
-
-    console.log("📥 fetchData: Response status:", response.status);
-
     if (response.status >= 200 && response.status < 300) {
-      console.log("✅ fetchData: Success response received");
       return response.data;
     } else {
-      console.error("❌ fetchData: Error response status:", response.status);
-
       if (response.status === 401) {
-        console.log("🔐 fetchData: 401 Unauthorized - calling onUnauthorized");
         if (onUnauthorized) {
           onUnauthorized();
         } else {
@@ -84,7 +70,6 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
       throw new Error("Terjadi kesalahan saat mengambil data. Mohon coba lagi.");
     }
   } catch (error: unknown) {
-    // Handle axios error responses
     const axiosError = error as { response?: { status?: number; data?: { message?: string } }; code?: string; message?: string };
     if (axiosError.response?.status === 401) {
       if (onUnauthorized) {
@@ -113,7 +98,6 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
     if (axiosError.code === 'ENOTFOUND' || axiosError.code === 'ECONNREFUSED') {
       throw new Error("Koneksi internet bermasalah. Mohon periksa koneksi Anda.");
     }
-    // Provide more specific error message based on the error type
     if (axiosError.response?.status === 404) {
       throw new Error("Data yang Anda cari tidak ditemukan. Pastikan ID yang benar.");
     } else if (axiosError.response?.status === 403 || axiosError.response?.status === 401) {
@@ -130,68 +114,38 @@ async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   }
 }
 
-// Hook untuk fetching analysis data dengan debugging yang lebih baik
 export function useAnalysisData(
   resultId: string | null,
   options?: { onError?: (error: Error) => void }
 ) {
-
   const handleUnauthorized = () => {
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
   };
 
-  // Debug: Log the resultId being used
-  console.log("🔍 useAnalysisData called with resultId:", resultId);
-
   return useQuery({
     queryKey: ["analysisData", resultId],
     queryFn: async () => {
 
       if (!resultId) {
-        console.error("❌ useAnalysisData: No resultId provided");
         throw new Error("ID Hasil diperlukan");
       }
 
-      console.log("🚀 useAnalysisData: Starting fetch for resultId:", resultId);
-
       try {
-        console.log("📡 useAnalysisData: Making API calls for resultId:", resultId);
-
-        // Fetch analysis data dan photos secara parallel
         const [analysisData, photosData] = await Promise.all([
           fetchData(`/v1/user-analysis-results/${resultId}`, handleUnauthorized),
           fetchData(`/v1/user-photos/analysis/${resultId}`, handleUnauthorized),
         ]);
 
-        console.log("✅ useAnalysisData: API calls completed");
-        console.log("📊 useAnalysisData: analysisData received:", !!analysisData);
-        console.log("🖼️ useAnalysisData: photosData received:", Array.isArray(photosData) ? photosData.length : "not array");
-
         if (analysisData?.user_id && typeof window !== "undefined") {
           localStorage.setItem("userId", analysisData.user_id);
-          console.log("💾 useAnalysisData: Saved userId to localStorage:", analysisData.user_id);
         }
 
-        // Validasi data yang diperlukan
         if (!analysisData) {
-          console.error("❌ useAnalysisData: analysisData is null or undefined");
           throw new Error("Data analisis kosong atau tidak terdefinisi");
         }
 
-        console.log("🔍 useAnalysisData: analysisData keys:", Object.keys(analysisData));
-        console.log("🆔 useAnalysisData: analysisData IDs - face_shape_id:", analysisData.face_shape_id, "color_analysis_id:", analysisData.color_analysis_id, "body_shape_id:", analysisData.body_shape_id, "bmi_category_id:", analysisData.bmi_category_id, "celebrity_id:", analysisData.celebrity_id);
-
-        // Validasi ID yang diperlukan untuk fetch data tambahan
-        if (!analysisData.face_shape_id && !analysisData.color_analysis_id &&
-            !analysisData.body_shape_id && !analysisData.bmi_category_id) {
-          console.warn("⚠️ useAnalysisData: No analysis IDs found in analysisData");
-        }
-
-        console.log("🔄 useAnalysisData: Fetching additional data...");
-
-        // Fetch additional data berdasarkan IDs dari analysis result
         const additionalDataPromises = [
           analysisData.face_shape_id
             ? fetchData(`/v1/face-shapes/${analysisData.face_shape_id}`, handleUnauthorized)
@@ -218,25 +172,15 @@ export function useAnalysisData(
           celebrityData,
         ] = await Promise.all(additionalDataPromises);
 
-        console.log("✅ useAnalysisData: Additional data fetched");
-        console.log("📋 useAnalysisData: Additional data results - faceShape:", !!faceShapeData, "colorTone:", !!colorToneData, "bodyShape:", !!bodyShapeData, "bmiCategory:", !!bmiCategoryData, "celebrity:", !!celebrityData);
-
-        console.log("🖼️ useAnalysisData: Processing photos...");
-
-        // Helper function to decode and fix malformed URLs
         const decodeUrl = (url: string): string => {
           try {
-            // Decode twice to handle double encoding
             let decoded = decodeURIComponent(url);
             if (decoded.includes('%')) {
               decoded = decodeURIComponent(decoded);
             }
 
-            // Handle case where URL has duplicate https://
-            // Extract the correct URL from malformed double-encoded URLs
             const httpsMatches = decoded.match(/https:\/\/[^\/]+\/[^\/]+\/(.+)/);
             if (httpsMatches && httpsMatches[1]) {
-              // Reconstruct the proper URL
               const baseUrl = 'https://sin1.contabostorage.com';
               const path = httpsMatches[1];
               decoded = `${baseUrl}/${path}`;
@@ -244,52 +188,37 @@ export function useAnalysisData(
 
             return decoded;
           } catch (error) {
-            console.warn("⚠️ useAnalysisData: Failed to decode URL:", url, error);
             return url;
           }
         };
 
-        // Find user photo - extract file_path from photos array
         let userPhotoUrl = null;
 
         if (Array.isArray(photosData) && photosData.length > 0) {
-          console.log("📸 useAnalysisData: Found", photosData.length, "photos");
-
-          // Priority 1: Find processed photo (annotated/landmarked)
           const processedPhoto = photosData.find(
             (photo: { is_processed: boolean }) => photo.is_processed === true
           );
 
           if (processedPhoto && processedPhoto.file_path) {
             userPhotoUrl = decodeUrl(processedPhoto.file_path);
-            console.log("✅ useAnalysisData: Using processed photo:", userPhotoUrl);
           } else {
-            // Priority 2: Find original face photo
             const originalPhoto = photosData.find(
               (photo: { photo_type: string }) =>
                 photo.photo_type === "face_original"
             );
             if (originalPhoto && originalPhoto.file_path) {
               userPhotoUrl = decodeUrl(originalPhoto.file_path);
-              console.log("✅ useAnalysisData: Using original face photo:", userPhotoUrl);
             } else {
-              // Priority 3: Use first available photo with file_path
               const firstPhotoWithPath = photosData.find(
                 (photo: PhotoData) => photo.file_path
               );
               if (firstPhotoWithPath) {
                 userPhotoUrl = decodeUrl(firstPhotoWithPath.file_path);
-                console.log("✅ useAnalysisData: Using first available photo:", userPhotoUrl);
-              } else {
-                console.warn("⚠️ useAnalysisData: No photo with file_path found");
               }
             }
           }
-        } else {
-          console.warn("⚠️ useAnalysisData: No photos array or empty array");
         }
 
-        // Calculate BMI value dengan null checking dan validasi
         let bmiValue = 0;
         if (analysisData.analysis_details?.bmi?.bmi_value) {
           const rawValue = analysisData.analysis_details.bmi.bmi_value;
@@ -302,7 +231,6 @@ export function useAnalysisData(
             bmiValue = rawValue;
           }
         } else if (analysisData.analysis_details?.bmi?.bmi) {
-          // Fallback: use bmi.bmi if bmi_value is not available
           const rawValue = analysisData.analysis_details.bmi.bmi;
           if (typeof rawValue === "string") {
             const parsed = parseFloat(rawValue);
@@ -321,8 +249,8 @@ export function useAnalysisData(
           colorTone: colorToneData?.name || defaultUserData.colorTone,
           bmi: {
             value: bmiValue ,
-            category: bmiCategoryData?.name || defaultUserData.bmi.category,
-            desc: bmiCategoryData?.description || defaultUserData.bmi.desc,
+            category: bmiCategoryData?.kategori || defaultUserData.bmi.category,
+            desc: bmiCategoryData?.tips_fashion || defaultUserData.bmi.desc,
           },
           celebrityMatch: {
             name: celebrityData?.name || defaultUserData.celebrityMatch.name,
@@ -347,7 +275,7 @@ export function useAnalysisData(
           },
           bodyShapeAnalysis: {
             description:
-              bodyShapeData?.description,
+              bodyShapeData?.penjelasan_body_shape,
             karakteristik:
               bodyShapeData?.karakteristik ||
               defaultUserData.bodyShapeAnalysis.karakteristik,
@@ -384,7 +312,7 @@ export function useAnalysisData(
               faceShapeData?.karakteristik ||
               defaultUserData.conclusionTips.face,
             body:
-              bodyShapeData?.karakteristik ||
+              bodyShapeData?.penjelasan_body_shape ||
               defaultUserData.conclusionTips.body,
             color:
               colorToneData?.best_colors?.map(
@@ -396,7 +324,7 @@ export function useAnalysisData(
               }`,
               `Bentuk tubuh kamu adalah ${
                 bodyShapeData?.name || defaultUserData.bodyShape
-              }`,
+              } dengan ${bodyShapeData?.penjelasan_body_shape || 'karakteristik unik'}`,
               `Tone warna kamu adalah ${
                 colorToneData?.name || defaultUserData.colorTone
               }`,
@@ -408,11 +336,8 @@ export function useAnalysisData(
         const result = {
           userData: transformedData,
           userPhotoUrl,
-          rawAnalysisData: analysisData, // Tambahkan ini
+          rawAnalysisData: analysisData,
         };
-
-        console.log("🎉 useAnalysisData: Successfully returning data for resultId:", resultId);
-        console.log("📦 useAnalysisData: Return data summary - userData:", !!result.userData, "userPhotoUrl:", !!result.userPhotoUrl, "rawAnalysisData:", !!result.rawAnalysisData);
 
         return result;
       } catch (error: unknown) {
@@ -538,7 +463,6 @@ export function useDownloadPdf() {
       const firstName = data.firstName || localStorage.getItem("firstName") || "User";
       const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
 
-
       try {
         const response = await axios.post("/api/generate-pdf", {
           resultId: data.resultId,
@@ -558,10 +482,8 @@ export function useDownloadPdf() {
           throw new Error("Empty PDF response received");
         }
 
-        // Check if the response is actually a PDF
         const contentType = response.headers['content-type'];
         if (!contentType || !contentType.includes('application/pdf')) {
-          // Try to read the response as text to see if it's an error message
           throw new Error(`Unexpected response format: ${contentType}. Expected PDF.`);
         }
 
@@ -576,7 +498,6 @@ export function useDownloadPdf() {
             throw new Error("PDF generation timeout. Please try again.");
           }
           if (error.response?.status === 500) {
-            // Try to extract error details from response
             try {
               const errorText = await error.response.data.text();
               const errorData = JSON.parse(errorText);
@@ -602,17 +523,13 @@ export function useDownloadPdf() {
   });
 }
 
-// Ganti hook useGenerateStory yang ada dengan versi ini:
-
 export function useGenerateStory() {
   return useMutation({
     mutationFn: async (resultId: string) => {
-      
       if (!resultId) {
         throw new Error("ID Hasil diperlukan");
       }
 
-      // Get token from localStorage
       const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
       const url = `/api/generate-story?result_id=${resultId}`;
 
@@ -621,29 +538,22 @@ export function useGenerateStory() {
           headers: {
             ...(token && { Authorization: `Bearer ${token}` }),
           },
-          responseType: "blob", // Important: Keep this as blob for binary data
+          responseType: "blob",
         });
 
-
-        // Check if response is actually a blob with content
         if (!response.data || response.data.size === 0) {
           throw new Error("Received empty response from story generation");
         }
 
-        // Convert blob to arrayBuffer for consistent handling
         const arrayBuffer = await response.data.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
-        
 
-        // Return in the format expected by the frontend handler
         return {
           data: uint8Array,
           size: uint8Array.byteLength,
           type: response.headers['content-type'] || "image/png"
         };
       } catch (error) {
-        
-        // Handle axios errors specifically
         if (axios.isAxiosError(error)) {
           if (error.response?.status === 500) {
             throw new Error("Server error saat membuat story. Silakan coba lagi.");
@@ -658,7 +568,7 @@ export function useGenerateStory() {
           }
           throw new Error("Terjadi kesalahan saat membuat story. Silakan coba lagi.");
         }
-        
+
         throw error;
       }
     }
@@ -686,7 +596,6 @@ export const useBodyShapes = () => {
           }
         });
 
-
         if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
           throw new Error("Tidak ada data bentuk tubuh ditemukan");
         }
@@ -702,7 +611,7 @@ export const useBodyShapes = () => {
       }
     },
     retry: 2,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -785,7 +694,6 @@ export function useOrderData(orderId: string | null, requireAuth: boolean = true
       }
 
       try {
-        // Make unauthenticated call for payment redirects
         if (!requireAuth) {
           const fullUrl = secureUrl(`/v1/orders/${orderId}`);
           const response = await axios.get(fullUrl, {
@@ -813,10 +721,8 @@ export function useOrderData(orderId: string | null, requireAuth: boolean = true
             throw new Error(`API request failed with status ${response.status}`);
           }
         } else {
-          // Use the existing authenticated fetchData for normal cases
           const handleUnauthorized = () => {
             if (typeof window !== "undefined") {
-              // Don't redirect to login immediately, let the component handle it
             }
           };
 
@@ -836,7 +742,6 @@ export function useOrderData(orderId: string | null, requireAuth: boolean = true
           };
         }
       } catch (error: unknown) {
-        // Don't throw error for 404 (order not found), just return null
         const axiosError = error as { response?: { status?: number; statusText?: string; data?: unknown }; message?: string };
         if (axiosError.response?.status === 404) {
           return null;

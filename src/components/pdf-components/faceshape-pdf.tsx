@@ -5,7 +5,6 @@ import { Footer } from "./footer-pdf";
 import { PageHeader } from "./header-pdf";
 import { decodeUrl } from "@/lib/urlUtils";
 
-// Interface IShape dan fungsi generateGimmickChartData tidak berubah
 interface IShape {
   name: string;
   value: number;
@@ -41,7 +40,6 @@ const generateGimmickChartData = (mainShapeName: string): IShape[] => {
   return chartData;
 };
 
-// Komponen DetailList tidak berubah
 const DetailList = ({
   title,
   content,
@@ -108,37 +106,24 @@ export const FaceShape = ({
   const englishMainShapeName =
     shapeNameMap[userData.faceShape] || userData.faceShape;
 
-  // State for image loading
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
 
-  // Helper function to validate image URL
   const validateImageUrl = (imageUrl: string | null): string | null => {
     if (!imageUrl) return null;
 
     try {
-      new URL(imageUrl); // Validate URL format
+      new URL(imageUrl);
       return imageUrl;
     } catch (error) {
-      console.warn("Invalid image URL:", imageUrl);
       return null;
     }
   };
 
-  // Decode the URL first to fix any duplication
   const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
 
-  console.log("📄 FaceShape PDF - Raw userPhotoUrl:", userPhotoUrl);
-  console.log("📄 FaceShape PDF - Decoded userPhotoUrl:", decodedUserPhotoUrl);
-
-  // Function to fetch image with authentication
   const fetchImageWithAuth = async (imageUrl: string) => {
-    console.log(
-      "📄 FaceShape PDF - Starting fetchImageWithAuth for URL:",
-      imageUrl
-    );
-
     try {
       setImageLoading(true);
       setImageError(false);
@@ -147,81 +132,39 @@ export const FaceShape = ({
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
 
-      console.log(
-        "📄 FaceShape PDF - Token found:",
-        !!token,
-        token ? token.substring(0, 20) + "..." : "null"
-      );
-
       if (!token) {
-        console.error(
-          "❌ FaceShape PDF - No authentication token found for image fetch"
-        );
         setImageError(true);
         setImageLoading(false);
         return;
       }
 
-      console.log("📄 FaceShape PDF - Fetching image with auth headers...");
       const response = await fetch(imageUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      console.log(
-        "📄 FaceShape PDF - Response status:",
-        response.status,
-        response.statusText
-      );
-      console.log("📄 FaceShape PDF - Response headers:", [
-        ...response.headers.entries(),
-      ]);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(
-          "❌ FaceShape PDF - Fetch failed:",
-          `HTTP ${response.status}: ${response.statusText}`,
-          errorText
-        );
         throw new Error(
           `HTTP error! status: ${response.status} - ${errorText}`
         );
       }
 
       const blob = await response.blob();
-      console.log(
-        "📄 FaceShape PDF - Blob received:",
-        blob.size,
-        "bytes, type:",
-        blob.type
-      );
-
       const dataUrl = URL.createObjectURL(blob);
-      console.log(
-        "📄 FaceShape PDF - Created data URL, length:",
-        dataUrl.length
-      );
       setImageDataUrl(dataUrl);
       setImageLoading(false);
-      console.log("✅ FaceShape PDF - Image fetch successful");
     } catch (error) {
-      console.error(
-        "❌ FaceShape PDF - Error fetching image with auth:",
-        error
-      );
       setImageError(true);
       setImageLoading(false);
     }
   };
 
-  // Process the user photo URL
   const processedUserPhotoUrl = decodedUserPhotoUrl
     ? validateImageUrl(decodedUserPhotoUrl)
     : null;
 
-  // Fetch image with authentication when processedUserPhotoUrl changes
   useEffect(() => {
     if (processedUserPhotoUrl) {
       fetchImageWithAuth(processedUserPhotoUrl);
@@ -231,7 +174,6 @@ export const FaceShape = ({
     }
   }, [processedUserPhotoUrl]);
 
-  // Cleanup object URL to prevent memory leaks
   useEffect(() => {
     return () => {
       if (imageDataUrl) {
@@ -240,17 +182,8 @@ export const FaceShape = ({
     };
   }, [imageDataUrl]);
 
-  // Determine if we should show skeleton
   const shouldShowSkeleton =
     (!processedUserPhotoUrl && !imageDataUrl) || imageLoading;
-
-  console.log(
-    "📄 FaceShape PDF - Processed userPhotoUrl:",
-    processedUserPhotoUrl
-  );
-  console.log("📄 FaceShape PDF - shouldShowSkeleton:", shouldShowSkeleton);
-  console.log("📄 FaceShape PDF - imageDataUrl:", !!imageDataUrl);
-  console.log("📄 FaceShape PDF - imageLoading:", imageLoading);
 
   const ShapeBar = ({
     label,
@@ -286,12 +219,10 @@ export const FaceShape = ({
         <div className="flex flex-row w-full gap-8 flex-grow">
           <div className="relative w-[300px] h-[550px] rounded-lg shadow-lg overflow-hidden">
             {shouldShowSkeleton ? (
-              // Skeleton loading state
               <div className="w-full h-full bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
                 <div className="text-gray-400 text-sm">Loading image...</div>
               </div>
             ) : (
-              // Actual image
               <Image
                 src={imageDataUrl || processedUserPhotoUrl!}
                 alt="Model Wajah"

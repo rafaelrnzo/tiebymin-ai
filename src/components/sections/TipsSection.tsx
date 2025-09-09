@@ -32,8 +32,8 @@ const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => {
         </h3>
       </div>
       <div className="mt-2">
-        <div className="mt-2 font-poppins text-[#323232] text-xs lg:text-xl ">
-          {tip?.replace(/^-+/gm, "").trim()}
+        <div className="mt-2 font-poppins text-[#323232] text-xs lg:text-xl">
+          {tip?.replace(/^-+/gm, "").replace(/-/g, "").trim()}
         </div>
       </div>
     </div>

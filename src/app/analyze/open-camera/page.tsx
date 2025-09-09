@@ -238,18 +238,6 @@ function HalamanKameraWajahContent() {
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [isApiLoading, setIsApiLoading] = useState(false);
 
-  // Debug: Log button state
-  useEffect(() => {
-    console.log(
-      "Button state - isApiLoading:",
-      isApiLoading,
-      "appState:",
-      appState,
-      "capturedImage:",
-      !!capturedImage
-    );
-  }, [isApiLoading, appState, capturedImage]);
-
   // Effects
   useEffect(() => {
     if (appState === "LOADING_UI") {
@@ -338,21 +326,11 @@ function HalamanKameraWajahContent() {
   };
 
   const handleAnalyze = () => {
-    console.log(
-      "handleAnalyze called - capturedImage:",
-      !!capturedImage,
-      "appState:",
-      appState
-    );
-
     if (capturedImage) {
       localStorage.setItem("capturedImage", capturedImage);
-      console.log("Image saved to localStorage");
     }
 
-    // Ensure we're not already loading
     if (appState !== "LOADING_UI") {
-      console.log("Setting appState to LOADING_UI");
       setAppState("LOADING_UI");
     }
   };

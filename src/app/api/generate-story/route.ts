@@ -15,7 +15,6 @@ async function generateStory(req: NextRequest) {
     const url = new URL(req.url);
     const resultId = url.searchParams.get("result_id");
 
-    // Get token from request headers or query params
     let token: string | undefined = req.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) {
       token = req.nextUrl.searchParams.get('token') || req.nextUrl.searchParams.get('accessToken') || undefined;
@@ -30,7 +29,6 @@ async function generateStory(req: NextRequest) {
     }
     storyUrl.searchParams.set("print", "true");
 
-    
     const isVercel = !!process.env.VERCEL_ENV;
     let puppeteer;
     let launchOptions: {
@@ -81,26 +79,19 @@ async function generateStory(req: NextRequest) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 2 });
 
-    // Set longer timeout for story generation
     await page.goto(storyUrl.toString(), {
       waitUntil: ["networkidle0", "domcontentloaded"],
-      timeout: 90000 // Increased timeout
+      timeout: 90000
     });
 
-
-    // Wait for page to be fully loaded with extended timeout
-    await new Promise(resolve => setTimeout(resolve, 8000)); // Increased wait time
+    await new Promise(resolve => setTimeout(resolve, 8000));
 
     try {
-      // Wait for story content with extended timeout
       await page.waitForSelector('#story-content[data-story-ready="true"]', { timeout: 60000 });
 
-      // Additional wait to ensure all images and resources are loaded
       await new Promise(resolve => setTimeout(resolve, 5000));
-      
-      // Wait for images to load
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (page as any).evaluate(() => {
+
+      await (page as unknown as { evaluate: (fn: () => Promise<void>) => Promise<void> }).evaluate(() => {
         return new Promise((resolve) => {
           const images = Array.from(document.querySelectorAll('img'));
           let loadedCount = 0;
@@ -127,38 +118,31 @@ async function generateStory(req: NextRequest) {
             }
           });
 
-          // Fallback timeout for image loading
           setTimeout(() => resolve(void 0), 10000);
         });
       });
-      
-      
+
     } catch (error) {
-      
-      // Check if page has any content
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const hasContent = await (page as any).evaluate(() => {
+      const hasContent = await (page as unknown as { evaluate: (fn: () => boolean) => Promise<boolean> }).evaluate(() => {
         const storyElement = document.querySelector('#story-content');
         return !!storyElement && storyElement.children.length > 0;
       });
-      
+
       if (!hasContent) {
         await browser.close();
         return new NextResponse("Story content not found", { status: 404 });
       }
-      
+
     }
 
     const element = await page.$("#story-content");
 
     if (!element) {
-      // Try to find any content on the page as fallback
       const bodyElement = await page.$('body');
       if (!bodyElement) {
         await browser.close();
         return new NextResponse("Could not find any content on the page", { status: 404 });
       }
-      // Create screenshot of the full page as fallback
       const imageBuffer = (await page.screenshot({
         type: "png",
         fullPage: true,

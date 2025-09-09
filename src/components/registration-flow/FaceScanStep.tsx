@@ -51,7 +51,6 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
         router.push(`/analyze/open-camera?fromGallery=true&skipCamera=true`);
       };
       reader.onerror = (error) => {
-        console.error("Error converting image to base64:", error);
         setErrorModalMessage("Gagal memproses gambar. Silakan coba lagi.");
         setIsErrorModalOpen(true);
       };
