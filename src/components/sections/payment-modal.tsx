@@ -19,7 +19,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   return (
     <div className="fixed w-full inset-0 z-50 flex items-center justify-center bg-[#323232]/50 p-4">
       <div className="bg-[#f0f0f0] rounded-2xl p-8 shadow-2xl w-full max-w-xl">
-        <div className="flex items-center gap-6">
+        <div className="flex lg:flex-row flex-col items-center gap-6">
           {/* Lock Icon */}
           <div className="flex-shrink-0">
             <Image
