@@ -8,8 +8,6 @@ import dynamic from "next/dynamic"; // Import for Lazy Loading
 // UI Components
 import { Navbar } from "@/components/component-landing/navbar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AnimatePresence, motion } from "framer-motion";
-import TabAnimation from "./TabAnimation";
 
 // Feature Components - Lazy load heavy components
 const AnalysisTabs = dynamic(
@@ -22,8 +20,6 @@ const UserProfileSection = dynamic(
   () => import("@/components/sections/UserProfileSection")
 );
 
-// --- LAZY LOADED MODALS ---
-// Modals are now loaded only when they are needed, reducing the initial JavaScript bundle size.
 const ErrorModal = dynamic(() =>
   import("@/components/sections/error-modal").then((mod) => ({
     default: mod.ErrorModal,
@@ -54,6 +50,7 @@ import { useUserData } from "@/hooks/useUserData";
 // Types and Constants
 import { analysisTabs } from "@/lib/mock-data";
 import { AnalysisResult } from "@/types/analysis";
+import TabAnimation from "./TabAnimation";
 
 // --- SKELETON COMPONENTS for <Suspense> ---
 // These are simple placeholders shown while data is loading.

@@ -238,6 +238,18 @@ function HalamanKameraWajahContent() {
   const [errorModalMessage, setErrorModalMessage] = useState("");
   const [isApiLoading, setIsApiLoading] = useState(false);
 
+  // Debug: Log button state
+  useEffect(() => {
+    console.log(
+      "Button state - isApiLoading:",
+      isApiLoading,
+      "appState:",
+      appState,
+      "capturedImage:",
+      !!capturedImage
+    );
+  }, [isApiLoading, appState, capturedImage]);
+
   // Effects
   useEffect(() => {
     if (appState === "LOADING_UI") {
@@ -250,6 +262,9 @@ function HalamanKameraWajahContent() {
       } else if (capturedImageData) {
         setCapturedImage(capturedImageData);
       }
+
+      // Ensure loading state is reset when entering LOADING_UI
+      setIsApiLoading(false);
     }
   }, [appState]);
 
@@ -323,10 +338,23 @@ function HalamanKameraWajahContent() {
   };
 
   const handleAnalyze = () => {
+    console.log(
+      "handleAnalyze called - capturedImage:",
+      !!capturedImage,
+      "appState:",
+      appState
+    );
+
     if (capturedImage) {
       localStorage.setItem("capturedImage", capturedImage);
+      console.log("Image saved to localStorage");
     }
-    setAppState("LOADING_UI");
+
+    // Ensure we're not already loading
+    if (appState !== "LOADING_UI") {
+      console.log("Setting appState to LOADING_UI");
+      setAppState("LOADING_UI");
+    }
   };
 
   if (appState === "LOADING_UI") {
@@ -500,11 +528,19 @@ function HalamanKameraWajahContent() {
               </Button>
               <Button
                 onClick={handleAnalyze}
-                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                className={`w-full py-3 px-4 font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 ${
+                  isApiLoading
+                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                    : "bg-[#FFC6C6] text-[#323232] hover:bg-pink-300 cursor-pointer active:scale-95"
+                }`}
                 disabled={isApiLoading}
+                type="button"
               >
                 {isApiLoading ? (
-                  <Spinner />
+                  <>
+                    <Spinner />
+                    <span className="font-poppins">Memproses...</span>
+                  </>
                 ) : (
                   <>
                     <span className="font-poppins">Mulai Analisa</span>{" "}
