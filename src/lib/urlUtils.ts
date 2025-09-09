@@ -17,19 +17,16 @@ export const decodeUrl = (url: string): string => {
     if (httpsMatches && httpsMatches[1]) {
       // Use the second base URL with path
       decoded = httpsMatches[1];
-      console.log("🔧 decodeUrl: Fixed duplicate base URL pattern");
     } else {
       // Fallback to original pattern for other cases
       httpsMatches = decoded.match(/https:\/\/[^\/]+\/(https:\/\/[^\/]+\/.+)/);
       if (httpsMatches && httpsMatches[1]) {
         decoded = httpsMatches[1];
-        console.log("🔧 decodeUrl: Fixed generic duplicate https pattern");
       }
     }
 
     return decoded;
   } catch (error) {
-    console.warn("⚠️ decodeUrl: Failed to decode URL:", url, error);
     return url;
   }
 };
