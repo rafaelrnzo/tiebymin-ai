@@ -23,7 +23,7 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   // Determine if the URL is a temporary blob URL from localStorage.
   const isBlobUrl = userPhotoUrl?.startsWith("blob:") ?? false;
 
-  // Additional validation for non-blob URLs
+  // Validate URL for non-blob URLs
   const isValidUrl = userPhotoUrl
     ? (() => {
         try {

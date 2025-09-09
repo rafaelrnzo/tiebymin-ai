@@ -298,24 +298,8 @@ function BeautyAnalysisPageInner() {
       }
     }
 
-    // Jika tidak, gunakan URL dari API
-    // PASTIKAN URL ini adalah Signed URL yang bisa diakses publik
-    let apiUrl = analysisResult?.userPhotoUrl;
-
-    // Prepend NEXT_PUBLIC_IMAGE_URL if apiUrl is not a full URL
-    if (
-      apiUrl &&
-      !apiUrl.startsWith("http://") &&
-      !apiUrl.startsWith("https://")
-    ) {
-      const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
-      if (baseUrl) {
-        // Remove trailing slash from baseUrl and leading slash from apiUrl to avoid double slashes
-        const cleanBaseUrl = baseUrl.replace(/\/$/, "");
-        const cleanApiUrl = apiUrl.replace(/^\//, "");
-        apiUrl = `${cleanBaseUrl}/${cleanApiUrl}`;
-      }
-    }
+    // Gunakan URL langsung dari API
+    const apiUrl = analysisResult?.userPhotoUrl;
 
     // Validate URL before returning
     if (apiUrl) {
