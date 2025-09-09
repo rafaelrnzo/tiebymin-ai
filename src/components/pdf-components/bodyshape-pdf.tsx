@@ -81,17 +81,10 @@ export const BodyShape = ({
         {/* Konten Bawah: BMI Index */}
         <div className="pt-8">
           <div className="flex items-center gap-4 mb-4">
-            <div className="flex-shrink-0">
-              <div className="rounded-full border-2 border-[#EC7498] p-2">
-                <div className="rounded-full border border-[#323232] w-16 h-16 flex items-center justify-center">
-                  <p className="text-lg font-bold">
-                    {finalBmiValue.toFixed(1)}
-                  </p>
-                </div>
-              </div>
-            </div>
             <div className="flex flex-col text-left">
-              <span className="font-bold text-lg">{displayBmiCategory}</span>
+              <span className="font-bold text-lg">
+                BMI INDEX: {finalBmiValue} ({displayBmiCategory})
+              </span>
               <p className="text-[#323232] text-sm leading-relaxed font-poppins">
                 {displayBmiTips}
               </p>
