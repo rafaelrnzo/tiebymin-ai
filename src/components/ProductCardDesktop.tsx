@@ -52,22 +52,21 @@ interface ProductCardDesktopProps {
   product: Product;
   topProductScores?: Map<string, number>;
   sortedProducts: Product[];
+  isRegularProduct?: boolean;
 }
 
 const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
   product,
   topProductScores = new Map(),
   sortedProducts,
+  isRegularProduct = false,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const isUnavailable =
-    product.description === "null" ||
-    !product.description ||
-    product.stock_quantity === 0;
+  const isUnavailable = product.description === "null";
 
   const unavailableText =
-    product.stock_quantity === 0 ? "Coming Soon" : "Segera Hadir";
+    (product.stock_quantity ?? 0) === 0 ? "Coming Soon" : "Segera Hadir";
 
   const handleFlip = () => {
     // Hanya izinkan flip jika produk tersedia
@@ -76,23 +75,30 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
     }
   };
 
+  const showFlipButton =
+    !isUnavailable && (product.total_compatibility_score || isRegularProduct);
+
   return (
     <div className="product-flip-container min-h-[650px] w-full">
       <div className={`product-flip-inner ${isFlipped ? "flipped" : ""}`}>
         <div className="product-flip-front border rounded-2xl overflow-hidden flex flex-col transition-shadow duration-300 w-full border-[#323232]">
           <div className="relative p-2 px-4">
-            {!isUnavailable && (
+            {showFlipButton && (
               <div
                 className="flex justify-between bg-[#323232] rounded-xl mt-2 mb-4 px-4 py-2 cursor-pointer hover:bg-[#2a2a2a] transition-colors"
                 onClick={handleFlip}
               >
                 <p className="text-[#f0f0f0] font-poppins font-bold text-xl">
-                  Kenapa cocok untuk kamu?
+                  {isRegularProduct
+                    ? "Lihat Deskripsi Produk"
+                    : "Kenapa cocok untuk kamu?"}
                 </p>
                 <Search className="text-[#f0f0f0]" />
               </div>
             )}
-            {isUnavailable && <div className="pt-4" />}
+            {(!product.total_compatibility_score || isUnavailable) && (
+              <div className="pt-4" />
+            )}
 
             <Image
               src={product.images[0]}
@@ -101,9 +107,15 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
               height={400}
               className="w-full h-72 object-cover rounded-xl"
             />
-            <span className="absolute bottom-4 left-6 bg-[#323232] bg-opacity-70 text-[#f0f0f0] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
-              {product.total_compatibility_score.toFixed(0)}% Match
-            </span>
+            {product.total_compatibility_score && (
+              <span className="absolute bottom-4 left-6 bg-[#323232] bg-opacity-70 text-[#f0f0f0] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
+                {isRegularProduct
+                  ? "Produk Populer"
+                  : `${
+                      product.total_compatibility_score?.toFixed(0) || 0
+                    }% Match`}
+              </span>
+            )}
             <span className="absolute bottom-4 right-6 bg-[#f0f0f0] text-[#323232] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-md">
               <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
               {product.average_rating}
@@ -115,12 +127,14 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
               <h3 className="font-bold text-[#323232] text-lg text-left">
                 {product.name}
               </h3>
-              {sortedProducts.findIndex((p) => p.id === product.id) < 3 && (
-                <div className="flex items-center gap-1 text-pink-500 flex-shrink-0">
-                  <ThumbsUp className="w-4 h-4" />
-                  <span className="font-semibold text-xs">Rekomendasi</span>
-                </div>
-              )}
+              {sortedProducts.findIndex((p) => p.id === product.id) < 3 &&
+                !isRegularProduct &&
+                product.total_compatibility_score && (
+                  <div className="flex items-center gap-1 text-pink-500 flex-shrink-0">
+                    <ThumbsUp className="w-4 h-4" />
+                    <span className="font-semibold text-xs">Rekomendasi</span>
+                  </div>
+                )}
             </div>
 
             {isUnavailable ? (
@@ -259,12 +273,23 @@ const ProductCardDesktop: React.FC<ProductCardDesktopProps> = ({
                   </linearGradient>
                 </defs>
               </svg>
-              <p className="text-[#f0f0f0] font-poppins font-bold text-xl">
-                Kenapa Cocok?
-              </p>
+              {isRegularProduct ? (
+                <p className="text-[#f0f0f0] font-poppins font-bold text-xl">
+                  Deskripsi Produk
+                </p>
+              ) : (
+                <p className="text-[#f0f0f0] font-poppins font-bold text-xl">
+                  Kenapa Cocok?
+                </p>
+              )}
             </div>
             <p className="text-[#f0f0f0] text-start text-lg font-poppins">
-              {product.compatibility_reason}
+              {isRegularProduct
+                ? product.description && product.description !== "null"
+                  ? product.description
+                  : "Produk populer dari Tiebymin yang banyak diminati pelanggan kami."
+                : product.compatibility_reason ||
+                  "Produk ini cocok untuk Anda berdasarkan analisis AI kami."}
             </p>
           </div>
         </div>
