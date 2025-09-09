@@ -111,15 +111,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       return;
     }
 
-    // Get user ID
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
-      setIsErrorModalOpen(true);
-      return;
-    }
-
-    // Store data and proceed
+    // Store data and proceed (userId will be set when analysis result is fetched)
     handleProceedToAnalysis();
   };
 
