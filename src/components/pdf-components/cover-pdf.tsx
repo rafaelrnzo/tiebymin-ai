@@ -30,7 +30,7 @@ export const Cover = ({ userData }: { userData: UserData }) => (
 
       <div className="mt-auto">
         <Image
-          src="/many-flower.png"
+          src="/many-flower.webp"
           alt="Pola Bunga Latar Belakang"
           width={1920}
           height={80}

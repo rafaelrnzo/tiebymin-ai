@@ -106,20 +106,29 @@ async function generatePdf(req: NextRequest) {
       deviceScaleFactor: 1,
     });
 
-    // Set longer timeout and better wait conditions
-    await page.goto(pdfUrl.toString(), {
-      waitUntil: ["networkidle0", "domcontentloaded"],
-      timeout: 60000,
-    });
+    // Adaptive timeout based on connection quality (detected from user agent or headers)
+    const userAgent = req.headers.get('user-agent') || '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    
+    // More aggressive timeouts for mobile/poor connections
+    const gotoTimeout = isMobile ? 30000 : 45000;
+    const waitTimeout = isMobile ? 1000 : 1500;
+    const maxWaitAttempts = isMobile ? 8 : 12; // Fewer attempts for mobile
 
-    // Wait for page to be fully loaded
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Use more lenient waitUntil for mobile to avoid hanging
+    await page.goto(pdfUrl.toString(), {
+      waitUntil: isMobile ? 'domcontentloaded' : ['networkidle0', 'domcontentloaded'],
+      timeout: gotoTimeout,
+    });
+  
+    // Even shorter initial wait for mobile
+    await new Promise(resolve => setTimeout(resolve, waitTimeout));
 
     try {
       // Multiple strategies for waiting for content readiness
       let contentReady = false;
       let attempts = 0;
-      const maxAttempts = 15; // 30 seconds total with 2 second intervals
+      const maxAttempts = isMobile ? 8 : 15; // Reduced for mobile (16s vs 30s)
 
       while (!contentReady && attempts < maxAttempts) {
         attempts++;
@@ -152,8 +161,9 @@ async function generatePdf(req: NextRequest) {
         } catch (loadingError) {
         }
 
-        // Wait before next attempt
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Shorter intervals for mobile
+        const interval = isMobile ? 1500 : 2000;
+        await new Promise(resolve => setTimeout(resolve, interval));
       }
 
       if (!contentReady) {
@@ -168,8 +178,9 @@ async function generatePdf(req: NextRequest) {
         }
       }
 
-      // Additional wait for any remaining resources
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Shorter additional wait for mobile
+      const additionalWait = isMobile ? 1500 : 3000;
+      await new Promise(resolve => setTimeout(resolve, additionalWait));
       
     } catch (error) {
     }
@@ -177,9 +188,10 @@ async function generatePdf(req: NextRequest) {
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      width: '210mm',
+      width: isMobile ? '190mm' : '210mm', // Slightly smaller for mobile optimization
       height: '297mm',
       preferCSSPageSize: true,
+      scale: isMobile ? 0.9 : 1.0, // Reduced scale for mobile
     });
 
     await browser.close();

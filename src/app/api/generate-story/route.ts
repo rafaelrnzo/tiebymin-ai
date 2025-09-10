@@ -79,55 +79,81 @@ async function generateStory(req: NextRequest) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 2 });
 
-    await page.goto(storyUrl.toString(), {
-      waitUntil: ["networkidle0", "domcontentloaded"],
-      timeout: 90000
-    });
+    // Adaptive timeout based on connection quality
+    const userAgent = req.headers.get('user-agent') || '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  
+    // More aggressive timeouts for mobile/poor connections
+    const gotoTimeout = isMobile ? 40000 : 60000;
+    const waitTimeout = isMobile ? 2000 : 4000;
+    const imageWaitTimeout = isMobile ? 5000 : 10000; // Shorter image wait for mobile
 
-    await new Promise(resolve => setTimeout(resolve, 8000));
+    // Use more lenient waitUntil for mobile
+    await page.goto(storyUrl.toString(), {
+      waitUntil: isMobile ? 'domcontentloaded' : ['networkidle0', 'domcontentloaded'],
+      timeout: gotoTimeout
+    });
+  
+    // Shorter initial wait for mobile
+    await new Promise(resolve => setTimeout(resolve, waitTimeout));
 
     try {
-      await page.waitForSelector('#story-content[data-story-ready="true"]', { timeout: 60000 });
-
-      await new Promise(resolve => setTimeout(resolve, 5000));
-
+      // Shorter selector wait for mobile
+      const selectorTimeout = isMobile ? 20000 : 60000;
+      await page.waitForSelector('#story-content[data-story-ready="true"]', { timeout: selectorTimeout });
+  
+      // Shorter post-selector wait for mobile
+      const postSelectorWait = isMobile ? 2000 : 5000;
+      await new Promise(resolve => setTimeout(resolve, postSelectorWait));
+  
       await (page as unknown as { evaluate: (fn: () => Promise<void>) => Promise<void> }).evaluate(() => {
         return new Promise((resolve) => {
           const images = Array.from(document.querySelectorAll('img'));
           let loadedCount = 0;
           const totalImages = images.length;
-
+  
           if (totalImages === 0) {
             resolve(void 0);
             return;
           }
-
+  
+          // For mobile/poor connections, don't wait for all images - wait for first 3 or timeout
+          const maxImagesToWait = totalImages > 3 ? 3 : totalImages;
+          let imagesToLoad = 0;
+  
           const checkComplete = () => {
-            loadedCount++;
-            if (loadedCount === totalImages) {
+            imagesToLoad++;
+            if (imagesToLoad >= maxImagesToWait || loadedCount >= totalImages) {
               resolve(void 0);
             }
           };
-
-          images.forEach((img) => {
+  
+          images.forEach((img, index) => {
+            if (index >= maxImagesToWait) return; // Only wait for first N images on mobile
+            
             if (img.complete) {
+              loadedCount++;
               checkComplete();
             } else {
               img.onload = checkComplete;
               img.onerror = checkComplete;
             }
           });
-
-          setTimeout(() => resolve(void 0), 10000);
+  
+          // Shorter timeout for mobile
+          setTimeout(() => resolve(void 0), imageWaitTimeout);
         });
       });
 
     } catch (error) {
+      console.warn('Story generation timeout, using fallback screenshot');
+      
+      // For mobile, be more lenient with content check
       const hasContent = await (page as unknown as { evaluate: (fn: () => boolean) => Promise<boolean> }).evaluate(() => {
-        const storyElement = document.querySelector('#story-content');
-        return !!storyElement && storyElement.children.length > 0;
+        const storyElement = document.querySelector('#story-content') || document.querySelector('main') || document.body;
+        return !!storyElement && (storyElement.children.length > 0 || storyElement.innerHTML.trim().length > 0);
       });
-
+  
       if (!hasContent) {
         await browser.close();
         return new NextResponse("Story content not found", { status: 404 });
@@ -138,30 +164,34 @@ async function generateStory(req: NextRequest) {
     const element = await page.$("#story-content");
 
     if (!element) {
+      // For mobile, use smaller viewport for screenshot
+      const screenshotOptions = isMobile
+        ? { type: "png" as const, fullPage: true, omitBackground: true }
+        : { type: "png" as const, fullPage: true };
+      
       const bodyElement = await page.$('body');
       if (!bodyElement) {
         await browser.close();
         return new NextResponse("Could not find any content on the page", { status: 404 });
       }
-      const imageBuffer = (await page.screenshot({
-        type: "png",
-        fullPage: true,
-      })) as Buffer;
+      const imageBuffer = (await page.screenshot(screenshotOptions)) as Buffer;
       await browser.close();
       return new NextResponse(
         new Uint8Array(imageBuffer),
         {
           headers: {
             "Content-Type": "image/png",
-            "Content-Disposition": "attachment; filename=hasil-analisa-fallback.png",
+            "Content-Disposition": `attachment; filename=hasil-analisa-fallback-${isMobile ? 'mobile' : 'desktop'}.png`,
           },
         }
       );
     }
 
-    const imageBuffer = (await element.screenshot({
-      type: "png",
-    })) as Buffer;
+    const screenshotOptions = isMobile
+      ? { type: "png" as const, omitBackground: true, clip: { x: 0, y: 0, width: 1080, height: 1920 } }
+      : { type: "png" as const };
+    
+    const imageBuffer = (await element.screenshot(screenshotOptions)) as Buffer;
 
     await browser.close();
 

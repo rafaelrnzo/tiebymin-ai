@@ -22,7 +22,7 @@ import {
 import { defaultUserData } from "@/lib/mock-data";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useState, useEffect } from "react";
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -38,6 +38,54 @@ function PreviewPdfPage() {
 
   const [currentPage, setCurrentPage] = useState(0);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const [connectionQuality, setConnectionQuality] = useState<
+    "fast" | "slow" | "unknown"
+  >("unknown");
+
+  // Network quality detection for adaptive scaling
+  useEffect(() => {
+    if (typeof window !== "undefined" && "navigator" in window) {
+      // Type-safe connection detection
+      const connection =
+        (
+          navigator as Navigator & {
+            connection?: { effectiveType: string };
+            mozConnection?: { effectiveType: string };
+            webkitConnection?: { effectiveType: string };
+          }
+        ).connection ||
+        (
+          navigator as Navigator & {
+            mozConnection?: { effectiveType: string };
+          }
+        ).mozConnection ||
+        (
+          navigator as Navigator & {
+            webkitConnection?: { effectiveType: string };
+          }
+        ).webkitConnection;
+
+      if (connection) {
+        const effectiveType = connection.effectiveType;
+        if (
+          effectiveType === "slow-2g" ||
+          effectiveType === "2g" ||
+          effectiveType === "3g"
+        ) {
+          setConnectionQuality("slow");
+        } else {
+          setConnectionQuality("fast");
+        }
+      } else {
+        // Fallback for mobile detection
+        const isMobile =
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+          );
+        setConnectionQuality(isMobile ? "slow" : "fast");
+      }
+    }
+  }, []);
 
   const { data: analysisResult } = useAnalysisData(resultId);
   const {
@@ -230,7 +278,13 @@ function PreviewPdfPage() {
               </div>
             ) : (
               <div className="h-full w-full flex items-center justify-center">
-                <div className="transform scale-[0.45] sm:scale-[0.5]">
+                <div
+                  className={`transform ${
+                    connectionQuality === "slow"
+                      ? "scale-[0.35] sm:scale-[0.4]"
+                      : "scale-[0.45] sm:scale-[0.5]"
+                  }`}
+                >
                   <div className="w-[680px] h-[1140px] shadow-lg rounded-lg overflow-hidden bg-[#f0f0f0]">
                     {pdfPages[currentPage].Component}
                   </div>

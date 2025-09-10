@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { decodeUrl } from "@/lib/urlUtils";
 
 interface UserProfileSectionProps {
@@ -20,6 +21,12 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   isGeneratingStory,
 }) => {
   const router = useRouter();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [connectionQuality, setConnectionQuality] = useState<
+    "fast" | "slow" | "unknown"
+  >("unknown");
+  const [showFallback, setShowFallback] = useState(false);
 
   const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
 
@@ -36,31 +43,138 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
       })()
     : false;
 
+  // Network quality detection
+  useEffect(() => {
+    if (typeof window !== "undefined" && "navigator" in window) {
+      // Type-safe connection detection
+      const connection =
+        (
+          navigator as Navigator & {
+            connection?: { effectiveType: string };
+            mozConnection?: { effectiveType: string };
+            webkitConnection?: { effectiveType: string };
+          }
+        ).connection ||
+        (
+          navigator as Navigator & {
+            mozConnection?: { effectiveType: string };
+          }
+        ).mozConnection ||
+        (
+          navigator as Navigator & {
+            webkitConnection?: { effectiveType: string };
+          }
+        ).webkitConnection;
+
+      if (connection) {
+        const effectiveType = connection.effectiveType;
+        if (effectiveType === "slow-2g" || effectiveType === "2g") {
+          setConnectionQuality("slow");
+        } else if (effectiveType === "3g") {
+          setConnectionQuality("slow");
+        } else {
+          setConnectionQuality("fast");
+        }
+      } else {
+        // Fallback: measure connection by timing a small request
+        const img = document.createElement("img");
+        const startTime = Date.now();
+        img.onload = () => {
+          const loadTime = Date.now() - startTime;
+          setConnectionQuality(loadTime > 1000 ? "slow" : "fast");
+        };
+        img.src =
+          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+      }
+    }
+  }, []);
+
+  // Adaptive loading strategy based on connection
+  const getLoadingStrategy = () => {
+    if (connectionQuality === "slow") {
+      return "lazy";
+    }
+    return "eager";
+  };
+
+  // Fallback image for poor connections
+  const getFallbackImage = () => {
+    return "/placeholder-user.jpg"; // Assume a local placeholder image exists or add one
+  };
+
+  const getImageQuality = () => {
+    if (connectionQuality === "slow") {
+      return 50; // Lower quality for slow connections
+    }
+    return 80; // Higher quality for fast connections
+  };
+
+  // Preload fallback for slow connections
+  useEffect(() => {
+    if (connectionQuality === "slow" && !imageLoaded && !imageError) {
+      const img = new window.Image();
+      img.src = "/placeholder-user.png"; // Simple local fallback
+      img.onload = () => setShowFallback(true);
+    }
+  }, [connectionQuality, imageLoaded, imageError]);
+
   return (
     <div className="bg-[#323232] 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl p-5 text-[#f0f0f0] flex flex-col lg:flex-row md:flex-row items-center xl:flex-col gap-x-5 lg:mt-[60px] xl:mt-0">
       <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full rounded-xl overflow-hidden">
-        {decodedUserPhotoUrl && (isBlobUrl || isValidUrl) ? (
+        {showFallback ? (
+          <Image
+            src={getFallbackImage()}
+            alt="User Profile Fallback"
+            fill
+            className="object-cover rounded-xl"
+            priority={connectionQuality === "fast"}
+            quality={connectionQuality === "slow" ? 30 : 80}
+          />
+        ) : decodedUserPhotoUrl && (isBlobUrl || isValidUrl) ? (
           isBlobUrl ? (
-            <img
+            <Image
               src={decodedUserPhotoUrl}
               alt="Analysis Result"
-              className="object-cover rounded-xl w-full h-full"
-              loading="eager"
-              decoding="async"
+              fill
+              className="object-cover rounded-xl"
+              loading={getLoadingStrategy()}
+              onLoadingComplete={() => {
+                setImageLoaded(true);
+                setShowFallback(false);
+              }}
+              onError={() => {
+                setImageError(true);
+                setShowFallback(true);
+              }}
+              quality={getImageQuality()}
             />
           ) : (
-            <img
+            <Image
               key={decodedUserPhotoUrl}
               src={decodedUserPhotoUrl}
               alt="Analysis Result"
-              className="object-cover rounded-xl w-full h-full"
-              loading="eager"
-              decoding="async"
-              style={{ width: "100%", height: "100%" }}
+              fill
+              className="object-cover rounded-xl"
+              loading={getLoadingStrategy()}
+              onLoadingComplete={() => {
+                setImageLoaded(true);
+                setShowFallback(false);
+              }}
+              onError={() => {
+                setImageError(true);
+                setShowFallback(true);
+              }}
+              quality={getImageQuality()}
             />
           )
         ) : (
-          <div className="w-full h-full bg-gray-500 rounded-xl animate-pulse" />
+          <div className="w-full h-full bg-gray-500 rounded-xl animate-pulse flex items-center justify-center">
+            <div className="text-white text-sm">
+              {connectionQuality === "slow"
+                ? "Loading image..."
+                : "No image available"}
+            </div>
+          </div>
         )}
       </div>
 
