@@ -237,13 +237,15 @@ export default function DashboardPage() {
       }
 
       if (accessToken) {
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("userToken", accessToken); // For backward compatibility
+        if (typeof window !== "undefined") {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("userToken", accessToken); // For backward compatibility
 
-        document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+          document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
 
-        // Clean the URL (remove query params and hash)
-        window.history.replaceState(null, "", window.location.pathname);
+          // Clean the URL (remove query params and hash)
+          window.history.replaceState(null, "", window.location.pathname);
+        }
 
         fetchUserData();
       }
@@ -256,7 +258,9 @@ export default function DashboardPage() {
     autoRedirect: true,
     fetchUserData: false, // We handle user data fetching manually due to OAuth logic
     onAuthenticated: () => {
-      localStorage.removeItem("analysisResultId");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("analysisResultId");
+      }
       fetchUserData();
     },
     onUnauthenticated: () => {

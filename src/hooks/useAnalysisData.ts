@@ -21,7 +21,7 @@ interface PhotoData {
 
 async function fetchData(endpoint: string, onUnauthorized?: () => void) {
   const fullUrl = secureUrl(endpoint);
-  const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
+  const token = typeof window !== "undefined" ? (localStorage.getItem("accessToken") || localStorage.getItem("userToken")) : null;
 
   if (!token) {
     if (typeof window !== "undefined") {
@@ -469,8 +469,8 @@ export const useBodyShapes = () => {
     queryKey: ["bodyShapes"],
     queryFn: async (): Promise<BodyType[]> => {
         const token =
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("userToken");
+          typeof window !== "undefined" ? (localStorage.getItem("accessToken") ||
+          localStorage.getItem("userToken")) : null;
       try {
         const response = await axios.get(secureUrl(`/v1/body-shapes/`), {
           headers:{
@@ -544,8 +544,8 @@ export function useCreatePayment() {
       formData.append("foto_wajah", data.foto_wajah, "face-photo.png");
 
       const token =
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("userToken");
+        typeof window !== "undefined" ? (localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken")) : null;
 
       const response = await axios.post(
         secureUrl("/v1/payments/create-for-user"),
@@ -561,7 +561,7 @@ export function useCreatePayment() {
       return response.data;
     },
     onSuccess: (result) => {
-      if (result.order_id) {
+      if (result.order_id && typeof window !== "undefined") {
         localStorage.setItem("paymentOrderId", result.order_id);
       }
     },

@@ -38,7 +38,7 @@ function RegisterPageContent() {
 
   // Handle OAuth redirect and initialize step from localStorage and URL parameters only once on component mount
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && typeof window !== "undefined") {
       try {
         // Handle OAuth redirect if user ends up on register page with token
         const urlParams = new URLSearchParams(window.location.search);

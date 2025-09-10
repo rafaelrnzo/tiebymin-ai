@@ -20,60 +20,61 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const hash = window.location.hash;
+    // Ensure we're on the client side before accessing browser APIs
+    if (typeof window === "undefined") return;
 
-      let accessToken = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
 
-      if (urlParams.has("access_token")) {
-        accessToken = urlParams.get("access_token");
-      } else if (hash.includes("access_token")) {
-        const hashParams = new URLSearchParams(hash.substring(1));
-        accessToken = hashParams.get("access_token");
-      }
+    let accessToken = null;
 
-      if (accessToken) {
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("userToken", accessToken);
-        document.cookie = `auth=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+    if (urlParams.has("access_token")) {
+      accessToken = urlParams.get("access_token");
+    } else if (hash.includes("access_token")) {
+      const hashParams = new URLSearchParams(hash.substring(1));
+      accessToken = hashParams.get("access_token");
+    }
 
-        window.history.replaceState(null, "", "/login");
-        router.push("/ai-overview/profile");
-      } else {
-        const hasStaleData =
-          localStorage.getItem("accessToken") ||
-          localStorage.getItem("userToken") ||
-          localStorage.getItem("userId");
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("userToken", accessToken);
+      document.cookie = `auth=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
 
-        if (hasStaleData) {
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("userToken");
+      window.history.replaceState(null, "", "/login");
+      router.push("/ai-overview/profile");
+    } else {
+      const hasStaleData =
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("userToken") ||
+        localStorage.getItem("userId");
 
-          localStorage.removeItem("userId");
-          localStorage.removeItem("user_id");
-          localStorage.removeItem("id");
-          localStorage.removeItem("userEmail");
-          localStorage.removeItem("firstName");
-          localStorage.removeItem("lastName");
+      if (hasStaleData) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("userToken");
 
-          localStorage.removeItem("analysisResultId");
-          localStorage.removeItem("tiebymin-analysis-data");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("id");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("firstName");
+        localStorage.removeItem("lastName");
 
-          localStorage.removeItem("paymentOrderId");
+        localStorage.removeItem("analysisResultId");
+        localStorage.removeItem("tiebymin-analysis-data");
 
-          localStorage.removeItem("capturedImage");
-          localStorage.removeItem("uploadedImage");
-          localStorage.removeItem("uploadedFaceImage");
+        localStorage.removeItem("paymentOrderId");
 
-          localStorage.removeItem("registration-steps-progress");
-          localStorage.removeItem("registration-current-step");
+        localStorage.removeItem("capturedImage");
+        localStorage.removeItem("uploadedImage");
+        localStorage.removeItem("uploadedFaceImage");
 
-          localStorage.removeItem("feedbackSubmitted");
-          localStorage.removeItem("feedbackDismissed");
+        localStorage.removeItem("registration-steps-progress");
+        localStorage.removeItem("registration-current-step");
 
-          document.cookie = "auth=; path=/; max-age=0; SameSite=Lax";
-        }
+        localStorage.removeItem("feedbackSubmitted");
+        localStorage.removeItem("feedbackDismissed");
+
+        document.cookie = "auth=; path=/; max-age=0; SameSite=Lax";
       }
     }
   }, [router]);
@@ -102,10 +103,31 @@ export default function LoginPage() {
       const axiosError = err as {
         response?: { status?: number; data?: unknown };
       };
-      if (axiosError.response?.status === 401) {
-        setErrorModalMessage(
-          "Email atau password yang Anda masukkan salah. Silakan periksa kembali."
-        );
+
+      // Handle invalid credentials (both 400 and 401 status codes)
+      if (
+        axiosError.response?.status === 401 ||
+        axiosError.response?.status === 400
+      ) {
+        // Check if the error message contains credential-related keywords
+        const errorMessage = (err as Error).message?.toLowerCase() || "";
+        if (
+          errorMessage.includes("invalid") ||
+          errorMessage.includes("credential") ||
+          errorMessage.includes("password") ||
+          errorMessage.includes("email") ||
+          errorMessage.includes("unauthorized") ||
+          errorMessage.includes("wrong")
+        ) {
+          setErrorModalMessage(
+            "Email atau password yang Anda masukkan salah. Silakan periksa kembali."
+          );
+        } else {
+          // If it's a 400 but not clearly credential-related, use the generic message
+          setErrorModalMessage(
+            "Email atau password yang Anda masukkan salah. Silakan periksa kembali."
+          );
+        }
       } else if (axiosError.response?.status === 422) {
         setErrorModalMessage(
           "Format email atau password tidak valid. Silakan periksa kembali."
