@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useGenerateStory } from "./useAnalysisData";
 import { useToast } from "./useToast";
+import { useGenerateStory } from "./useGenerateStory";
 
 export const useStoryHandler = () => {
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+  const [storyProgress, setStoryProgress] = useState(0);
   const [storyError, setStoryError] = useState<string | null>(null);
   const { mutateAsync: generateStory } = useGenerateStory();
   const { showToast } = useToast();
@@ -11,11 +12,32 @@ export const useStoryHandler = () => {
   const handleDownloadStory = async (finalResultId: string | null) => {
     if (!finalResultId) return;
     setIsGeneratingStory(true);
+    setStoryProgress(0);
+    setStoryError(null);
 
     try {
-      setStoryError(null);
+      // Simulate progress for better UX - optimized updates
+      let lastUpdate = Date.now();
+      const progressInterval = setInterval(() => {
+        const now = Date.now();
+        // Only update if enough time has passed to prevent too frequent updates
+        if (now - lastUpdate < 800) return;
+
+        setStoryProgress((prev) => {
+          if (prev >= 95) return prev; // Stop earlier to prevent over-shooting
+          // More controlled progress increments
+          const increment = Math.random() * 6 + 3; // 3-9 range for smoother progress
+          const newProgress = Math.min(prev + increment, 95);
+          lastUpdate = now;
+          return newProgress;
+        });
+      }, 1000); // Even less frequent to reduce re-renders
 
       const result = await generateStory(finalResultId);
+
+      clearInterval(progressInterval);
+      // Small delay before setting to 100% for better UX
+      setTimeout(() => setStoryProgress(100), 200);
       // Check if result exists and has data
       if (result && result.data) {
 
@@ -52,6 +74,7 @@ export const useStoryHandler = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const err = error as any;
 
+      setStoryProgress(0);
       setStoryError("Gagal membuat story");
       showToast(
         `Gagal membuat story: ${err?.message || "Unknown error"}`,
@@ -59,6 +82,10 @@ export const useStoryHandler = () => {
       );
     } finally {
       setIsGeneratingStory(false);
+      // Clear progress after completion
+      setTimeout(() => {
+        setStoryProgress(0);
+      }, 2000);
     }
   };
 
@@ -75,6 +102,7 @@ export const useStoryHandler = () => {
 
   return {
     isGeneratingStory,
+    storyProgress,
     storyError,
     handleDownloadStory,
   };

@@ -14,7 +14,6 @@ import {
   useBodyShapeData,
   useCelebrityData,
   useColorToneData,
-  useDownloadPdf,
   useFaceShapeData,
 } from "@/hooks/useAnalysisData";
 import { useAllTips } from "@/hooks/useAllTips";
@@ -32,6 +31,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useMemo, useState, useEffect } from "react";
 import { ProductRecommendation } from "@/components/pdf-components/product-recommendation-pdf";
+import { useDownloadPdf } from "@/hooks/useDownloadPdf";
 
 interface PageProps {
   userData: UserData;
@@ -57,37 +57,31 @@ function PdfPage() {
   const tokenFromUrl = searchParams.get("token");
   const userNameFromUrl = searchParams.get("userName");
 
-  // Set token to localStorage if provided in URL (for PDF generation)
+  // Enhanced state management untuk print mode
   const [tokenReady, setTokenReady] = useState(false);
-  const [pdfContentReady, setPdfContentReady] = useState(false);
+  const [contentReady, setContentReady] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     if (isPrintMode && tokenFromUrl && typeof window !== "undefined") {
       localStorage.setItem("accessToken", tokenFromUrl);
       localStorage.setItem("userToken", tokenFromUrl);
-      // Small delay to ensure localStorage is set before proceeding
       setTimeout(() => {
         setTokenReady(true);
       }, 100);
     } else if (!isPrintMode) {
-      setTokenReady(true); // For normal page loads
+      setTokenReady(true);
     } else if (isPrintMode && !tokenFromUrl) {
-      // In print mode but no token from URL, check if token exists in localStorage
       const existingToken =
         localStorage.getItem("accessToken") ||
         localStorage.getItem("userToken");
-      if (existingToken) {
-        setTokenReady(true);
-      } else {
-        // Still set ready to true to prevent blocking, but data fetching will fail gracefully
-        setTokenReady(true);
-      }
+      setTokenReady(!!existingToken);
     }
   }, [isPrintMode, tokenFromUrl]);
 
   const {
     data: analysisResult,
-    isLoading,
+    isLoading: analysisLoading,
     error: fetchError,
   } = useAnalysisData(tokenReady ? resultId : null);
 
@@ -96,25 +90,24 @@ function PdfPage() {
   };
   const analysisData = rawAnalysisData;
 
-  const { data: bodyDetails } = useBodyShapeData(
+  // Parallel data fetching dengan loading states
+  const { data: bodyDetails, isLoading: bodyLoading } = useBodyShapeData(
     tokenReady && analysisData?.body_shape_id?.toString()
   );
 
-  const { data: faceShapeDetails } = useFaceShapeData(
+  const { data: faceShapeDetails, isLoading: faceLoading } = useFaceShapeData(
     tokenReady && analysisData?.face_shape_id?.toString()
   );
 
-  const { data: colorToneDetails } = useColorToneData(
+  const { data: colorToneDetails, isLoading: colorLoading } = useColorToneData(
     tokenReady && analysisData?.color_analysis_id?.toString()
   );
 
-  const { data: celebrityDetails } = useCelebrityData(
-    tokenReady && analysisData?.celebrity_id?.toString()
-  );
+  const { data: celebrityDetails, isLoading: celebrityLoading } =
+    useCelebrityData(tokenReady && analysisData?.celebrity_id?.toString());
 
-  const { data: bmiCategoryDetails } = useBmiCategoryData(
-    tokenReady && analysisData?.bmi_category_id?.toString()
-  );
+  const { data: bmiCategoryDetails, isLoading: bmiLoading } =
+    useBmiCategoryData(tokenReady && analysisData?.bmi_category_id?.toString());
 
   const {
     data: tips,
@@ -126,6 +119,7 @@ function PdfPage() {
   });
 
   const { userData = defaultUserData, userPhotoUrl } = analysisResult || {};
+
   const finalUserData = useMemo(() => {
     if (!analysisResult?.userData) {
       return defaultUserData;
@@ -150,45 +144,83 @@ function PdfPage() {
     };
   }, [analysisResult, isPrintMode, userNameFromUrl]);
 
-  // Enhanced PDF readiness logic
+  // CRITICAL: Enhanced data loading check
   useEffect(() => {
-    if (isPrintMode && analysisResult && finalUserData && analysisData) {
-      // Set a timer to mark content as ready after minimum required data is loaded
-      const timer = setTimeout(() => {
-        setPdfContentReady(true);
-      }, 3000); // 3 second fallback
+    if (!isPrintMode) return;
 
-      // Check if we have sufficient data to proceed
+    const checkDataLoaded = () => {
+      // Check apakah semua data critical sudah loaded
       const hasBasicData = !!(finalUserData && analysisData);
-      const hasOptionalData = !!(
-        bodyDetails ||
-        faceShapeDetails ||
-        colorToneDetails
-      );
+      const hasAnalysisLoading = analysisLoading;
+      const hasAnyLoading =
+        bodyLoading ||
+        faceLoading ||
+        colorLoading ||
+        celebrityLoading ||
+        bmiLoading ||
+        tipsLoading;
 
-      if (hasBasicData && hasOptionalData) {
-        clearTimeout(timer);
-        setPdfContentReady(true);
+      // Tambahan check untuk memastikan data ada atau tidak perlu dimuat
+      const bodyReady =
+        !analysisData?.body_shape_id || bodyDetails || !bodyLoading;
+      const faceReady =
+        !analysisData?.face_shape_id || faceShapeDetails || !faceLoading;
+      const colorReady =
+        !analysisData?.color_analysis_id || colorToneDetails || !colorLoading;
+      const celebrityReady =
+        !analysisData?.celebrity_id || celebrityDetails || !celebrityLoading;
+      const bmiReady =
+        !analysisData?.bmi_category_id || bmiCategoryDetails || !bmiLoading;
+      const tipsReady = !rawAnalysisData || tips || !tipsLoading;
+
+      const allDataReady =
+        bodyReady &&
+        faceReady &&
+        colorReady &&
+        celebrityReady &&
+        bmiReady &&
+        tipsReady;
+
+      console.log("Data loading status:", {
+        hasBasicData,
+        hasAnalysisLoading,
+        hasAnyLoading,
+        bodyReady,
+        faceReady,
+        colorReady,
+        celebrityReady,
+        bmiReady,
+        tipsReady,
+        allDataReady,
+      });
+
+      if (hasBasicData && !hasAnalysisLoading && allDataReady) {
+        setDataLoaded(true);
+        // Delay kecil untuk memastikan render selesai
+        setTimeout(() => setContentReady(true), 500);
       }
+    };
 
-      return () => clearTimeout(timer);
-    }
+    checkDataLoaded();
   }, [
     isPrintMode,
-    analysisResult,
     finalUserData,
     analysisData,
+    analysisLoading,
     bodyDetails,
+    bodyLoading,
     faceShapeDetails,
+    faceLoading,
     colorToneDetails,
+    colorLoading,
     celebrityDetails,
+    celebrityLoading,
+    bmiCategoryDetails,
+    bmiLoading,
     tips,
+    tipsLoading,
+    rawAnalysisData,
   ]);
-
-  // Debug logging for PDF generation
-  if (isPrintMode) {
-    // PDF generation debug info removed for production
-  }
 
   const { mutateAsync: downloadPdf, isPending: isGenerating } =
     useDownloadPdf();
@@ -286,9 +318,7 @@ function PdfPage() {
   };
 
   const pageOrder = Object.keys(pages) as (keyof typeof pages)[];
-
   const [activePage, setActivePage] = useState<keyof typeof pages>("Cover");
-
   const activePageIndex = pageOrder.indexOf(activePage);
 
   const goToNextPage = () => {
@@ -303,17 +333,24 @@ function PdfPage() {
   };
 
   if (isPrintMode) {
-    // For PDF generation, render immediately with available data
-    // Don't wait for all data to be loaded to speed up PDF generation
+    // CRITICAL: Enhanced print mode dengan proper loading management
     const hasBasicData = finalUserData && analysisData;
 
     return (
       <main
         id="pdf-content"
-        data-pdf-ready={pdfContentReady ? "true" : "false"}
-        data-loading-state={isLoading ? "loading" : "loaded"}
+        data-pdf-ready={contentReady ? "true" : "false"}
+        data-loading-state={dataLoaded ? "loaded" : "loading"}
         data-has-basic-data={hasBasicData ? "true" : "false"}
+        data-content-ready={contentReady ? "true" : "false"}
       >
+        {/* Loading indicator untuk debugging */}
+        {!contentReady && (
+          <div style={{ display: "none" }} data-testid="pdf-loading">
+            Loading PDF content...
+          </div>
+        )}
+
         {hasBasicData ? (
           pageOrder.map((pageKey, index) => {
             const ComponentToPrint = pages[pageKey];
@@ -336,8 +373,8 @@ function PdfPage() {
                   faceTip={tips?.faceTip}
                   bodyTip={tips?.bodyTip}
                   colorTip={tips?.colorTip}
-                  isLoading={false} // Don't show loading state in PDF
-                  isError={false} // Don't show error state in PDF
+                  isLoading={false} // PENTING: Jangan tampilkan loading di PDF
+                  isError={false}
                   bmiValue={analysisData?.analysis_details?.bmi?.bmi_value}
                   bmiCategory={
                     analysisData?.analysis_details?.bmi?.category?.kategori
@@ -348,13 +385,15 @@ function PdfPage() {
           })
         ) : (
           <div className="flex items-center justify-center min-h-screen">
-            <div className="text-center">
+            <div className="text-center" data-testid="loading">
               <div className="text-xl font-bold mb-4">
                 Loading PDF Content...
               </div>
               <div className="text-gray-600">
                 Please wait while we prepare your analysis
               </div>
+              {/* Loading spinner untuk visual feedback */}
+              <div className="mt-4 animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
             </div>
           </div>
         )}
@@ -362,7 +401,8 @@ function PdfPage() {
     );
   }
 
-  if (isLoading) {
+  // Normal mode (non-print) rendering
+  if (analysisLoading) {
     return (
       <div className="flex items-center justify-center w-full h-screen bg-[#333333]">
         <div className="space-y-4">

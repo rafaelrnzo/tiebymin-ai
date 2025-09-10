@@ -96,8 +96,25 @@ export default function LoginPage() {
 
       router.push("/ai-overview/profile");
     } catch (err) {
-      const errorMessage = handleAxiosError(err, "login");
-      setErrorModalMessage(errorMessage);
+      console.error("Login error details:", err);
+
+      // Check if it's a specific authentication error
+      const axiosError = err as {
+        response?: { status?: number; data?: unknown };
+      };
+      if (axiosError.response?.status === 401) {
+        setErrorModalMessage(
+          "Email atau password yang Anda masukkan salah. Silakan periksa kembali."
+        );
+      } else if (axiosError.response?.status === 422) {
+        setErrorModalMessage(
+          "Format email atau password tidak valid. Silakan periksa kembali."
+        );
+      } else {
+        const errorMessage = handleAxiosError(err, "login");
+        setErrorModalMessage(errorMessage);
+      }
+
       setIsErrorModalOpen(true);
     }
   };

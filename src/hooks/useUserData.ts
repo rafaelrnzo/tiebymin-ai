@@ -108,8 +108,12 @@ export const useUserData = () => {
             localStorage.getItem("user_id") || localStorage.getItem("id");
         }
 
-        if (storedName) setUserName(storedName);
-        if (storedId) setUserId(storedId);
+        if (storedName && storedName !== userName) {
+          setUserName(storedName);
+        }
+        if (storedId && storedId !== userId) {
+          setUserId(storedId);
+        }
       }
     };
 
@@ -120,7 +124,7 @@ export const useUserData = () => {
     return () => {
       window.removeEventListener("storage", syncData);
     };
-  }, []);
+  }, [userName, userId]);
 
   // Login mutation
   const loginMutation = useMutation({
@@ -136,8 +140,7 @@ export const useUserData = () => {
 
       return response.data as LoginResponse;
     },
-    onSuccess: (result) => {
-
+    onSuccess: async (result) => {
       // Save access token to localStorage
       if (result.access_token) {
         localStorage.setItem("accessToken", result.access_token);
@@ -146,6 +149,23 @@ export const useUserData = () => {
         // Set cookie for middleware with proper settings
         if (typeof window !== 'undefined') {
           document.cookie = `auth=${result.access_token}; path=/; max-age=86400; SameSite=Lax`;
+        }
+
+        // Immediately fetch user data to get firstName
+        try {
+          const userResponse = await axios.get(secureUrl(`/v1/auth/me`), {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${result.access_token}`,
+            },
+          });
+
+          if (userResponse.data.first_name) {
+            localStorage.setItem("firstName", userResponse.data.first_name);
+            setUserName(userResponse.data.first_name);
+          }
+        } catch (error) {
+          console.warn("Failed to fetch user data after login:", error);
         }
       }
     },
@@ -263,7 +283,7 @@ export const useUserData = () => {
         throw error;
       }
     },
-    enabled: false, // Manual trigger
+    enabled: !!localStorage.getItem("accessToken"), // Auto-trigger when token exists
     retry: 2,
   });
 
@@ -361,6 +381,7 @@ export const useUserData = () => {
       await Promise.all([
         userProfileQuery.refetch(),
         analysisHistoryQuery.refetch(),
+        authMeQuery.refetch(), // Also fetch auth me to ensure firstName is updated
       ]);
     },
   };

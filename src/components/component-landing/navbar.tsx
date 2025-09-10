@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Menu, Sparkles, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,12 +19,9 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { userProfile, analysisHistory, fetchUserData } = useUserData();
+  const { fetchUserData } = useUserData();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [latestAnalysisResult, setLatestAnalysisResult] = useState<{
-    analysis_id: string;
-  } | null>(null);
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -43,12 +45,6 @@ export function Navbar() {
 
     checkLogin();
   }, [fetchUserData]);
-
-  useEffect(() => {
-    if (analysisHistory.length > 0) {
-      setLatestAnalysisResult(analysisHistory[0]);
-    }
-  }, [analysisHistory]);
 
   const navLinks = [
     {
@@ -166,6 +162,7 @@ export function Navbar() {
                 side="left"
                 className="bg-[#333333] text-[#f0f0f0] border-gray-600 w-[250px] sm:w-[280px]"
               >
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 {/* Logo in mobile sheet header */}
                 <div className="flex items-center justify-between mt-4 ml-4 mb-4">
                   <Image
@@ -195,15 +192,15 @@ export function Navbar() {
                     </div>
                   ))}
                   <div className="flex flex-col gap-2 pt-3">
-                    <Link
-                      href={
-                        isLoggedIn
-                          ? "/register?startStep=measurements"
-                          : "/register"
-                      }
-                      onClick={closeSheet}
-                    >
-                      <div className="flex flex-col gap-4 mr-4">
+                    <div className="flex flex-col gap-4 mr-4">
+                      <Link
+                        href={
+                          isLoggedIn
+                            ? "/register?startStep=measurements"
+                            : "/register"
+                        }
+                        onClick={closeSheet}
+                      >
                         <Button
                           size="default"
                           className="rounded-full bg-gradient-to-r from-[#FF7EA4] to-[#FFA2BD] hover:bg-[#E5679A] flex items-center gap-2 w-full px-4 py-2"
@@ -213,24 +210,21 @@ export function Navbar() {
                             Coba Sekarang
                           </span>
                         </Button>
-                        {isLoggedIn && (
-                          <Link
-                            href="/ai-overview/profile"
-                            onClick={closeSheet}
+                      </Link>
+                      {isLoggedIn && (
+                        <Link href="/ai-overview/profile" onClick={closeSheet}>
+                          <Button
+                            size="default"
+                            className="rounded-full bg-[#f0f0f0] hover:bg-gray-300 flex items-center gap-2 w-full px-4 py-2"
                           >
-                            <Button
-                              size="default"
-                              className="rounded-full bg-[#f0f0f0] hover:bg-gray-300 flex items-center gap-2 w-full px-4 py-2"
-                            >
-                              <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
-                              <span className="text-sm sm:text-base text-[#323232]">
-                                Profile
-                              </span>
-                            </Button>
-                          </Link>
-                        )}
-                      </div>
-                    </Link>
+                            <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#323232] fill-[#323232]" />
+                            <span className="text-sm sm:text-base text-[#323232]">
+                              Profile
+                            </span>
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
               </SheetContent>

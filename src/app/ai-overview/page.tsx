@@ -1,7 +1,15 @@
 "use client";
 
 // React and Next.js imports
-import { Suspense, useEffect, useState } from "react";
+import {
+  Suspense,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  memo,
+  ReactNode,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic"; // Import for Lazy Loading
 
@@ -19,6 +27,22 @@ const ProductRecommendationsSection = dynamic(
 const UserProfileSection = dynamic(
   () => import("@/components/sections/UserProfileSection")
 );
+
+// Import tab components directly to prevent re-renders
+import ShapeSection from "@/components/sections/ShapeSection";
+import ColorToneSection from "@/components/sections/ColorToneSection";
+import BodySection from "@/components/sections/BodySection";
+import CelebrityMatchSection from "@/components/sections/CelebrityMatchSection";
+import TipsSection from "@/components/sections/TipsSection";
+
+// Separate component for tab content to isolate from progress updates
+const TabContentRenderer = memo(
+  ({ tabId, content }: { tabId: string; content: ReactNode }) => {
+    return content;
+  }
+);
+
+TabContentRenderer.displayName = "TabContentRenderer";
 
 const ErrorModal = dynamic(() =>
   import("@/components/sections/error-modal").then((mod) => ({
@@ -131,13 +155,14 @@ function BeautyAnalysisPageInner() {
   }, [resultId]);
 
   // Custom hooks
-  const { userName, userId, logout } = useUserData();
+  const { userName, userId, logout, fetchUserData } = useUserData();
   const { isAuthChecking } = useAuthCheck({
     redirectTo: "/register",
     autoRedirect: false, // Don't auto-redirect, let the component handle it
     fetchUserData: true,
   });
-  const { isGeneratingStory, handleDownloadStory } = useStoryHandler();
+  const { isGeneratingStory, storyProgress, handleDownloadStory } =
+    useStoryHandler();
 
   // Proper logout function using the hook
   const handleLogout = async () => {
@@ -253,6 +278,13 @@ function BeautyAnalysisPageInner() {
       }
     },
   });
+
+  // Fetch user data when component mounts to ensure userName is updated
+  useEffect(() => {
+    if (!isAuthChecking && !isLoading) {
+      fetchUserData();
+    }
+  }, [isAuthChecking, isLoading, fetchUserData]);
 
   // Handle session expiration and authentication errors
   useEffect(() => {
@@ -513,125 +545,95 @@ function BeautyAnalysisPageInner() {
     transactionStatus,
   ]);
 
-  const renderContent = (tabId: string) => {
+  // Memoize the tab content to prevent re-renders when progress updates
+  const memoizedTabContent = useMemo(() => {
     const analysisData = rawAnalysisData;
     if (!analysisData) return null;
 
-    const content = (() => {
-      switch (tabId) {
-        case "shape":
-          const ShapeComponent = dynamic(
-            () => import("../../components/sections/ShapeSection")
-          );
-          return (
-            <Suspense
-              fallback={
-                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
-              }
-            >
-              <ShapeComponent
-                shapeId={analysisData.face_shape_id?.toString() || "1"}
-              />
-            </Suspense>
-          );
-        case "color":
-          const ColorComponent = dynamic(
-            () => import("../../components/sections/ColorToneSection")
-          );
-          return (
-            <Suspense
-              fallback={
-                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
-              }
-            >
-              <ColorComponent
-                colorAnalysisId={
-                  analysisData.color_analysis_id?.toString() || "1"
-                }
-              />
-            </Suspense>
-          );
-        case "body":
-          const BodyComponent = dynamic(
-            () => import("../../components/sections/BodySection")
-          );
-          return (
-            <Suspense
-              fallback={
-                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
-              }
-            >
-              <BodyComponent
-                bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
-                bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
-                bmiResult={{
-                  value: userData?.bmi?.value || 0,
-                }}
-              />
-            </Suspense>
-          );
-        case "celebrity":
-          const CelebrityComponent = dynamic(
-            () => import("../../components/sections/CelebrityMatchSection")
-          );
-          return (
-            <Suspense
-              fallback={
-                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
-              }
-            >
-              <CelebrityComponent
-                celebrityId={
-                  analysisData.celebrity_id
-                    ? analysisData.celebrity_id.toString()
-                    : null
-                }
-              />
-            </Suspense>
-          );
-        case "tips":
-          const TipsComponent = dynamic(
-            () => import("../../components/sections/TipsSection")
-          );
-          return (
-            <Suspense
-              fallback={
-                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
-              }
-            >
-              <TipsComponent
-                analysisData={{
-                  ...analysisData,
-                  face_shape_id: analysisData.face_shape_id?.toString() || "1",
-                  color_analysis_id:
-                    analysisData.color_analysis_id?.toString() || "1",
-                  body_shape_id: analysisData.body_shape_id?.toString() || "1",
-                  bmi_category_id:
-                    analysisData.bmi_category_id?.toString() || "1",
-                }}
-              />
-            </Suspense>
-          );
-        default:
-          const DefaultShapeComponent = dynamic(
-            () => import("../../components/sections/ShapeSection")
-          );
-          return (
-            <Suspense
-              fallback={
-                <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
-              }
-            >
-              <DefaultShapeComponent
-                shapeId={analysisData.face_shape_id?.toString() || "1"}
-              />
-            </Suspense>
-          );
-      }
-    })();
+    return {
+      shape: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <ShapeSection
+            shapeId={analysisData.face_shape_id?.toString() || "1"}
+          />
+        </Suspense>
+      ),
+      color: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <ColorToneSection
+            colorAnalysisId={analysisData.color_analysis_id?.toString() || "1"}
+          />
+        </Suspense>
+      ),
+      body: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <BodySection
+            bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
+            bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
+            bmiResult={{
+              value: userData?.bmi?.value || 0,
+            }}
+          />
+        </Suspense>
+      ),
+      celebrity: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <CelebrityMatchSection
+            celebrityId={
+              analysisData.celebrity_id
+                ? analysisData.celebrity_id.toString()
+                : null
+            }
+          />
+        </Suspense>
+      ),
+      tips: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <TipsSection
+            analysisData={{
+              ...analysisData,
+              face_shape_id: analysisData.face_shape_id?.toString() || "1",
+              color_analysis_id:
+                analysisData.color_analysis_id?.toString() || "1",
+              body_shape_id: analysisData.body_shape_id?.toString() || "1",
+              bmi_category_id: analysisData.bmi_category_id?.toString() || "1",
+            }}
+          />
+        </Suspense>
+      ),
+    };
+  }, [rawAnalysisData, userData?.bmi?.value]);
 
-    return content;
-  };
+  const renderContent = useCallback(
+    (tabId: string) => {
+      if (!memoizedTabContent) return null;
+      const content =
+        memoizedTabContent[tabId as keyof typeof memoizedTabContent] ||
+        memoizedTabContent.shape;
+      return <TabContentRenderer key={tabId} tabId={tabId} content={content} />;
+    },
+    [memoizedTabContent]
+  );
 
   // Show loading while checking authentication
   if (isAuthChecking) {
@@ -676,6 +678,7 @@ function BeautyAnalysisPageInner() {
                 resultId={finalResultId}
                 onDownloadStory={handleStoryDownload}
                 isGeneratingStory={isGeneratingStory}
+                storyProgress={storyProgress}
               />
             </Suspense>
 
