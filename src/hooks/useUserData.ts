@@ -226,9 +226,7 @@ export const useUserData = () => {
     retry: 1,
   });
 
-  // ... (query dan mutation lainnya bisa mengikuti pola yang sama)
 
-  // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
       if (!token) return; // Jika tidak ada token, tidak perlu panggil API

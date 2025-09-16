@@ -218,11 +218,37 @@ function BeautyAnalysisPageInner() {
     }
   }, [isOrderSuccess, orderId, paymentRedirectProcessed]);
 
-  // Clear URL parameters only after payment redirect has been fully processed
-  // This useEffect will be moved after useAnalysisData hook
+  // Clear URL parameters only after payment redirect has been fully processed (handled elsewhere)
 
-  // Payment and error handling
+  const {
+    data: analysisResult,
+    isLoading,
+    error: analysisError,
+    isError: analysisIsError,
+  } = useAnalysisData(isValidResultId && finalResultId ? finalResultId : null, {
+    onError: (err) => {
+      // Don't auto-show error modal here; handled in useEffect for better context (e.g., profile vs registration)
+      // Only show for cases with valid ID but fetch failed
+      if (finalResultId && isValidResultId && accessSource !== "profile") {
+        setErrorModalMessage(
+          err.message || "Terjadi kesalahan saat memuat data analisis"
+        );
+        setIsErrorModalOpen(true);
+      }
+    },
+  });
+
+  // Payment and error handling - consolidated after all hooks
   useEffect(() => {
+    // Defensive check to ensure variables are defined (prevents TDZ errors)
+    if (
+      typeof isAuthChecking === "undefined" ||
+      typeof analysisIsError === "undefined" ||
+      analysisError === undefined
+    ) {
+      return;
+    }
+
     if (!isAuthChecking) {
       // Handle order errors
       if (orderId && orderError) {
@@ -244,8 +270,25 @@ function BeautyAnalysisPageInner() {
         }
       }
 
-      // Show payment modal if no valid result and no order processing
-      if (!isValidResultId && !orderId) {
+      // Handle analysis fetch errors specifically for profile access
+      if (analysisIsError && accessSource === "profile" && analysisError) {
+        let errorMsg = "Analisis tidak dapat diakses. ";
+        if (analysisError.message?.includes("Akses ditolak")) {
+          errorMsg +=
+            "Pastikan Anda mengakses analisis milik Anda atau hubungi support jika Anda telah membayar.";
+        } else if (analysisError.message?.includes("tidak ditemukan")) {
+          errorMsg +=
+            "ID analisis tidak valid. Kembali ke profil dan pilih ulang.";
+        } else {
+          errorMsg += analysisError.message || "Terjadi kesalahan akses.";
+        }
+        setErrorModalMessage(errorMsg);
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      // Show payment modal only for registration flow (new users) with no valid result
+      if (!isValidResultId && !orderId && accessSource === "registration") {
         setNeedsPayment(true);
         setIsPaymentModalOpen(true);
       }
@@ -259,25 +302,10 @@ function BeautyAnalysisPageInner() {
     isOrderLoading,
     isOrderSuccess,
     orderData,
+    analysisIsError,
+    accessSource,
+    analysisError,
   ]);
-
-  const {
-    data: analysisResult,
-    isLoading,
-    error,
-    isError,
-  } = useAnalysisData(isValidResultId && finalResultId ? finalResultId : null, {
-    onError: (err) => {
-      // Only show error modal if we actually have a resultId to fetch
-      // This prevents error modals for new users who haven't completed analysis yet
-      if (finalResultId && isValidResultId) {
-        setErrorModalMessage(
-          err.message || "Terjadi kesalahan saat memuat data analisis"
-        );
-        setIsErrorModalOpen(true);
-      }
-    },
-  });
 
   // Fetch user data when component mounts to ensure userName is updated
   useEffect(() => {
@@ -288,11 +316,11 @@ function BeautyAnalysisPageInner() {
 
   // Handle session expiration and authentication errors
   useEffect(() => {
-    if (!isAuthChecking && (error || orderError)) {
+    if (!isAuthChecking && (analysisError || orderError)) {
       // Check if it's an authentication error (401)
       const isAuthError =
-        (error as { response?: { status?: number } })?.response?.status ===
-          401 ||
+        (analysisError as { response?: { status?: number } })?.response
+          ?.status === 401 ||
         (orderError as { response?: { status?: number } })?.response?.status ===
           401;
 
@@ -302,7 +330,7 @@ function BeautyAnalysisPageInner() {
         return;
       }
     }
-  }, [isAuthChecking, error, orderError, handleLogout]);
+  }, [isAuthChecking, analysisError, orderError, handleLogout]);
 
   // Analysis data and mutations
   const { mutateAsync: createPayment, isPending: isPaymentProcessing } =
@@ -357,7 +385,7 @@ function BeautyAnalysisPageInner() {
       typeof window !== "undefined" &&
       !isOrderLoading &&
       !isLoading &&
-      !isError &&
+      !analysisIsError &&
       orderAnalysisResultId &&
       userData &&
       !isAuthChecking
@@ -379,7 +407,7 @@ function BeautyAnalysisPageInner() {
     transactionStatus,
     isOrderLoading,
     isLoading,
-    isError,
+    analysisIsError,
     orderAnalysisResultId,
     userData,
     isAuthChecking,
@@ -503,13 +531,20 @@ function BeautyAnalysisPageInner() {
 
   useEffect(() => {
     setIsLockedModalOpen(false);
-  }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
+  }, [
+    resultId,
+    isLoading,
+    analysisError,
+    userData,
+    userPhotoUrl,
+    rawAnalysisData,
+  ]);
 
   // Data cleanup effects
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    if (!isLoading && !isError && userData && finalResultId) {
+    if (!isLoading && !analysisIsError && userData && finalResultId) {
       const clearDataTimer = setTimeout(() => {
         // Clear registration data
         localStorage.removeItem("registration-steps-progress");
@@ -535,7 +570,7 @@ function BeautyAnalysisPageInner() {
     }
   }, [
     isLoading,
-    isError,
+    analysisIsError,
     userData,
     finalResultId,
     orderId,

@@ -1,6 +1,7 @@
 import { ProductRecommendationSkeleton } from "@/components/skeleton-loading/product-recommendation-skeleton";
 import { useProductCompatibility } from "@/hooks/useProductCompatibility";
 import { useRecommendations } from "@/hooks/useRecommendations";
+import { generateDeterministicScore } from "@/lib/utils";
 import { Product, UserData } from "@/types";
 import Image from "next/image";
 import { Footer } from "./footer-pdf";
@@ -119,28 +120,6 @@ export const ProductRecommendation = ({
   bodyShapeId?: string;
   faceShapeId?: string;
 }) => {
-  // Function to generate consistent score based on product ID
-  const generateConsistentScore = (productId: string): number => {
-    const storageKey = `product_score_${productId}`;
-    const storedScore = localStorage.getItem(storageKey);
-
-    if (storedScore) {
-      return parseInt(storedScore, 10);
-    }
-
-    // Generate score between 80-95 based on product ID hash
-    let hash = 0;
-    for (let i = 0; i < productId.length; i++) {
-      const char = productId.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-
-    // Map hash to 80-95 range
-    const score = 80 + (Math.abs(hash) % 16);
-    localStorage.setItem(storageKey, score.toString());
-    return score;
-  };
   const {
     data: recommendationsData,
     isLoading,
@@ -180,7 +159,13 @@ export const ProductRecommendation = ({
             product.compatibility_reason ||
             product.score_breakdown?.reasons?.join(". ") ||
             "Produk ini cocok untuk Anda berdasarkan analisis.",
-          total_compatibility_score: generateConsistentScore(product.id),
+          total_compatibility_score: generateDeterministicScore(
+            product.id,
+            resultId,
+            bodyShapeId,
+            faceShapeId,
+            "hijab" // Default for PDF combined view
+          ),
         }))
         .sort(
           (a, b) => b.total_compatibility_score - a.total_compatibility_score
