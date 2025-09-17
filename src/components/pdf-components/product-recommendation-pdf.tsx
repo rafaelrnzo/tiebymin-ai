@@ -75,7 +75,6 @@ const MainContent = ({
           key={product.id}
           className="flex flex-row items-center h-[180px] shadow-lg"
         >
-          {/* Card Gambar */}
           <div className="w-1/2 h-full relative overflow-hidden rounded-l-lg bg-gray-100">
             <Image
               src={product.images?.[0]}
