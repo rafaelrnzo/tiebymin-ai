@@ -47,6 +47,14 @@ export interface Product {
   created_at?: string;
   updated_at?: string;
   color_recommendations?: string[];
+  score_breakdown?: {
+    face?: number;
+    body?: number;
+    bmi?: number;
+    color: number;
+    reasons: string[];
+  };
+  total_score?: number;
   total_compatibility_score: number;
   compatibility_reason?: string;
 }

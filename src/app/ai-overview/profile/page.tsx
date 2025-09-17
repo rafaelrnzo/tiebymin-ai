@@ -1,6 +1,7 @@
 "use client";
 
 import { Navbar } from "@/components/component-landing/navbar";
+import DashboardSkeleton from "@/components/skeleton-loading/profile-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -17,15 +18,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { useGenerateStory } from "@/hooks/useGenerateStory";
+import { useToast } from "@/hooks/useToast";
+import { useUserData } from "@/hooks/useUserData";
 import { Download, Share2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUserData } from "@/hooks/useUserData";
-import { useGenerateStory } from "@/hooks/useAnalysisData";
-import { useToast } from "@/hooks/useToast";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import DashboardSkeleton from "@/components/skeleton-loading/profile-skeleton";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+// Interface for story generation result
+interface StoryGenerationResult {
+  data: Uint8Array;
+  size: number;
+  type: string;
+  generationTime?: string;
+}
 
 // Function to shorten month names
 const shortenMonth = (dateString: string) => {
@@ -45,7 +53,20 @@ const shortenMonth = (dateString: string) => {
 };
 
 export default function DashboardPage() {
-  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+  const [generatingStoryIds, setGeneratingStoryIds] = useState<Set<string>>(
+    new Set()
+  );
+  const [storyProgress, setStoryProgress] = useState<Map<string, number>>(
+    new Map()
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Ubah dari 10 ke 2 untuk menampilkan 2 data per halaman
+
+  // Enhanced download states
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [connectionQuality, setConnectionQuality] = useState<
+    "fast" | "slow" | "unknown"
+  >("unknown");
 
   const router = useRouter();
   const {
@@ -59,6 +80,143 @@ export default function DashboardPage() {
 
   const { mutateAsync: generateStory } = useGenerateStory();
   const { showToast } = useToast();
+
+  // Network quality detection seperti PDF preview
+  useEffect(() => {
+    if (typeof window !== "undefined" && "navigator" in window) {
+      const connection =
+        (
+          navigator as Navigator & {
+            connection?: { effectiveType: string; downlink: number };
+            mozConnection?: { effectiveType: string; downlink: number };
+            webkitConnection?: { effectiveType: string; downlink: number };
+          }
+        ).connection ||
+        (
+          navigator as Navigator & {
+            mozConnection?: { effectiveType: string; downlink: number };
+          }
+        ).mozConnection ||
+        (
+          navigator as Navigator & {
+            webkitConnection?: { effectiveType: string; downlink: number };
+          }
+        ).webkitConnection;
+
+      if (connection) {
+        const effectiveType = connection.effectiveType;
+        const downlink = connection.downlink || 0;
+
+        // Lebih akurat berdasarkan kecepatan
+        if (
+          effectiveType === "slow-2g" ||
+          effectiveType === "2g" ||
+          downlink < 1
+        ) {
+          setConnectionQuality("slow");
+        } else if (effectiveType === "3g" || downlink < 5) {
+          setConnectionQuality("slow");
+        } else {
+          setConnectionQuality("fast");
+        }
+      } else {
+        const isMobile =
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+          );
+        setConnectionQuality(isMobile ? "slow" : "fast");
+      }
+    }
+  }, []);
+
+  // Memoized pagination calculations untuk performa yang lebih baik
+  const paginationData = useMemo(() => {
+    const totalItems = analysisHistory?.length || 0;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = analysisHistory?.slice(startIndex, endIndex) || [];
+
+    return {
+      totalItems,
+      totalPages,
+      currentItems,
+      startIndex,
+      endIndex,
+    };
+  }, [analysisHistory, currentPage, itemsPerPage]);
+
+  // Reset ke halaman pertama ketika data berubah
+  useEffect(() => {
+    if (
+      paginationData.totalPages > 0 &&
+      currentPage > paginationData.totalPages
+    ) {
+      setCurrentPage(1);
+    }
+  }, [analysisHistory?.length, currentPage, paginationData.totalPages]);
+
+  const generatePageNumbers = useMemo(() => {
+    const { totalPages } = paginationData;
+    const pages: number[] = [];
+    const maxVisiblePages = 5; // Meningkatkan jumlah halaman yang terlihat
+
+    if (totalPages <= maxVisiblePages) {
+      // Tampilkan semua halaman jika total kurang dari max visible
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Hitung range di sekitar halaman saat ini
+      const halfVisible = Math.floor(maxVisiblePages / 2);
+      let start = Math.max(1, currentPage - halfVisible);
+      const end = Math.min(totalPages, start + maxVisiblePages - 1);
+
+      // Sesuaikan start jika kita mendekati akhir
+      if (end === totalPages) {
+        start = Math.max(1, end - maxVisiblePages + 1);
+      }
+
+      // Tambahkan halaman pertama jika tidak termasuk
+      if (start > 1) {
+        pages.push(1);
+        if (start > 2) {
+          pages.push(-1); // Placeholder untuk "..."
+        }
+      }
+
+      // Tambahkan halaman di range
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      // Tambahkan halaman terakhir jika tidak termasuk
+      if (end < totalPages) {
+        if (end < totalPages - 1) {
+          pages.push(-1); // Placeholder untuk "..."
+        }
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  }, [paginationData.totalPages, currentPage]);
+
+  // Handler untuk perubahan halaman
+  const handlePageChange = (page: number) => {
+    if (
+      page >= 1 &&
+      page <= paginationData.totalPages &&
+      page !== currentPage
+    ) {
+      setCurrentPage(page);
+      // Scroll ke atas tabel untuk UX yang lebih baik
+      const tableElement = document.querySelector(".overflow-x-auto");
+      if (tableElement) {
+        tableElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
 
   // Handle OAuth-style token extraction from URL
   useEffect(() => {
@@ -79,13 +237,15 @@ export default function DashboardPage() {
       }
 
       if (accessToken) {
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("userToken", accessToken); // For backward compatibility
+        if (typeof window !== "undefined") {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("userToken", accessToken); // For backward compatibility
 
-        document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
+          document.cookie = `auth=${accessToken}; path=/; max-age=86400`;
 
-        // Clean the URL (remove query params and hash)
-        window.history.replaceState(null, "", window.location.pathname);
+          // Clean the URL (remove query params and hash)
+          window.history.replaceState(null, "", window.location.pathname);
+        }
 
         fetchUserData();
       }
@@ -94,79 +254,158 @@ export default function DashboardPage() {
 
   // Use the flexible auth check hook
   const { isAuthChecking, isAuthenticated } = useAuthCheck({
-    redirectTo: "/register",
+    redirectTo: "/login",
     autoRedirect: true,
     fetchUserData: false, // We handle user data fetching manually due to OAuth logic
     onAuthenticated: () => {
-      localStorage.removeItem("analysisResultId");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("analysisResultId");
+      }
       fetchUserData();
     },
     onUnauthenticated: () => {
-      // User not authenticated, redirecting to register
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+      }
     },
   });
 
-  const handleDownloadStory = async (resultId: string) => {
-    if (!resultId) return;
-    setIsGeneratingStory(true);
+  // Enhanced download dengan progress tracking seperti PDF preview
+  const handleDownloadStory = useCallback(
+    async (resultId: string) => {
+      if (!resultId) return;
 
-    try {
-      const result = await generateStory(resultId);
+      setGeneratingStoryIds((prev) => new Set(prev).add(resultId));
+      setStoryProgress((prev) => new Map(prev).set(resultId, 0));
+      setDownloadError(null);
 
-      // Check if result exists and has data
-      if (result && result.data) {
-        const imageData = result.data;
-        const file = new File([imageData], `story-tiebymin-${Date.now()}.png`, {
-          type: "image/png",
-        });
+      try {
+        // Simulate progress untuk UX yang lebih baik
+        const progressInterval = setInterval(() => {
+          setStoryProgress((prev) => {
+            const currentProgress = prev.get(resultId) || 0;
+            if (currentProgress >= 90) return prev;
+            return new Map(prev).set(
+              resultId,
+              currentProgress + Math.random() * 15
+            );
+          });
+        }, 500);
 
-        // Check if Web Share API is available and can share files
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: "Tie By Min Story",
-              text: "Coba AI Fashion Analysis aku!",
-            });
-            showToast("Story berhasil dibagikan!", "success");
-          } catch (shareError) {
-            // Fallback to download
-            const url = URL.createObjectURL(file);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = file.name;
-            document.body.appendChild(link); // Add to DOM for better compatibility
-            link.click();
-            document.body.removeChild(link); // Clean up
-            URL.revokeObjectURL(url);
-            showToast("Story berhasil diunduh!", "success");
-          }
-        } else {
-          // Direct download
-          const url = URL.createObjectURL(file);
+        // Pre-cache data jika belum ada
+        setStoryProgress((prev) => new Map(prev).set(resultId, 20));
+
+        // Optimized API call dengan timeout
+        const timeoutDuration = connectionQuality === "slow" ? 60000 : 30000;
+        const downloadPromise = generateStory(resultId);
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Download timeout")),
+            timeoutDuration
+          )
+        );
+
+        const result = await Promise.race([downloadPromise, timeoutPromise]);
+
+        clearInterval(progressInterval);
+        setStoryProgress((prev) => new Map(prev).set(resultId, 100));
+
+        if (result && (result as StoryGenerationResult).data) {
+          const resultData = (result as StoryGenerationResult).data;
+          const resultType =
+            (result as StoryGenerationResult).type || "image/png";
+
+          // Convert Uint8Array to ArrayBuffer for Blob compatibility
+          const arrayBuffer = resultData.buffer.slice(
+            resultData.byteOffset,
+            resultData.byteOffset + resultData.byteLength
+          ) as ArrayBuffer;
+
+          const blob = new Blob([arrayBuffer], { type: resultType });
+          const file = new File([blob], `story-tiebymin-${Date.now()}.png`, {
+            type: resultType,
+          });
+
+          // Optimized blob handling
+          const url = window.URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
           link.download = file.name;
-          document.body.appendChild(link); // Add to DOM for better compatibility
+          link.style.display = "none";
+
+          document.body.appendChild(link);
           link.click();
-          document.body.removeChild(link); // Clean up
-          URL.revokeObjectURL(url);
+
+          // Cleanup
+          setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+          }, 100);
+
           showToast("Story berhasil diunduh!", "success");
         }
-      } else {
-        throw new Error("No story data received from server");
-      }
-    } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any;
+      } catch (error) {
+        setStoryProgress((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(resultId);
+          return newMap;
+        });
 
-      showToast(
-        `Gagal membuat story: ${err?.message || "Unknown error"}`,
-        "error"
-      );
-    } finally {
-      setIsGeneratingStory(false);
-    }
+        let errorMessage = "Terjadi kesalahan saat mendownload story";
+
+        if (error instanceof Error) {
+          if (error.message.includes("timeout")) {
+            errorMessage =
+              connectionQuality === "slow"
+                ? "Download timeout. Silakan coba lagi dengan koneksi yang lebih stabil."
+                : "Download timeout. Silakan coba lagi.";
+          } else if (
+            error.message.includes("network") ||
+            error.message.includes("ERR_CONTENT_DECODING_FAILED")
+          ) {
+            errorMessage =
+              "Masalah koneksi atau encoding. Silakan cek internet dan coba lagi.";
+          } else if (error.message.includes("Invalid")) {
+            errorMessage = "File story tidak valid. Silakan coba lagi.";
+          } else {
+            errorMessage = error.message;
+          }
+        }
+
+        setDownloadError(errorMessage);
+        showToast(errorMessage, "error");
+
+        // Auto clear error setelah 5 detik
+        setTimeout(() => setDownloadError(null), 5000);
+      } finally {
+        setGeneratingStoryIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(resultId);
+          return newSet;
+        });
+
+        // Clear progress after completion
+        setTimeout(() => {
+          setStoryProgress((prev) => {
+            const newMap = new Map(prev);
+            newMap.delete(resultId);
+            return newMap;
+          });
+        }, 2000);
+      }
+    },
+    [generateStory, connectionQuality, showToast]
+  );
+
+  // Helper function to check if a specific story is generating
+  const isGeneratingSpecificStory = (resultId: string) => {
+    return generatingStoryIds.has(resultId);
+  };
+
+  // Helper function to get progress for a specific story
+  const getStoryProgress = (resultId: string) => {
+    return storyProgress.get(resultId) || 0;
   };
 
   // Show loading while checking authentication or fetching user data
@@ -264,9 +503,11 @@ export default function DashboardPage() {
 
         {/* Bagian Riwayat Tes */}
         <section className="flex flex-col gap-[20px] lg:gap-[50px] mt-0 lg:mt-[50px]">
-          <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#323232]">
-            Test History
-          </h2>
+          <div className="flex flex-col gap-4">
+            <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#323232]">
+              Test History
+            </h2>
+          </div>
           <p className="text-[#323232] font-poppins">
             Yuk intip lagi hasil analisa yang pernah kamu lakukan. Semua hasil
             dari analisa kamu tersimpan rapi di sini. Siapa tahu kamu menemukan
@@ -290,8 +531,8 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {analysisHistory.length > 0 ? (
-                  analysisHistory.map((item, index) => (
+                {paginationData.currentItems.length > 0 ? (
+                  paginationData.currentItems.map((item, index) => (
                     <TableRow
                       key={item.analysis_id || index}
                       className="border-b-[#323232]/20"
@@ -347,13 +588,43 @@ export default function DashboardPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            className="rounded-lg border-gray-300"
+                            className="rounded-lg border-gray-300 relative min-w-[44px] min-h-[44px]"
                             onClick={() =>
                               handleDownloadStory(item.analysis_id)
                             }
-                            disabled={isGeneratingStory}
+                            disabled={isGeneratingSpecificStory(
+                              item.analysis_id
+                            )}
                           >
-                            <Share2 className="h-4 w-4" />
+                            {isGeneratingSpecificStory(item.analysis_id) ? (
+                              <div className="flex flex-col items-center gap-1">
+                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#EF789B] border-t-transparent" />
+                                <span className="text-xs text-[#EF789B] font-bold">
+                                  {getStoryProgress(item.analysis_id) > 0
+                                    ? `${Math.round(
+                                        getStoryProgress(item.analysis_id)
+                                      )}%`
+                                    : "Memproses..."}
+                                </span>
+                              </div>
+                            ) : (
+                              <Share2 className="h-5 w-5" />
+                            )}
+
+                            {/* Progress bar overlay - more visible */}
+                            {isGeneratingSpecificStory(item.analysis_id) &&
+                              getStoryProgress(item.analysis_id) > 0 && (
+                                <div className="absolute bottom-0 left-0 right-0 h-2 bg-gray-200 rounded-b-lg overflow-hidden">
+                                  <div
+                                    className="h-full bg-[#EF789B] transition-all duration-300 ease-out rounded-b-lg"
+                                    style={{
+                                      width: `${getStoryProgress(
+                                        item.analysis_id
+                                      )}%`,
+                                    }}
+                                  />
+                                </div>
+                              )}
                           </Button>
                         </div>
                       </TableCell>
@@ -365,7 +636,9 @@ export default function DashboardPage() {
                       colSpan={3}
                       className="text-center py-8 text-gray-500"
                     >
-                      Belum ada riwayat analisa
+                      {paginationData.totalItems === 0
+                        ? "Belum ada riwayat analisa"
+                        : `Tidak ada data di halaman ${currentPage}`}
                     </TableCell>
                   </TableRow>
                 )}
@@ -374,37 +647,75 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-8 flex justify-center">
-          <Pagination>
-            <PaginationContent className="gap-2">
-              <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  isActive
-                  className="bg-[#EF789B] text-[#f0f0f0] border-0 hover:bg-[#EF789B]/90 hover:text-[#f0f0f0] rounded-md"
-                >
-                  1
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  className="rounded-md bg-[#323232]/10 text-[#f0f0f0]"
-                >
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink
-                  href="#"
-                  className="rounded-md bg-[#323232]/10 text-[#f0f0f0]"
-                >
-                  3
-                </PaginationLink>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </section>
+        {/* Pagination Section - Ditampilkan hanya jika ada lebih dari 1 halaman */}
+        {paginationData.totalPages > 1 && (
+          <section className="mt-8 flex justify-center">
+            <Pagination>
+              <PaginationContent className="gap-2">
+                {generatePageNumbers.map((page, index) => (
+                  <PaginationItem key={`${page}-${index}`}>
+                    {page === -1 ? (
+                      // Ellipsis placeholder
+                      <span className="px-3 py-2 text-gray-400">...</span>
+                    ) : (
+                      <PaginationLink
+                        onClick={() => handlePageChange(page)}
+                        isActive={page === currentPage}
+                        className={`rounded-md cursor-pointer ${
+                          page === currentPage
+                            ? "bg-[#EF789B] text-[#f0f0f0] border-0 hover:bg-[#EF789B]/90 hover:text-[#f0f0f0]"
+                            : "bg-[#323232]/10 text-[#323232] hover:bg-[#EF789B]/10"
+                        }`}
+                      >
+                        {page}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+              </PaginationContent>
+            </Pagination>
+          </section>
+        )}
+
+        {/* Enhanced error handling seperti PDF preview */}
+        {downloadError && (
+          <div className="fixed bottom-4 right-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg max-w-md shadow-lg flex items-center justify-between">
+            <span className="text-sm">{downloadError}</span>
+            <Button
+              onClick={() => setDownloadError(null)}
+              variant="ghost"
+              size="sm"
+              className="text-red-700 hover:bg-red-200 ml-2"
+            >
+              ✕
+            </Button>
+          </div>
+        )}
+
+        {/* Connection quality indicator */}
+        {connectionQuality === "slow" && (
+          <div className="fixed bottom-4 left-4 p-2 bg-amber-100 border border-amber-400 text-amber-700 rounded-lg max-w-md shadow-lg">
+            ⚠️ Koneksi lambat terdeteksi. Download mungkin membutuhkan waktu
+            lebih lama.
+          </div>
+        )}
+
+        {/* Global progress indicator when any story is generating */}
+        {generatingStoryIds.size > 0 && (
+          <div className="fixed top-4 right-4 p-3 bg-[#EF789B] text-white rounded-lg shadow-lg flex items-center gap-3">
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">
+                Membuat Story... ({generatingStoryIds.size})
+              </span>
+              <span className="text-xs opacity-90">
+                {Array.from(generatingStoryIds)
+                  .map((id) => `${Math.round(getStoryProgress(id) || 0)}%`)
+                  .join(", ")}
+              </span>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

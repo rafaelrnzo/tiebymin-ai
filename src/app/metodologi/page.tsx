@@ -44,13 +44,15 @@ const SectionTitle = ({
   children: React.ReactNode;
   info: string;
 }) => (
-  <div className="flex items-center justify-between bg-[#323232] gap-3 py-8 px-6 rounded-2xl mb-[50px] mt-[100px]">
-    <h2 className="font-oswald text-3xl md:text-4xl font-bold text-[#f0f0f0]">
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#323232] gap-3 sm:gap-6 py-6 sm:py-8 px-4 sm:px-6 rounded-2xl mb-[50px] mt-[100px]">
+    <h2 className="font-oswald text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#f0f0f0] leading-tight">
       {children}
     </h2>
-    <div className="flex items-center gap-4">
-      <Info className="w-6 h-6 text-[#f0f0f0]" />
-      <p className="font-poppins font-bold text-xl text-[#f0f0f0]">{info}</p>
+    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+      <Info className="w-4 h-4 sm:w-5 md:w-6 lg:h-6 text-[#f0f0f0]" />
+      <p className="font-poppins font-bold text-sm sm:text-base md:text-lg lg:text-xl text-[#f0f0f0] leading-tight">
+        {info}
+      </p>
     </div>
   </div>
 );
@@ -68,17 +70,17 @@ export default function MethodologyPage() {
           </Card>
         </section>
 
-        <section className="mb-[50px]">
+        <section className="mb-[50px] lg:px-0 px-4">
           <SectionTitle info="Dasar Ilmiah di balik rekomendasi Hijab">
             Konsep Analisis
           </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-1 p-6">
               <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
-                <strong> Analisis Tiebymin AI</strong>telah dirancang
-                berdasarkan studi dermatologi, psikologi fashion, dan database
-                visual untuk memberikan rekomendasi hijab yang sesuai dengan
-                kepribadian, bentuk wajah, warna kulit, dan bentuk tubuh
+                <strong> Analisis Tiebymin AI</strong> telah dirancang
+                berdasarkan studi dari dermatologi, psikologi fashion, dan
+                database visual untuk memberikan rekomendasi hijab yang sesuai
+                dengan kepribadian, bentuk wajah, warna kulit, dan bentuk tubuh
                 pengguna. Kami menggabungkan prinsip-prinsip dari:
               </p>
             </div>
@@ -96,7 +98,7 @@ export default function MethodologyPage() {
           </div>
         </section>
 
-        <section>
+        <section className="lg:px-0 px-4">
           <SectionTitle info="Mengapa Kami Memilih 3 Fokus Utama?">
             Jumlah Analisis
           </SectionTitle>
@@ -114,7 +116,7 @@ export default function MethodologyPage() {
                 </Card>
               ))}
             </div>
-            <div className="md:col-span-2 p-6">
+            <div className="md:col-span-2 lg:p-6 p-4">
               <p className="text-[#323232] text-justify leading-relaxed hyphens-auto">
                 Kami memilih 3 fokus utama untuk menjaga keseimbangan antara
                 akurasi dan kenyamanan pengguna. Studi dari {'"'}
@@ -130,7 +132,7 @@ export default function MethodologyPage() {
         </section>
 
         {/* Hasil Analisa Section */}
-        <section className="mb-10">
+        <section className="mb-10 lg:px-0 px-4">
           <SectionTitle info="Bagaimana Kami Menggabungkan Data untuk Rekomendasi?">
             Bentuk Analisis
           </SectionTitle>
@@ -168,7 +170,7 @@ export default function MethodologyPage() {
           </div>
         </section>
 
-        <section>
+        <section className="lg:px-0 px-4">
           <Card className="bg-[#EF789B] text-[#f0f0f0] rounded-2xl shadow-xl p-6 md:p-8 mt-[50px] border-0">
             <div className="flex flex-col md:flex-row items-start gap-[50px]">
               {/* Bagian Kiri */}
@@ -198,7 +200,7 @@ export default function MethodologyPage() {
           </Card>
         </section>
 
-        <section className="mb-[50px]">
+        <section className="mb-[50px] lg:px-0 px-4">
           <SectionTitle info="Mengapa Kami Menggunakan Foto Selfie + Pilihan Manual?">
             Kombinasi Karakteristik
           </SectionTitle>
@@ -211,8 +213,8 @@ export default function MethodologyPage() {
                 </h3>
               </div>
               <p className="text-justify leading-relaxed hyphens-auto">
-                <b>Bentuk Wajah</b> (oval) + <b>Warna Kulit</b> (cool winter)
-                →Rekomendasi hijab dengan layer panjang dan warna bold.
+                <b>Bentuk Wajah</b> (oval) + <b>Warna Kulit</b> (cool winter) →
+                Rekomendasi hijab dengan layer panjang dan warna bold.
               </p>
               <p className="text-justify leading-relaxed hyphens-auto">
                 <b>Bentuk Tubuh</b> (hourglass) → Paduan hijab dan pakaian yang
@@ -239,7 +241,7 @@ export default function MethodologyPage() {
         </section>
 
         {/* Disclaimer Section */}
-        <section className="mb-[50px]">
+        <section className="mb-[50px] lg:px-0 px-4">
           <SectionTitle info="Penting untuk Diperhatikan">
             Disclaimer
           </SectionTitle>
@@ -286,7 +288,7 @@ export default function MethodologyPage() {
         </section>
 
         {/* Referensi Jurnal Section */}
-        <section className="mb-[200px]">
+        <section className="mb-[100px] lg:px-0 px-4">
           <Card className="bg-[#323232] text-[#f0f0f0] rounded-2xl shadow-xl p-8 md:p-10">
             <h2 className="font-oswald text-3xl font-bold mb-6 text-center">
               Referensi Jurnal Ilmiah

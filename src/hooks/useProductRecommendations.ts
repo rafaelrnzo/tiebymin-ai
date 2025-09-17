@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRecommendations } from "./useRecommendations";
 import { useProductCompatibility } from "./useProductCompatibility";
 import { Product } from "@/types";
+import { generateDeterministicScore } from "@/lib/utils";
 
 export const useProductRecommendations = (
   resultId: string | null,
@@ -9,7 +10,6 @@ export const useProductRecommendations = (
   faceShapeId?: string
 ) => {
   const [recommendationFilter, setRecommendationFilter] = useState<"hijab" | "clothes">("hijab");
-  const [topProductScores, setTopProductScores] = useState<Map<string, number>>(new Map());
 
   const { data: recommendationsData, isLoading: isLoadingRecommendations } = useRecommendations(resultId);
 
@@ -32,8 +32,14 @@ export const useProductRecommendations = (
 
   const filteredProducts = baseFilteredProducts.map(product => ({
     ...product,
-    compatibility_reason: compatibilityData?.[product.id]?.compatibility_reason || '',
-    total_compatibility_score: compatibilityData?.[product.id]?.compatibility_score ?? product.total_compatibility_score,
+    compatibility_reason: compatibilityData?.[product.id]?.compatibility_reason || product.compatibility_reason || product.score_breakdown?.reasons?.join(". ") || '',
+    total_compatibility_score: generateDeterministicScore(
+      product.id,
+      resultId || '',
+      bodyShapeId,
+      faceShapeId,
+      recommendationFilter
+    ),
   }));
 
   const sortedProducts = [...filteredProducts].sort(
@@ -44,37 +50,11 @@ export const useProductRecommendations = (
     }
   );
 
-  useEffect(() => {
-    if (sortedProducts.length > 0) {
-      const possibleScores = [90, 91, 92, 93, 94, 95];
-
-      for (let i = possibleScores.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [possibleScores[i], possibleScores[j]] = [
-          possibleScores[j],
-          possibleScores[i],
-        ];
-      }
-
-      const newScores = new Map<string, number>();
-      const topThree = sortedProducts.slice(0, 3);
-
-      topThree.forEach((product, index) => {
-        if (possibleScores[index] !== undefined) {
-          newScores.set(product.id, possibleScores[index]);
-        }
-      });
-
-      setTopProductScores(newScores);
-    }
-  }, [recommendationsData]);
-
   return {
     recommendationFilter,
     handleFilterChange,
     filteredProducts,
     sortedProducts,
-    topProductScores,
     isLoadingRecommendations,
     isLoadingCompatibility,
   };

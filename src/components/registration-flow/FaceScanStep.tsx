@@ -51,7 +51,6 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
         router.push(`/analyze/open-camera?fromGallery=true&skipCamera=true`);
       };
       reader.onerror = (error) => {
-        console.error("Error converting image to base64:", error);
         setErrorModalMessage("Gagal memproses gambar. Silakan coba lagi.");
         setIsErrorModalOpen(true);
       };
@@ -111,15 +110,7 @@ export default function FaceScanStep({ onComplete }: FaceScanStepProps) {
       return;
     }
 
-    // Get user ID
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      setErrorModalMessage("User ID tidak ditemukan. Mohon login kembali.");
-      setIsErrorModalOpen(true);
-      return;
-    }
-
-    // Store data and proceed
+    // Store data and proceed (userId will be set when analysis result is fetched)
     handleProceedToAnalysis();
   };
 

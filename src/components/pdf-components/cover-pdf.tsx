@@ -30,11 +30,16 @@ export const Cover = ({ userData }: { userData: UserData }) => (
 
       <div className="mt-auto">
         <Image
-          src="/many-flower.png"
+          src="/many-flower.webp"
           alt="Pola Bunga Latar Belakang"
           width={1920}
           height={80}
           className="h-[600px] object-cover"
+          quality={100}
+          priority
+          loading="eager"
+          decoding="sync"
+          unoptimized={false}
         />
       </div>
     </div>

@@ -14,7 +14,7 @@ export const StoryQRSection = ({
   return (
     <div className="w-full flex flex-col justify-center items-center border rounded-xl py-4">
       <QRCode
-        value="https://tiebymin-welcome.vercel.app/"
+        value="https://tiebyminai.withsummon.com/"
         size={173}
         className="mt-auto"
       />

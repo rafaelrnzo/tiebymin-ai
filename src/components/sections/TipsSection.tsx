@@ -19,15 +19,21 @@ const TipCard: React.FC<TipCardProps> = ({ category, tip, icon }) => {
     <div className="border-[1px] p-[20px] w-full border-[#323232] rounded-2xl h-full">
       <div className="flex flex-row items-center gap-[10px] lg:flex-col lg:items-start">
         <div className="">
-          <Image src={icon} width={32} height={32} alt={`${category} Icon`} />
+          <Image
+            src={icon}
+            width={32}
+            height={32}
+            alt={`${category} Icon`}
+            priority
+          />
         </div>
         <h3 className="font-handlee italic text-[#323232] mt-1 text-base sm:text-xl">
           {category}
         </h3>
       </div>
       <div className="mt-2">
-        <div className="mt-2 font-poppins text-[#323232] text-xs lg:text-xl ">
-          {tip?.replace(/^-+/gm, "").trim()}
+        <div className="mt-2 font-poppins text-[#323232] text-xs lg:text-xl">
+          {tip?.replace(/^-+/gm, "").replace(/-/g, "").trim()}
         </div>
       </div>
     </div>

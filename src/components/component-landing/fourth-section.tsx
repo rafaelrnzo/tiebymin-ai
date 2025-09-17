@@ -26,7 +26,7 @@ const faqItems = [
     value: "item-3",
     question: "Seberapa Akurat Sih Hasil-Nya?",
     answer:
-      "Dengan tingkat akurasi mencapai 97.3%, rekomendasi kami sangat bisa diandalkan. Namun, ingatlah bahwa fashion itu subjektif dan yang terpenting adalah kenyamanan Anda.",
+      "Dengan tingkat akurasi yang tinggi, rekomendasi kami sangat bisa diandalkan. Namun, ingatlah bahwa fashion itu subjektif dan yang terpenting adalah kenyamanan Anda.",
   },
   {
     value: "item-4",
@@ -38,7 +38,7 @@ const faqItems = [
 
 const FaqSection = () => {
   return (
-    <section className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[100px]">
+    <section className="bg-[#f0f0f0] px-4 sm:px-10 lg:px-[110px]">
       <div className="container mx-auto">
         <hr className="lg:mb-[100px] mb-[65px]" />
         <div className="grid grid-cols-1 xl:grid-cols-2 lg:gap-24 gap-6 items-center">

@@ -1,6 +1,7 @@
 import { ProductRecommendationSkeleton } from "@/components/skeleton-loading/product-recommendation-skeleton";
 import { useProductCompatibility } from "@/hooks/useProductCompatibility";
 import { useRecommendations } from "@/hooks/useRecommendations";
+import { generateDeterministicScore } from "@/lib/utils";
 import { Product, UserData } from "@/types";
 import Image from "next/image";
 import { Footer } from "./footer-pdf";
@@ -74,7 +75,6 @@ const MainContent = ({
           key={product.id}
           className="flex flex-row items-center h-[180px] shadow-lg"
         >
-          {/* Card Gambar */}
           <div className="w-1/2 h-full relative overflow-hidden rounded-l-lg bg-gray-100">
             <Image
               src={product.images?.[0]}
@@ -87,19 +87,19 @@ const MainContent = ({
               unoptimized={true} // Disable optimization for PDF generation
             />
             <div className="absolute bottom-3 left-3 bg-black bg-opacity-60 text-[#f0f0f0] px-3 py-1 rounded-full text-xs font-bold">
-              {Math.round((product.total_compatibility_score || 0) * 10)}% Match
+              {product.total_compatibility_score.toFixed(0)}% Match
             </div>
           </div>
           {/* Card Deskripsi */}
           <div className="w-1/2 bg-[#323232] text-[#f0f0f0] p-6 flex flex-col justify-center h-full rounded-r-lg">
             <h2
               className="text-3xl font-oswald mb-2 truncate"
-              title={product.name || "Product"}
+              title={product.name}
             >
-              {product.name || "Product Name"}
+              {product.name}
             </h2>
             <p className="text-sm font-medium text-gray-200 leading-tight line-clamp-3">
-              {product.compatibility_reason || "Produk ini cocok untuk Anda"}
+              {product.compatibility_reason}
             </p>
           </div>
         </div>
@@ -111,9 +111,13 @@ const MainContent = ({
 export const ProductRecommendation = ({
   userData,
   resultId,
+  bodyShapeId,
+  faceShapeId,
 }: {
   userData: UserData;
   resultId: string;
+  bodyShapeId?: string;
+  faceShapeId?: string;
 }) => {
   const {
     data: recommendationsData,
@@ -121,23 +125,27 @@ export const ProductRecommendation = ({
     error,
   } = useRecommendations(resultId);
 
-  // Get compatibility data for hijab and clothes
   const { data: hijabCompatibilityData } = useProductCompatibility(
     resultId,
-    "hijab"
-  );
-  const { data: clothesCompatibilityData } = useProductCompatibility(
-    resultId,
-    "clothes"
+    "hijab",
+    bodyShapeId,
+    faceShapeId
   );
 
-  // Combine compatibility data
-  const combinedCompatibilityData = {
+  const { data: clothesCompatibilityData } = useProductCompatibility(
+    resultId,
+    "clothes",
+    bodyShapeId,
+    faceShapeId
+  );
+
+  // Merge compatibility data
+  const compatibilityData = {
     ...hijabCompatibilityData,
     ...clothesCompatibilityData,
   };
 
-  // Menggabungkan dan mengurutkan produk dengan compatibility reasons
+  // Menggabungkan dan mengurutkan produk dengan compatibility dari recommendations API
   const topProducts = recommendationsData
     ? [
         ...(recommendationsData.hijab || []),
@@ -146,11 +154,17 @@ export const ProductRecommendation = ({
         .map((product) => ({
           ...product,
           compatibility_reason:
-            combinedCompatibilityData[product.id]?.compatibility_reason || "",
-          total_compatibility_score:
-            combinedCompatibilityData[product.id]?.compatibility_score ||
-            product.total_compatibility_score ||
-            0,
+            compatibilityData?.[product.id]?.compatibility_reason ||
+            product.compatibility_reason ||
+            product.score_breakdown?.reasons?.join(". ") ||
+            "Produk ini cocok untuk Anda berdasarkan analisis.",
+          total_compatibility_score: generateDeterministicScore(
+            product.id,
+            resultId,
+            bodyShapeId,
+            faceShapeId,
+            "hijab" // Default for PDF combined view
+          ),
         }))
         .sort(
           (a, b) => b.total_compatibility_score - a.total_compatibility_score

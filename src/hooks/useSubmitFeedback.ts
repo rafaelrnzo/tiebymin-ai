@@ -11,7 +11,7 @@ export const useSubmitFeedback = () => {
       feedback_comment: string;
       user_rating: number;
     }) => {
-      const response = await axios.post(secureUrl("/analysis-feedback/"), data);
+      const response = await axios.post(secureUrl("/v1/analysis-feedback/"), data);
       return response.data;
     },
   });

@@ -1,4 +1,4 @@
-import { BodyShapeData, UserData } from "@/types";
+import { BodyShapeData, UserData, BmiCategory } from "@/types";
 import Image from "next/image";
 import { Footer } from "./footer-pdf";
 import { PageHeader } from "./header-pdf";
@@ -8,15 +8,27 @@ export const BodyShape = ({
   bodyDetails,
   bmiValue,
   bmiCategory,
+  bmiCategoryDetails,
 }: {
   userData: UserData;
   bodyDetails?: BodyShapeData;
   bmiValue?: number;
   bmiCategory?: string;
+  bmiCategoryDetails?: BmiCategory;
 }) => {
   // Use provided BMI value or fallback to userData
   const finalBmiValue = bmiValue ?? userData.bmi?.value ?? 0;
   const finalBmiCategory = bmiCategory ?? userData.bmi?.category ?? "Unknown";
+
+  // Prioritize BMI category details from API when available
+  const displayBmiCategory =
+    bmiCategoryDetails?.kategori && bmiCategoryDetails.kategori !== "Unknown"
+      ? bmiCategoryDetails.kategori
+      : finalBmiCategory;
+  const displayBmiTips =
+    bmiCategoryDetails?.tips_fashion && bmiCategoryDetails.tips_fashion.trim()
+      ? bmiCategoryDetails.tips_fashion
+      : userData.bmi?.desc || "";
 
   // Helper untuk mem-parse daftar karakteristik dengan aman
   const characteristics =
@@ -51,11 +63,14 @@ export const BodyShape = ({
               {bodyDetails?.penjelasan_body_shape}
             </p>
             <div className="bg-[#323232] text-[#f0f0f0] p-6 rounded-lg mt-auto">
-              <h3 className="text-lg font-bold mb-3">Karakteristik</h3>
-              <ul className="list-disc list-inside space-y-2">
+              <h3 className="text-lg font-bold mb-3 font-poppins">
+                Karakteristik
+              </h3>
+              <ul className="space-y-2">
                 {characteristics.map((point, index) => (
-                  <li key={index} className="text-base font-poppins">
-                    {point}
+                  <li key={index} className="flex text-base font-poppins">
+                    <span className="mr-2">•</span>
+                    <span>{point}</span>
                   </li>
                 ))}
               </ul>
@@ -65,13 +80,17 @@ export const BodyShape = ({
 
         {/* Konten Bawah: BMI Index */}
         <div className="pt-8">
-          <p className="font-bold">
-            BMI INDEX: {finalBmiValue} ({finalBmiCategory})
-          </p>
-          <p className="text-gray-600 mb-3 text-sm">
-            {userData.bmi?.desc || ""}
-          </p>
-          <div className="w-full h-8 rounded-md bg-gray-200 overflow-hidden">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex flex-col text-left">
+              <span className="font-bold text-lg">
+                BMI INDEX: {finalBmiValue} ({displayBmiCategory})
+              </span>
+              <p className="text-[#323232] text-sm leading-relaxed font-poppins">
+                {displayBmiTips}
+              </p>
+            </div>
+          </div>
+          <div className="w-full h-6 rounded-md bg-gray-200 overflow-hidden">
             <div className="h-full rounded-md bg-gradient-to-r from-[#EF789B] to-[#F7D3DF]" />
           </div>
         </div>

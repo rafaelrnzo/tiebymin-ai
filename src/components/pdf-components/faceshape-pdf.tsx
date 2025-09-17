@@ -3,8 +3,8 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Footer } from "./footer-pdf";
 import { PageHeader } from "./header-pdf";
+import { decodeUrl } from "@/lib/urlUtils";
 
-// Interface IShape dan fungsi generateGimmickChartData tidak berubah
 interface IShape {
   name: string;
   value: number;
@@ -40,7 +40,6 @@ const generateGimmickChartData = (mainShapeName: string): IShape[] => {
   return chartData;
 };
 
-// Komponen DetailList tidak berubah
 const DetailList = ({
   title,
   content,
@@ -107,29 +106,23 @@ export const FaceShape = ({
   const englishMainShapeName =
     shapeNameMap[userData.faceShape] || userData.faceShape;
 
-  // State for image loading
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
 
-  // Helper function to ensure image has full URL
-  const ensureFullImageUrl = (imageUrl: string | null): string | null => {
+  const validateImageUrl = (imageUrl: string | null): string | null => {
     if (!imageUrl) return null;
 
-    // If already a full URL, return as is
-    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    try {
+      new URL(imageUrl);
       return imageUrl;
+    } catch (error) {
+      return null;
     }
-
-    // If it's a relative path, prepend the base URL
-    const baseUrl =
-      "https://minecraft-server-tiebymin-minio.dgrttk.easypanel.host/";
-    return `${baseUrl}${
-      imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl
-    }`;
   };
 
-  // Function to fetch image with authentication
+  const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
+
   const fetchImageWithAuth = async (imageUrl: string) => {
     try {
       setImageLoading(true);
@@ -140,7 +133,6 @@ export const FaceShape = ({
         localStorage.getItem("userToken");
 
       if (!token) {
-        console.error("No authentication token found for image fetch");
         setImageError(true);
         setImageLoading(false);
         return;
@@ -153,7 +145,10 @@ export const FaceShape = ({
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
       }
 
       const blob = await response.blob();
@@ -161,18 +156,15 @@ export const FaceShape = ({
       setImageDataUrl(dataUrl);
       setImageLoading(false);
     } catch (error) {
-      console.error("Error fetching image with auth:", error);
       setImageError(true);
       setImageLoading(false);
     }
   };
 
-  // Process the user photo URL
-  const processedUserPhotoUrl = userPhotoUrl
-    ? ensureFullImageUrl(userPhotoUrl)
+  const processedUserPhotoUrl = decodedUserPhotoUrl
+    ? validateImageUrl(decodedUserPhotoUrl)
     : null;
 
-  // Fetch image with authentication when processedUserPhotoUrl changes
   useEffect(() => {
     if (processedUserPhotoUrl) {
       fetchImageWithAuth(processedUserPhotoUrl);
@@ -182,7 +174,6 @@ export const FaceShape = ({
     }
   }, [processedUserPhotoUrl]);
 
-  // Cleanup object URL to prevent memory leaks
   useEffect(() => {
     return () => {
       if (imageDataUrl) {
@@ -191,7 +182,6 @@ export const FaceShape = ({
     };
   }, [imageDataUrl]);
 
-  // Determine if we should show skeleton
   const shouldShowSkeleton =
     (!processedUserPhotoUrl && !imageDataUrl) || imageLoading;
 
@@ -229,12 +219,10 @@ export const FaceShape = ({
         <div className="flex flex-row w-full gap-8 flex-grow">
           <div className="relative w-[300px] h-[550px] rounded-lg shadow-lg overflow-hidden">
             {shouldShowSkeleton ? (
-              // Skeleton loading state
               <div className="w-full h-full bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
                 <div className="text-gray-400 text-sm">Loading image...</div>
               </div>
             ) : (
-              // Actual image
               <Image
                 src={imageDataUrl || processedUserPhotoUrl!}
                 alt="Model Wajah"

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { TriangleAlert } from "lucide-react";
 
 // Mendefinisikan tipe props untuk komponen ErrorModal
@@ -9,9 +9,15 @@ interface ErrorModalProps {
   isOpen: boolean;
   onClose: () => void;
   errorMessage: string;
+  onLogout?: () => void;
 }
 
-export function ErrorModal({ isOpen, onClose, errorMessage }: ErrorModalProps) {
+export function ErrorModal({
+  isOpen,
+  onClose,
+  errorMessage,
+  onLogout,
+}: ErrorModalProps) {
   // Function to convert technical error messages to user-friendly ones
   const getUserFriendlyMessage = (message: string): string => {
     // Check for common technical error patterns
@@ -67,9 +73,24 @@ export function ErrorModal({ isOpen, onClose, errorMessage }: ErrorModalProps) {
 
   const friendlyMessage = getUserFriendlyMessage(errorMessage);
 
+  // Check if this is an order-related error that should trigger logout
+  const isOrderError =
+    errorMessage.includes("Order tidak ditemukan") ||
+    errorMessage.includes("tidak valid") ||
+    errorMessage.includes("Order");
+
+  const handleButtonClick = () => {
+    if (isOrderError && onLogout) {
+      onLogout();
+    } else {
+      onClose();
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[350px] lg:max-w-[650px] bg-[#f0f0f0] rounded-2xl p-8 px-6 sm:px-8">
+        <DialogTitle className="sr-only">Error Notification</DialogTitle>
         <div className="flex flex-col items-center justify-center space-y-6">
           <div className="flex justify-center">
             <TriangleAlert
@@ -86,7 +107,7 @@ export function ErrorModal({ isOpen, onClose, errorMessage }: ErrorModalProps) {
 
           <div className="w-full pt-4">
             <Button
-              onClick={onClose}
+              onClick={handleButtonClick}
               className="w-full bg-[#323232] text-[#f0f0f0] py-6 rounded-xl text-md font-semibold hover:bg-gray-700 transition-colors"
             >
               Tutup

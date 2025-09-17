@@ -34,7 +34,6 @@ function FeedbackModal({
 
     if (!userId) {
       alert("User ID tidak ditemukan. Silakan refresh halaman dan coba lagi.");
-      console.error("User ID is missing:", { userId, analysisResultId });
       return;
     }
 

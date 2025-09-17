@@ -17,7 +17,7 @@ export const HeroSection = () => {
   }, []);
 
   return (
-    <main className="relative w-full overflow-hidden">
+    <main id="hero-section" className="relative w-full overflow-hidden">
       {/* Container untuk Gambar Latar */}
       <div className="w-full">
         {/* Gambar Desktop */}

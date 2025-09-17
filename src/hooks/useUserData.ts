@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 import { secureUrl } from "@/lib/api";
 import { handleAxiosError } from "@/lib/error-utils";
 
+// Interface bisa Anda letakkan di file terpisah (e.g., types.ts)
 interface LoginCredentials {
   email: string;
   password: string;
@@ -50,107 +51,87 @@ interface AnalysisHistoryResponse {
 }
 
 export const useUserData = () => {
-  const [userName, setUserName] = useState("");
-  const [userId, setUserId] = useState("");
+  const queryClient = useQueryClient();
 
-  // Comprehensive localStorage clearing function for auth expiration
-  const clearAllUserData = () => {
-    if (typeof window === "undefined") return;
+  // ✅ 1. Gunakan state untuk menyimpan token dan data user.
+  // Ini menghindari pemanggilan localStorage langsung saat render.
+  const [token, setToken] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
-    // Clear all authentication tokens
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userToken");
-
-    // Clear all user profile data
-    localStorage.removeItem("userId");
-    localStorage.removeItem("user_id");
-    localStorage.removeItem("id");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("firstName");
-    localStorage.removeItem("lastName");
-
-    // Clear analysis data
-    localStorage.removeItem("analysisResultId");
-    localStorage.removeItem("tiebymin-analysis-data");
-
-    // Clear payment data
-    localStorage.removeItem("paymentOrderId");
-
-    // Clear image data
-    localStorage.removeItem("capturedImage");
-    localStorage.removeItem("uploadedImage");
-    localStorage.removeItem("uploadedFaceImage");
-
-    // Clear registration data
-    localStorage.removeItem("registration-steps-progress");
-    localStorage.removeItem("registration-current-step");
-
-    // Clear feedback data
-    localStorage.removeItem("feedbackSubmitted");
-    localStorage.removeItem("feedbackDismissed");
-
-    // Clear cookie
-    document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
-
-    // Clear user state
-    setUserName("");
-    setUserId("");
-  };
-
+  // ✅ 2. Inisialisasi state dari localStorage HANYA di dalam useEffect.
+  // Ini memastikan kode hanya berjalan di sisi client setelah komponen mount.
   useEffect(() => {
+    const storedToken = localStorage.getItem("accessToken");
+    const storedName = localStorage.getItem("firstName");
+    const storedId = localStorage.getItem("userId") || localStorage.getItem("user_id");
+
+    if (storedToken) setToken(storedToken);
+    if (storedName) setUserName(storedName);
+    if (storedId) setUserId(storedId);
+
+    // Listener untuk sinkronisasi antar tab
     const syncData = () => {
-      if (typeof window !== "undefined") {
-        const storedName = localStorage.getItem("firstName");
-        let storedId = localStorage.getItem("userId");
-
-        if (!storedId) {
-          storedId =
-            localStorage.getItem("user_id") || localStorage.getItem("id");
-        }
-
-        if (storedName) setUserName(storedName);
-        if (storedId) setUserId(storedId);
+      const currentToken = localStorage.getItem("accessToken");
+      if (!currentToken) {
+        clearAllUserData(); // Jika token dihapus di tab lain, logout di sini juga
       }
     };
 
-    syncData();
-
     window.addEventListener("storage", syncData);
-
     return () => {
       window.removeEventListener("storage", syncData);
     };
-  }, []);
+  }, []); // <-- Dependency array kosong agar hanya berjalan sekali saat mount.
+
+  const clearAllUserData = () => {
+    // Fungsi ini sudah bagus, hanya perlu memastikan state di-reset juga.
+    setToken(null);
+    setUserName(null);
+    setUserId(null);
+
+    // Hapus semua query cache yang berhubungan dengan user
+    queryClient.clear();
+
+    if (typeof window === "undefined") return;
+
+    // Daftar item yang akan dihapus
+    const itemsToRemove = [
+      "accessToken", "userToken", "userId", "user_id", "id",
+      "userEmail", "firstName", "lastName", "analysisResultId",
+      "tiebymin-analysis-data", "paymentOrderId", "capturedImage",
+      "uploadedImage", "uploadedFaceImage", "registration-steps-progress",
+      "registration-current-step", "feedbackSubmitted", "feedbackDismissed",
+    ];
+    itemsToRemove.forEach(item => localStorage.removeItem(item));
+
+    document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
+  };
+
+  const handleAuthError = (error: unknown) => {
+    const axiosError = error as AxiosError;
+    if (axiosError.response?.status === 401) {
+      clearAllUserData();
+      // Melempar error baru agar bisa ditangkap di komponen UI jika perlu
+      throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
+    }
+    throw handleAxiosError(error, 'general');
+  };
 
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const endpoint = secureUrl(`/v1/auth/login`);
-
-      const response = await axios.post(endpoint, credentials, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-
-      return response.data as LoginResponse;
+      const response = await axios.post<LoginResponse>(secureUrl(`/v1/auth/login`), credentials);
+      return response.data;
     },
-    onSuccess: (result) => {
-
-      // Save access token to localStorage
-      if (result.access_token) {
-        localStorage.setItem("accessToken", result.access_token);
-        localStorage.setItem("userToken", result.access_token); // For backward compatibility
-
-        // Set cookie for middleware with proper settings
-        if (typeof window !== 'undefined') {
-          document.cookie = `auth=${result.access_token}; path=/; max-age=86400; SameSite=Lax`;
-        }
-      }
-    },
-    onError: (error) => {
-      console.error("Login error:", error);
+    onSuccess: (data) => {
+      const { access_token } = data;
+      localStorage.setItem("accessToken", access_token);
+      localStorage.setItem("userToken", access_token);
+      document.cookie = `auth=${access_token}; path=/; max-age=86400; SameSite=Lax`;
+      setToken(access_token);
+      // ✅ Invalidate queries agar data user yang baru di-fetch (misal authMeQuery)
+      queryClient.invalidateQueries({ queryKey: ['authMe'] });
     },
   });
 
@@ -158,30 +139,22 @@ export const useUserData = () => {
   const registerMutation = useMutation({
     mutationFn: async (registerData: RegisterData) => {
       const endpoint = secureUrl(`/v1/auth/register`);
-
       const response = await axios.post(endpoint, registerData, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
       });
-
       return response.data as RegisterResponse;
     },
     onSuccess: (result) => {
-
-      // Save user data to localStorage
       if (result.id) {
         localStorage.setItem("userId", result.id);
-      }
-      if (result.email) {
-        localStorage.setItem("userEmail", result.email);
+        setUserId(result.id);
       }
       if (result.first_name) {
         localStorage.setItem("firstName", result.first_name);
-      }
-      if (result.last_name) {
-        localStorage.setItem("lastName", result.last_name);
+        setUserName(result.first_name);
       }
     },
     onError: (error) => {
@@ -189,160 +162,99 @@ export const useUserData = () => {
     },
   });
 
-  // User profile query
-  const userProfileQuery = useQuery({
-    queryKey: ["userProfile"],
-    queryFn: async () => {
-      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
-      if (!token) {
-        throw new Error("No access token found");
-      }
-
-      try {
-        const response = await axios.get(secureUrl(`/v1/user-profile/user-info`), {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const tes = await axios.get(secureUrl(`/v1/auth/validate-token`), {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        localStorage.setItem("userId", tes.data.user_id);
-
-        return response.data as UserProfile;
-      } catch (error: unknown) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 401) {
-          // Clear all user data on auth expiration
-          clearAllUserData();
-          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
-        }
-        throw handleAxiosError(error, 'general');
-      }
-    },
-    enabled: false, // Manual trigger
-    retry: 2,
-  });
-
-  // Auth me query for getting user first_name
+  // ✅ 3. Gunakan 'token' dari state untuk mengaktifkan query
   const authMeQuery = useQuery({
     queryKey: ["authMe"],
     queryFn: async () => {
-      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
-      if (!token) {
-        throw new Error("No access token found");
-      }
-
+      if (!token) throw new Error("No token available");
       try {
         const response = await axios.get(secureUrl(`/v1/auth/me`), {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        // Save first_name to localStorage if available
-        if (response.data.first_name) {
-          localStorage.setItem("firstName", response.data.first_name);
-          setUserName(response.data.first_name);
+        const userData = response.data;
+        // Simpan data penting ke localStorage dan state
+        if (userData.first_name) {
+          localStorage.setItem("firstName", userData.first_name);
+          setUserName(userData.first_name);
         }
-
-        return response.data;
+        if (userData.id) {
+          localStorage.setItem("userId", userData.id);
+          setUserId(userData.id);
+        }
+        return userData;
       } catch (error: unknown) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 401) {
-          // Clear all user data on auth expiration
-          clearAllUserData();
-          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
-        }
-        throw error;
+        handleAuthError(error);
       }
     },
-    enabled: false, // Manual trigger
-    retry: 2,
+    enabled: !!token, // Query ini hanya aktif jika ada token di state
+    retry: 1,
+    staleTime: 1000 * 60 * 5, // Cache data selama 5 menit
+  });
+
+  const userProfileQuery = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      if (!token) throw new Error("No token available");
+      try {
+        const response = await axios.get<UserProfile>(secureUrl(`/v1/user-profile/user-info`), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+      } catch (error: unknown) {
+        handleAuthError(error);
+      }
+    },
+    enabled: !!token, // Aktifkan juga jika token ada
+    retry: 1,
   });
 
   // Analysis history query
   const analysisHistoryQuery = useQuery({
     queryKey: ["analysisHistory"],
     queryFn: async () => {
-      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
-      if (!token) {
-        throw new Error("No access token found");
-      }
-
+      if (!token) throw new Error("No token available");
       try {
-        const response = await axios.get(secureUrl(`/v1/user-profile/analysis-history`), {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+        const response = await axios.get<AnalysisHistoryResponse>(secureUrl(`/v1/user-profile/analysis-history`), {
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        return response.data as AnalysisHistoryResponse;
+        return response.data;
       } catch (error: unknown) {
-        const axiosError = error as { response?: { status?: number } };
-        if (axiosError.response?.status === 401) {
-          // Clear all user data on auth expiration
-          clearAllUserData();
-          throw new Error("Sesi Anda telah berakhir. Silakan login kembali.");
-        }
-        throw error;
+        handleAuthError(error);
       }
     },
     enabled: false, // Manual trigger
-    retry: 2,
+    retry: 1,
   });
 
-  // Logout mutation
+
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const token = localStorage.getItem("accessToken") || localStorage.getItem("userToken");
-      if (!token) {
-        throw new Error("No access token found");
-      }
-
-      const response = await axios.post(secureUrl(`/v1/auth/logout`), {}, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      if (!token) return; // Jika tidak ada token, tidak perlu panggil API
+      return axios.post(secureUrl(`/v1/auth/logout`), {}, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      return response.data;
     },
-    onSuccess: () => {
-      // Clear all user data
+    onSettled: () => {
+      // onSettled berjalan baik sukses maupun gagal
       clearAllUserData();
-
-      // Redirect to home page
       if (typeof window !== "undefined") {
-        window.location.href = "/";
-      }
-    },
-    onError: (error) => {
-      // Even if logout API fails, clear all local data and redirect
-      clearAllUserData();
-
-      if (typeof window !== "undefined") {
-        window.location.href = "/";
+        window.location.href = "/login"; // Redirect ke login setelah logout
       }
     },
   });
 
   return {
     // State
-    userName,
-    userId,
+    userName: userName || "",
+    userId: userId || "",
+    token,
+    isAuthenticated: !!token, // Flag yang berguna untuk UI
 
     // Queries
     userProfile: userProfileQuery.data,
     analysisHistory: analysisHistoryQuery.data?.items || [],
+
+    // Status
     isLoading: loginMutation.isPending || registerMutation.isPending || userProfileQuery.isLoading || analysisHistoryQuery.isLoading || logoutMutation.isPending,
     error: loginMutation.error?.message || registerMutation.error?.message || userProfileQuery.error?.message || analysisHistoryQuery.error?.message || logoutMutation.error?.message,
 
@@ -361,6 +273,7 @@ export const useUserData = () => {
       await Promise.all([
         userProfileQuery.refetch(),
         analysisHistoryQuery.refetch(),
+        authMeQuery.refetch(), // Also fetch auth me to ensure firstName is updated
       ]);
     },
   };

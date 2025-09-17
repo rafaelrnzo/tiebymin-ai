@@ -250,6 +250,9 @@ function HalamanKameraWajahContent() {
       } else if (capturedImageData) {
         setCapturedImage(capturedImageData);
       }
+
+      // Ensure loading state is reset when entering LOADING_UI
+      setIsApiLoading(false);
     }
   }, [appState]);
 
@@ -326,7 +329,10 @@ function HalamanKameraWajahContent() {
     if (capturedImage) {
       localStorage.setItem("capturedImage", capturedImage);
     }
-    setAppState("LOADING_UI");
+
+    if (appState !== "LOADING_UI") {
+      setAppState("LOADING_UI");
+    }
   };
 
   if (appState === "LOADING_UI") {
@@ -500,11 +506,19 @@ function HalamanKameraWajahContent() {
               </Button>
               <Button
                 onClick={handleAnalyze}
-                className="w-full py-3 px-4 bg-[#FFC6C6] text-[#323232] font-bold rounded-xl hover:bg-pink-300 flex items-center justify-center gap-2"
+                className={`w-full py-3 px-4 font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 ${
+                  isApiLoading
+                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                    : "bg-[#FFC6C6] text-[#323232] hover:bg-pink-300 cursor-pointer active:scale-95"
+                }`}
                 disabled={isApiLoading}
+                type="button"
               >
                 {isApiLoading ? (
-                  <Spinner />
+                  <>
+                    <Spinner />
+                    <span className="font-poppins">Memproses...</span>
+                  </>
                 ) : (
                   <>
                     <span className="font-poppins">Mulai Analisa</span>{" "}

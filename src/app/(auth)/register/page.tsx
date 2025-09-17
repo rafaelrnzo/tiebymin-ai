@@ -38,7 +38,7 @@ function RegisterPageContent() {
 
   // Handle OAuth redirect and initialize step from localStorage and URL parameters only once on component mount
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && typeof window !== "undefined") {
       try {
         // Handle OAuth redirect if user ends up on register page with token
         const urlParams = new URLSearchParams(window.location.search);
@@ -213,9 +213,16 @@ function RegisterPageContent() {
   };
 
   const handleGoogleSignup = () => {
-    // Directly redirect to the backend's Google OAuth endpoint
-    // This avoids CORS issues since it's not an AJAX request
     window.location.href = secureUrl("/v1/auth/google/login");
+  };
+
+  const parseFullName = (fullName: string) => {
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || "";
+
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+
+    return { firstName, lastName };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -232,14 +239,8 @@ function RegisterPageContent() {
     try {
       const uniqueGoogleId = generateUUID();
 
-      const nameParts = formData.fullName.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName =
-        nameParts.length > 1
-          ? nameParts.slice(1).join(" ")
-          : nameParts[0] || "";
+      const { firstName, lastName } = parseFullName(formData.fullName);
 
-      // Format and validate phone number using utility function
       const phoneValidation = validateIndonesianPhoneNumber(formData.phone);
 
       if (!phoneValidation.isValid) {

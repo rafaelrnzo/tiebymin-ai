@@ -12,6 +12,7 @@ import { StoryQRSection } from "./story-qr-section-story";
 import { StoryFaceShape } from "./story-faceshape-story";
 import { StoryColorTone } from "./story-colortone-story";
 import { StoryBodyShape } from "./story-bodyshape-story";
+import { decodeUrl } from "@/lib/urlUtils";
 
 const generateGimmickChartData = (
   mainShapeName: string
@@ -94,22 +95,20 @@ export default function StoryPoster({
   const [imageError, setImageError] = useState(false);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
 
-  // Helper function to ensure image has full URL
-  const ensureFullImageUrl = (imageUrl: string | null): string | null => {
+  // Helper function to validate image URL
+  const validateImageUrl = (imageUrl: string | null): string | null => {
     if (!imageUrl) return null;
 
-    // If already a full URL, return as is
-    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    try {
+      new URL(imageUrl); // Validate URL format
       return imageUrl;
+    } catch (error) {
+      return null;
     }
-
-    // If it's a relative path, prepend the base URL
-    const baseUrl =
-      "https://minecraft-server-tiebymin-minio.dgrttk.easypanel.host/";
-    return `${baseUrl}${
-      imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl
-    }`;
   };
+
+  // Decode the URL first to fix any duplication
+  const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
 
   // Function to fetch image with authentication
   const fetchImageWithAuth = async (imageUrl: string) => {
@@ -122,7 +121,6 @@ export default function StoryPoster({
         localStorage.getItem("userToken");
 
       if (!token) {
-        console.error("No authentication token found for image fetch");
         setImageError(true);
         setImageLoading(false);
         return;
@@ -135,7 +133,10 @@ export default function StoryPoster({
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
       }
 
       const blob = await response.blob();
@@ -143,15 +144,14 @@ export default function StoryPoster({
       setImageDataUrl(dataUrl);
       setImageLoading(false);
     } catch (error) {
-      console.error("Error fetching image with auth:", error);
       setImageError(true);
       setImageLoading(false);
     }
   };
 
   // Process the user photo URL
-  const processedUserPhotoUrl = userPhotoUrl
-    ? ensureFullImageUrl(userPhotoUrl)
+  const processedUserPhotoUrl = decodedUserPhotoUrl
+    ? validateImageUrl(decodedUserPhotoUrl)
     : null;
 
   // Fetch image with authentication when processedUserPhotoUrl changes

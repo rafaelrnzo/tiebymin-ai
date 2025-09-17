@@ -317,12 +317,10 @@ const MobileCardsSlider: React.FC = () => {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [currentSlide, isScrolling]);
 
-  // Progress percentage (0-100%)
   const progressPercentage = ((currentSlide + 1) / cards.length) * 100;
 
   return (
     <>
-      {/* Mobile Slider */}
       <div className="block lg:hidden">
         <div
           ref={sliderRef}
@@ -336,7 +334,6 @@ const MobileCardsSlider: React.FC = () => {
           ))}
         </div>
 
-        {/* Progress Bar Indicator */}
         <div className="px-4 mt-[40px] lg:mt-0">
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
@@ -371,7 +368,7 @@ const AnalysisDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="mt-12 sm:mt-16 lg:px-[80px]">
+    <div className="mt-12 sm:mt-16 lg:px-[90px]">
       <div className="flex flex-col gap-6 container mx-auto px-4">
         <MobileCardsSlider />
 
@@ -381,7 +378,7 @@ const AnalysisDashboard: React.FC = () => {
           </div>
           <RecommendationContainer />
         </div>
-        <hr className="mt-0 lg:mt-[60px] mb-0 lg:mb-[85px] lg:block hidden" />
+        <hr className="mt-0 lg:mt-[60px] mb-0 lg:mb-[85px] lg:block hidden mx-0 lg:mx-[10px]" />
       </div>
     </div>
   );

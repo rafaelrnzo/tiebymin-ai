@@ -1,30 +1,64 @@
 "use client";
 
-// React imports
-import { Suspense, useEffect, useState } from "react";
-
-// Next.js imports
+// React and Next.js imports
+import {
+  Suspense,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  memo,
+  ReactNode,
+} from "react";
 import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic"; // Import for Lazy Loading
 
 // UI Components
 import { Navbar } from "@/components/component-landing/navbar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AnimatePresence, motion } from "framer-motion";
 
-// Feature Components
-import AnalysisTabs from "@/components/sections/AnalysisTabs";
-import ProductRecommendationsSection from "@/components/sections/ProductRecommendationsSection";
-import UserProfileSection from "@/components/sections/UserProfileSection";
-import BodySection from "../../components/sections/BodySection";
-import CelebrityMatchSection from "../../components/sections/CelebrityMatchSection";
-import ColorToneSection from "../../components/sections/ColorToneSection";
-import ShapeSection from "../../components/sections/ShapeSection";
-import TipsSection from "../../components/sections/TipsSection";
+// Feature Components - Lazy load heavy components
+const AnalysisTabs = dynamic(
+  () => import("@/components/sections/AnalysisTabs")
+);
+const ProductRecommendationsSection = dynamic(
+  () => import("@/components/sections/ProductRecommendationsSection")
+);
+const UserProfileSection = dynamic(
+  () => import("@/components/sections/UserProfileSection")
+);
 
-// Modal Components
-import { ErrorModal } from "@/components/sections/error-modal";
-import FeedbackModal from "@/components/sections/feedback-modal";
-import { PaymentModal } from "@/components/sections/payment-modal";
+// Import tab components directly to prevent re-renders
+import ShapeSection from "@/components/sections/ShapeSection";
+import ColorToneSection from "@/components/sections/ColorToneSection";
+import BodySection from "@/components/sections/BodySection";
+import CelebrityMatchSection from "@/components/sections/CelebrityMatchSection";
+import TipsSection from "@/components/sections/TipsSection";
+
+// Separate component for tab content to isolate from progress updates
+const TabContentRenderer = memo(
+  ({ tabId, content }: { tabId: string; content: ReactNode }) => {
+    return content;
+  }
+);
+
+TabContentRenderer.displayName = "TabContentRenderer";
+
+const ErrorModal = dynamic(() =>
+  import("@/components/sections/error-modal").then((mod) => ({
+    default: mod.ErrorModal,
+  }))
+);
+const FeedbackModal = dynamic(() =>
+  import("@/components/sections/feedback-modal").then((mod) => ({
+    default: mod.default,
+  }))
+);
+const PaymentModal = dynamic(() =>
+  import("@/components/sections/payment-modal").then((mod) => ({
+    default: mod.PaymentModal,
+  }))
+);
 
 // Hooks
 import {
@@ -40,6 +74,33 @@ import { useUserData } from "@/hooks/useUserData";
 // Types and Constants
 import { analysisTabs } from "@/lib/mock-data";
 import { AnalysisResult } from "@/types/analysis";
+import TabAnimation from "./TabAnimation";
+
+// --- SKELETON COMPONENTS for <Suspense> ---
+// These are simple placeholders shown while data is loading.
+const UserProfileSkeleton = () => (
+  <div className="bg-gray-300 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl animate-pulse">
+    <div className="p-5">
+      <div className="w-full h-[200px] md:h-[200px] lg:h-[280px] bg-gray-400 rounded-xl mb-4"></div>
+      <div className="space-y-3">
+        <div className="h-8 bg-gray-400 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-400 rounded w-full"></div>
+        <div className="h-4 bg-gray-400 rounded w-2/3"></div>
+        <div className="flex gap-3 mt-4">
+          <div className="h-10 bg-gray-400 rounded-lg flex-1"></div>
+          <div className="h-10 bg-gray-400 rounded-lg flex-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const AnalysisContentSkeleton = () => (
+  <div className="w-full animate-pulse">
+    <div className="h-12 bg-gray-300 rounded-lg mb-4"></div>
+    <div className="h-96 bg-gray-300 rounded-lg"></div>
+  </div>
+);
 
 function BeautyAnalysisPageInner() {
   // UI State
@@ -94,22 +155,25 @@ function BeautyAnalysisPageInner() {
   }, [resultId]);
 
   // Custom hooks
-  const { userName, userId } = useUserData();
+  const { userName, userId, logout, fetchUserData } = useUserData();
   const { isAuthChecking } = useAuthCheck({
     redirectTo: "/register",
     autoRedirect: false, // Don't auto-redirect, let the component handle it
     fetchUserData: true,
   });
-  const { isGeneratingStory, handleDownloadStory } = useStoryHandler();
+  const { isGeneratingStory, storyProgress, handleDownloadStory } =
+    useStoryHandler();
 
-  // Logout function with localStorage clearing
-  const handleLogout = () => {
-    if (typeof window !== "undefined") {
-      // Clear all localStorage data
-      localStorage.clear();
-
-      // Redirect to login
-      window.location.href = "/login";
+  // Proper logout function using the hook
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      // Fallback: clear localStorage and redirect manually if API call fails
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
     }
   };
 
@@ -154,11 +218,37 @@ function BeautyAnalysisPageInner() {
     }
   }, [isOrderSuccess, orderId, paymentRedirectProcessed]);
 
-  // Clear URL parameters only after payment redirect has been fully processed
-  // This useEffect will be moved after useAnalysisData hook
+  // Clear URL parameters only after payment redirect has been fully processed (handled elsewhere)
 
-  // Payment and error handling
+  const {
+    data: analysisResult,
+    isLoading,
+    error: analysisError,
+    isError: analysisIsError,
+  } = useAnalysisData(isValidResultId && finalResultId ? finalResultId : null, {
+    onError: (err) => {
+      // Don't auto-show error modal here; handled in useEffect for better context (e.g., profile vs registration)
+      // Only show for cases with valid ID but fetch failed
+      if (finalResultId && isValidResultId && accessSource !== "profile") {
+        setErrorModalMessage(
+          err.message || "Terjadi kesalahan saat memuat data analisis"
+        );
+        setIsErrorModalOpen(true);
+      }
+    },
+  });
+
+  // Payment and error handling - consolidated after all hooks
   useEffect(() => {
+    // Defensive check to ensure variables are defined (prevents TDZ errors)
+    if (
+      typeof isAuthChecking === "undefined" ||
+      typeof analysisIsError === "undefined" ||
+      analysisError === undefined
+    ) {
+      return;
+    }
+
     if (!isAuthChecking) {
       // Handle order errors
       if (orderId && orderError) {
@@ -180,8 +270,25 @@ function BeautyAnalysisPageInner() {
         }
       }
 
-      // Show payment modal if no valid result and no order processing
-      if (!isValidResultId && !orderId) {
+      // Handle analysis fetch errors specifically for profile access
+      if (analysisIsError && accessSource === "profile" && analysisError) {
+        let errorMsg = "Analisis tidak dapat diakses. ";
+        if (analysisError.message?.includes("Akses ditolak")) {
+          errorMsg +=
+            "Pastikan Anda mengakses analisis milik Anda atau hubungi support jika Anda telah membayar.";
+        } else if (analysisError.message?.includes("tidak ditemukan")) {
+          errorMsg +=
+            "ID analisis tidak valid. Kembali ke profil dan pilih ulang.";
+        } else {
+          errorMsg += analysisError.message || "Terjadi kesalahan akses.";
+        }
+        setErrorModalMessage(errorMsg);
+        setIsErrorModalOpen(true);
+        return;
+      }
+
+      // Show payment modal only for registration flow (new users) with no valid result
+      if (!isValidResultId && !orderId && accessSource === "registration") {
         setNeedsPayment(true);
         setIsPaymentModalOpen(true);
       }
@@ -195,33 +302,25 @@ function BeautyAnalysisPageInner() {
     isOrderLoading,
     isOrderSuccess,
     orderData,
+    analysisIsError,
+    accessSource,
+    analysisError,
   ]);
 
-  const {
-    data: analysisResult,
-    isLoading,
-    error,
-    isError,
-  } = useAnalysisData(isValidResultId && finalResultId ? finalResultId : null, {
-    onError: (err) => {
-      // Only show error modal if we actually have a resultId to fetch
-      // This prevents error modals for new users who haven't completed analysis yet
-      if (finalResultId && isValidResultId) {
-        setErrorModalMessage(
-          err.message || "Terjadi kesalahan saat memuat data analisis"
-        );
-        setIsErrorModalOpen(true);
-      }
-    },
-  });
+  // Fetch user data when component mounts to ensure userName is updated
+  useEffect(() => {
+    if (!isAuthChecking && !isLoading) {
+      fetchUserData();
+    }
+  }, [isAuthChecking, isLoading, fetchUserData]);
 
   // Handle session expiration and authentication errors
   useEffect(() => {
-    if (!isAuthChecking && (error || orderError)) {
+    if (!isAuthChecking && (analysisError || orderError)) {
       // Check if it's an authentication error (401)
       const isAuthError =
-        (error as { response?: { status?: number } })?.response?.status ===
-          401 ||
+        (analysisError as { response?: { status?: number } })?.response
+          ?.status === 401 ||
         (orderError as { response?: { status?: number } })?.response?.status ===
           401;
 
@@ -231,7 +330,7 @@ function BeautyAnalysisPageInner() {
         return;
       }
     }
-  }, [isAuthChecking, error, orderError, handleLogout]);
+  }, [isAuthChecking, analysisError, orderError, handleLogout]);
 
   // Analysis data and mutations
   const { mutateAsync: createPayment, isPending: isPaymentProcessing } =
@@ -246,21 +345,32 @@ function BeautyAnalysisPageInner() {
 
   // Determine which image to use based on access source and availability
   const getDisplayImage = () => {
-    if (typeof window === "undefined") return userPhotoUrl;
+    if (typeof window === "undefined")
+      return analysisResult?.userPhotoUrl || null;
 
-    // For registration flow, try localStorage images first
+    // Jika alur registrasi, prioritaskan localStorage
     if (accessSource === "registration") {
       const capturedImage = localStorage.getItem("capturedImage");
       const uploadedImage = localStorage.getItem("uploadedImage");
-
-      // If we have localStorage images and no API image, use localStorage
-      if ((capturedImage || uploadedImage) && !userPhotoUrl) {
+      if (capturedImage || uploadedImage) {
         return capturedImage || uploadedImage;
       }
     }
 
-    // For other flows or if API image is available, use API image
-    return userPhotoUrl;
+    // Gunakan URL langsung dari API
+    const apiUrl = analysisResult?.userPhotoUrl;
+
+    // Validate URL before returning
+    if (apiUrl) {
+      try {
+        new URL(apiUrl); // This will throw if URL is invalid
+        return apiUrl;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    return null;
   };
 
   const displayImage = getDisplayImage();
@@ -275,7 +385,7 @@ function BeautyAnalysisPageInner() {
       typeof window !== "undefined" &&
       !isOrderLoading &&
       !isLoading &&
-      !isError &&
+      !analysisIsError &&
       orderAnalysisResultId &&
       userData &&
       !isAuthChecking
@@ -297,23 +407,19 @@ function BeautyAnalysisPageInner() {
     transactionStatus,
     isOrderLoading,
     isLoading,
-    isError,
+    analysisIsError,
     orderAnalysisResultId,
     userData,
     isAuthChecking,
   ]);
 
   // Product recommendations
-  const {
-    sortedProducts,
-    topProductScores,
-    recommendationFilter,
-    handleFilterChange,
-  } = useProductRecommendations(
-    finalResultId,
-    rawAnalysisData?.body_shape_id?.toString(),
-    rawAnalysisData?.face_shape_id?.toString()
-  );
+  const { sortedProducts, recommendationFilter, handleFilterChange } =
+    useProductRecommendations(
+      finalResultId,
+      rawAnalysisData?.body_shape_id?.toString(),
+      rawAnalysisData?.face_shape_id?.toString()
+    );
 
   // Story generation handler - using existing hook
   const handleStoryDownload = () => {
@@ -355,7 +461,7 @@ function BeautyAnalysisPageInner() {
         berat_badan: parseFloat(analysisData.berat),
         umur: parseInt(analysisData.umur),
         body_shape_id: analysisData.body_shape_id,
-        amount: 10000,
+        amount: 9999,
         foto_wajah: imageBlob,
       });
 
@@ -425,13 +531,20 @@ function BeautyAnalysisPageInner() {
 
   useEffect(() => {
     setIsLockedModalOpen(false);
-  }, [resultId, isLoading, error, userData, userPhotoUrl, rawAnalysisData]);
+  }, [
+    resultId,
+    isLoading,
+    analysisError,
+    userData,
+    userPhotoUrl,
+    rawAnalysisData,
+  ]);
 
   // Data cleanup effects
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    if (!isLoading && !isError && userData && finalResultId) {
+    if (!isLoading && !analysisIsError && userData && finalResultId) {
       const clearDataTimer = setTimeout(() => {
         // Clear registration data
         localStorage.removeItem("registration-steps-progress");
@@ -457,7 +570,7 @@ function BeautyAnalysisPageInner() {
     }
   }, [
     isLoading,
-    isError,
+    analysisIsError,
     userData,
     finalResultId,
     orderId,
@@ -467,71 +580,95 @@ function BeautyAnalysisPageInner() {
     transactionStatus,
   ]);
 
-  const renderContent = (tabId: string) => {
+  // Memoize the tab content to prevent re-renders when progress updates
+  const memoizedTabContent = useMemo(() => {
     const analysisData = rawAnalysisData;
     if (!analysisData) return null;
 
-    const content = (() => {
-      switch (tabId) {
-        case "shape":
-          return (
-            <ShapeSection
-              shapeId={analysisData.face_shape_id?.toString() || "1"}
-            />
-          );
-        case "color":
-          return (
-            <ColorToneSection
-              colorAnalysisId={
-                analysisData.color_analysis_id?.toString() || "1"
-              }
-            />
-          );
-        case "body":
-          return (
-            <BodySection
-              bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
-              bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
-              bmiResult={{
-                value: userData?.bmi?.value || 0,
-              }}
-            />
-          );
-        case "celebrity":
-          return (
-            <CelebrityMatchSection
-              celebrityId={
-                analysisData.celebrity_id
-                  ? analysisData.celebrity_id.toString()
-                  : null
-              }
-            />
-          );
-        case "tips":
-          return (
-            <TipsSection
-              analysisData={{
-                ...analysisData,
-                face_shape_id: analysisData.face_shape_id?.toString() || "1",
-                color_analysis_id:
-                  analysisData.color_analysis_id?.toString() || "1",
-                body_shape_id: analysisData.body_shape_id?.toString() || "1",
-                bmi_category_id:
-                  analysisData.bmi_category_id?.toString() || "1",
-              }}
-            />
-          );
-        default:
-          return (
-            <ShapeSection
-              shapeId={analysisData.face_shape_id?.toString() || "1"}
-            />
-          );
-      }
-    })();
+    return {
+      shape: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <ShapeSection
+            shapeId={analysisData.face_shape_id?.toString() || "1"}
+          />
+        </Suspense>
+      ),
+      color: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <ColorToneSection
+            colorAnalysisId={analysisData.color_analysis_id?.toString() || "1"}
+          />
+        </Suspense>
+      ),
+      body: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <BodySection
+            bodyShapeId={analysisData.body_shape_id?.toString() || "1"}
+            bmiCategoryId={analysisData.bmi_category_id?.toString() || "1"}
+            bmiResult={{
+              value: userData?.bmi?.value || 0,
+            }}
+          />
+        </Suspense>
+      ),
+      celebrity: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <CelebrityMatchSection
+            celebrityId={
+              analysisData.celebrity_id
+                ? analysisData.celebrity_id.toString()
+                : null
+            }
+          />
+        </Suspense>
+      ),
+      tips: (
+        <Suspense
+          fallback={
+            <div className="animate-pulse h-64 bg-gray-200 rounded-lg"></div>
+          }
+        >
+          <TipsSection
+            analysisData={{
+              ...analysisData,
+              face_shape_id: analysisData.face_shape_id?.toString() || "1",
+              color_analysis_id:
+                analysisData.color_analysis_id?.toString() || "1",
+              body_shape_id: analysisData.body_shape_id?.toString() || "1",
+              bmi_category_id: analysisData.bmi_category_id?.toString() || "1",
+            }}
+          />
+        </Suspense>
+      ),
+    };
+  }, [rawAnalysisData, userData?.bmi?.value]);
 
-    return content;
-  };
+  const renderContent = useCallback(
+    (tabId: string) => {
+      if (!memoizedTabContent) return null;
+      const content =
+        memoizedTabContent[tabId as keyof typeof memoizedTabContent] ||
+        memoizedTabContent.shape;
+      return <TabContentRenderer key={tabId} tabId={tabId} content={content} />;
+    },
+    [memoizedTabContent]
+  );
 
   // Show loading while checking authentication
   if (isAuthChecking) {
@@ -545,91 +682,107 @@ function BeautyAnalysisPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
-      <Navbar />
+    <>
+      {/* Preload critical resources */}
+      {displayImage && (
+        <link
+          rel="preload"
+          href={displayImage}
+          as="image"
+          fetchPriority="high"
+        />
+      )}
+      <link
+        rel="preconnect"
+        href="//minecraft-server-tiebymin-minio.dgrttk.easypanel.host"
+        crossOrigin=""
+      />
 
-      <main className="w-full py-8 lg:py-4 pt-[80px] px-[20px] 2xl:container 2xl:mx-auto">
-        <div className="flex flex-col md:flex-col xl:flex-row w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
-          <UserProfileSection
-            userName={userName}
-            userPhotoUrl={displayImage}
-            resultId={finalResultId}
-            onDownloadStory={handleStoryDownload}
-            isGeneratingStory={isGeneratingStory}
-            accessSource={accessSource}
-          />
+      <div className="min-h-screen bg-[#f0f0f0] min-w-full w-full bg-repeat">
+        <Navbar />
 
-          <div
-            className={`w-full ${
-              needsPayment ? "blur-sm pointer-events-none" : ""
-            }`}
-          >
-            <AnalysisTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <main className="w-full py-8 lg:py-4 pt-[80px] px-[20px] 2xl:container 2xl:mx-auto">
+          <div className="flex flex-col md:flex-col xl:flex-row w-full mb-3 md:mb-6 lg:mb-10 gap-3 md:gap-6 xl:gap-[50px] mt-3 md:mt-6 lg:mt-[100px] xl:mt-[160px]">
+            {/* --- PERFORMANCE: Suspense for LCP Element --- */}
+            {/* The UI streams to the user. This skeleton appears instantly while the actual profile data loads. */}
+            {/* This drastically improves LCP and user experience. */}
+            <Suspense fallback={<UserProfileSkeleton />}>
+              <UserProfileSection
+                userName={userName}
+                userPhotoUrl={displayImage}
+                resultId={finalResultId}
+                onDownloadStory={handleStoryDownload}
+                isGeneratingStory={isGeneratingStory}
+                storyProgress={storyProgress}
+              />
+            </Suspense>
 
-            <div className="mt-[16px] lg:mt-[50px] relative overflow-hidden">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={activeTab}
-                  initial={{ x: "100%" }}
-                  animate={{ x: 0 }}
-                  exit={{ x: "-100%" }}
-                  transition={{
-                    type: "tween",
-                    ease: "easeInOut",
-                    duration: 0.3,
-                  }}
-                  className="w-full"
-                >
-                  {renderContent(analysisTabs[activeTab].id)}
-                </motion.div>
-              </AnimatePresence>
+            <div
+              className={`w-full ${
+                needsPayment ? "blur-sm pointer-events-none" : ""
+              }`}
+            >
+              {/* --- PERFORMANCE: Suspense for Analysis Content --- */}
+              <Suspense fallback={<AnalysisContentSkeleton />}>
+                {isLoading ? (
+                  <AnalysisContentSkeleton />
+                ) : (
+                  <div>
+                    <AnalysisTabs
+                      activeTab={activeTab}
+                      onTabChange={setActiveTab}
+                    />
+
+                    <div className="mt-[16px] lg:mt-[50px] relative overflow-hidden">
+                      <TabAnimation activeTab={activeTab}>
+                        {renderContent(analysisTabs[activeTab].id)}
+                      </TabAnimation>
+                    </div>
+                  </div>
+                )}
+              </Suspense>
             </div>
           </div>
-        </div>
 
-        <div className={needsPayment ? "blur-sm pointer-events-none" : ""}>
-          <ProductRecommendationsSection
-            sortedProducts={sortedProducts}
-            topProductScores={topProductScores}
-            recommendationFilter={recommendationFilter}
-            onFilterChange={handleFilterChange}
-          />
-        </div>
-      </main>
-      <FeedbackModal
-        isOpen={isFeedbackModalOpen}
-        onClose={() => setFeedbackModalOpen(false)}
-        userId={userId}
-        analysisResultId={finalResultId || ""}
-      />
-      <ErrorModal
-        isOpen={isErrorModalOpen}
-        onClose={() => setIsErrorModalOpen(false)}
-        errorMessage={errorModalMessage}
-      />
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        onProceedToPayment={handlePayment}
-        isProcessing={isPaymentProcessing}
-      />
-    </div>
+          {/* This can also be wrapped in Suspense if product loading is slow */}
+          <div className={needsPayment ? "blur-sm pointer-events-none" : ""}>
+            <ProductRecommendationsSection
+              sortedProducts={sortedProducts}
+              recommendationFilter={recommendationFilter}
+              onFilterChange={handleFilterChange}
+            />
+          </div>
+        </main>
+        <FeedbackModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => setFeedbackModalOpen(false)}
+          userId={userId}
+          analysisResultId={finalResultId || ""}
+        />
+        <ErrorModal
+          isOpen={isErrorModalOpen}
+          onClose={() => setIsErrorModalOpen(false)}
+          errorMessage={errorModalMessage}
+          onLogout={handleLogout}
+        />
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onProceedToPayment={handlePayment}
+          isProcessing={isPaymentProcessing}
+        />
+      </div>
+    </>
   );
 }
 
 export default function BeautyAnalysisPage() {
+  // The top-level Suspense remains a good pattern for the whole page.
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 p-8">
-          <Skeleton className="h-16 w-full mb-8" />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <Skeleton className="h-[700px] w-full rounded-3xl" />
-            <div className="lg:col-span-2 space-y-4">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-96 w-full" />
-            </div>
-          </div>
+        <div className="min-h-screen bg-gray-50">
+          <Skeleton className="h-screen w-full" />
         </div>
       }
     >

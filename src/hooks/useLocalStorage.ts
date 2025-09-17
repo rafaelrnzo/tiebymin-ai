@@ -1,58 +1,113 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useAnalysis } from "@/context/AnalysisContext";
+import { useState } from "react";
 
 export function useLocalStorage<T>(
   key: string,
   initialValue: T
 ): [T, (value: T | ((val: T) => T)) => void, () => void] {
-  // Get from local storage then parse stored json or return initialValue
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === "undefined") {
       return initialValue;
     }
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (!item) {
+        return initialValue;
+      }
+
+      if (typeof item !== 'string' || item.trim() === '') {
+        window.localStorage.removeItem(key);
+        return initialValue;
+      }
+
+      const parsed = JSON.parse(item);
+      return parsed;
     } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
+      try {
+        window.localStorage.removeItem(key);
+      } catch (clearError) {
+      }
+
       return initialValue;
     }
   });
 
-  // Return a wrapped version of useState's setter function that persists the new value to localStorage
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      // Allow value to be a function so we have the same API as useState
       const valueToStore = value instanceof Function ? value(storedValue) : value;
+
+      const serializedValue = JSON.stringify(valueToStore);
+
       setStoredValue(valueToStore);
 
-      // Save to local storage
       if (typeof window !== "undefined") {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        window.localStorage.setItem(key, serializedValue);
       }
     } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error);
     }
   };
 
-  // Function to clear the stored value
   const clearValue = () => {
     try {
       setStoredValue(initialValue);
+
       if (typeof window !== "undefined") {
         window.localStorage.removeItem(key);
       }
     } catch (error) {
-      console.error(`Error clearing localStorage key "${key}":`, error);
     }
   };
 
   return [storedValue, setValue, clearValue];
 }
 
-// Hook specifically for registration flow persistence
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function clearCorruptedLocalStorage() {
+  if (typeof window === "undefined") return;
+
+  const keysToCheck = [
+    "registration-current-step",
+    "registration-steps-progress",
+    "tiebymin-analysis-data",
+    "userToken",
+    "accessToken",
+    "userId",
+    "user_id",
+    "id",
+    "userEmail",
+    "firstName",
+    "lastName",
+    "analysisResultId",
+    "paymentOrderId",
+    "capturedImage",
+    "uploadedImage",
+    "uploadedFaceImage",
+    "feedbackSubmitted",
+    "feedbackDismissed",
+  ];
+
+  let clearedCount = 0;
+
+  keysToCheck.forEach(key => {
+    try {
+      const item = window.localStorage.getItem(key);
+      if (item) {
+        JSON.parse(item);
+      }
+    } catch (error) {
+      try {
+        window.localStorage.removeItem(key);
+        clearedCount++;
+      } catch (clearError) {
+      }
+    }
+  });
+
+  return clearedCount;
+}
+
 export function useRegistrationFlow() {
   const [currentStep, setCurrentStep, clearCurrentStep] = useLocalStorage(
     "registration-current-step",
@@ -64,7 +119,6 @@ export function useRegistrationFlow() {
     ""
   );
 
-  // Use AnalysisContext instead of managing localStorage directly
   const { analysisData, setAnalysisData } = useAnalysis();
 
   const clearAll = () => {
@@ -75,7 +129,6 @@ export function useRegistrationFlow() {
   return {
     currentStep,
     setCurrentStep,
-    // Use analysisData from context to avoid duplication
     formData: analysisData,
     setFormData: setAnalysisData,
     userId,

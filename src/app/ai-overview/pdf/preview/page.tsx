@@ -7,7 +7,6 @@ import { Conclusion } from "@/components/pdf-components/conclusion-pdf";
 import { Cover } from "@/components/pdf-components/cover-pdf";
 import { FaceShape } from "@/components/pdf-components/faceshape-pdf";
 import { ProductRecommendation } from "@/components/pdf-components/product-recommendation-pdf";
-import { EmailModal } from "@/components/sections/email-modal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAllTips } from "@/hooks/useAllTips";
@@ -16,14 +15,13 @@ import {
   useBodyShapeData,
   useCelebrityData,
   useColorToneData,
-  useDownloadPdf,
   useFaceShapeData,
 } from "@/hooks/useAnalysisData";
+import { useDownloadPdf } from "@/hooks/useDownloadPdf";
 import { defaultUserData } from "@/lib/mock-data";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
-
+import { Suspense, useMemo, useState, useEffect, useCallback } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface PdfPage {
@@ -38,6 +36,63 @@ function PreviewPdfPage() {
 
   const [currentPage, setCurrentPage] = useState(0);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const [connectionQuality, setConnectionQuality] = useState<
+    "fast" | "slow" | "unknown"
+  >("unknown");
+
+  // Enhanced download states
+  const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+
+  // Network quality detection dengan lebih detail
+  useEffect(() => {
+    if (typeof window !== "undefined" && "navigator" in window) {
+      // Define proper types for Network Information API
+      interface NetworkInformation extends EventTarget {
+        readonly effectiveType: string;
+        readonly downlink: number;
+        readonly rtt: number;
+        readonly type?: string;
+      }
+
+      interface NavigatorWithConnection extends Navigator {
+        connection?: NetworkInformation;
+        mozConnection?: NetworkInformation;
+        webkitConnection?: NetworkInformation;
+      }
+
+      const navigatorWithConnection = navigator as NavigatorWithConnection;
+      const connection =
+        navigatorWithConnection.connection ||
+        navigatorWithConnection.mozConnection ||
+        navigatorWithConnection.webkitConnection;
+
+      if (connection) {
+        const effectiveType = connection.effectiveType;
+        const downlink = connection.downlink || 0;
+
+        // Lebih akurat berdasarkan kecepatan
+        if (
+          effectiveType === "slow-2g" ||
+          effectiveType === "2g" ||
+          downlink < 1
+        ) {
+          setConnectionQuality("slow");
+        } else if (effectiveType === "3g" || downlink < 5) {
+          setConnectionQuality("slow");
+        } else {
+          setConnectionQuality("fast");
+        }
+      } else {
+        const isMobile =
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+          );
+        setConnectionQuality(isMobile ? "slow" : "fast");
+      }
+    }
+  }, []);
 
   const { data: analysisResult } = useAnalysisData(resultId);
   const {
@@ -82,38 +137,123 @@ function PreviewPdfPage() {
   } = useAllTips({ analysisData: rawAnalysisData, enabled: !!rawAnalysisData });
 
   const { mutateAsync: downloadPdf } = useDownloadPdf();
-  const [error, setError] = useState<string | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
-  const handleDownloadPDF = async () => {
+  // Define proper type for download result
+  interface DownloadResult {
+    data: Blob;
+    success?: boolean;
+    message?: string;
+  }
+
+  // Optimized download dengan progress tracking
+  const handleDownloadPDF = useCallback(async () => {
     if (!resultId) return;
 
     setIsDownloading(true);
-    try {
-      setError(null);
-      const result = await downloadPdf({ resultId });
+    setDownloadProgress(0);
+    setError(null);
 
-      if (result.data) {
-        const url = window.URL.createObjectURL(result.data);
+    try {
+      // Simulate progress untuk UX yang lebih baik
+      const progressInterval = setInterval(() => {
+        setDownloadProgress((prev) => {
+          if (prev >= 90) return prev;
+          return prev + Math.random() * 15;
+        });
+      }, 500);
+
+      // Pre-cache data jika belum ada
+      setDownloadProgress(20);
+
+      // Optimized API call dengan timeout
+      const timeoutDuration = connectionQuality === "slow" ? 60000 : 30000;
+      const downloadPromise = downloadPdf({ resultId });
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Download timeout")), timeoutDuration)
+      );
+
+      const result = (await Promise.race([
+        downloadPromise,
+        timeoutPromise,
+      ])) as DownloadResult;
+
+      clearInterval(progressInterval);
+      setDownloadProgress(100);
+
+      if (result && result.data) {
+        const blob = result.data;
+
+        // Optimized blob handling
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
         link.download = `hasil-analisa-lengkap-${Date.now()}.pdf`;
+        link.style.display = "none";
+
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+
+        // Cleanup
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 100);
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Terjadi kesalahan saat mendownload PDF";
+      setDownloadProgress(0);
+      let errorMessage = "Terjadi kesalahan saat mendownload PDF";
+
+      if (error instanceof Error) {
+        if (error.message.includes("timeout")) {
+          errorMessage =
+            connectionQuality === "slow"
+              ? "Download timeout. Silakan coba lagi dengan koneksi yang lebih stabil."
+              : "Download timeout. Silakan coba lagi.";
+        } else if (
+          error.message.includes("network") ||
+          error.message.includes("ERR_CONTENT_DECODING_FAILED")
+        ) {
+          errorMessage =
+            "Masalah koneksi atau encoding. Silakan cek internet dan coba lagi.";
+        } else if (error.message.includes("Invalid")) {
+          errorMessage = "File PDF tidak valid. Silakan coba lagi.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       setError(errorMessage);
+
+      // Auto clear error setelah 5 detik
+      setTimeout(() => setError(null), 5000);
     } finally {
       setIsDownloading(false);
+      setTimeout(() => setDownloadProgress(0), 2000);
     }
-  };
+  }, [resultId, downloadPdf, connectionQuality]);
+
+  // Preload kritik data untuk mempercepat
+  useEffect(() => {
+    if (resultId && analysisResult) {
+      // Preload semua data yang diperlukan
+      Promise.all([
+        bodyDetails,
+        colorToneDetails,
+        faceShapeDetails,
+        celebrityDetails,
+        tips,
+      ]).catch(console.warn);
+    }
+  }, [
+    resultId,
+    analysisResult,
+    bodyDetails,
+    colorToneDetails,
+    faceShapeDetails,
+    celebrityDetails,
+    tips,
+  ]);
 
   const pdfPages: PdfPage[] = useMemo(
     () => [
@@ -140,7 +280,11 @@ function PreviewPdfPage() {
       {
         id: "bodyShape",
         Component: (
-          <BodyShape userData={finalUserData} bodyDetails={bodyDetails} />
+          <BodyShape
+            userData={finalUserData}
+            bodyDetails={bodyDetails}
+            bmiCategoryDetails={undefined}
+          />
         ),
       },
       {
@@ -190,13 +334,42 @@ function PreviewPdfPage() {
     ]
   );
 
-  const goToNextPage = () => {
+  const goToNextPage = useCallback(() => {
     setCurrentPage((prev) => Math.min(prev + 1, pdfPages.length - 1));
-  };
+  }, [pdfPages.length]);
 
-  const goToPreviousPage = () => {
+  const goToPreviousPage = useCallback(() => {
     setCurrentPage((prev) => Math.max(prev - 1, 0));
-  };
+  }, []);
+
+  // Download button dengan state yang lebih baik
+  const renderDownloadButton = () => (
+    <Button
+      onClick={handleDownloadPDF}
+      className="bg-[#323232] hover:bg-[#404040] rounded-lg px-6 py-2.5 flex items-center justify-center gap-2 min-w-[140px]"
+      disabled={isDownloading}
+    >
+      {isDownloading ? (
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+            <span className="text-[#f0f0f0] font-poppins font-bold text-sm">
+              {downloadProgress > 0
+                ? `${Math.round(downloadProgress)}%`
+                : "Memproses..."}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <>
+          <Download className="text-[#f0f0f0] w-4 h-4" />
+          <span className="text-[#f0f0f0] font-poppins font-bold text-sm">
+            Download PDF
+          </span>
+        </>
+      )}
+    </Button>
+  );
 
   return (
     <div className="bg-[#F0F0F0] min-h-screen flex flex-col">
@@ -226,7 +399,13 @@ function PreviewPdfPage() {
               </div>
             ) : (
               <div className="h-full w-full flex items-center justify-center">
-                <div className="transform scale-[0.45] sm:scale-[0.5]">
+                <div
+                  className={`transform ${
+                    connectionQuality === "slow"
+                      ? "scale-[0.35] sm:scale-[0.4]"
+                      : "scale-[0.45] sm:scale-[0.5]"
+                  }`}
+                >
                   <div className="w-[680px] h-[1140px] shadow-lg rounded-lg overflow-hidden bg-[#f0f0f0]">
                     {pdfPages[currentPage].Component}
                   </div>
@@ -237,33 +416,11 @@ function PreviewPdfPage() {
 
           {isDesktop ? (
             <div className="bg-[#f0f0f0] p-4 flex gap-4 justify-start border-t border-gray-200">
-              <Button
-                onClick={handleDownloadPDF}
-                className="bg-[#323232] hover:bg-[#404040] rounded-lg px-8 py-3 flex items-center gap-2"
-                disabled={isDownloading}
-              >
-                <span className="text-[#f0f0f0] font-poppins font-bold">
-                  {isDownloading ? "Downloading..." : "Download PDF"}
-                </span>
-                {!isDownloading && (
-                  <ChevronRight className="text-[#f0f0f0] w-5 h-5" />
-                )}
-              </Button>
+              {renderDownloadButton()}
             </div>
           ) : (
             <div className="bg-[#f0f0f0] p-4 flex justify-between items-center border-t border-gray-200">
-              <Button
-                onClick={handleDownloadPDF}
-                className="bg-[#323232] hover:bg-[#404040] rounded-lg px-6 py-2.5 flex items-center justify-center gap-2"
-                disabled={isDownloading}
-              >
-                <span className="text-[#f0f0f0] font-poppins font-bold text-sm">
-                  {isDownloading ? "Downloading..." : "Download PDF"}
-                </span>
-                {!isDownloading && (
-                  <ChevronRight className="text-[#f0f0f0] w-4 h-4" />
-                )}
-              </Button>
+              {renderDownloadButton()}
 
               <div className="flex items-center gap-2">
                 <Button
@@ -289,13 +446,26 @@ function PreviewPdfPage() {
           )}
         </div>
 
-        <EmailModal
-          isOpen={isEmailModalOpen}
-          onClose={() => setIsEmailModalOpen(false)}
-        />
+        {/* Enhanced error handling */}
         {error && (
-          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg max-w-6xl w-full">
-            {error}
+          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg max-w-6xl w-full flex items-center justify-between">
+            <span>{error}</span>
+            <Button
+              onClick={() => setError(null)}
+              variant="ghost"
+              size="sm"
+              className="text-red-700 hover:bg-red-200"
+            >
+              ✕
+            </Button>
+          </div>
+        )}
+
+        {/* Connection quality indicator */}
+        {connectionQuality === "slow" && (
+          <div className="mt-2 p-2 bg-amber-100 border border-amber-400 text-amber-700 rounded-lg max-w-6xl w-full text-sm">
+            ⚠️ Koneksi lambat terdeteksi. Download mungkin membutuhkan waktu
+            lebih lama.
           </div>
         )}
       </div>

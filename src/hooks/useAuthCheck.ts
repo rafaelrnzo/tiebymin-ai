@@ -1,6 +1,48 @@
 import { useEffect, useState } from "react";
 import { useUserData } from "./useUserData";
 
+// Comprehensive localStorage clearing function for auth expiration
+const clearAllUserData = () => {
+  if (typeof window === "undefined") return;
+
+  // Clear all authentication tokens
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("userToken");
+
+  // Clear all user profile data
+  localStorage.removeItem("userId");
+  localStorage.removeItem("user_id");
+  localStorage.removeItem("id");
+  localStorage.removeItem("userEmail");
+  localStorage.removeItem("firstName");
+  localStorage.removeItem("lastName");
+
+  // Clear analysis data
+  localStorage.removeItem("analysisResultId");
+  localStorage.removeItem("tiebymin-analysis-data");
+
+  // Clear payment data
+  localStorage.removeItem("paymentOrderId");
+
+  // Clear image data
+  localStorage.removeItem("capturedImage");
+  localStorage.removeItem("uploadedImage");
+  localStorage.removeItem("uploadedFaceImage");
+
+  // Clear registration data
+  localStorage.removeItem("registration-steps-progress");
+  localStorage.removeItem("registration-current-step");
+
+  // Clear feedback data
+  localStorage.removeItem("feedbackSubmitted");
+  localStorage.removeItem("feedbackDismissed");
+
+  // Clear cookie
+  document.cookie = 'auth=; path=/; max-age=0; SameSite=Lax';
+
+  console.log("All user data cleared from localStorage due to session expiration");
+};
+
 interface UseAuthCheckOptions {
   redirectTo?: string;
   autoRedirect?: boolean;
@@ -35,11 +77,19 @@ export const useAuthCheck = (options: UseAuthCheckOptions = {}) => {
           !!(userToken && userToken.trim());
 
         if (!isLoggedIn) {
+          console.log("User not authenticated, clearing all data before redirect");
+
+          // Clear all localStorage data before redirect
+          clearAllUserData();
+
           setIsAuthenticated(false);
           setIsAuthChecking(false);
 
           if (autoRedirect) {
-            window.location.href = redirectTo;
+            // Small delay to ensure localStorage clearing completes
+            setTimeout(() => {
+              window.location.href = redirectTo;
+            }, 100);
           }
 
           onUnauthenticated?.();
@@ -62,9 +112,17 @@ export const useAuthCheck = (options: UseAuthCheckOptions = {}) => {
         onAuthenticated?.();
       } catch (error) {
         console.error("Auth check error:", error);
+
+        // Clear all data on auth check failure as well
+        console.log("Auth check failed, clearing all data before redirect");
+        clearAllUserData();
+
         setIsAuthenticated(false);
         if (autoRedirect) {
-          window.location.href = redirectTo;
+          // Small delay to ensure localStorage clearing completes
+          setTimeout(() => {
+            window.location.href = redirectTo;
+          }, 100);
         }
         onUnauthenticated?.();
       } finally {

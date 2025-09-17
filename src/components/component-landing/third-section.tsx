@@ -75,10 +75,10 @@ type Testimonial = {
 const testimonials: Testimonial[] = [
   {
     type: "image",
-    content: "/testi-1.webp",
+    content: "/testi.webp",
     hoverContent:
       '"Mantap Tiebymin beneran ngebantu nemuin hijab yang on-point buat aku. Nggak pake ribet, hasilnya cakep."',
-    author: "Lady Fortuna",
+    author: "Yasmin Salsabila",
     badgeType: "success",
   },
   {
@@ -106,10 +106,11 @@ const testimonials: Testimonial[] = [
     badgeType: "success",
   },
   {
-    type: "text",
-    content:
+    type: "image",
+    content: "/testi-1.webp",
+    hoverContent:
       '"Fitur analisis warna kulitnya itu game-changer! Aku baru sadar selama ini sering salah pilih warna. Sekarang penampilan jadi kelihatan lebih fresh dan cerah. Suka banget!"',
-    author: "Fitri Handayani",
+    author: "Lady Fortuna",
     badgeType: "highlight",
   },
 ];
@@ -226,7 +227,7 @@ export const ThirdSection = () => {
   };
 
   return (
-    <section id="testimoni" className="px-4 sm:px-10 lg:px-[100px]">
+    <section id="testimoni" className="px-4 sm:px-10 lg:px-[110px]">
       <div className="container mx-auto">
         <hr className="lg:mt-[100px] lg:mb-[80px] my-[70px]" />
 

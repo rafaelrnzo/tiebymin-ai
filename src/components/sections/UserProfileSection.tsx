@@ -2,15 +2,16 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { decodeUrl } from "@/lib/urlUtils";
 
 interface UserProfileSectionProps {
-  userName: string;
+  userName: string | null;
   userPhotoUrl: string | null;
   resultId: string | null;
   onDownloadStory: () => void;
   isGeneratingStory: boolean;
-  accessSource?: "registration" | "profile" | "payment";
+  storyProgress?: number;
 }
 
 const UserProfileSection: React.FC<UserProfileSectionProps> = ({
@@ -19,193 +20,170 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   resultId,
   onDownloadStory,
   isGeneratingStory,
-  accessSource = "registration",
+  storyProgress = 0,
 }) => {
   const router = useRouter();
-
-  // State for localStorage values
-  const [uploadImage, setUploadImage] = useState<string | null>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-
-  // State for image loading
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+  const [connectionQuality, setConnectionQuality] = useState<
+    "fast" | "slow" | "unknown"
+  >("unknown");
+  const [showFallback, setShowFallback] = useState(false);
 
+  const decodedUserPhotoUrl = userPhotoUrl ? decodeUrl(userPhotoUrl) : null;
+
+  const isBlobUrl = decodedUserPhotoUrl?.startsWith("blob:") ?? false;
+
+  const isValidUrl = decodedUserPhotoUrl
+    ? (() => {
+        try {
+          new URL(decodedUserPhotoUrl);
+          return true;
+        } catch (error) {
+          return false;
+        }
+      })()
+    : false;
+
+  // Network quality detection
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setUploadImage(localStorage.getItem("uploadedImage"));
-      setCapturedImage(localStorage.getItem("capturedImage"));
+    if (typeof window !== "undefined" && "navigator" in window) {
+      // Type-safe connection detection
+      const connection =
+        (
+          navigator as Navigator & {
+            connection?: { effectiveType: string };
+            mozConnection?: { effectiveType: string };
+            webkitConnection?: { effectiveType: string };
+          }
+        ).connection ||
+        (
+          navigator as Navigator & {
+            mozConnection?: { effectiveType: string };
+          }
+        ).mozConnection ||
+        (
+          navigator as Navigator & {
+            webkitConnection?: { effectiveType: string };
+          }
+        ).webkitConnection;
+
+      if (connection) {
+        const effectiveType = connection.effectiveType;
+        if (effectiveType === "slow-2g" || effectiveType === "2g") {
+          setConnectionQuality("slow");
+        } else if (effectiveType === "3g") {
+          setConnectionQuality("slow");
+        } else {
+          setConnectionQuality("fast");
+        }
+      } else {
+        // Fallback: measure connection by timing a small request
+        const img = document.createElement("img");
+        const startTime = Date.now();
+        img.onload = () => {
+          const loadTime = Date.now() - startTime;
+          setConnectionQuality(loadTime > 1000 ? "slow" : "fast");
+        };
+        img.src =
+          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+      }
     }
   }, []);
 
-  // Clear localStorage images when viewing results from API to prevent stale data
-  useEffect(() => {
-    if (resultId && userPhotoUrl && typeof window !== "undefined") {
-      // Clear localStorage images when we have API data
-      localStorage.removeItem("uploadedImage");
-      localStorage.removeItem("capturedImage");
-      setUploadImage(null);
-      setCapturedImage(null);
+  // Adaptive loading strategy based on connection
+  const getLoadingStrategy = () => {
+    if (connectionQuality === "slow") {
+      return "lazy";
     }
-  }, [resultId, userPhotoUrl]);
-
-  // Helper function to ensure image has full URL
-  const ensureFullImageUrl = (imageUrl: string | null): string | null => {
-    if (!imageUrl) return null;
-
-    // If already a full URL, return as is
-    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-      return imageUrl;
-    }
-
-    // If it's a relative path, prepend the base URL
-    const baseUrl =
-      "https://minecraft-server-tiebymin-minio.dgrttk.easypanel.host/";
-    return `${baseUrl}${
-      imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl
-    }`;
+    return "eager";
   };
 
-  // Function to fetch image with authentication
-  const fetchImageWithAuth = async (imageUrl: string) => {
-    try {
-      setImageLoading(true);
-      setImageError(false);
-
-      const token =
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("userToken");
-
-      if (!token) {
-        console.error("No authentication token found for image fetch");
-        setImageError(true);
-        setImageLoading(false);
-        return;
-      }
-
-      const response = await fetch(imageUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      const dataUrl = URL.createObjectURL(blob);
-      setImageDataUrl(dataUrl);
-      setImageLoading(false);
-    } catch (error) {
-      console.error("Error fetching image with auth:", error);
-      setImageError(true);
-      setImageLoading(false);
-    }
+  // Fallback image for poor connections
+  const getFallbackImage = () => {
+    return "/placeholder-user.jpg"; // Assume a local placeholder image exists or add one
   };
 
-  // Determine display image based on access source
-  let displayImage: string | null = null;
-
-  if (accessSource === "registration") {
-    // Registration flow: use localStorage images
-    const processedUploadImage = uploadImage
-      ? ensureFullImageUrl(uploadImage)
-      : null;
-    const processedCapturedImage = capturedImage
-      ? ensureFullImageUrl(capturedImage)
-      : null;
-    const processedUserPhotoUrl = userPhotoUrl
-      ? ensureFullImageUrl(userPhotoUrl)
-      : null;
-    displayImage =
-      processedUploadImage ||
-      processedCapturedImage ||
-      processedUserPhotoUrl ||
-      null;
-  } else if (accessSource === "payment") {
-    // Payment redirect: use API data, clear localStorage
-    displayImage = userPhotoUrl ? ensureFullImageUrl(userPhotoUrl) : null;
-  } else if (accessSource === "profile") {
-    // Profile navigation: use API data, don't use localStorage
-    displayImage = userPhotoUrl ? ensureFullImageUrl(userPhotoUrl) : null;
-  } else {
-    // Default fallback
-    if (resultId && userPhotoUrl) {
-      displayImage = ensureFullImageUrl(userPhotoUrl);
-    } else {
-      const processedUploadImage = uploadImage
-        ? ensureFullImageUrl(uploadImage)
-        : null;
-      const processedCapturedImage = capturedImage
-        ? ensureFullImageUrl(capturedImage)
-        : null;
-      const processedUserPhotoUrl = userPhotoUrl
-        ? ensureFullImageUrl(userPhotoUrl)
-        : null;
-      displayImage =
-        processedUploadImage ||
-        processedCapturedImage ||
-        processedUserPhotoUrl ||
-        null;
+  const getImageQuality = () => {
+    if (connectionQuality === "slow") {
+      return 50; // Lower quality for slow connections
     }
-  }
+    return 80; // Higher quality for fast connections
+  };
 
-  // Determine if we should show skeleton
-  const shouldShowSkeleton = (!displayImage && !imageDataUrl) || imageLoading;
-
-  // Fetch image with authentication when displayImage changes
+  // Preload fallback for slow connections
   useEffect(() => {
-    if (displayImage) {
-      fetchImageWithAuth(displayImage);
-    } else {
-      setImageDataUrl(null);
-      setImageLoading(false);
+    if (connectionQuality === "slow" && !imageLoaded && !imageError) {
+      const img = new window.Image();
+      img.src = "/placeholder-user.png"; // Simple local fallback
+      img.onload = () => setShowFallback(true);
     }
-  }, [displayImage]);
-
-  // Cleanup object URL to prevent memory leaks
-  useEffect(() => {
-    return () => {
-      if (imageDataUrl) {
-        URL.revokeObjectURL(imageDataUrl);
-      }
-    };
-  }, [imageDataUrl]);
+  }, [connectionQuality, imageLoaded, imageError]);
 
   return (
     <div className="bg-[#323232] 2xl:w-[550px] xl:w-[550px] md:w-full md:h-[250px] 2xl:h-[700px] xl:h-[700px] lg:h-full rounded-3xl p-5 text-[#f0f0f0] flex flex-col lg:flex-row md:flex-row items-center xl:flex-col gap-x-5 lg:mt-[60px] xl:mt-0">
       <div className="relative h-[200px] md:h-[200px] lg:h-[280px] w-full rounded-xl overflow-hidden">
-        {shouldShowSkeleton ? (
-          // Skeleton loading state
-          <div className="w-full h-full bg-gray-200 rounded-xl animate-pulse flex items-center justify-center">
-            <div className="text-gray-400 text-sm">Loading image...</div>
-          </div>
-        ) : (
-          // Actual image
+        {showFallback ? (
           <Image
-            src={imageDataUrl || displayImage!}
-            alt="Analysis Result"
+            src={getFallbackImage()}
+            alt="User Profile Fallback"
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 500px"
             className="object-cover rounded-xl"
-            loading="lazy"
-            unoptimized={true}
-            priority={false}
-            onLoad={() => setImageLoading(false)}
-            onError={() => {
-              setImageError(true);
-              setImageLoading(false);
-            }}
+            priority={connectionQuality === "fast"}
+            quality={connectionQuality === "slow" ? 30 : 80}
           />
+        ) : decodedUserPhotoUrl && (isBlobUrl || isValidUrl) ? (
+          isBlobUrl ? (
+            <Image
+              src={decodedUserPhotoUrl}
+              alt="Analysis Result"
+              fill
+              className="object-cover rounded-xl"
+              loading={getLoadingStrategy()}
+              onLoadingComplete={() => {
+                setImageLoaded(true);
+                setShowFallback(false);
+              }}
+              onError={() => {
+                setImageError(true);
+                setShowFallback(true);
+              }}
+              quality={getImageQuality()}
+            />
+          ) : (
+            <Image
+              key={decodedUserPhotoUrl}
+              src={decodedUserPhotoUrl}
+              alt="Analysis Result"
+              fill
+              className="object-cover rounded-xl"
+              loading={getLoadingStrategy()}
+              onLoadingComplete={() => {
+                setImageLoaded(true);
+                setShowFallback(false);
+              }}
+              onError={() => {
+                setImageError(true);
+                setShowFallback(true);
+              }}
+              quality={getImageQuality()}
+            />
+          )
+        ) : (
+          <div className="w-full h-full bg-gray-500 rounded-xl animate-pulse flex items-center justify-center">
+            <div className="text-white text-sm">
+              {connectionQuality === "slow"
+                ? "Loading image..."
+                : "No image available"}
+            </div>
+          </div>
         )}
       </div>
 
       {/* Content Section */}
       <div className="flex flex-col w-full justify-evenly gap-4 mt-4">
         <h2 className="w-full text-2xl sm:text-3xl lg:text-4xl font-handlee text-[#FFC6C6] italic leading-tight">
-          Hi {userName}, Ini Dia
+          Hi {userName || "Pengguna"}, Ini Dia
           <br />
           Hasil Analisa Kamu
         </h2>
@@ -217,18 +195,40 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
           <button
             onClick={onDownloadStory}
             disabled={!resultId || isGeneratingStory}
-            className="bg-[#f0f0f0] w-full text-xs sm:text-sm text-[#323232] px-3 py-2 rounded-lg xl:rounded-full flex items-center justify-center gap-4 lg:gap-1 not-last:transition hover:bg-gray-200 disabled:opacity-50"
+            className="bg-[#f0f0f0] w-full text-xs sm:text-sm text-[#323232] px-3 py-2 rounded-lg xl:rounded-full flex items-center justify-center gap-4 lg:gap-1 not-last:transition hover:bg-gray-200 disabled:opacity-50 relative"
           >
-            <Image
-              src="/overview-ai/icons/material-symbols_share.svg"
-              width={16}
-              height={16}
-              alt="Bagikan Hasil"
-              loading="lazy"
-            />
-            <span className="text-[12px] lg:text-[16px] font-poppins text-[#323232]">
-              Bagikan Hasil
-            </span>
+            {isGeneratingStory ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#323232] border-t-transparent" />
+                <span className="text-[12px] lg:text-[16px] font-poppins text-[#323232]">
+                  {storyProgress > 0
+                    ? `${Math.round(storyProgress)}%`
+                    : "Memproses..."}
+                </span>
+              </div>
+            ) : (
+              <>
+                <Image
+                  src="/overview-ai/icons/material-symbols_share.svg"
+                  width={16}
+                  height={16}
+                  alt="Bagikan Hasil"
+                />
+                <span className="text-[12px] lg:text-[16px] font-poppins text-[#323232]">
+                  Bagikan Hasil
+                </span>
+              </>
+            )}
+
+            {/* Progress bar overlay */}
+            {isGeneratingStory && storyProgress > 0 && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-300 rounded-b-lg overflow-hidden">
+                <div
+                  className="h-full bg-[#EF789B] transition-all duration-300 ease-out"
+                  style={{ width: `${storyProgress}%` }}
+                />
+              </div>
+            )}
           </button>
           <button
             onClick={() =>
@@ -242,7 +242,6 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({
               width={16}
               height={16}
               alt="Unduh Hasil"
-              loading="lazy"
             />
             <span className="text-[12px] lg:text-[16px] font-poppins text-[#323232]">
               Download Hasil
