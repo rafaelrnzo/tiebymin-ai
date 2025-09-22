@@ -116,9 +116,12 @@ export default function StoryPoster({
       setImageLoading(true);
       setImageError(false);
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get("token");
       const token =
         localStorage.getItem("accessToken") ||
-        localStorage.getItem("userToken");
+        localStorage.getItem("userToken") ||
+        urlToken;
 
       if (!token) {
         setImageError(true);
